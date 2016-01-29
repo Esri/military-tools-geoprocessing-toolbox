@@ -1,4 +1,4 @@
-![Image of repository-template](MilitaryAnalystGraphic.PNG)
+![Image of repository-template](MilitaryAnalystGraphic.png)
 
 # MilitaryAnalyst-Geoprocessing-Toolbox
 is a collection of models, scripts, and tools for use in ArcGIS for Desktop and ArcGIS Pro. This toolbox is one component that is a part of the Military Analyst Product. 
@@ -90,10 +90,12 @@ Please note that issues might be copied or transferred to other repositories as 
 ### Contact
 
 The primary Point of Contact (POC) for Issues/Contributions to this Repository is:
-* (Matt Funk)[https://github.com/mfunk]
+
+* [Matt Funk](https://github.com/mfunk)
 
 Secondary POC:
-* (Lyle Wright)[https://github.com/topowright]
+
+* [Lyle Wright](https://github.com/topowright)
 
 ## Contributing
 
