@@ -1,12 +1,51 @@
+![Image of repository-template](MilitaryAnalystGraphic.PNG)
+
 # MilitaryAnalyst-Geoprocessing-Toolbox
 is a collection of models, scripts, and tools for use in ArcGIS for Desktop and ArcGIS Pro. This toolbox is one component that is a part of the Military Analyst Product. 
 
-![Image of repository-template](ScreenShot.PNG)
-
 ## Features
 
+This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to import geometry from tables, determine ranges, and basic visibility analysis.
+
+### Contents
 * [toolboxes]
-* TBD 2
+	* Military Analyst Tools.tbx
+		* Conversion
+			* Convert Coordinates
+			* Table To 2-Point Line
+			* Table To Ellipse
+			* Table To Line Of Bearing
+			* Table To Point
+			* Table To Polygon
+			* Table To Polyline
+		* Geodesy and Range
+			* Range Rings
+		* Source Scripts
+			* Add Unique Row ID
+			* Polyline To Polygon
+			* sourceCC
+			* sourceRR
+	* [scripts]
+		* AddUniqueRowID.py
+		* ConvertCoordinates.py
+		* PolylineToPolygon.py
+		* RangeRings.py
+	* [layers]
+		* RangeRadials.lyr
+		* RangeRings.lyr
+* [testdata]
+	* [MATestData.gdb]
+		* ellipsewizard - preliminary test data - DO NOT DISTRIBUTE
+		* linewizard- preliminary test data - DO NOT DISTRIBUTE
+		* lobwizard- preliminary test data - DO NOT DISTRIBUTE
+		* pointwizard- preliminary test data - DO NOT DISTRIBUTE
+		* sampleRangePoints- preliminary test data - DO NOT DISTRIBUTE
+		* SigActs- preliminary test data - DO NOT DISTRIBUTE
+	* ellipsewizard.csv - preliminary test data - DO NOT DISTRIBUTE
+	* linewizard.csv - preliminary test data - DO NOT DISTRIBUTE
+	* lobwizard.csv - preliminary test data - DO NOT DISTRIBUTE
+	* pointwizard.csv - preliminary test data - DO NOT DISTRIBUTE
+	* SigActs.csv - preliminary test data - DO NOT DISTRIBUTE
 
 ## Sections
 
@@ -26,7 +65,16 @@ is a collection of models, scripts, and tools for use in ArcGIS for Desktop and 
 
 * [New to Github? Get started here.](http://htmlpreview.github.com/?https://github.com/Esri/esri.github.com/blob/master/help/esri-getting-to-know-github.html)
 
-### Working with the tools
+### Testing the tools
+In this case testing is to take the tools from the repository and report success and failure (log issues) without modifying the tools, or modifying the source code.
+
+1. Click the **Download Zip** button.
+2. Extract the ZIP tools to a working folder
+3. Use the included [testdata] to manually test each tool
+4. Log [issues](https://github.com/ArcGIS/MilitaryAnalyst-Geoprocessing-Toolbox/issues) for any problems found (if they haven't been logged already)
+
+### Building the tools
+Building the tools means modifying existing tools or adding new tools. In this case you should be familiar with GitHub and creating geoprocessing tools.
 
 1. Fork the "dev" branch.
 2. Clone it to your local machine
