@@ -76,18 +76,30 @@ In this case testing is to take the tools from the repository and report success
 ### Building the tools
 Building the tools means modifying existing tools or adding new tools. In this case you should be familiar with GitHub and creating geoprocessing tools.
 
-1. Fork the "dev" branch.
+1. Create a new branch from "master" branch:
+	* Include your initials in the branch name, eg. *"mf-new-viz-tool"*
 2. Clone it to your local machine
 3. Make your changes locally
 4. Commit your changes and Sync with your remote
-5. Create a Pull Request to have your updates merged to "dev"
+5. Create a Pull Request to have your updates merged to "master"
 
 ## Issues
 
-Find a bug or want to request a new feature?  Please let us know by submitting an [issue]().
+Find a bug or want to request a new feature?  Please let us know by submitting an [issue](https://github.com/ArcGIS/MilitaryAnalyst-Geoprocessing-Toolbox/issues).
 Please note that issues might be copied or transferred to other repositories as needed.
 
-### Contact
+1. Use a concise, one-line title
+2. The Description should include:
+	* A *detailed* description of what the problem or question is, what was expected, what differed.
+	* A *numbered* list of steps to reproduce the problem (don't assume the person fixing the issue will know how)
+	* Screenshots (if necessary) or blocks of script/code
+4. Add labels:
+	* Add the gray label **"-1 - Add To Backlog"**
+	* Add one label from the red/pink **"B"** category (eg. "B - Bug")
+	* Add one label from the green **"F"** category (eg. "F - Geodesy")
+	* Add one label from the purple **"V"** category (eg. "V - 10.3.1")
+
+## Contact
 
 The primary Point of Contact (POC) for Issues/Contributions to this Repository is:
 
