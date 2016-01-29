@@ -5,66 +5,61 @@ is a collection of models, scripts, and tools for use in ArcGIS for Desktop and 
 
 ## Features
 
-* TBD 1
+* [toolboxes]
 * TBD 2
 
 ## Sections
 
 * [Requirements](#requirements)
 * [Instructions](#instructions)
-* [Resources](#resources)
 * [Issues](#issues)
+* [Contact](#contact)
 * [Contributing](#contributing)
+* [Resources](#resources)
 * [Licensing](#licensing)
 
 ## Requirements
 
 * ArcGIS Desktop 10.3.1
-* {A}
-* {B}
-* {C}
 
 ## Instructions
 
-### General Help
-
 * [New to Github? Get started here.](http://htmlpreview.github.com/?https://github.com/Esri/esri.github.com/blob/master/help/esri-getting-to-know-github.html)
 
-### Getting Started
+### Working with the tools
 
-* Building
-   
-* Running
-
-* Testing
-
-* Deploying
-
-### Services
-
-* List Dependent Services
-
-## Resources
-
-* Learn more about TBD
+1. Fork the "dev" branch.
+2. Clone it to your local machine
+3. Make your changes locally
+4. Commit your changes and Sync with your remote
+5. Create a Pull Request to have your updates merged to "dev"
 
 ## Issues
 
-Find a bug or want to request a new feature?  Please let us know by submitting an issue.
+Find a bug or want to request a new feature?  Please let us know by submitting an [issue]().
+Please note that issues might be copied or transferred to other repositories as needed.
 
-### Primary Point of Contact
+### Contact
 
-The primary Point of Contact (POC) for Issues/Contributions to this Repository is: {Github Account Link} 
+The primary Point of Contact (POC) for Issues/Contributions to this Repository is:
+* (Matt Funk)[https://github.com/mfunk]
+
+Secondary POC:
+* (Lyle Wright)[https://github.com/topowright]
 
 ## Contributing
 
 Esri welcomes contributions from anyone and everyone. Please see our [guidelines for contributing](https://github.com/esri/contributing).
 
-1. Fork the "DEV" branch.
-2. Clone it to your local machine
-3. Make your changes locally
-4. Commit your changes and Sync with your remote
-5. Create a Pull Request to have your updates merged to "DEV"
+## Resources
+
+* [Solution's Guide to Creating Geoprocessing Tools](https://github.com/ArcGIS/Solutions-Resources/blob/master/Python/Style/SolutionsGuideToCreatingGeoprocessingTools.md)
+
+### Related repositories
+* [solutions-geoprocessing-toolbox](https://github.com/Esri/solutions-geoprocessing-toolbox)
+* [solutions-webappbuilder-widgets](https://github.com/Esri/solutions-webappbuilder-widgets)
+* [coordinate-tool-addin-dotnet](https://github.com/Esri/coordinate-tool-addin-dotnet)
+* [geodesy-and-range-addin-dotnet](https://github.com/ArcGIS/geodesy-and-range-addin-dotnet)
 
 ## Licensing
 
