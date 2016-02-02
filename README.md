@@ -26,6 +26,10 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 			* sourceCC
 			* sourceRLOSscript
 			* sourceRR
+		* Terrain
+			* Find Local Peaks
+			* Highest Points
+			* Lowest Point
 		* Visibility
 			* Linear Line Of Sight
 			* Radial Line Of Sight
@@ -36,7 +40,9 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 		* RangeRings.py
 		* RLOS.py
 	* [layers]
+		* Highest Point Output.lyr
 		* Linear Line of Sight Output.lyr
+		* Lowest Point Output.lyr
 		* Radial Line Of Sight Output.lyr
 		* RangeRadials.lyr
 		* RangeRings.lyr
