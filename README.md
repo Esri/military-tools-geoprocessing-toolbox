@@ -26,6 +26,10 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 			* sourceCC
 			* sourceRLOSscript
 			* sourceRR
+		* Terrain
+			* Find Local Peaks
+			* Highest Points
+			* Lowest Point
 		* Visibility
 			* Linear Line Of Sight
 			* Radial Line Of Sight
@@ -36,7 +40,9 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 		* RangeRings.py
 		* RLOS.py
 	* [layers]
+		* Highest Point Output.lyr
 		* Linear Line of Sight Output.lyr
+		* Lowest Point Output.lyr
 		* Radial Line Of Sight Output.lyr
 		* RangeRadials.lyr
 		* RangeRings.lyr
@@ -99,8 +105,9 @@ Please note that issues might be copied or transferred to other repositories as 
 1. Use a concise, one-line title
 2. The Description should include:
 	* A *detailed* description of what the problem or question is, what was expected, what differed.
-	* A *numbered* list of steps to reproduce the problem (don't assume the person fixing the issue will know how)
-	* Screenshots (if necessary) or blocks of script/code
+	* A *numbered* list of steps to reproduce the problem (don't assume the person fixing the issue will know how to reproduce the problem)
+	* Screenshots are helpful
+	* blocks of script/code (if necessary)
 4. Add labels:
 	* Add the gray label **"-1 - Add To Backlog"**
 	* Add one label from the red/pink **"B"** category (eg. "B - Bug")
