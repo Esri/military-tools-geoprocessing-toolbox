@@ -24,17 +24,25 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 			* Add Unique Row ID
 			* Polyline To Polygon
 			* sourceCC
+			* sourceRLOSscript
 			* sourceRR
+		* Visibility
+			* Linear Line Of Sight
+			* Radial Line Of Sight
 	* [scripts]
 		* AddUniqueRowID.py
 		* ConvertCoordinates.py
 		* PolylineToPolygon.py
 		* RangeRings.py
+		* RLOS.py
 	* [layers]
+		* Linear Line of Sight Output.lyr
+		* Radial Line Of Sight Output.lyr
 		* RangeRadials.lyr
 		* RangeRings.lyr
 * [testdata]
 	* [MATestData.gdb]
+		* ElevationSurface -preliminary test data - DO NOT DISTRIBUTE		
 		* ellipsewizard - preliminary test data - DO NOT DISTRIBUTE
 		* linewizard- preliminary test data - DO NOT DISTRIBUTE
 		* lobwizard- preliminary test data - DO NOT DISTRIBUTE
