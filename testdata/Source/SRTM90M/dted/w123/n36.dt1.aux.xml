@@ -1,0 +1,46 @@
+<PAMDataset>
+  <Metadata>
+    <MDI key="DTED_VerticalAccuracy_UHL">0007</MDI>
+    <MDI key="DTED_VerticalAccuracy_ACC">0007</MDI>
+    <MDI key="DTED_SecurityCode_UHL">U  </MDI>
+    <MDI key="DTED_SecurityCode_DSI">U</MDI>
+    <MDI key="DTED_UniqueRef_UHL">G18 059     </MDI>
+    <MDI key="DTED_UniqueRef_DSI">G18 059        </MDI>
+    <MDI key="DTED_DataEdition">01</MDI>
+    <MDI key="DTED_MatchMergeVersion">A</MDI>
+    <MDI key="DTED_MaintenanceDate">0000</MDI>
+    <MDI key="DTED_MatchMergeDate">0000</MDI>
+    <MDI key="DTED_MaintenanceDescription">0000</MDI>
+    <MDI key="DTED_Producer">USCNIMA </MDI>
+    <MDI key="DTED_VerticalDatum">E96</MDI>
+    <MDI key="DTED_HorizontalDatum">WGS84</MDI>
+    <MDI key="DTED_DigitizingSystem">SRTM      </MDI>
+    <MDI key="DTED_CompilationDate">0002</MDI>
+    <MDI key="DTED_HorizontalAccuracy">0013</MDI>
+    <MDI key="DTED_RelHorizontalAccuracy">NA  </MDI>
+    <MDI key="DTED_RelVerticalAccuracy">0008</MDI>
+    <MDI key="DTED_OriginLatitude">0360000N</MDI>
+    <MDI key="DTED_OriginLongitude">1230000W</MDI>
+    <MDI key="AREA_OR_POINT">Point</MDI>
+  </Metadata>
+  <PAMRasterBand band="1">
+    <Histograms>
+      <HistItem>
+        <HistMin>-11</HistMin>
+        <HistMax>268</HistMax>
+        <BucketCount>256</BucketCount>
+        <IncludeOutOfRange>1</IncludeOutOfRange>
+        <Approximate>0</Approximate>
+        <HistCounts>2|0|0|1|1|5|4|3|3|12|357598|14|18|34|35|23|25|32|34|36|26|75|47|52|47|48|47|33|30|43|30|58|35|19|23|15|17|12|13|10|13|7|26|6|6|9|9|6|6|7|7|8|3|12|7|7|5|7|8|8|9|16|13|17|15|15|20|13|9|10|8|17|17|9|31|12|17|6|14|11|13|14|10|10|9|21|10|9|7|10|5|13|6|8|6|20|9|9|9|8|7|9|5|3|10|7|11|9|2|6|9|8|7|5|10|4|8|6|5|6|10|7|4|14|7|9|4|7|3|12|7|6|2|7|3|8|5|5|15|4|7|4|5|1|6|7|9|5|14|7|8|5|8|5|12|8|6|10|6|13|8|4|8|8|10|8|2|5|13|4|12|10|7|8|7|8|4|6|12|7|8|7|6|8|2|5|5|5|6|3|6|10|3|3|1|3|5|4|2|7|1|4|5|4|4|3|3|3|5|2|1|4|4|2|1|0|1|3|1|3|2|6|5|2|1|1|3|1|5|0|4|2|1|4|2|2|1|1|1|3|1|0|1|1|5|1|0|2|1|0|2|0|0|0|0|1</HistCounts>
+      </HistItem>
+    </Histograms>
+    <Metadata>
+      <MDI key="STATISTICS_MINIMUM">-11</MDI>
+      <MDI key="STATISTICS_MAXIMUM">268</MDI>
+      <MDI key="STATISTICS_MEAN">0.51764444444444</MDI>
+      <MDI key="STATISTICS_STDDEV">8.4083715927775</MDI>
+      <MDI key="STATISTICS_SKIPFACTORX">2</MDI>
+      <MDI key="STATISTICS_SKIPFACTORY">2</MDI>
+    </Metadata>
+  </PAMRasterBand>
+</PAMDataset>

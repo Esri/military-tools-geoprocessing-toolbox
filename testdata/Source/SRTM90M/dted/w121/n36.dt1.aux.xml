@@ -1,0 +1,50 @@
+<PAMDataset>
+  <Metadata>
+    <MDI key="AREA_OR_POINT">Point</MDI>
+    <MDI key="DTED_CompilationDate">0002</MDI>
+    <MDI key="DTED_DataEdition">99</MDI>
+    <MDI key="DTED_DigitizingSystem">SRTM      </MDI>
+    <MDI key="DTED_HorizontalAccuracy">0013</MDI>
+    <MDI key="DTED_HorizontalDatum">WGS84</MDI>
+    <MDI key="DTED_MaintenanceDate">0000</MDI>
+    <MDI key="DTED_MaintenanceDescription">0000</MDI>
+    <MDI key="DTED_MatchMergeDate">0000</MDI>
+    <MDI key="DTED_MatchMergeVersion">A</MDI>
+    <MDI key="DTED_NimaDesignator">DTED1</MDI>
+    <MDI key="DTED_OriginLatitude">0360000N</MDI>
+    <MDI key="DTED_OriginLongitude">1210000W</MDI>
+    <MDI key="DTED_Producer">USCNIMA </MDI>
+    <MDI key="DTED_RelHorizontalAccuracy">NA  </MDI>
+    <MDI key="DTED_RelVerticalAccuracy">0005</MDI>
+    <MDI key="DTED_SecurityCode_DSI">U</MDI>
+    <MDI key="DTED_SecurityCode_UHL">U  </MDI>
+    <MDI key="DTED_UniqueRef_DSI">G18 061        </MDI>
+    <MDI key="DTED_UniqueRef_UHL">G18 061     </MDI>
+    <MDI key="DTED_VerticalAccuracy_ACC">0005</MDI>
+    <MDI key="DTED_VerticalAccuracy_UHL">0005</MDI>
+    <MDI key="DTED_VerticalDatum">E96</MDI>
+  </Metadata>
+  <Metadata domain="Esri">
+    <MDI key="PyramidResamplingType">NEAREST</MDI>
+  </Metadata>
+  <PAMRasterBand band="1">
+    <Histograms>
+      <HistItem>
+        <HistMin>21</HistMin>
+        <HistMax>1592</HistMax>
+        <BucketCount>256</BucketCount>
+        <IncludeOutOfRange>1</IncludeOutOfRange>
+        <Approximate>0</Approximate>
+        <HistCounts>22|1761|5878|9395|19460|22241|23150|15225|13252|11582|9302|6735|5566|4593|3910|3707|3250|3070|3291|2588|2339|2063|1969|1847|2329|2249|2117|2068|1909|1820|1824|1928|1677|1686|1734|1938|1894|2228|1763|1758|1634|1644|1638|1961|1643|1715|1594|1679|1592|1804|1542|1588|1463|1492|1479|1760|1490|1489|1543|1598|1538|1541|1820|1596|1499|1484|1555|1492|1749|1408|1416|1384|1422|1352|1544|1327|1336|1301|1326|1343|1541|1253|1340|1302|1202|1279|1287|1469|1237|1268|1315|1221|1240|1513|1234|1190|1189|1105|1166|1347|1148|1092|1060|1090|1043|1215|1055|1005|1041|993|1067|1084|1025|952|884|1066|981|948|1088|971|1005|928|949|951|1128|948|998|892|856|872|1110|879|798|806|860|804|873|754|769|762|723|752|741|842|712|725|692|654|685|770|689|618|599|613|617|630|612|487|532|540|492|551|470|458|452|422|397|448|361|373|335|301|278|319|353|278|228|243|237|205|236|205|192|187|173|145|205|139|133|170|164|148|160|142|142|130|121|130|132|136|117|116|128|112|95|121|129|102|118|105|86|124|109|110|106|86|96|81|76|85|69|68|62|86|48|38|68|55|52|39|56|40|38|36|17|20|24|10|10|16|9|5|9|11|8|5|2|0|2|5|2|3|0|0|1|1</HistCounts>
+      </HistItem>
+    </Histograms>
+    <Metadata>
+      <MDI key="STATISTICS_MAXIMUM">1592</MDI>
+      <MDI key="STATISTICS_MEAN">321.59147249353</MDI>
+      <MDI key="STATISTICS_MINIMUM">21</MDI>
+      <MDI key="STATISTICS_SKIPFACTORX">2</MDI>
+      <MDI key="STATISTICS_SKIPFACTORY">2</MDI>
+      <MDI key="STATISTICS_STDDEV">313.75879047634</MDI>
+    </Metadata>
+  </PAMRasterBand>
+</PAMDataset>
