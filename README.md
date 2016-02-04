@@ -48,13 +48,26 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 		* RangeRings.lyr
 * [testdata]
 	* [MATestData.gdb]
-		* ElevationSurface -preliminary test data - DO NOT DISTRIBUTE		
+		* ElevationSurface		
 		* ellipsewizard - preliminary test data - DO NOT DISTRIBUTE
 		* linewizard- preliminary test data - DO NOT DISTRIBUTE
 		* lobwizard- preliminary test data - DO NOT DISTRIBUTE
 		* pointwizard- preliminary test data - DO NOT DISTRIBUTE
 		* sampleRangePoints- preliminary test data - DO NOT DISTRIBUTE
 		* SigActs- preliminary test data - DO NOT DISTRIBUTE
+	* [Source]
+		* [SRTM30M]
+			* 36.dt2
+		* [SRTM90M]
+			* [dted]
+				* [w121]
+					* n35.dt1
+					* n36.dt1
+				* [w122]
+					* n35.dt1
+					* n36.dt1
+				* [w123]
+					* n36.dt1
 	* ellipsewizard.csv - preliminary test data - DO NOT DISTRIBUTE
 	* linewizard.csv - preliminary test data - DO NOT DISTRIBUTE
 	* lobwizard.csv - preliminary test data - DO NOT DISTRIBUTE
