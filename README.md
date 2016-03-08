@@ -1,7 +1,5 @@
-![Image of repository-template](MilitaryAnalystGraphic.png)
-
-# MilitaryAnalyst-Geoprocessing-Toolbox
-is a collection of models, scripts, and tools for use in ArcGIS for Desktop and ArcGIS Pro. This toolbox is one component that is a part of the Military Analyst Product. 
+# military-tools-geoprocessing-toolbox
+is a collection of models, scripts, and tools for use in ArcGIS for Desktop and ArcGIS Pro. This toolbox is one component that is a part of the Military Tools Product. 
 
 ## Features
 
@@ -98,7 +96,7 @@ In this case testing is to take the tools from the repository and report success
 1. Click the **Download Zip** button.
 2. Extract the ZIP tools to a working folder
 3. Use the included [testdata] to manually test each tool
-4. Log [issues](https://github.com/ArcGIS/MilitaryAnalyst-Geoprocessing-Toolbox/issues) for any problems found (if they haven't been logged already)
+4. Log [issues](https://github.com/ArcGIS/military-tools-geoprocessing-toolbox/issues) for any problems found (if they haven't been logged already)
 
 ### Building the tools
 Building the tools means modifying existing tools or adding new tools. In this case you should be familiar with GitHub and creating geoprocessing tools.
@@ -112,7 +110,7 @@ Building the tools means modifying existing tools or adding new tools. In this c
 
 ## Issues
 
-Find a bug or want to request a new feature?  Please let us know by submitting an [issue](https://github.com/ArcGIS/MilitaryAnalyst-Geoprocessing-Toolbox/issues).
+Find a bug or want to request a new feature?  Please let us know by submitting an [issue](https://github.com/ArcGIS/military-tools-geoprocessing-toolbox/issues).
 Please note that issues might be copied or transferred to other repositories as needed.
 
 1. Use a concise, one-line title
@@ -148,8 +146,8 @@ Esri welcomes contributions from anyone and everyone. Please see our [guidelines
 ### Related repositories
 * [solutions-geoprocessing-toolbox](https://github.com/Esri/solutions-geoprocessing-toolbox)
 * [solutions-webappbuilder-widgets](https://github.com/Esri/solutions-webappbuilder-widgets)
-* [coordinate-tool-addin-dotnet](https://github.com/Esri/coordinate-tool-addin-dotnet)
-* [geodesy-and-range-addin-dotnet](https://github.com/ArcGIS/geodesy-and-range-addin-dotnet)
+* [coordinate-conversion-addin-dotnet](https://github.com/Esri/coordinate-conversion-addin-dotnet)
+* [distance-direction-addin-dotnet](https://github.com/ArcGIS/distance-direction-addin-dotnet)
 
 ## Licensing
 
