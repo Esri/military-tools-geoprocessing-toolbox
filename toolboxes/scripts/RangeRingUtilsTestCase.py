@@ -34,22 +34,26 @@ import unittest
 import Configuration
 import RangeRingUtils
 
+srWebMerc = arcpy.SpatialReference(3857) #WGS_1984_Web_Mercator
+srWGS84 = arcpy.SpatialReference(4326) #GCS_WGS_1984
+srWAZED = arcpy.SpatialReference(54032) #World_Azimuthal_Equidistant
+
 class RangeRingUtilsTestCase(unittest.TestCase):
     ''' Test all methods and classes in RangeRingUtils.py '''
 
-    srWAZED = arcpy.SpatialReference(54032)
-
     def setUp(self):
         ''' setup for tests'''
-        if Configuration.DEBUG == True:
-            print("     RangeRingsUtilsTestCase.setUp")
+        #print("RangeRingsUtilsTestCase.setUp")
         self.OutputGDB = os.path.join(Configuration.currentPath, "data", "output.gdb")
         self.DataGDB = os.path.join(Configuration.currentPath, "data", "data.gdb")
 
         #create a temp point feature class
         ptCoords = [[0.0, 0.0], [10.0, 10.0], [3.0, 3.0], [5.5, 1.5]]
-        self.pointGeographic = arcpy.CreateFeatureClass_management("in_memory", "tempfc", "POINT")[0]
-        with arcpy.da.InsertCursor(fc, ["SHAPE@XY"]) as cursor:
+        tempfcPath = os.path.join("in_memory","tempfc")
+        if arcpy.Exists(tempfcPath):
+            arcpy.Delete_management(tempfcPath)
+        self.pointGeographic = arcpy.CreateFeatureclass_management(os.path.dirname(tempfcPath), os.path.basename(tempfcPath), "POINT", "#", "DISABLED", "DISABLED", srWGS84)[0]
+        with arcpy.da.InsertCursor(self.pointGeographic, ["SHAPE@XY"]) as cursor:
             for (x, y) in ptCoords:
                 cursor.insertRow([(x, y)])
         del cursor
@@ -58,68 +62,73 @@ class RangeRingUtilsTestCase(unittest.TestCase):
 
     def tearDown(self):
         ''' cleanup after tests'''
+        #print("RangeRingsUtilsTestCase.tearDown")
         del self.pointGeographic
         return
 
     # def test_rangeRingsFromList(self):
     #     ''' test case for RangeRingUtis.rangeRingsFromList method'''
+    #     print("RangeRingsUtilsTestCase.test_rangeRingsFromList")
     #     return
 
     # def test_rangeRingsFromMinMax(self):
     #     ''' test case for RangeRingUtis.rangeRingsFromMinMax method'''
+    #     print("RangeRingsUtilsTestCase.test_rangeRingsFromMinMax")
     #     return
 
     # def test_rangeRingsFromInterval(self):
     #     ''' test case for RangeRingUtis.rangeRingsFromInterval method'''
+    #     print("RangeRingsUtilsTestCase.test_rangeRingsFromInterval")
     #     return
 
-    def test_featureclassToPointGeometry(self):
-        ''' test internal class method '''
-        pg = RangeRingUtils._featureclassToPointGeometry(self.pointGeographic)
-        self.assertEqual(pg.pointCount, int(4))
-        return
 
     def test_RingMaker_init(self):
         ''' test class'''
+        print("RangeRingsUtilsTestCase.test_RingMaker_init")
         ringDistanceList = [10.0, 20.0, 30.0, 40.0]
         rm = RangeRingUtils.RingMaker(self.pointGeographic,
                                       ringDistanceList,
                                       "METERS",
-                                      self.srWAZED)
-        self.assertCountEqual(self, rm.ringCount, len(ringDistanceList))
-        self.assertCountEqual(self, rm.ringMin, 10.0)
-        self.assertCountEqual(self, rm.ringMax, 40.0)
+                                      srWAZED)
+        self.assertEquals(rm.ringCount, len(ringDistanceList))
+        self.assertEquals(rm.ringMin, 10.0)
+        self.assertEquals(rm.ringMax, 40.0)
         return
 
     def test_RingMaker_sortList_empty(self):
         ''' test RingMaker's internal _sortList method if it handles an empty list'''
-        outList = RangeRingUtils.RingMaker._sortList([])
-        self.assertIsNone(self, outList)
+        print("RangeRingsUtilsTestCase.test_RingMaker_sortList_emtpy")
+        outList = RangeRingUtils.RingMaker._sortList(self, [])
+        self.assertIsNone(outList)
         return
 
-    def test_RingMaker_sortedList_isSorted(self):
+    def test_RingMaker_sortList_isSorted(self):
         ''' test Ringmaker's internal _sortedList method if it sorts a list'''
+        print("RangeRingsUtilsTestCase.test_sortList_isSorted")
         l = [7, 5, 9, 3, 8, 1, 6, 2, 4, 0]
-        outList = RangeRingUtils.RingMaker._sortList([])
-        self.assertEqual(self, outList, sorted(l))
+        outList = RangeRingUtils.RingMaker._sortList(self, l)
+        self.assertEqual(outList, sorted(l))
         return
 
     def test_RingMaker_addFieldsToTable(self):
         ''' test RingMaker's internal _addFieldsToTable method'''
-        fc = arcpy.CreateFeatureClass_management("in_memory", "fcTestFields", "POINT")[0]
+        print("RangeRingsUtilsTestCase.test_RingMaker_addFieldsToTable")
+        fc = arcpy.CreateFeatureclass_management("in_memory", "fcTestFields", "POINT")[0]
         numFieldsBefore = len(arcpy.ListFields(fc))
-        numFieldsAfter = arcpy.ListFields(RangeRingUtils.RingMaker._addFieldsToTable(fc, {"a":"DOUBLE", "b":"TEXT"}))
-        self.assertCountEqual(self, numFieldsBefore, numFieldsAfter + 2)
+        numFieldsAfter = len(arcpy.ListFields(RangeRingUtils.RingMaker._addFieldsToTable(self, fc, {"a":"DOUBLE", "b":"TEXT"})))
+        self.assertEqual(numFieldsAfter, numFieldsBefore + 2)
         return
 
     def test_RingMaker_makeTempTable(self):
         ''' test RingMaker's internal method'''
-        tempTab = RangeRingUtils.RingMaker._makeTempTable("tempTab",{"a":"TEXT"})
-        self.assertTrue(self, arcpy.Exists(tempTab))
+        print("RangeRingsUtilsTestCase.test_RingMaker_makeTempTable")
+        tempTab = RangeRingUtils.RingMaker._makeTempTable(self, "tempTab", {"a":"TEXT"})
+        self.assertTrue(arcpy.Exists(tempTab))
         return
 
     def test_RingMaker_makeRingsFromDistances(self):
         ''' test RingMaker's internal method'''
+        print("RangeRingsUtilsTestCase.test_RingMaker_makeRingsFromDistances")
         ringDistanceList = [10.0, 20.0, 30.0, 40.0]
         ringCountEstimate = len(ringDistanceList) * arcpy.getCount(self.pointGeographic)[0]
         rm = RangeRingUtils.RingMaker(self.pointGeographic, ringDistanceList, "METERS", self.srWAZED)
@@ -130,10 +139,12 @@ class RangeRingUtilsTestCase(unittest.TestCase):
 
     # def test_RingMaker_makeRadials(self):
     #     ''' test RingMaker's internal method'''
+    #     print("RangeRingsUtilsTestCase.test_RingMaker_makeRadials")
     #     return
 
     def test_RingMaker_saveRingsAsFeatures(self):
         ''' test RingMaker's internal method'''
+        print("RangeRingsUtilsTestCase.test_RingMaker_saveRingsAsFeatures")
         ringDistanceList = [10.0, 20.0, 30.0, 40.0]
         ringCountEstimate = len(ringDistanceList) * arcpy.getCount(self.pointGeographic)[0]
         rm = RangeRingUtils.RingMaker(self.pointGeographic, ringDistanceList,

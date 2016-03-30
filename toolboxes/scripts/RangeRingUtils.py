@@ -58,8 +58,7 @@ use BearingDistanceToLine_management (in_table, outRadialFeatures,
 
 def rangeRingsFromList(centerFC, rangeList, distanceUnits, sr, outputRingFeatures):
     ''' Make range ring features from a center, and list of distances '''
-    center = _featureclassToPointGeometry(centerFC)
-    ringMaker = RingMaker(center, rangeList, distanceUnits, sr)
+    ringMaker = RingMaker(centerFC, rangeList, distanceUnits, sr)
     ringMaker.makeRingsFromDistances()
     ringMaker.saveRingsAsFeatures(outputRingFeatures)
     #ringMaker.makeRadials
@@ -83,15 +82,6 @@ def rangeRingsFromInterval(centerFC, numRings, distBetween, distanceUnits, sr, o
     # ringMaker.saveRingsAsFeatures(outputRingFeatures)
     return outputRingFeatures
 
-def _featureclassToPointGeometry(fc):
-    ''' convert a featureclass to PointGeometry '''
-    cursor = arcpy.da.SearchCursor(fc, ['Shape@XY'])
-    array = arcpy.Array()
-    for f in cursor:
-        point = arcpy.Point(f[0])
-        array.add(point)
-    pg = arcpy.PointGeometry(array)
-    return pg
 
 class RingMaker:
     '''
@@ -107,10 +97,16 @@ class RingMaker:
     '''
     #TODO: How to resolve SR of 'center' parameter to the 'sr' parameter?
 
-    def __init__(self, center, rangeList, distanceUnits, sr):
+    def __init__(self, center, inputRangeList, distanceUnits, sr):
         ''' initialize rings '''
-        self.center = center
-        self.rangeList = self._sortList(rangeList)
+        # project center to sr, and keep it as a Geometry object
+        originalGeom = arcpy.CopyFeatures_management(center, arcpy.Geometry())
+        newGeom = []
+        for g in originalGeom:
+            newGeom.append(g.projectAs(sr))
+        self.center = newGeom
+
+        self.rangeList = self._sortList(inputRangeList)
         if distanceUnits == None or distanceUnits == "#" or distanceUnits == "":
             self.distanceUnits = sr.linearUnitName
         else:
@@ -124,12 +120,12 @@ class RingMaker:
         self.ringMin = min(self.rangeList)
         self.ringMax = max(self.rangeList)
 
-    def _sortList(self, rangeList):
+    def _sortList(self, listToSort):
         ''' sort list of distances '''
-        if len(self.rangeList) == 0:
+        if len(listToSort) == 0:
             print("Empty distance list")
             return None
-        return sorted(rangeList)
+        return sorted(listToSort)
 
     def _addFieldsToTable(self, tab, fields):
         ''' add fields from dictionary: {'<fieldname>':'type'} '''

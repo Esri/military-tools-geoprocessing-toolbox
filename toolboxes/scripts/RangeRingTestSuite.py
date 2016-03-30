@@ -43,7 +43,8 @@ TestSuite = unittest.TestSuite()
 def runTestSuite():
     ''' collect all test suites before running them '''
     result = unittest.TestResult()
-    TestSuite.addTests(getRangeRingTestSuite())
+    tests = getRangeRingTestSuite()
+
     print("running " + str(TestSuite.countTestCases()) + " tests...")
     TestSuite.run(result)
     print("Test success: {0}".format(str(result.wasSuccessful())))
@@ -52,14 +53,19 @@ def runTestSuite():
 def getRangeRingTestSuite():
     ''' Range Rings test suite '''
 
-    testCaseList = ['test_featureclassToPointGeometry',
-                    'test_RingMaker_init',
+    # testCaseList = ['test_RingMaker_init',
+    #                 'test_RingMaker_sortList_empty',
+    #                 'test_RingMaker_sortList_isSorted',
+    #                 'test_RingMaker_addFieldsToTable',
+    #                 'test_RingMaker_makeTempTable',
+    #                 'test_RingMaker_makeRingsFromDistances',
+    #                 'test_RingMaker_saveRingsAsFeatures']
+
+    testCaseList = ['test_RingMaker_init',
                     'test_RingMaker_sortList_empty',
-                    'test_RingMaker_sortedList_isSorted',
-                    'test_RingMaker_addFieldsToTable',
-                    'test_RingMaker_makeTempTable',
-                    'test_RingMaker_makeRingsFromDistances',
-                    'test_RingMaker_saveRingsAsFeatures']
+                    'test_RingMaker_sortList_isSorted',
+                    'test_RingMaker_addFieldsToTable']
+
     addRangeRingUtilsTests(testCaseList)
     print("ALL TESTS ADDED")
     return TestSuite
