@@ -30,6 +30,7 @@ history:
 '''
 import os
 import arcpy
+
 acceptableDistanceUnits = ['METERS', 'KILOMETERS',
                            'MILE', 'NAUTICAL_MILES',
                            'FEET', 'US_SURVEY_FEET']
@@ -120,8 +121,8 @@ class RingMaker:
             self.sr = srDefault
         self.ringFeatures = None
         self.ringCount = len(self.rangeList)
-        self.ringMin = self.rangeList(0)
-        self.ringMax = self.rangeList(len(self.rangeList) - 1)
+        self.ringMin = min(self.rangeList)
+        self.ringMax = max(self.rangeList)
 
     def _sortList(self, rangeList):
         ''' sort list of distances '''
@@ -140,7 +141,8 @@ class RingMaker:
         tab = os.path.join("in_memory", "inTable")
         arcpy.CreateTable_management(os.path.dirname(tab),
                                      os.path.basename(tab))
-        tab = self._addFieldsToTable(tab, fields)
+        if not fields:
+            tab = self._addFieldsToTable(tab, fields)
         return tab
 
     def makeRingsFromDistances(self):
