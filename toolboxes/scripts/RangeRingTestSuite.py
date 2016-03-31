@@ -53,18 +53,16 @@ def runTestSuite():
 def getRangeRingTestSuite():
     ''' Range Rings test suite '''
 
-    # testCaseList = ['test_RingMaker_init',
-    #                 'test_RingMaker_sortList_empty',
-    #                 'test_RingMaker_sortList_isSorted',
-    #                 'test_RingMaker_addFieldsToTable',
-    #                 'test_RingMaker_makeTempTable',
-    #                 'test_RingMaker_makeRingsFromDistances',
-    #                 'test_RingMaker_saveRingsAsFeatures']
-
     testCaseList = ['test_RingMaker_init',
                     'test_RingMaker_sortList_empty',
                     'test_RingMaker_sortList_isSorted',
-                    'test_RingMaker_addFieldsToTable']
+                    'test_RingMaker_addFieldsToTable',
+                    'test_RingMaker_makeTempTable',
+                    'test_RingMaker_makeRingsFromDistances',
+                    'test_RingMaker_saveRingsAsFeatures',
+                    'test_RingMaker_makeRadials',
+                    'test_RingMaker_saveRadialsAsFeatures',
+                    'test_rangeRingsFromMinMax']
 
     addRangeRingUtilsTests(testCaseList)
     print("ALL TESTS ADDED")

@@ -37,6 +37,7 @@ import RangeRingUtils
 srWebMerc = arcpy.SpatialReference(3857) #WGS_1984_Web_Mercator
 srWGS84 = arcpy.SpatialReference(4326) #GCS_WGS_1984
 srWAZED = arcpy.SpatialReference(54032) #World_Azimuthal_Equidistant
+deleteme = []
 
 class RangeRingUtilsTestCase(unittest.TestCase):
     ''' Test all methods and classes in RangeRingUtils.py '''
@@ -44,12 +45,11 @@ class RangeRingUtilsTestCase(unittest.TestCase):
     def setUp(self):
         ''' setup for tests'''
         #print("RangeRingsUtilsTestCase.setUp")
-        self.OutputGDB = os.path.join(Configuration.currentPath, "data", "output.gdb")
-        self.DataGDB = os.path.join(Configuration.currentPath, "data", "data.gdb")
+        self.DataGDB = r"C:\Workspace\scratch\scratch.gdb"
 
         #create a temp point feature class
         ptCoords = [[0.0, 0.0], [10.0, 10.0], [3.0, 3.0], [5.5, 1.5]]
-        tempfcPath = os.path.join("in_memory","tempfc")
+        tempfcPath = os.path.join("in_memory", "tempfc")
         if arcpy.Exists(tempfcPath):
             arcpy.Delete_management(tempfcPath)
         self.pointGeographic = arcpy.CreateFeatureclass_management(os.path.dirname(tempfcPath), os.path.basename(tempfcPath), "POINT", "#", "DISABLED", "DISABLED", srWGS84)[0]
@@ -57,13 +57,16 @@ class RangeRingUtilsTestCase(unittest.TestCase):
             for (x, y) in ptCoords:
                 cursor.insertRow([(x, y)])
         del cursor
-
+        deleteme.append(self.pointGeographic)
         return
 
     def tearDown(self):
         ''' cleanup after tests'''
         #print("RangeRingsUtilsTestCase.tearDown")
         del self.pointGeographic
+        for i in deleteme:
+            if arcpy.Exists(i):
+                arcpy.Delete_management(i)
         return
 
     # def test_rangeRingsFromList(self):
@@ -115,42 +118,101 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         print("RangeRingsUtilsTestCase.test_RingMaker_addFieldsToTable")
         fc = arcpy.CreateFeatureclass_management("in_memory", "fcTestFields", "POINT")[0]
         numFieldsBefore = len(arcpy.ListFields(fc))
-        numFieldsAfter = len(arcpy.ListFields(RangeRingUtils.RingMaker._addFieldsToTable(self, fc, {"a":"DOUBLE", "b":"TEXT"})))
+
+        fields = {"a":"DOUBLE", "b":"TEXT"}
+        rm = RangeRingUtils.RingMaker(self.pointGeographic, [10.0, 20.0], "METERS", srWAZED)
+        newfc = rm._addFieldsToTable(fc, fields)
+        numFieldsAfter = len(list(arcpy.ListFields(newfc)))
+
         self.assertEqual(numFieldsAfter, numFieldsBefore + 2)
+        deleteme.append(fc)
         return
 
     def test_RingMaker_makeTempTable(self):
         ''' test RingMaker's internal method'''
         print("RangeRingsUtilsTestCase.test_RingMaker_makeTempTable")
-        tempTab = RangeRingUtils.RingMaker._makeTempTable(self, "tempTab", {"a":"TEXT"})
+        rm = RangeRingUtils.RingMaker(self.pointGeographic, [10.0, 20.0], "METERS", srWAZED)
+        tempTab = rm._makeTempTable("tempTab", {"a":"TEXT"})
         self.assertTrue(arcpy.Exists(tempTab))
+        deleteme.append(tempTab)
         return
 
     def test_RingMaker_makeRingsFromDistances(self):
         ''' test RingMaker's internal method'''
         print("RangeRingsUtilsTestCase.test_RingMaker_makeRingsFromDistances")
         ringDistanceList = [10.0, 20.0, 30.0, 40.0]
-        ringCountEstimate = len(ringDistanceList) * arcpy.getCount(self.pointGeographic)[0]
-        rm = RangeRingUtils.RingMaker(self.pointGeographic, ringDistanceList, "METERS", self.srWAZED)
-        rm.makeRingsFromDistances
+        ringCountEstimate = len(ringDistanceList) * int(arcpy.GetCount_management(self.pointGeographic).getOutput(0))
+        rm = RangeRingUtils.RingMaker(self.pointGeographic, ringDistanceList, "METERS", srWAZED)
+        rm.makeRingsFromDistances()
         ringCountActual = int(arcpy.GetCount_management(rm.ringFeatures).getOutput(0))
-        self.assertEqual(self, ringCountEstimate, ringCountActual)
+        self.assertEqual(ringCountEstimate, ringCountActual)
         return
 
-    # def test_RingMaker_makeRadials(self):
-    #     ''' test RingMaker's internal method'''
-    #     print("RangeRingsUtilsTestCase.test_RingMaker_makeRadials")
-    #     return
+    def test_RingMaker_makeRadials(self):
+        ''' test RingMaker's internal method'''
+        print("RangeRingsUtilsTestCase.test_RingMaker_makeRadials")
+        ringDistanceList = [10.0, 20.0, 30.0, 40.0]
+        rm = RangeRingUtils.RingMaker(self.pointGeographic, ringDistanceList,
+                                      "METERS", srWAZED)
+        radialsToMake = 8
+        radialCountEstimate = radialsToMake * int(arcpy.GetCount_management(self.pointGeographic).getOutput(0))
+        rm.makeRadials(radialsToMake)
+        radialCountActual = int(arcpy.GetCount_management(rm.radialFeatures).getOutput(0))
+        self.assertEqual(radialCountEstimate, radialCountActual)
+        return
 
     def test_RingMaker_saveRingsAsFeatures(self):
         ''' test RingMaker's internal method'''
         print("RangeRingsUtilsTestCase.test_RingMaker_saveRingsAsFeatures")
         ringDistanceList = [10.0, 20.0, 30.0, 40.0]
-        ringCountEstimate = len(ringDistanceList) * arcpy.getCount(self.pointGeographic)[0]
         rm = RangeRingUtils.RingMaker(self.pointGeographic, ringDistanceList,
-                                      "METERS", self.srWAZED)
+                                      "METERS", srWAZED)
         rm.makeRingsFromDistances()
-        ringFeatures = rm.saveRingsAsFeatures(os.path.join("in_memory", "tempRings"))
-        self.assertTrue(self, arcpy.Exists(ringFeatures))
+        ringFeatures = rm.saveRingsAsFeatures(os.path.join(self.DataGDB, "tempRings"))
+        self.assertTrue(arcpy.Exists(ringFeatures))
+        deleteme.append(ringFeatures)
         return
 
+    def test_RingMaker_saveRadialsAsFeatures(self):
+        ''' test saving raidal features to feature class'''
+        print("RangeRingsUtilsTestCase.test_RingMaker_saveRadialsAsFeatures")
+        ringDistanceList = [10.0, 20.0, 30.0, 40.0]
+        rm = RangeRingUtils.RingMaker(self.pointGeographic, ringDistanceList,
+                                      "METERS", srWAZED)
+        rm.makeRadials(4)
+        radialFeatures = rm.saveRadialsAsFeatures(os.path.join(self.DataGDB, "tempRadials"))
+        self.assertTrue(arcpy.Exists(radialFeatures))
+        deleteme.append(radialFeatures)
+        return
+
+    #===========================================
+
+    def test_rangeRingsFromMinMax(self):
+        ''' testing the tool method '''
+        numCenters = int(arcpy.GetCount_management(self.pointGeographic).getOutput(0))
+        numRadials = 8
+        rings = os.path.join(self.DataGDB, "newRings")
+        radials = os.path.join(self.DataGDB, "newRadials") 
+        rr = RangeRingUtils.rangeRingsFromMinMax(self.pointGeographic,
+                                                 100.0,
+                                                 1000.0,
+                                                 "METERS",
+                                                 numRadials,
+                                                 rings,
+                                                 radials,
+                                                 srWAZED)
+        outRings = rr[0]
+        outRadials = rr[1]
+
+        self.assertTrue(arcpy.Exists(outRings))
+        print("self.pointGeographic: " + str(self.pointGeographic))
+        print("numCenters: " + str(numCenters))
+        print("count: " + str(int(arcpy.GetCount_management(outRings).getOutput(0))))
+        self.assertEqual(int(arcpy.GetCount_management(outRings).getOutput(0)), numCenters * 2)
+
+        self.assertTrue(arcpy.Exists(outRadials))
+        self.assertEqual(int(arcpy.GetCount_management(outRadials).getOutput(0)), numRadials * numCenters)
+
+        deleteme.append(rings)
+        deleteme.append(radials)
+        return

@@ -30,12 +30,11 @@ history:
 '''
 
 # IMPORTS ==========================================
-import os
 import sys
 import traceback
 import arcpy
 from arcpy import env
-from RangeRingUtils import RangeRingMinMax
+import RangeRingUtils
 
 # LOCALS ===========================================
 deleteme = [] # intermediate datasets to be deleted
@@ -43,18 +42,36 @@ debug = True # extra messaging during development
 
 # FUNCTIONS ========================================
 
-
+inputCenterFeatures = arcpy.GetParameterAsText(0)
+inputMinimumRange = arcpy.GetParameterAsText(1)
+inputMaximumRange = arcpy.GetParameterAsText(2)
+inputDistanceUnits = arcpy.GetParameterAsText(3)
+inputNumberOfRadials = arcpy.GetParameterAsText(4)
+outputRingFeatures = arcpy.GetParameterAsText(5)
+outputRadialFeatures = arcpy.GetParameterAsText(6)
+optionalSpatialReference = arcpy.GetParameterAsText(7)
 
 def main():
+    ''' main... call the method, pass the inputs, get the results '''
     try:
         # get/set environment
         env.overwriteOutput = True
-        scratch = env.scratchWorkspace
 
         # Call tool method
-        rr = RangeRingMinMax(center, min, max, units, sr)
-        
+        rr = RangeRingUtils.rangeRingsFromMinMax(inputCenterFeatures,
+                                                 inputMinimumRange,
+                                                 inputMaximumRange,
+                                                 inputDistanceUnits,
+                                                 inputNumberOfRadials,
+                                                 outputRingFeatures,
+                                                 outputRadialFeatures,
+                                                 optionalSpatialReference)
+
+        arcpy.AddMessage("rr: " + str(rr))
+
         # Set output
+        arcpy.SetParameter(5, rr[0])
+        arcpy.SetParameter(6, rr[1])
 
     except arcpy.ExecuteError: 
         # Get the tool error messages 
@@ -66,15 +83,15 @@ def main():
         # Get the traceback object
         tb = sys.exc_info()[2]
         tbinfo = traceback.format_tb(tb)[0]
-    
+
         # Concatenate information together concerning the error into a message string
         pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
         msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
-    
+
         # Return python error messages for use in script tool or Python Window
         arcpy.AddError(pymsg)
         arcpy.AddError(msgs)
-    
+
         # Print Python error messages for use in Python / Python Window
         print(pymsg + "\n")
         print(msgs)
@@ -92,3 +109,4 @@ def main():
 # MAIN =============================================
 if __name__ == "__main__":
     main()
+    
