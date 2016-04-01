@@ -74,15 +74,25 @@ def rangeRingsFromMinMax(centerFC, rangeMin, rangeMax, distanceUnits, numRadials
         rangeMax = max(rangeMin, rangeMax)
         ringDistanceList = [rangeMin, rangeMax]
 
+        if sr == "#" or sr == "" or sr == None:
+            sr = srDefault
+
         rm = RingMaker(centerFC, ringDistanceList, distanceUnits, sr)
 
         # make the rings and save them
+        numCenterPoints = arcpy.GetCount_management(centerFC).getOutput(0)
+        totalNumRings = int(numCenterPoints) * 2
+        totalNumRadials = int(numCenterPoints) * int(numRadials)
+        arcpy.AddMessage("Making rings " + str(totalNumRings) + " for " + str(numCenterPoints) + " centers...")
         rm.makeRingsFromDistances()
         outRings = rm.saveRingsAsFeatures(outputRingFeatures)
+        arcpy.AddMessage(str(outRings))
 
         # Do we need to create radials?
+        arcpy.AddMessage("Making radials " + str(totalNumRadials) + " for " + str(numCenterPoints) + " centers...")
         rm.makeRadials(numRadials)
         outRadials = rm.saveRadialsAsFeatures(outputRadialFeatures)
+        arcpy.AddMessage(str(outRadials))
 
         return [outRings, outRadials]
     except arcpy.ExecuteError:
@@ -197,19 +207,19 @@ class RingMaker:
     def makeRingsFromDistances(self):
         ''' make geodesic rings from distance list '''
         # make a table for TableToEllipse
-        fields = {'x':'DOUBLE', 'y':'DOUBLE', 'd':'DOUBLE'}
+        fields = {'x':'DOUBLE', 'y':'DOUBLE', 'Range':'DOUBLE'}
         inTable = self._makeTempTable("ringTable", fields)
-        cursor = arcpy.da.InsertCursor(inTable, ['x', 'y', 'd'])
+        cursor = arcpy.da.InsertCursor(inTable, ['x', 'y', 'Range'])
         #self.center is a list of PointGeometry
         for i in self.center:
             pt = i.firstPoint
             for r in self.rangeList:
-                cursor.insertRow([pt.X, pt.Y, r * 2])
+                cursor.insertRow([pt.X, pt.Y, r])
         del cursor
         self.deleteme.append(inTable)
         outFeatures = os.path.join("in_memory", "outRings")
         arcpy.TableToEllipse_management(inTable, outFeatures,
-                                        'x', 'y', 'd', 'd',
+                                        'x', 'y', 'Range', 'Range',
                                         self.distanceUnits,
                                         '#', '#', '#', self.sr)
         self.deleteme.append(outFeatures)
@@ -218,16 +228,16 @@ class RingMaker:
 
     def makeRadials(self, numRadials):
         ''' make geodesic radials from number of radials '''
-        segmentAngle = 360.0/numRadials
+        segmentAngle = 360.0/float(numRadials)
         segmentAngleList = []
         a = 0.0
         while a < 360.0:
             segmentAngleList.append(a)
             a += segmentAngle
 
-        fields = {'x':'DOUBLE', 'y':'DOUBLE', 'rang':'DOUBLE', 'rlen':'DOUBLE'}
+        fields = {'x':'DOUBLE', 'y':'DOUBLE', 'Bearing':'DOUBLE', 'Range':'DOUBLE'}
         tab = self._makeTempTable("radTable", fields)
-        cursor = arcpy.da.InsertCursor(tab, ['x', 'y', 'rang', 'rlen'])
+        cursor = arcpy.da.InsertCursor(tab, ['x', 'y', 'Bearing', 'Range'])
         for i in self.center:
             pt = i.firstPoint
             for r in segmentAngleList:
@@ -236,7 +246,7 @@ class RingMaker:
         self.deleteme.append(tab)
         outRadialFeatures = os.path.join("in_memory", "outRadials")
         arcpy.BearingDistanceToLine_management(tab, outRadialFeatures, 'x', 'y',
-                                               'rlen', self.distanceUnits, 'rang', "DEGREES",
+                                               'Range', self.distanceUnits, 'Bearing', "DEGREES",
                                                "GEODESIC", "#", self.sr)
         self.deleteme.append(outRadialFeatures)
         self.radialFeatures = outRadialFeatures

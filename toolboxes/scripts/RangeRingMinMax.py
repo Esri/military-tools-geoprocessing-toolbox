@@ -43,19 +43,24 @@ debug = True # extra messaging during development
 # FUNCTIONS ========================================
 
 inputCenterFeatures = arcpy.GetParameterAsText(0)
-inputMinimumRange = arcpy.GetParameterAsText(1)
-inputMaximumRange = arcpy.GetParameterAsText(2)
+inputMinimumRange = float(arcpy.GetParameterAsText(1))
+inputMaximumRange = float(arcpy.GetParameterAsText(2))
 inputDistanceUnits = arcpy.GetParameterAsText(3)
-inputNumberOfRadials = arcpy.GetParameterAsText(4)
+inputNumberOfRadials = int(arcpy.GetParameterAsText(4))
 outputRingFeatures = arcpy.GetParameterAsText(5)
 outputRadialFeatures = arcpy.GetParameterAsText(6)
 optionalSpatialReference = arcpy.GetParameterAsText(7)
+
+if optionalSpatialReference == "#" or optionalSpatialReference == "":
+    optionalSpatialReference = None
 
 def main():
     ''' main... call the method, pass the inputs, get the results '''
     try:
         # get/set environment
         env.overwriteOutput = True
+
+
 
         # Call tool method
         rr = RangeRingUtils.rangeRingsFromMinMax(inputCenterFeatures,
@@ -66,9 +71,6 @@ def main():
                                                  outputRingFeatures,
                                                  outputRadialFeatures,
                                                  optionalSpatialReference)
-
-        arcpy.AddMessage("rr: " + str(rr))
-
         # Set output
         arcpy.SetParameter(5, rr[0])
         arcpy.SetParameter(6, rr[1])

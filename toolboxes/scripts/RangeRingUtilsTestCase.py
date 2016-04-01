@@ -44,7 +44,7 @@ class RangeRingUtilsTestCase(unittest.TestCase):
 
     def setUp(self):
         ''' setup for tests'''
-        #print("RangeRingsUtilsTestCase.setUp")
+        print("RangeRingsUtilsTestCase.setUp")
         self.DataGDB = r"C:\Workspace\scratch\scratch.gdb"
 
         #create a temp point feature class
@@ -62,7 +62,7 @@ class RangeRingUtilsTestCase(unittest.TestCase):
 
     def tearDown(self):
         ''' cleanup after tests'''
-        #print("RangeRingsUtilsTestCase.tearDown")
+        print("RangeRingsUtilsTestCase.tearDown")
         del self.pointGeographic
         for i in deleteme:
             if arcpy.Exists(i):
@@ -168,7 +168,9 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         rm = RangeRingUtils.RingMaker(self.pointGeographic, ringDistanceList,
                                       "METERS", srWAZED)
         rm.makeRingsFromDistances()
-        ringFeatures = rm.saveRingsAsFeatures(os.path.join(self.DataGDB, "tempRings"))
+        tempRings = os.path.join(self.DataGDB, "tempRings")
+        if arcpy.Exists(tempRings): arcpy.Delete_management(tempRings)
+        ringFeatures = rm.saveRingsAsFeatures(tempRings)
         self.assertTrue(arcpy.Exists(ringFeatures))
         deleteme.append(ringFeatures)
         return
@@ -180,7 +182,9 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         rm = RangeRingUtils.RingMaker(self.pointGeographic, ringDistanceList,
                                       "METERS", srWAZED)
         rm.makeRadials(4)
-        radialFeatures = rm.saveRadialsAsFeatures(os.path.join(self.DataGDB, "tempRadials"))
+        tempRadials = os.path.join(self.DataGDB, "tempRadials")
+        if arcpy.Exists(tempRadials): arcpy.Delete_management(tempRadials)
+        radialFeatures = rm.saveRadialsAsFeatures(tempRadials)
         self.assertTrue(arcpy.Exists(radialFeatures))
         deleteme.append(radialFeatures)
         return
@@ -205,9 +209,6 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         outRadials = rr[1]
 
         self.assertTrue(arcpy.Exists(outRings))
-        print("self.pointGeographic: " + str(self.pointGeographic))
-        print("numCenters: " + str(numCenters))
-        print("count: " + str(int(arcpy.GetCount_management(outRings).getOutput(0))))
         self.assertEqual(int(arcpy.GetCount_management(outRings).getOutput(0)), numCenters * 2)
 
         self.assertTrue(arcpy.Exists(outRadials))
