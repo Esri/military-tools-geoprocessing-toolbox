@@ -61,13 +61,13 @@ def main():
     try:
         # get/set environment
         env.overwriteOutput = True
-
         #get min and max range for selected weapon
-        cursor = arcpy.da.SearchCursor(inputWeaponTable, [inputWeaponNameField, inputWeaponMinRangeField, inputWeaponMaxRangeField])
-        for row in cursor:
-            if str(inputSelectedWeapon) == str(row[0]):
-                inputMinimumRange = row[1]
-                inputMaximumRange = row[2]
+        cursorFields = [inputWeaponNameField, inputWeaponMinRangeField, inputWeaponMaxRangeField]
+        with arcpy.da.SearchCursor(inputWeaponTable, cursorFields) as cursor:
+            for row in cursor:
+                if str(inputSelectedWeapon) == str(row[0]):
+                    inputMinimumRange = row[1]
+                    inputMaximumRange = row[2]
 
         # Call tool method
         rr = RangeRingUtils.rangeRingsFromMinMax(inputCenterFeatures,

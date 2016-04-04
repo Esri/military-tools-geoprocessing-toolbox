@@ -101,14 +101,6 @@ def rangeRingsFromInterval(centerFC, numRings, distBetween, distanceUnits, numRa
 class RingMaker:
     '''
     Core class for making range rings.
-
-    Inputs:
-        center = arcpy.PointGeometry of ring centers
-        rangeList = Python list of ring distances
-        distanceUnits = unit of length for rangeList
-        sr = Spatial Reference of rings
-
-    Outputs:
     '''
 
     def __init__(self, center, inputRangeList, distanceUnits, sr):
@@ -139,7 +131,6 @@ class RingMaker:
         self.ringCount = len(self.rangeList)
         self.ringMin = min(self.rangeList)
         self.ringMax = max(self.rangeList)
-
 
     def __del__(self):
         ''' clean up rings '''
