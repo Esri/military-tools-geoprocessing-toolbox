@@ -69,22 +69,6 @@ class RangeRingUtilsTestCase(unittest.TestCase):
                 arcpy.Delete_management(i)
         return
 
-    # def test_rangeRingsFromList(self):
-    #     ''' test case for RangeRingUtis.rangeRingsFromList method'''
-    #     print("RangeRingsUtilsTestCase.test_rangeRingsFromList")
-    #     return
-
-    # def test_rangeRingsFromMinMax(self):
-    #     ''' test case for RangeRingUtis.rangeRingsFromMinMax method'''
-    #     print("RangeRingsUtilsTestCase.test_rangeRingsFromMinMax")
-    #     return
-
-    # def test_rangeRingsFromInterval(self):
-    #     ''' test case for RangeRingUtis.rangeRingsFromInterval method'''
-    #     print("RangeRingsUtilsTestCase.test_rangeRingsFromInterval")
-    #     return
-
-
     def test_RingMaker_init(self):
         ''' test class'''
         print("RangeRingsUtilsTestCase.test_RingMaker_init")
@@ -189,10 +173,11 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         deleteme.append(radialFeatures)
         return
 
-    #===========================================
+    #=== TEST TOOL METHODS ==========================================
 
     def test_rangeRingsFromMinMax(self):
         ''' testing the tool method '''
+        print("RangeRingsUtilsTestCase.test_rangeRingsFromMinMax")
         numCenters = int(arcpy.GetCount_management(self.pointGeographic).getOutput(0))
         numRadials = 8
         rings = os.path.join(self.DataGDB, "newRings")
@@ -210,6 +195,64 @@ class RangeRingUtilsTestCase(unittest.TestCase):
 
         self.assertTrue(arcpy.Exists(outRings))
         self.assertEqual(int(arcpy.GetCount_management(outRings).getOutput(0)), numCenters * 2)
+
+        self.assertTrue(arcpy.Exists(outRadials))
+        self.assertEqual(int(arcpy.GetCount_management(outRadials).getOutput(0)), numRadials * numCenters)
+
+        deleteme.append(rings)
+        deleteme.append(radials)
+        return
+
+    def test_rangeRingsFromList(self):
+        ''' testing rangeRingsFromList method'''
+        print("RangeRingsUtilsTestCase.test_rangeRingsFromList")
+        numCenters = int(arcpy.GetCount_management(self.pointGeographic).getOutput(0))
+        numRadials = 8
+        rings = os.path.join(self.DataGDB, "newRings")
+        radials = os.path.join(self.DataGDB, "newRadials")
+        ringList = [1.0, 3.0, 9.0, 27.0, 81.0, 243.0, 729.0]
+        rr = RangeRingUtils.rangeRingsFromList(self.pointGeographic,
+                                               ringList,
+                                               "METERS",
+                                               numRadials,
+                                               rings,
+                                               radials,
+                                               srWAZED)
+        outRings = rr[0]
+        outRadials = rr[1]
+
+        self.assertTrue(arcpy.Exists(outRings))
+        self.assertEqual(int(arcpy.GetCount_management(outRings).getOutput(0)), len(ringList) * numCenters)
+
+        self.assertTrue(arcpy.Exists(outRadials))
+        self.assertEqual(int(arcpy.GetCount_management(outRadials).getOutput(0)), numRadials * numCenters)
+
+        deleteme.append(rings)
+        deleteme.append(radials)
+        return
+
+    def test_rangeRingsFromInterval(self):
+        ''' testing rangeRingsFromInterval method'''
+        print("RangeRingsUtilsTestCase.test_rangeRingsFromInterval")
+        numCenters = int(arcpy.GetCount_management(self.pointGeographic).getOutput(0))
+        numRadials = 8
+        rings = os.path.join(self.DataGDB, "newRings")
+        radials = os.path.join(self.DataGDB, "newRadials")
+        numRings = 4
+        distanceBetween = 200.0
+        rr = RangeRingUtils.rangeRingsFromInterval(self.pointGeographic,
+                                                   numRings,
+                                                   distanceBetween,
+                                                   "METERS",
+                                                   numRadials,
+                                                   rings,
+                                                   radials,
+                                                   srWAZED)
+        outRings = rr[0]
+        outRadials = rr[1]
+
+        self.assertTrue(arcpy.Exists(outRings))
+        self.assertEqual(int(arcpy.GetCount_management(outRings).getOutput(0)), 4 * numCenters)
 
         self.assertTrue(arcpy.Exists(outRadials))
         self.assertEqual(int(arcpy.GetCount_management(outRadials).getOutput(0)), numRadials * numCenters)

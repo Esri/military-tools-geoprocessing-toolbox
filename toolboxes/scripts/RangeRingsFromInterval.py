@@ -16,20 +16,21 @@ limitations under the License.
 ------------------------------------------------------------------------------
 
 ==================================================
-RangeRingMinMax.py
+RangeRingsFromInterval.py
 --------------------------------------------------
-requirments: ArcGIS Pro 1.2, Python 3.4
+requirments: ArcGIS X.X, Python 2.7 or Python 3.4
 author: ArcGIS Solutions
 company: Esri
 ==================================================
 description: <Description>
 ==================================================
 history:
-3/29/2016 - mf - design & original coding
+4/1/2016 - mf - original coding
 ==================================================
 '''
 
 # IMPORTS ==========================================
+import os
 import sys
 import traceback
 import arcpy
@@ -43,8 +44,8 @@ debug = True # extra messaging during development
 # FUNCTIONS ========================================
 
 inputCenterFeatures = arcpy.GetParameterAsText(0)
-inputMinimumRange = float(arcpy.GetParameterAsText(1))
-inputMaximumRange = float(arcpy.GetParameterAsText(2))
+inputNumberOfRings = int(arcpy.GetParameterAsText(1))
+inputDistanceBetween = float(arcpy.GetParameterAsText(2))
 inputDistanceUnits = arcpy.GetParameterAsText(3)
 inputNumberOfRadials = int(arcpy.GetParameterAsText(4))
 outputRingFeatures = arcpy.GetParameterAsText(5)
@@ -55,27 +56,27 @@ if optionalSpatialReference == "#" or optionalSpatialReference == "":
     optionalSpatialReference = None
 
 def main():
-    ''' main... call the method, pass the inputs, get the results '''
     try:
         # get/set environment
         env.overwriteOutput = True
+
         # Call tool method
-        rr = RangeRingUtils.rangeRingsFromMinMax(inputCenterFeatures,
-                                                 inputMinimumRange,
-                                                 inputMaximumRange,
-                                                 inputDistanceUnits,
-                                                 inputNumberOfRadials,
-                                                 outputRingFeatures,
-                                                 outputRadialFeatures,
-                                                 optionalSpatialReference)
+        rr = RangeRingUtils.rangeRingsFromInterval(inputCenterFeatures,
+                                                   inputNumberOfRings,
+                                                   inputDistanceBetween,
+                                                   inputDistanceUnits,
+                                                   inputNumberOfRadials,
+                                                   outputRingFeatures,
+                                                   outputRadialFeatures,
+                                                   optionalSpatialReference)
         # Set output
         arcpy.SetParameter(5, rr[0])
         arcpy.SetParameter(6, rr[1])
 
-    except arcpy.ExecuteError: 
-        # Get the tool error messages 
-        msgs = arcpy.GetMessages() 
-        arcpy.AddError(msgs) 
+    except arcpy.ExecuteError:
+        # Get the tool error messages
+        msgs = arcpy.GetMessages()
+        arcpy.AddError(msgs)
         print(msgs)
 
     except:
@@ -103,7 +104,6 @@ def main():
                 if debug == True: arcpy.AddMessage("Removing: " + str(i))
                 arcpy.Delete_management(i)
             if debug == True: arcpy.AddMessage("Done")
-
 
 # MAIN =============================================
 if __name__ == "__main__":

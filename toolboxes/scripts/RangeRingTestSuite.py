@@ -62,7 +62,9 @@ def getRangeRingTestSuite():
                     'test_RingMaker_saveRingsAsFeatures',
                     'test_RingMaker_makeRadials',
                     'test_RingMaker_saveRadialsAsFeatures',
-                    'test_rangeRingsFromMinMax']
+                    'test_rangeRingsFromMinMax',
+                    'test_rangeRingsFromList',
+                    'test_rangeRingsFromInterval']
 
     addRangeRingUtilsTests(testCaseList)
     print("ALL TESTS ADDED")

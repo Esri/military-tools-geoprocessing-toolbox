@@ -34,65 +34,33 @@ import traceback
 import arcpy
 
 acceptableDistanceUnits = ['METERS', 'KILOMETERS',
-                           'MILE', 'NAUTICAL_MILES',
+                           'MILES', 'NAUTICAL_MILES',
                            'FEET', 'US_SURVEY_FEET']
+
 srDefault = arcpy.SpatialReference(54032) # World_Azimuthal_Equidistant
 
-# def makeRadials(center, number, distance, sr, outputRadialFeatures):
-#     ''' make radials from number of radials, center point, and max distance '''
-'''
-use
-BearingDistanceToLine_management (in_table, out_featureclass,
-                                        x_field, y_field,
-                                        distance_field, {distance_units},
-                                        bearing_field, {bearing_units},
-                                        {line_type}, {id_field}, {spatial_reference})
-
-as
-
-use BearingDistanceToLine_management (in_table, outRadialFeatures,
-                                        x_field, y_field,
-                                        distance_field, {distance_units},
-                                        bearing_field, {bearing_units},
-                                        'GEODESIC', {id_field}, {spatial_reference})
-'''
-#     return outputRadialFeatures
-
-def rangeRingsFromList(centerFC, rangeList, distanceUnits, sr, outputRingFeatures):
+def rangeRingsFromList(centerFC, rangeList, distanceUnits, numRadials, outputRingFeatures, outputRadialFeatures, sr):
     ''' Make range ring features from a center, and list of distances '''
-    ringMaker = RingMaker(centerFC, rangeList, distanceUnits, sr)
-    ringMaker.makeRingsFromDistances()
-    ringMaker.saveRingsAsFeatures(outputRingFeatures)
-    #ringMaker.makeRadials
-    return outputRingFeatures
-
-def rangeRingsFromMinMax(centerFC, rangeMin, rangeMax, distanceUnits, numRadials, outputRingFeatures, outputRadialFeatures, sr):
-    ''' Make range ring features from only two distances, a minimum and a maximum '''
     try:
-        # make our range list from min and max
-        rangeMin = min(rangeMin, rangeMax)
-        rangeMax = max(rangeMin, rangeMax)
-        ringDistanceList = [rangeMin, rangeMax]
 
         if sr == "#" or sr == "" or sr == None:
             sr = srDefault
 
-        rm = RingMaker(centerFC, ringDistanceList, distanceUnits, sr)
+        rm = RingMaker(centerFC, rangeList, distanceUnits, sr)
 
-        # make the rings and save them
+        # Create Rings...
         numCenterPoints = arcpy.GetCount_management(centerFC).getOutput(0)
-        totalNumRings = int(numCenterPoints) * 2
+        numRingsPerCenter = len(rangeList)
+        totalNumRings = int(numCenterPoints) * int(numRingsPerCenter)
         totalNumRadials = int(numCenterPoints) * int(numRadials)
-        arcpy.AddMessage("Making rings " + str(totalNumRings) + " for " + str(numCenterPoints) + " centers...")
+        arcpy.AddMessage("Making rings " + str(totalNumRings) + " (" + str(numRingsPerCenter) + " for " + str(numCenterPoints) + " centers)...")
         rm.makeRingsFromDistances()
         outRings = rm.saveRingsAsFeatures(outputRingFeatures)
-        arcpy.AddMessage(str(outRings))
 
-        # Do we need to create radials?
-        arcpy.AddMessage("Making radials " + str(totalNumRadials) + " for " + str(numCenterPoints) + " centers...")
+        # Create Radials...
+        arcpy.AddMessage("Making radials " + str(totalNumRadials) + " (" + str(numRadials) + " for " + str(numCenterPoints) + " centers)...")
         rm.makeRadials(numRadials)
         outRadials = rm.saveRadialsAsFeatures(outputRadialFeatures)
-        arcpy.AddMessage(str(outRadials))
 
         return [outRings, outRadials]
     except arcpy.ExecuteError:
@@ -118,15 +86,16 @@ def rangeRingsFromMinMax(centerFC, rangeMin, rangeMax, distanceUnits, numRadials
         print(pymsg + "\n")
         print(msgs)
 
-def rangeRingsFromInterval(centerFC, numRings, distBetween, distanceUnits, sr, outputRingFeatures):
-    ''' Classic range rings from center, number of rings, and distance between rings  '''
-    # center = _featureclassToPointGeometry(centerFC)
-    # rangeList = []
-    # for r in range(1, numRings):
-    #     rangeList.append(r * distBetween)
-    # ringMaker = RingMaker(center, rangeList, distanceUnits, sr)
-    # ringMaker.saveRingsAsFeatures(outputRingFeatures)
-    return outputRingFeatures
+def rangeRingsFromMinMax(centerFC, rangeMin, rangeMax, distanceUnits, numRadials, outputRingFeatures, outputRadialFeatures, sr):
+    ''' Make range ring features from only two distances, a minimum and a maximum '''
+    rangeList = [min(rangeMin, rangeMax), max(rangeMin, rangeMax)]
+    return rangeRingsFromList(centerFC, rangeList, distanceUnits, numRadials, outputRingFeatures, outputRadialFeatures, sr)
+
+def rangeRingsFromInterval(centerFC, numRings, distBetween, distanceUnits, numRadials, outputRingFeatures, outputRadialFeatures, sr):
+    ''' Classic range rings from number of rings, and distance between rings  '''
+    rangeList = [x * distBetween for x in range(1, numRings + 1)]
+    return rangeRingsFromList(centerFC, rangeList, distanceUnits, numRadials, outputRingFeatures, outputRadialFeatures, sr)
+
 
 
 class RingMaker:
@@ -214,7 +183,7 @@ class RingMaker:
         for i in self.center:
             pt = i.firstPoint
             for r in self.rangeList:
-                cursor.insertRow([pt.X, pt.Y, r])
+                cursor.insertRow([pt.X, pt.Y, r * 2])
         del cursor
         self.deleteme.append(inTable)
         outFeatures = os.path.join("in_memory", "outRings")
@@ -222,6 +191,8 @@ class RingMaker:
                                         'x', 'y', 'Range', 'Range',
                                         self.distanceUnits,
                                         '#', '#', '#', self.sr)
+        exp = r"!Range! / 2.0"
+        arcpy.CalculateField_management(inTable, 'Range', exp, 'PYTHON_9.3')
         self.deleteme.append(outFeatures)
         self.ringFeatures = outFeatures
         return outFeatures
