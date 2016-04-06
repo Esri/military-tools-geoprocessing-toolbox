@@ -1,7 +1,7 @@
 # coding: utf-8
 '''
 ------------------------------------------------------------------------------
-Copyright 2015 Esri
+Copyright 2016 Esri
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -16,17 +16,17 @@ limitations under the License.
 ------------------------------------------------------------------------------
 
 ==================================================
-.py
+RangeRingFromMinMaxTable.py
 --------------------------------------------------
 requirments: ArcGIS X.X, Python 2.7 or Python 3.4
 author: ArcGIS Solutions
-contact: ArcGISTeam<Solution>@esri.com
 company: Esri
 ==================================================
-description: <Description>
+description: create minimum and maximum range rings
+from values in an input table
 ==================================================
 history:
-<date> - <initals> - <modifications>
+4/2/2016 - mf - original coding
 ==================================================
 '''
 
@@ -45,27 +45,27 @@ debug = True # extra messaging during development
 # FUNCTIONS ========================================
 
 inputCenterFeatures = arcpy.GetParameterAsText(0)
-inputWeaponTable = arcpy.GetParameterAsText(1)
-inputSelectedWeapon = arcpy.GetParameterAsText(2)
+inputTable = arcpy.GetParameterAsText(1)
+inputSelectedType = arcpy.GetParameterAsText(2)
 inputNumberOfRadials = arcpy.GetParameterAsText(3)
 outputRingFeatures = arcpy.GetParameterAsText(4)
 outputRadialFeatures = arcpy.GetParameterAsText(5)
 optionalSpatialReference = arcpy.GetParameter(6)
 optionalSpatialReferenceAsText = arcpy.GetParameterAsText(6)
 #Weapon Table Options
-inputWeaponNameField = arcpy.GetParameterAsText(7)
-inputWeaponMinRangeField = arcpy.GetParameterAsText(8)
-inputWeaponMaxRangeField = arcpy.GetParameterAsText(9)
+inputTypeNameField = arcpy.GetParameterAsText(7)
+inputTypeMinRangeField = arcpy.GetParameterAsText(8)
+inputTypeMaxRangeField = arcpy.GetParameterAsText(9)
 
 def main():
     try:
         # get/set environment
         env.overwriteOutput = True
         #get min and max range for selected weapon
-        cursorFields = [inputWeaponNameField, inputWeaponMinRangeField, inputWeaponMaxRangeField]
-        with arcpy.da.SearchCursor(inputWeaponTable, cursorFields) as cursor:
+        cursorFields = [inputTypeNameField, inputTypeMinRangeField, inputTypeMaxRangeField]
+        with arcpy.da.SearchCursor(inputTable, cursorFields) as cursor:
             for row in cursor:
-                if str(inputSelectedWeapon) == str(row[0]):
+                if str(inputSelectedType) == str(row[0]):
                     inputMinimumRange = row[1]
                     inputMaximumRange = row[2]
 
