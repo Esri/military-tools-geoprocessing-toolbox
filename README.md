@@ -1,6 +1,30 @@
 # military-tools-geoprocessing-toolbox
 is a collection of models, scripts, and tools for use in ArcGIS for Desktop and ArcGIS Pro. This toolbox is one component that is a part of the Military Tools Product. 
 
+![screenshot of tools](m-t-g-t_screenshot_600x400.png)
+
+###Repository Owner: [Matt](https://github.com/mfunk)
+
+* Merge Pull Requests
+* Creates Releases and Tags
+* Manages Milestones
+* Manages and Assigns Issues
+
+###Secondary: [Lyle](https://github.com/topowright)
+
+* Backup when the Owner is away
+
+
+## Sections
+* [Features](#features)
+* [Requirements](#requirements)
+* [Instructions](#instructions)
+* [Issues](#issues)
+* [Contact](#contact)
+* [Contributing](#contributing)
+* [Resources](#resources)
+* [Licensing](#licensing)
+
 ## Features
 
 This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to import geometry from tables, determine ranges, and basic visibility analysis.
@@ -73,15 +97,7 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 				* [w123]
 					* n36.dt1
 
-## Sections
 
-* [Requirements](#requirements)
-* [Instructions](#instructions)
-* [Issues](#issues)
-* [Contact](#contact)
-* [Contributing](#contributing)
-* [Resources](#resources)
-* [Licensing](#licensing)
 
 ## Requirements
 
