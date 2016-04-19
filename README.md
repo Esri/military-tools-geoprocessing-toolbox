@@ -7,7 +7,8 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 
 ### Contents
 * [toolboxes]
-	* Military Analyst Tools.tbx
+	* Military Tools.tbx (same tools as below)
+	* Military Tools_10.3.tbx
 		* Conversion
 			* Convert Coordinates
 			* Table To 2-Point Line
@@ -16,14 +17,15 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 			* Table To Point
 			* Table To Polygon
 			* Table To Polyline
-		* Geodesy and Range
-			* Range Rings
+		* Distance and Direction
+			* Range Rings (from Interval)
+			* Range Rings from Minimum Maximum
+			* Range Rings from Minimum Maximum Table
 		* Source Scripts
 			* Add Unique Row ID
 			* Polyline To Polygon
 			* sourceCC
 			* sourceRLOSscript
-			* sourceRR
 		* Terrain
 			* Find Local Peaks
 			* Highest Points
@@ -35,7 +37,10 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 		* AddUniqueRowID.py
 		* ConvertCoordinates.py
 		* PolylineToPolygon.py
-		* RangeRings.py
+		* RangeRingsUtils.py
+		* RangeRingFromMinMaxTable.py
+		* RangeRingMinMax.py
+		* RangeRingsFromInterval.py
 		* RLOS.py
 	* [layers]
 		* Highest Point Output.lyr
@@ -43,17 +48,18 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 		* Lowest Point Output.lyr
 		* Radial Line Of Sight Output.lyr
 		* RangeRadials.lyr
+		* RangeRingInputObserver.lyr
 		* RangeRings.lyr
+	* [tooldata]
+		* [Range Rings.gdb]
+			* rrInputTable
 * [testdata]
-	* [MATestData.gdb]
-		* ElevationSurface		
-		* ellipsewizard - preliminary test data - DO NOT DISTRIBUTE
-		* linewizard- preliminary test data - DO NOT DISTRIBUTE
-		* lobwizard- preliminary test data - DO NOT DISTRIBUTE
-		* pointwizard- preliminary test data - DO NOT DISTRIBUTE
-		* sampleRangePoints- preliminary test data - DO NOT DISTRIBUTE
-		* SigActs- preliminary test data - DO NOT DISTRIBUTE
-	* [Source]
+	* DataCreditsforMilitaryToolsGeoprocessingToolbox.txt
+	* USGS SRTMData Citation_1.pdf
+	* [MilitaryToolsTestData.gdb]
+		* ElevationSurface - surface data
+		* sampleRangePoints- sample point test data
+		* SigActs - event test dta 
 		* [SRTM30M]
 			* 36.dt2
 		* [SRTM90M]
@@ -66,11 +72,6 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 					* n36.dt1
 				* [w123]
 					* n36.dt1
-	* ellipsewizard.csv - preliminary test data - DO NOT DISTRIBUTE
-	* linewizard.csv - preliminary test data - DO NOT DISTRIBUTE
-	* lobwizard.csv - preliminary test data - DO NOT DISTRIBUTE
-	* pointwizard.csv - preliminary test data - DO NOT DISTRIBUTE
-	* SigActs.csv - preliminary test data - DO NOT DISTRIBUTE
 
 ## Sections
 
@@ -84,7 +85,8 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 
 ## Requirements
 
-* ArcGIS Desktop 10.3.1
+* ArcGIS Desktop 10.3.1 and Python 2.7
+* ArcGIS Pro 1.3 and Python 3.4
 
 ## Instructions
 
@@ -96,21 +98,21 @@ In this case testing is to take the tools from the repository and report success
 1. Click the **Download Zip** button.
 2. Extract the ZIP tools to a working folder
 3. Use the included [testdata] to manually test each tool
-4. Log [issues](https://github.com/ArcGIS/military-tools-geoprocessing-toolbox/issues) for any problems found (if they haven't been logged already)
+4. Log [issues](https://github.com/Esri/military-tools-geoprocessing-toolbox/issues) for any problems found (if they haven't been logged already)
 
 ### Building the tools
 Building the tools means modifying existing tools or adding new tools. In this case you should be familiar with GitHub and creating geoprocessing tools.
 
-1. Create a new branch from "master" branch:
-	* Include your initials in the branch name, eg. *"mf-new-viz-tool"*
+1. Create a new branch from "dev" branch:
+	* Include your initials in the branch name, eg. *"mf-new-tool"*
 2. Clone it to your local machine
 3. Make your changes locally
 4. Commit your changes and Sync with your remote
-5. Create a Pull Request to have your updates merged to "master"
+5. Create a Pull Request to have your updates merged to "dev"
 
 ## Issues
 
-Find a bug or want to request a new feature?  Please let us know by submitting an [issue](https://github.com/ArcGIS/military-tools-geoprocessing-toolbox/issues).
+Find a bug or want to request a new feature?  Please let us know by submitting an [issue](https://github.com/Esri/military-tools-geoprocessing-toolbox/issues).
 Please note that issues might be copied or transferred to other repositories as needed.
 
 1. Use a concise, one-line title
@@ -141,13 +143,11 @@ Esri welcomes contributions from anyone and everyone. Please see our [guidelines
 
 ## Resources
 
-* [Solution's Guide to Creating Geoprocessing Tools](https://github.com/ArcGIS/Solutions-Resources/blob/master/Python/Style/SolutionsGuideToCreatingGeoprocessingTools.md)
-
 ### Related repositories
 * [solutions-geoprocessing-toolbox](https://github.com/Esri/solutions-geoprocessing-toolbox)
 * [solutions-webappbuilder-widgets](https://github.com/Esri/solutions-webappbuilder-widgets)
 * [coordinate-conversion-addin-dotnet](https://github.com/Esri/coordinate-conversion-addin-dotnet)
-* [distance-direction-addin-dotnet](https://github.com/ArcGIS/distance-direction-addin-dotnet)
+* [distance-direction-addin-dotnet](https://github.com/Esri/distance-direction-addin-dotnet)
 
 ## Licensing
 
@@ -168,5 +168,5 @@ limitations under the License.
 A copy of the license is available in the repository's
 [license.txt](license.txt) file.
 
-[](Esri Tags: ArcGISSolutions Military Defense {TODO-ADD-OTHERS} )
+[](Esri Tags: ArcGISSolutions Military Defense)
 [](Esri Language: Python)
