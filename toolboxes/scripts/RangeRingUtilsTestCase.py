@@ -31,7 +31,6 @@ history:
 import os
 import arcpy
 import unittest
-import Configuration
 import RangeRingUtils
 
 srWebMerc = arcpy.SpatialReference(3857) #WGS_1984_Web_Mercator
