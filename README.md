@@ -71,7 +71,7 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 	* [MilitaryToolsTestData.gdb]
 		* ElevationSurface - surface data
 		* sampleRangePoints- sample point test data
-		* SigActs - event test dta 
+		* SigActs - event and coordinate test data 
 		* [SRTM30M]
 			* 36.dt2
 		* [SRTM90M]
