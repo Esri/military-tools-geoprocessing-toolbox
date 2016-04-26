@@ -289,10 +289,6 @@ def main():
 
         # Project the MBG buffer to AZED
         obs_buf = os.path.join(env.scratchWorkspace, "obs_buf")
-        # if RADIUS2_to_infinity == True:
-        #    arcpy.Buffer_analysis(obs_prj,obs_buf,horizonDistance)
-        # else:
-        #    arcpy.Project_management(mbgBufferPrj,obs_buf,strAZED)
         arcpy.Project_management(mbgBufferPrj, obs_buf, strAZED)
         delete_me.append(obs_buf)
 
