@@ -107,10 +107,6 @@ Please note that issues might be copied or transferred to other repositories as 
 	* A *numbered* list of steps to reproduce the problem (don't assume the person fixing the issue will know how to reproduce the problem)
 	* Screenshots are helpful
 	* blocks of script/code (if necessary)
-4. Add labels:
-	* Add one label from the red/pink **"B"** category (eg. "B - Bug")
-	* Add one label from the green **"F"** category (eg. "F - Geodesy")
-	* Add one label from the purple **"V"** category (eg. "V - 10.3.1")
 
 ## Contributing
 
