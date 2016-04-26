@@ -108,7 +108,6 @@ Please note that issues might be copied or transferred to other repositories as 
 	* Screenshots are helpful
 	* blocks of script/code (if necessary)
 4. Add labels:
-	* Add the gray label **"-1 - Add To Backlog"**
 	* Add one label from the red/pink **"B"** category (eg. "B - Bug")
 	* Add one label from the green **"F"** category (eg. "F - Geodesy")
 	* Add one label from the purple **"V"** category (eg. "V - 10.3.1")
