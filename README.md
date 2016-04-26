@@ -3,18 +3,6 @@ is a collection of models, scripts, and tools for use in ArcGIS for Desktop and 
 
 ![screenshot of tools](m-t-g-t_screenshot_600x400.png)
 
-###Repository Owner: [Matt](https://github.com/mfunk)
-
-* Merge Pull Requests
-* Creates Releases and Tags
-* Manages Milestones
-* Manages and Assigns Issues
-
-###Secondary: [Lyle](https://github.com/topowright)
-
-* Backup when the Owner is away
-
-
 ## Sections
 * [Features](#features)
 * [Requirements](#requirements)
@@ -143,19 +131,20 @@ Please note that issues might be copied or transferred to other repositories as 
 	* Add one label from the green **"F"** category (eg. "F - Geodesy")
 	* Add one label from the purple **"V"** category (eg. "V - 10.3.1")
 
-## Contact
-
-The primary Point of Contact (POC) for Issues/Contributions to this Repository is:
-
-* [Matt Funk](https://github.com/mfunk)
-
-Secondary POC:
-
-* [Lyle Wright](https://github.com/topowright)
-
 ## Contributing
 
 Esri welcomes contributions from anyone and everyone. Please see our [guidelines for contributing](https://github.com/esri/contributing).
+
+### Repository Points of Contact
+
+Repository Owner: [Matt Funk](https://github.com/mfunk)
+* Merge Pull Requests
+* Creates Releases and Tags
+* Manages Milestones
+* Manages and Assigns Issues
+
+Secondary Contact: [Lyle Wright](https://github.com/topowright)
+* Backup when the Owner is away
 
 ## Resources
 
