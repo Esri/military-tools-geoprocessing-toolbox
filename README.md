@@ -31,7 +31,7 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 
 ### Contents
 * [toolboxes]
-	* Military Tools.tbx (same tools as below)
+	* Military Tools.tbx (tools similar)
 	* Military Tools_10.3.tbx
 		* Conversion
 			* Convert Coordinates
@@ -50,13 +50,13 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 			* Polyline To Polygon
 			* sourceCC
 			* sourceRLOSscript
-		* Terrain
+		* Visibility
+			* Add Observer Fields (ArcGIS Pro only)
+			* Linear Line Of Sight
+			* Radial Line Of Sight
 			* Find Local Peaks
 			* Highest Points
 			* Lowest Point
-		* Visibility
-			* Linear Line Of Sight
-			* Radial Line Of Sight
 	* [scripts]
 		* AddUniqueRowID.py
 		* ConvertCoordinates.py
@@ -83,7 +83,7 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 	* [MilitaryToolsTestData.gdb]
 		* ElevationSurface - surface data
 		* sampleRangePoints- sample point test data
-		* SigActs - event test dta 
+		* SigActs - event test data
 		* [SRTM30M]
 			* 36.dt2
 		* [SRTM90M]
@@ -96,8 +96,6 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 					* n36.dt1
 				* [w123]
 					* n36.dt1
-
-
 
 ## Requirements
 
