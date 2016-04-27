@@ -134,6 +134,11 @@ Secondary Contact: [Lyle Wright](https://github.com/topowright)
 
 ## Resources
 
+* [ArcGIS 10.3 Help](http://resources.arcgis.com/en/help/)
+* [ArcGIS Blog](http://blogs.esri.com/esri/arcgis/)
+* ![Twitter](https://g.twimg.com/twitter-bird-16x16.png)[@EsriDefense](http://twitter.com/EsriDefense)
+* [ArcGIS Solutions Website](http://solutions.arcgis.com/military/)
+
 ### Related repositories
 * [solutions-geoprocessing-toolbox](https://github.com/Esri/solutions-geoprocessing-toolbox)
 * [solutions-webappbuilder-widgets](https://github.com/Esri/solutions-webappbuilder-widgets)
