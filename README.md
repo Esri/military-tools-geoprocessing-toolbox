@@ -38,13 +38,13 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 			* Polyline To Polygon
 			* sourceCC
 			* sourceRLOSscript
-		* Terrain
+		* Visibility
+			* Add Observer Fields (ArcGIS Pro only)
+			* Linear Line Of Sight
+			* Radial Line Of Sight
 			* Find Local Peaks
 			* Highest Points
 			* Lowest Point
-		* Visibility
-			* Linear Line Of Sight
-			* Radial Line Of Sight
 	* [scripts](./toolboxes/scripts)
 		* AddUniqueRowID.py
 		* ConvertCoordinates.py
@@ -84,8 +84,6 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 					* n36.dt1
 				* [w123]
 					* n36.dt1
-
-
 
 ## Requirements
 
