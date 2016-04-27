@@ -28,11 +28,8 @@ try:
 
     # Load required toolboxes
     scriptpath = sys.path[0]
-    #toolboxpath = os.path.join(scriptpath,"..\\Position Analysis Tools.tbx")
-    #toolboxpath = os.path.join(scriptpath,"..\\Import and Conversion Tools_10.3.tbx")
-    toolboxpath = os.path.join(scriptpath,"..\\Military Analyst Tools.tbx")
-    #arcpy.ImportToolbox(toolboxpath)
-    arcpy.ImportToolbox(toolboxpath, "ma")
+    toolboxpath = os.path.join(scriptpath,"..\\Military Tools.tbx")
+    arcpy.ImportToolbox(toolboxpath)
 
     # Script arguments
     Input_Table = arcpy.GetParameterAsText(0)

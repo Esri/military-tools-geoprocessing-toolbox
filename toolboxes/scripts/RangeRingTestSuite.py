@@ -25,8 +25,11 @@ author: ArcGIS Solutions
 company: Esri
 ==================================================
 description:
-This test suite collects all of the @@@@@@@ toolbox test suites:
+This test suite collects all of the range ring tests.
 
+To run tests from command line:
+* cd ./military-tools-geoprocessing-toolbox/toolboxes/scripts
+* python rangeringtestsuite.py -v
 
 ==================================================
 history:
