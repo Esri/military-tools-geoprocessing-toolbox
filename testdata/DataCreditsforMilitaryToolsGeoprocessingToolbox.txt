@@ -20,4 +20,4 @@ MilitaryToolsTestData.gdb
 =================================================
  Access and Use Constraints:
 
-The information used for the excersises is based on standard Esri Commercial off-the-Shelf (COTS) technologies and commercial data. Any scenario data is notional.  The locations of these events are approximate. The threat assigned to these events are notional. Use of military imagery does not imply or constitute endorsement, sponsorship, or affiliation of Esri, its products, or services by the U.S. Department of Defense.
+The information used for the exercises is based on standard Esri Commercial off-the-Shelf (COTS) technologies and commercial data. Any scenario data is notional.  The locations of these events are approximate. The threat assigned to these events are notional. Use of military imagery does not imply or constitute endorsement, sponsorship, or affiliation of Esri, its products, or services by the U.S. Department of Defense.
