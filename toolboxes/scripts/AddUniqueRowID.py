@@ -24,6 +24,8 @@ import os, sys, traceback
 import arcpy
 from arcpy import da
 
+arcpy.AddMessage("Inside AddUniqueRowID.py")
+
 # ARGUMENTS ========================================
 dataset = arcpy.GetParameterAsText(0)
 fieldName = arcpy.GetParameterAsText(1)

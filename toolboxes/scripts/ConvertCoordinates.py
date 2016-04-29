@@ -28,7 +28,8 @@ try:
 
     # Load required toolboxes
     scriptpath = sys.path[0]
-    toolboxpath = os.path.join(scriptpath,"..\\Military Tools.tbx")
+    #toolboxpath = os.path.join(scriptpath,"..\\Military Tools.tbx")
+    toolboxpath = os.path.join(scriptpath,"..\\Military_Tools.tbx")
     arcpy.ImportToolbox(toolboxpath)
 
     # Script arguments
@@ -76,8 +77,13 @@ try:
     arcpy.CopyRows_management(Input_Table, Output_Table, "")
 
     # Process: Add Unique Row ID
+    arcpy.AddMessage("Before Add Unique Row ID ...")
     #arcpy.AddUniqueRowID_InC(Output_Table, "JoinID")
-    arcpy.AddUniqueRowID_ma(Output_Table, "JoinID")
+    #arcpy.AddUniqueRowID_ma(Output_Table, "JoinID")
+    arcpy.AddUniqueRowID_mt(Output_Table, "JoinID")
+    #arcpy.mt.AddUniqueRowID(Output_Table, "JoinID")
+    arcpy.AddMessage("After Add Unique Row ID ...")
+    
 
     # Process: Convert Coordinate Notation (GARS)
     arcpy.AddMessage("Converting & appending GARS ...")
