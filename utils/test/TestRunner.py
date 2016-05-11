@@ -1,7 +1,7 @@
 # coding: utf-8
 '''
 ------------------------------------------------------------------------------
- Copyright 2015 Esri
+ Copyright 2016 Esri
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -21,18 +21,15 @@
  * Python 2.7 or Python 3.4
  author: ArcGIS Solutions
  company: Esri
-==================================================
+========================================================================
  description:
- This test suite collects all of the capability toolbox test suites:
- * HelicopterLandingZoneToolsTestSuite.py
- * ERGToolsTestSuite.py
- * PointOfOriginToolsTestSuite.py
+ This test suite collects all of the Military Tools toolbox test suites:
+ 
 
-==================================================
+========================================================================
  history:
- 10/06/2015 - MF - placeholder
- 10/30/2015 - MF - tests running
-==================================================
+ 5/10/2016 - JH - initial creation
+========================================================================
 '''
 
 import os
@@ -43,7 +40,6 @@ import unittest
 import arcpy
 import Configuration
 import UnitTestUtilities
-import DataDownload
 
 
 logFileFromBAT = None

@@ -27,14 +27,12 @@ rem  ArcGIS Pro (Python 3.4+).
 rem 
 rem ==================================================
 rem  history:
-rem  10/06/2015 - MF - placeholder
-rem  10/30/2015 - MF - tests running
-rem  12/01/2015 - JH - added parameter for default log file name
+rem  5/9/2016: JH - initial creation
 rem ==================================================
 
 REM usage: set LOG=<defaultLogFileName.log>
 REM name is optional; if not specified, name will be specified for you
-set LOG=default.log
+set LOG=
 
 REM =====================================================
 REM If you have BOTH versions of Python installed:
