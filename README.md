@@ -104,6 +104,8 @@ Requires Spatial Analyst and 3D Analyst:
 ## Instructions
 
 * [New to Github? Get started here.](http://htmlpreview.github.com/?https://github.com/Esri/esri.github.com/blob/master/help/esri-getting-to-know-github.html)
+* [Intstructions on running the tests for this repository](./utils/test/Readme.md)
+* [Want to help update the tools in this repository?](https://github.com/esri/contributing)
 
 ## Issues
 

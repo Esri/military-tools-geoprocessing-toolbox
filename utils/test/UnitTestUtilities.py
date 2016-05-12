@@ -24,12 +24,11 @@ author: ArcGIS Solutions
 company: Esri
 ==================================================
 description:
-Basic methods used in unit tests
+Basic methods used in unit tests.
 
 ==================================================
 history:
-10/06/2015 - JH - original coding
-10/23/2015 - MF - mods for tests
+5/10/2016 - JH - initial creation
 ==================================================
 '''
 
