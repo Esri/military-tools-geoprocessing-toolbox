@@ -35,6 +35,11 @@ repoPath = os.path.dirname(os.path.dirname(currentPath))
 ''' Log Path: the folder where the log files go wild and multiply '''
 logPath = os.path.normpath(os.path.join(currentPath, r"log")) # should go to .\military-geoprocessing-toolbox\utils\test\log
 
+''' Toolboxes paths '''
+militaryToolboxesPath = os.path.normpath(os.path.join(currentPath, r"../../toolboxes/"))
+military_ProToolboxPath = os.path.normpath(os.path.join(militaryToolboxesPath, "Military_Tools.tbx"))
+military_DesktopToolboxPath = os.path.normpath(os.path.join(militaryToolboxesPath, "Military_Tools_10.3.tbx"))
+
 ''' Conversion Path'''
 conversionPath = os.path.normpath(os.path.join(currentPath, r"conversion_tests"))
 
