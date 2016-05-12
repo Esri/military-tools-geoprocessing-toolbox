@@ -1,7 +1,7 @@
 # coding: utf-8
 '''
 ------------------------------------------------------------------------------
- Copyright 2015 Esri
+ Copyright 2016 Esri
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -21,18 +21,15 @@
  * Python 2.7 or Python 3.4
  author: ArcGIS Solutions
  company: Esri
-==================================================
+========================================================================
  description:
- This test suite collects all of the capability toolbox test suites:
- * HelicopterLandingZoneToolsTestSuite.py
- * ERGToolsTestSuite.py
- * PointOfOriginToolsTestSuite.py
+ This test suite collects all of the Military Tools toolbox test suites:
+ 
 
-==================================================
+========================================================================
  history:
- 10/06/2015 - MF - placeholder
- 10/30/2015 - MF - tests running
-==================================================
+ 5/10/2016 - JH - initial creation
+========================================================================
 '''
 
 import os
@@ -43,7 +40,6 @@ import unittest
 import arcpy
 import Configuration
 import UnitTestUtilities
-import DataDownload
 
 
 logFileFromBAT = None
@@ -128,53 +124,22 @@ def runTestSuite():
         Configuration.Platform = "PRO"
     Configuration.Logger.info(Configuration.Platform + " =======================================")
 
-    testSuite.addTests(addCapabilitySuite())
-    testSuite.addTests(addPatternsSuite())
-    testSuite.addTests(addVisibilitySuite())
-    testSuite.addTests(addSuitabilitySuite())
-
-    #addDataManagementTests(logger, platform)
-    #addOperationalGraphicsTests(logger, platform)
-    #addPatternsTests(logger, platform)
-    #addSuitabilityTests(logger, platform)
-    #testSuite.addTests(addVisibilityTests(logger, platform))
+    testSuite.addTests(addMilitarySuite())
 
     print("running " + str(testSuite.countTestCases()) + " tests...")
     testSuite.run(result)
     print("Test success: {0}".format(str(result.wasSuccessful())))
     return result
 
-def addCapabilitySuite():
-    ''' Add all Capability tests in the ./capability_tests folder '''
-    if Configuration.DEBUG == True: print("TestRunner.py - addCapabilitySuite")
-    from capability_tests import AllCapabilityTestSuite
+def addMilitarySuite():
+    ''' Add all tests in the Military Tools suite '''
+    if Configuration.DEBUG == True: print("TestRunner.py - addMilitarySuite")
+    from conversion_tests import ConversionTestSuite
     testSuite = unittest.TestSuite()
-    testSuite.addTests(AllCapabilityTestSuite.getCapabilityTestSuites())
+    testSuite.addTests(ConversionTestSuite.getConversionTestSuites())
+    # TODO: add tests from the other test suites
     return testSuite
 
-def addPatternsSuite():
-    ''' Add all Patterns tests in the ./patterns_tests folder '''
-    if Configuration.DEBUG == True: print("TestRunner.py - addPatternsSuite")
-    from patterns_tests import AllPatternsTestSuite
-    suite = unittest.TestSuite()
-    suite.addTest(AllPatternsTestSuite.getPatternsTestSuites())
-    return suite
-
-def addVisibilitySuite():
-    ''' Add all Visibility tests in the ./visibility_tests folder '''
-    if Configuration.DEBUG == True: print("TestRunner.py - addVisibilitySuite")
-    from visibility_tests import AllVisibilityTestSuite
-    suite = unittest.TestSuite()
-    suite.addTests(AllVisibilityTestSuite.getVisibilityTestSuites())
-    return suite
-
-def addSuitabilitySuite():
-    ''' Add all Suitability tests in the ./suitability_tests folder '''
-    if Configuration.DEBUG == True: print("TestRunner.py - addSuitabilitySuite")
-    from suitability_tests import AllSuitabilityTestSuite
-    suite = unittest.TestSuite()
-    suite.addTests(AllSuitabilityTestSuite.getSuitabilityTestSuites())
-    return suite
 
 # MAIN =============================================
 if __name__ == "__main__":
