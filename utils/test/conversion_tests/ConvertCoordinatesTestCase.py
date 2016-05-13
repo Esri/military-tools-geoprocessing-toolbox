@@ -43,13 +43,13 @@ class ConvertCoordinatesTestCase(unittest.TestCase):
         if Configuration.DEBUG == True: print("     ConvertCoordinatesTestCase.setUp")    
         
         UnitTestUtilities.checkArcPy()
-        # if(Configuration.maritimeScratchGDB == None) or (not arcpy.Exists(Configuration.maritimeScratchGDB)):
-            # Configuration.maritimeScratchGDB = UnitTestUtilities.createScratch(Configuration.maritimeDataPath)
+        if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
+            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
 
         
     def tearDown(self):
         if Configuration.DEBUG == True: print("     ConvertCoordinatesTestCase.tearDown")
-        # UnitTestUtilities.deleteScratch(Configuration.maritimeScratchGDB)
+        UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
     
     def test_convert_coordinates_desktop(self):
         arcpy.AddMessage("Testing Convert Coordinates (Desktop).")
