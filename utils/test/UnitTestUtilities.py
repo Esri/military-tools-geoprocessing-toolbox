@@ -64,7 +64,7 @@ def getCurrentDateTime():
 
 def nameFromDate(seq):
     ''' Make log file name'''
-    return 'SGT_' + str(getCurrentDateTimeForLogFile()) + '_seq' + str(seq) + '.log'
+    return 'MTGT_' + str(getCurrentDateTimeForLogFile()) + '_seq' + str(seq) + '.log'
 
 def makeFileFromPath(filePath):
     ''' make a file object from a path to that
