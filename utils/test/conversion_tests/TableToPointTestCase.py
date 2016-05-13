@@ -44,13 +44,13 @@ class TableToPointTestCase(unittest.TestCase):
         if Configuration.DEBUG == True: print("     TableToPointTestCase.setUp")    
         
         UnitTestUtilities.checkArcPy()
-        # if(Configuration.maritimeScratchGDB == None) or (not arcpy.Exists(Configuration.maritimeScratchGDB)):
-            # Configuration.maritimeScratchGDB = UnitTestUtilities.createScratch(Configuration.maritimeDataPath)
+        if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
+            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
 
             
     def tearDown(self):
         if Configuration.DEBUG == True: print("     TableToPointTestCase.tearDown")
-        # UnitTestUtilities.deleteScratch(Configuration.maritimeScratchGDB)
+        UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
     
     def test_table_to_point_desktop(self):
         arcpy.AddMessage("Testing Table To Point (Desktop).")

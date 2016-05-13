@@ -43,12 +43,12 @@ class TableToEllipseTestCase(unittest.TestCase):
         if Configuration.DEBUG == True: print("     TableToEllipseTestCase.setUp")    
         
         UnitTestUtilities.checkArcPy()
-        # if(Configuration.maritimeScratchGDB == None) or (not arcpy.Exists(Configuration.maritimeScratchGDB)):
-            # Configuration.maritimeScratchGDB = UnitTestUtilities.createScratch(Configuration.maritimeDataPath)
+        if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
+            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
         
     def tearDown(self):
         if Configuration.DEBUG == True: print("     TableToEllipseTestCase.tearDown")
-        # UnitTestUtilities.deleteScratch(Configuration.maritimeScratchGDB)
+        UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
     
     def test_table_to_ellipse_desktop(self):
         arcpy.AddMessage("Testing Farthest On Circle (Desktop).")
@@ -62,12 +62,11 @@ class TableToEllipseTestCase(unittest.TestCase):
         try:
             if Configuration.DEBUG == True: print("     TableToEllipseTestCase.test_table_to_ellipse") 
             
-            # arcpy.ImportToolbox(toolboxPath, "mdat")
+            # arcpy.ImportToolbox(toolboxPath, "ma")
             # runToolMessage = "Running tool (Farthest On Circle)"
             # arcpy.AddMessage(runToolMessage)
             # Configuration.Logger.info(runToolMessage)
             
-            # arcpy.CheckOutExtension("Spatial")
             # arcpy.FarthestOnCircle_mdat(self.position, "#", "#", self.hoursOfTransit)
             
             # self.assertTrue(arcpy.Exists(self.hoursOfTransit))
