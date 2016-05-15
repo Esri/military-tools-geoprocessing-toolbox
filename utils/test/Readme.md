@@ -90,20 +90,24 @@ that the tool tests are answering.
 
 **Table To 2-Point Line**
 * Are the correct number of lines created given the number of input fields?
-* 
-
+ 
 **Table To Ellipse**
 * Are the correct number of lines created (The ellipses are created a line feature type)?
+* Are the ellipses oriented correctly if the angle field is used?
 
 **Table To Line Of Bearing**
 * Are the correct number of lines created?
+* Are the end points correct for the input angle and distance?
 
 **Table To Polygon**
 * Are the correct number of polygons created?
+* Are the polygons grouped correctly if the group field is used?
+* Are the polygon vertices sorted correctly if the sort field is used?
 
 **Table To Polyline**
 * Are the correct number of lines created?
-* Are the 
+* Are the lines grouped correctly if the group field is used?
+* Are the line vertices storted correctly if the sort field is used?
 
 ## Distance and Direction
 **Range Rings (from Interval)**
@@ -112,13 +116,21 @@ that the tool tests are answering.
 
 ## Visibility
 **Add Observer Fields**
-**Find Local Peaks**
-**Highest Points**
+* Are the correct fields added?
+* Are the correct default field values added to the fields for each row?
 
+**Find Local Peaks**
+* Is the expected number of output features produced? (there might be several output points produced especially near water)
+* Is the elevation field (name?) added to the output?
+
+**Highest Points**
+* is the expected number of output features produced? (there might be more than one point with the same highest elevation)
+* Is the elevation field (name?) added to the output?
 
 **Linear Line of Sight**
 * Is the correct number of visible line features produced?
 * Is the correct number of invisible line features produced? 
+* Are the correct fields added to the output features?
 
 **Lowest Points**
 * Is the correct number of points produced?
