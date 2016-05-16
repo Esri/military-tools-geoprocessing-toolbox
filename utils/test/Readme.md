@@ -109,7 +109,7 @@ that the tool tests are answering.
 * Are the lines grouped correctly if the group field is used?
 * Are the line vertices storted correctly if the sort field is used?
 
-## Distance and Direction
+### Distance and Direction
 **Range Rings (from Interval)**
 **Range Rings from Minimum Maximum**
 **Range Rings from Minimum Maximum Table**
@@ -132,7 +132,7 @@ that the tool tests are answering.
 * Is the 'elevation' value correct?
 
 
-## Visibility
+### Visibility
 **Add Observer Fields**
 * Are the correct fields added?
 * Are the correct default field values added to the fields for each row?
