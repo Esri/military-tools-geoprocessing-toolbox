@@ -110,10 +110,18 @@ that the tool tests are answering.
 * Are the line vertices storted correctly if the sort field is used?
 
 ### Distance and Direction
-**Range Rings (from Interval)**
-**Range Rings from Minimum Maximum**
-**Range Rings from Minimum Maximum Table**
 
+** Range Rings (from Interval)**
+* Correct number of rings were created?
+* Correct number of radials were created?
+
+** Range Rings from Minimum Maximum**
+* Correct number of rings were created?
+* Correct number of radials were created?
+
+** Range Rings from Minimum Maximum Table**
+* Correct number of rings were created?
+* Correct number of radials were created?
 
 
 **Find Local Peaks**
