@@ -114,10 +114,7 @@ that the tool tests are answering.
 **Range Rings from Minimum Maximum**
 **Range Rings from Minimum Maximum Table**
 
-## Visibility
-**Add Observer Fields**
-* Are the correct fields added?
-* Are the correct default field values added to the fields for each row?
+
 
 **Find Local Peaks**
 * Is the expected number of output features produced? (there might be several output points produced especially near water)
@@ -127,14 +124,25 @@ that the tool tests are answering.
 * is the expected number of output features produced? (there might be more than one point with the same highest elevation)
 * Is the elevation field (name?) added to the output?
 
+
+
+**Lowest Points**
+* Is the correct number of points produced?
+* Is the 'elevation' value in the correct field?
+* Is the 'elevation' value correct?
+
+
+## Visibility
+**Add Observer Fields**
+* Are the correct fields added?
+* Are the correct default field values added to the fields for each row?
+
 **Linear Line of Sight**
 * Is the correct number of visible line features produced?
 * Is the correct number of invisible line features produced? 
 * Are the correct fields added to the output features?
 
-**Lowest Points**
-* Is the correct number of points produced?
-* Is the 'elevation' value in the correct field and the value correct?
-
 **Radial Line of Sight**
 * Does the result include the correct number of output area types (visible/not-visible)?
+* Do the result include the correct number of features
+(this is based on the result that exist in the results.gdb in test data)?
