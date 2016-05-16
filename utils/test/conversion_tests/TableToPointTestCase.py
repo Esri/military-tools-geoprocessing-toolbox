@@ -39,6 +39,8 @@ class TableToPointTestCase(unittest.TestCase):
     ''' Test all tools and methods related to the Table To Point tool
     in the Military Tools toolbox'''
     
+    inputTable = None
+    outputPoints = None
     
     def setUp(self):
         if Configuration.DEBUG == True: print("     TableToPointTestCase.setUp")    
@@ -47,6 +49,8 @@ class TableToPointTestCase(unittest.TestCase):
         if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
 
+        self.inputTable = os.path.join(Configuration.militaryInputDataGDB, "SigActs")
+        self.outputPoints = os.path.join(Configuration.militaryScratchGDB, "outputTableToPoint")
             
     def tearDown(self):
         if Configuration.DEBUG == True: print("     TableToPointTestCase.tearDown")
@@ -64,15 +68,17 @@ class TableToPointTestCase(unittest.TestCase):
         try:
             if Configuration.DEBUG == True: print("     TableToPointTestCase.test_table_to_point") 
             
-            # arcpy.ImportToolbox(toolboxPath, "mdat")
-            # runToolMessage = "Running tool (Farthest On Circle)"
-            # arcpy.AddMessage(runToolMessage)
-            # Configuration.Logger.info(runToolMessage)
+            arcpy.ImportToolbox(toolboxPath, "ma")
+            runToolMessage = "Running tool (Table To Point)"
+            arcpy.AddMessage(runToolMessage)
+            Configuration.Logger.info(runToolMessage)
             
-            # arcpy.CheckOutExtension("Spatial")
-            # arcpy.FarthestOnCircle_mdat(self.position, "#", "#", self.hoursOfTransit)
+            arcpy.TableToPoint_ma(self.inputTable, "#", "Location_X", "Location_Y", self.outputPoints)
             
-            # self.assertTrue(arcpy.Exists(self.hoursOfTransit))
+            self.assertTrue(arcpy.Exists(self.outputPoints))
+            
+            pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
+            self.assertEqual(pointCount, int(288))
        
             
         except arcpy.ExecuteError:
