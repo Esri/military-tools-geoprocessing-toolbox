@@ -24,7 +24,7 @@
 ========================================================================
  description:
  This test suite collects all of the Military Tools toolbox test suites:
- 
+
 
 ========================================================================
  history:
@@ -63,7 +63,7 @@ def main():
         Configuration.Logger = UnitTestUtilities.initializeLogger(logName)
     print("Logging results to: " + str(logName))
     UnitTestUtilities.setUpLogFileHeader()
-    
+
     result = runTestSuite()
     logTestResults(result)
     print("END OF TEST =========================================\n")
@@ -138,6 +138,8 @@ def addMilitarySuite():
     testSuite = unittest.TestSuite()
     testSuite.addTests(ConversionTestSuite.getConversionTestSuites())
     # TODO: add tests from the other test suites
+    from visibility_tests import VisibilityTestSuite
+    testSuite.addTests(VisibilityTestSuite.getVisibilityTestSuites())
     return testSuite
 
 
