@@ -38,54 +38,53 @@ import Configuration
 class TableToPointTestCase(unittest.TestCase):
     ''' Test all tools and methods related to the Table To Point tool
     in the Military Tools toolbox'''
-    
+
     inputTable = None
     outputPoints = None
-    
+
     def setUp(self):
-        if Configuration.DEBUG == True: print("     TableToPointTestCase.setUp")    
-        
+        if Configuration.DEBUG == True: print("     TableToPointTestCase.setUp")
+
         UnitTestUtilities.checkArcPy()
         if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
 
         self.inputTable = os.path.join(Configuration.militaryInputDataGDB, "SigActs")
         self.outputPoints = os.path.join(Configuration.militaryScratchGDB, "outputTableToPoint")
-            
+
     def tearDown(self):
         if Configuration.DEBUG == True: print("     TableToPointTestCase.tearDown")
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
-    
+
     def test_table_to_point_desktop(self):
         arcpy.AddMessage("Testing Table To Point (Desktop).")
         self.test_table_to_point(Configuration.military_DesktopToolboxPath)
-        
+
     def test_table_to_point_pro(self):
         arcpy.AddMessage("Testing Table To Point (Pro).")
         self.test_table_to_point(Configuration.military_ProToolboxPath)
-        
+
     def test_table_to_point(self, toolboxPath):
         try:
-            if Configuration.DEBUG == True: print("     TableToPointTestCase.test_table_to_point") 
-            
-            arcpy.ImportToolbox(toolboxPath, "ma")
+            if Configuration.DEBUG == True: print("     TableToPointTestCase.test_table_to_point")
+
+            arcpy.ImportToolbox(toolboxPath, "mt")
             runToolMessage = "Running tool (Table To Point)"
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
-            
-            arcpy.TableToPoint_ma(self.inputTable, "#", "Location_X", "Location_Y", self.outputPoints)
-            
+
+            arcpy.TableToPoint_mt(self.inputTable, "#", "Location_X", "Location_Y", self.outputPoints)
+
             self.assertTrue(arcpy.Exists(self.outputPoints))
-            
+
             pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
             self.assertEqual(pointCount, int(288))
-       
-            
+
+
         except arcpy.ExecuteError:
             UnitTestUtilities.handleArcPyError()
-            
+
         except:
             UnitTestUtilities.handleGeneralError()
-            
-            
-        
+
+

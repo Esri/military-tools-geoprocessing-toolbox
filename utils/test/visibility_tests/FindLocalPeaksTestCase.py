@@ -75,12 +75,12 @@ class FindLocalPeaksTestCase(unittest.TestCase):
         try:
             if Configuration.DEBUG == True: print("     FindLocalPeaksTestCase.test_find_local_peaks")
 
-            arcpy.ImportToolbox(toolboxPath, "ma")
+            arcpy.ImportToolbox(toolboxPath, "mt")
             runToolMessage = "Running tool (Find Local Peaks)"
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
 
-            arcpy.FindLocalPeaks2_ma(self.inputArea, 10, self.inputSurface, self.outputPoints)
+            arcpy.FindLocalPeaks_mt(self.inputArea, 10, self.inputSurface, self.outputPoints)
 
             self.assertTrue(arcpy.Exists(self.outputPoints))
 
