@@ -66,12 +66,13 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 		* [Range Rings.gdb]
 			* rrInputTable
 * [testdata](./testdata)
+	* CSV
+		* TabletoLineofBearing.csv
+		* TabletoPoint.csv
+		* TabletoPolyline.csv
 	* DataCreditsforMilitaryToolsGeoprocessingToolbox.txt
-	* USGS SRTMData Citation_1.pdf
-	* [MilitaryToolsTestData.gdb]
-		* ElevationSurface - surface data
-		* sampleRangePoints- sample point test data
-		* SigActs - event and coordinate test data 
+	* Elevation
+		* USGS SRTMData Citation_1.pdf
 		* [SRTM30M]
 			* 36.dt2
 		* [SRTM90M]
@@ -84,6 +85,16 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 					* n36.dt1
 				* [w123]
 					* n36.dt1
+	* [MilitaryToolsTestData.gdb]
+		* ElevationSurface - surface data
+		* sampleRangePoints- sample points
+		* SigActs - event and coordinate test data 
+		* Targets
+		* Observers
+		* ElevationUTM_Zone10 (elevation data)
+	* Results.gdb
+		* Viewshed
+		
 
 ## Requirements
 
