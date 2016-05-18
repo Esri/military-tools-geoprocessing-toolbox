@@ -15,7 +15,7 @@
 # -----------------------------------------------------------------------------
 
 # ==================================================
-# FindLocalPeaksTestCase.py
+# LowestPointsTestCase.py
 # --------------------------------------------------
 # requirements:
 # * ArcGIS Desktop 10.X+ or ArcGIS Pro 1.X+
@@ -35,15 +35,15 @@ import os
 import UnitTestUtilities
 import Configuration
 
-class FindLocalPeaksTestCase(unittest.TestCase):
-    ''' Test all tools and methods related to the Find Local Peaks tool
+class LowestPointsTestCase(unittest.TestCase):
+    ''' Test all tools and methods related to the Lowest Points tool
     in the Military Tools toolbox'''
 
     inputTable = None
     outputPoints = None
 
     def setUp(self):
-        if Configuration.DEBUG == True: print("     FindLocalPeaksTestCase.setUp")
+        if Configuration.DEBUG == True: print("     LowestPointsTestCase.setUp")
 
         UnitTestUtilities.checkArcPy()
         if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
@@ -51,40 +51,41 @@ class FindLocalPeaksTestCase(unittest.TestCase):
 
         self.inputArea = os.path.join(Configuration.militaryInputDataGDB, "AreaofInterest")
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
-        self.outputPoints = os.path.join(Configuration.militaryScratchGDB, "outputFindLocalPeaks")
+        self.outputPoints = os.path.join(Configuration.militaryScratchGDB, "outputLowestPoints")
 
         if arcpy.CheckExtension("Spatial") == "Available":
             arcpy.CheckOutExtension("Spatial")
             arcpy.AddMessage("Spatial checked out")
 
     def tearDown(self):
-        if Configuration.DEBUG == True: print("     FindLocalPeaksTestCase.tearDown")
+        if Configuration.DEBUG == True: print("     LowestPointsTestCase.tearDown")
         arcpy.CheckInExtension("Spatial");
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
 
-    def test_find_local_peaks_desktop(self):
-        arcpy.AddMessage("Testing Find Local Peaks (Desktop).")
-        self.test_find_local_peaks(Configuration.military_DesktopToolboxPath)
+    def test_lowest_points_desktop(self):
+        arcpy.AddMessage("Testing Lowest Points (Desktop).")
+        self.test_lowest_points(Configuration.military_DesktopToolboxPath)
 
-    def test_find_local_peaks_pro(self):
-        arcpy.AddMessage("Testing Find Local Peaks (Pro).")
-        self.test_find_local_peaks(Configuration.military_ProToolboxPath)
+    def test_lowest_points_pro(self):
+        arcpy.AddMessage("Testing Lowest Points (Pro).")
+        self.test_lowest_points(Configuration.military_ProToolboxPath)
 
-    def test_find_local_peaks(self, toolboxPath):
+    def test_lowest_points(self, toolboxPath):
         try:
-            if Configuration.DEBUG == True: print("     FindLocalPeaksTestCase.test_find_local_peaks")
+            if Configuration.DEBUG == True: print("     LowestPointsTestCase.test_lowest_points")
 
             arcpy.ImportToolbox(toolboxPath, "mt")
-            runToolMessage = "Running tool (Find Local Peaks)"
+            runToolMessage = "Running tool (Lowest Points)"
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
 
-            arcpy.FindLocalPeaks_mt(self.inputArea, 10, self.inputSurface, self.outputPoints)
+            arcpy.LowestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)
 
             self.assertTrue(arcpy.Exists(self.outputPoints))
 
             pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
-            self.assertEqual(pointCount, int(10))
+            print(pointCount)
+            self.assertEqual(pointCount, int(5))
 
 
         except arcpy.ExecuteError:
