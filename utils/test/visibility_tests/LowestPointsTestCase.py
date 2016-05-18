@@ -85,7 +85,7 @@ class LowestPointsTestCase(unittest.TestCase):
 
             pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
             print(pointCount)
-            self.assertEqual(pointCount, int(5))
+            self.assertEqual(pointCount, int(6))
 
 
         except arcpy.ExecuteError:
