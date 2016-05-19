@@ -39,6 +39,9 @@ class TableToPolylineTestCase(unittest.TestCase):
     ''' Test all tools and methods related to the Table To Polyline tool
     in the Military Tools toolbox'''
     
+    inputTable = None
+    outputPolylines = None
+    
     def setUp(self):
         if Configuration.DEBUG == True: print("     TableToPolylineTestCase.setUp")    
         
@@ -46,6 +49,9 @@ class TableToPolylineTestCase(unittest.TestCase):
         if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
 
+        csvPath = os.path.join(Configuration.militaryDataPath, "CSV")
+        self.inputTable = os.path.join(csvPath, "TabletoPolyline.csv")
+        self.outputPolylines = os.path.join(Configuration.militaryScratchGDB, "outputPolylines")
         
     def tearDown(self):
         if Configuration.DEBUG == True: print("     TableToPolylineTestCase.tearDown")
@@ -62,16 +68,18 @@ class TableToPolylineTestCase(unittest.TestCase):
     def test_table_to_polyline(self, toolboxPath):
         try:
             if Configuration.DEBUG == True: print("     TableToPolylineTestCase.test_table_to_polyline") 
+
+            arcpy.ImportToolbox(toolboxPath, "mt")
+            runToolMessage = "Running tool (Table To Polyline)"
+            arcpy.AddMessage(runToolMessage)
+            Configuration.Logger.info(runToolMessage)
             
-            # arcpy.ImportToolbox(toolboxPath, "mdat")
-            # runToolMessage = "Running tool (Farthest On Circle)"
-            # arcpy.AddMessage(runToolMessage)
-            # Configuration.Logger.info(runToolMessage)
+            arcpy.TableToPolyline_mt(self.inputTable, "#", "POINT_X", "POINT_Y", self.outputPolylines)
             
-            # arcpy.CheckOutExtension("Spatial")
-            # arcpy.FarthestOnCircle_mdat(self.position, "#", "#", self.hoursOfTransit)
+            self.assertTrue(arcpy.Exists(self.outputPolylines))
             
-            # self.assertTrue(arcpy.Exists(self.hoursOfTransit))
+            polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
+            self.assertEqual(polylineCount, int(1))
        
             
         except arcpy.ExecuteError:
