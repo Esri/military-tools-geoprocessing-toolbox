@@ -48,6 +48,9 @@ def getVisibilityTestSuites():
     lowestPointsDesktopTests = ['test_lowest_points_desktop']
     lowestPointsProTests = ['test_lowest_points_pro']
 
+    highestPointsDesktopTests = ['test_highest_points_desktop']
+    highestPointsProTests = ['test_highest_points_pro']
+
     if Configuration.DEBUG == True:
         print("   VisibilityTestSuite.getVisibilityTestSuites")
 
@@ -56,13 +59,14 @@ def getVisibilityTestSuites():
     if Configuration.Platform == "DESKTOP":
         Configuration.Logger.info("Visibility Desktop tests")
         addFindLocalPeaksTests(findLocalPeaksDesktopTests)
+        addHighestPointsTests(highestPointsDesktopTests)
         addLowestPointsTests(lowestPointsDesktopTests)
 
     else:
         Configuration.Logger.info("Visibility Pro tests")
         addFindLocalPeaksTests(findLocalPeaksProTests)
+        addHighestPointsTests(highestPointsProTests)
         addLowestPointsTests(lowestPointsProTests)
-
 
     return TestSuite
 
@@ -74,6 +78,14 @@ def addFindLocalPeaksTests(inputTestList):
         Configuration.Logger.info(test)
         TestSuite.addTest(FindLocalPeaksTestCase.FindLocalPeaksTestCase(test))
 
+def addHighestPointsTests(inputTestList):
+    if Configuration.DEBUG == True: print("      VisibilityTestSuite.addHighestPointsTests")
+    from . import HighestPointsTestCase
+    for test in inputTestList:
+        print("adding test: " + str(test))
+        Configuration.Logger.info(test)
+        TestSuite.addTest(HighestPointsTestCase.HighestPointsTestCase(test))
+		
 def addLowestPointsTests(inputTestList):
     if Configuration.DEBUG == True: print("      VisibilityTestSuite.addLowestPointsTests")
     from . import LowestPointsTestCase
