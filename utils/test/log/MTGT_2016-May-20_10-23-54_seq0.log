@@ -1,0 +1,68 @@
+INFO: 2016-05-20 10:23:54,871 ------------ Begin Test ------------------
+INFO: 2016-05-20 10:23:54,881 Platform: Windows-7-6.1.7601-SP1
+INFO: 2016-05-20 10:23:54,881 Python Version 2.7.8 (default, Jun 30 2014, 16:03:49) [MSC v.1500 32 bit (Intel)]
+INFO: 2016-05-20 10:23:54,881 Desktop Version 10.3, installed on 7/15/2015.
+INFO: 2016-05-20 10:23:54,881 ----------------------------------------
+INFO: 2016-05-20 10:23:54,881 DESKTOP =======================================
+INFO: 2016-05-20 10:23:54,882 Adding Conversion tests including: 
+INFO: 2016-05-20 10:23:54,884 Conversion Desktop tests
+INFO: 2016-05-20 10:23:54,885 test_convert_coordinates_desktop
+INFO: 2016-05-20 10:23:54,888 test_table_to_twopointline_desktop
+INFO: 2016-05-20 10:23:54,888 test_table_to_ellipse_desktop
+INFO: 2016-05-20 10:23:54,891 test_table_to_lineofbearing_desktop
+INFO: 2016-05-20 10:23:54,892 test_table_to_point_desktop
+INFO: 2016-05-20 10:23:54,894 test_table_to_polygon_desktop
+INFO: 2016-05-20 10:23:54,895 test_table_to_polyline_desktop
+INFO: 2016-05-20 10:23:54,898 Adding Visibility tests including: 
+INFO: 2016-05-20 10:23:54,898 Visibility Desktop tests
+INFO: 2016-05-20 10:23:54,900 test_find_local_peaks_desktop
+INFO: 2016-05-20 10:23:54,901 test_highest_points_desktop
+INFO: 2016-05-20 10:23:54,903 test_lowest_points_desktop
+INFO: 2016-05-20 10:23:54,904 test_radial_line_of_sight_desktop
+INFO: 2016-05-20 10:24:09,461 Running tool (Table To Point)
+INFO: 2016-05-20 10:24:29,510 Running tool (Table To Polyline)
+INFO: 2016-05-20 10:24:49,926 Running tool (Find Local Peaks)
+INFO: 2016-05-20 10:25:37,154 Running tool (Highest Points)
+INFO: 2016-05-20 10:26:05,227 Running tool (Lowest Points)
+ERROR: 2016-05-20 10:26:12,562 Executing: LowestPoints C:\Hagens\Projects\MilitaryAnalyst\military-tools-geoprocessing-toolbox\testdata\MilitaryToolsTestData.gdb\AreaofInterest C:\Hagens\Projects\MilitaryAnalyst\military-tools-geoprocessing-toolbox\testdata\MilitaryToolsTestData.gdb\ElevationUTM_Zone10 C:\Hagens\Projects\MilitaryAnalyst\military-tools-geoprocessing-toolbox\testdata\scratch.gdb\outputLowestPoints
+Start Time: Fri May 20 10:26:07 2016
+Executing (Copy Features): CopyFeatures C:\Hagens\Projects\MilitaryAnalyst\military-tools-geoprocessing-toolbox\testdata\MilitaryToolsTestData.gdb\AreaofInterest C:\Users\dani5393\AppData\Local\Temp\\copyArea # 0 0 0
+Start Time: Fri May 20 10:26:10 2016
+ERROR 000210: Cannot create output C:\Users\dani5393\AppData\Local\Temp\\copyArea
+Failed to execute (Copy Features).
+Failed at Fri May 20 10:26:12 2016 (Elapsed Time: 1.52 seconds)
+Failed to execute (LowestPoints).
+Failed at Fri May 20 10:26:12 2016 (Elapsed Time: 5.23 seconds)
+INFO: 2016-05-20 10:26:33,253 Running tool (Radial Line Of Sight)
+ERROR: 2016-05-20 10:26:36,546 Executing: RadialLineOfSight C:\Hagens\Projects\MilitaryAnalyst\military-tools-geoprocessing-toolbox\testdata\MilitaryToolsTestData.gdb\Observers C:\Hagens\Projects\MilitaryAnalyst\military-tools-geoprocessing-toolbox\testdata\MilitaryToolsTestData.gdb\ElevationUTM_Zone10 C:\Hagens\Projects\MilitaryAnalyst\military-tools-geoprocessing-toolbox\testdata\scratch.gdb\outputRadialLineOfSight false
+Start Time: Fri May 20 10:26:33 2016
+Executing (Copy Features): CopyFeatures C:\Hagens\Projects\MilitaryAnalyst\military-tools-geoprocessing-toolbox\testdata\MilitaryToolsTestData.gdb\Observers C:\Users\dani5393\AppData\Local\Temp\scratch.gdb\copyObs # 0 0 0
+Start Time: Fri May 20 10:26:34 2016
+Succeeded at Fri May 20 10:26:35 2016 (Elapsed Time: 0.97 seconds)
+Executing (sourceRLOSscript): sourceRLOSscript C:\Users\dani5393\AppData\Local\Temp\scratch.gdb\copyObs C:\Hagens\Projects\MilitaryAnalyst\military-tools-geoprocessing-toolbox\testdata\MilitaryToolsTestData.gdb\ElevationUTM_Zone10 C:\Hagens\Projects\MilitaryAnalyst\military-tools-geoprocessing-toolbox\testdata\scratch.gdb\outputRadialLineOfSight false GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',SPHEROID['WGS_1984',6378137.0,298.257223563]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]]
+Start Time: Fri May 20 10:26:35 2016
+Running script sourceRLOSscript...
+RLOS will use local RADIUS2 values for calculation.
+PYTHON ERRORS:
+Traceback info:
+  File "C:\Hagens\Projects\MilitaryAnalyst\military-tools-geoprocessing-toolbox\toolboxes\scripts\RLOS.py", line 158, in main
+    observers_mbg = os.path.join(env.scratchWorkspace, "observers_mbg")
+
+Error Info:
+object of type 'NoneType' has no len()
+ArcPy ERRORS:
+
+
+Completed script sourceRLOSscript...
+Failed to execute (sourceRLOSscript).
+Failed at Fri May 20 10:26:36 2016 (Elapsed Time: 0.79 seconds)
+Failed to execute (RadialLineOfSight).
+Failed at Fri May 20 10:26:36 2016 (Elapsed Time: 2.87 seconds)
+INFO: 2016-05-20 10:26:36,688 RESULTS =================================================
+
+Number of tests run: 11
+Number of errors: 0
+Number of failures: 0
+
+INFO: 2016-05-20 10:26:36,688 END OF TEST =========================================
+
