@@ -38,10 +38,14 @@ REM =====================================================
 REM If you have BOTH versions of Python installed:
 
 ECHO Python 3.4 Tests ===============================
-py -3.4 TestRunner.py %LOG%
+REM py -3.4 TestRunner.py %LOG%
+REM The location of python.exe will depend upon your installation
+REM of ArcGIS Pro. Modify the following line as necessary:
+"C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\python.exe" TestRunner.py %LOG%
 
 ECHO Python 2.7 Tests ===============================
-py -2.7 TestRunner.py %LOG%
+REM py -2.7 TestRunner.py %LOG%
+python TestRunner.py %LOG%
 
 REM =====================================================
 REM If you only have ONE version of Python installed:
