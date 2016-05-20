@@ -15,10 +15,12 @@ The unittests in this section of the repository are designed to test the geoproc
 
 ##Requirements
 ###For ArcGIS Pro
+Tools for ArcGIS Pro are in the **Military_Tools.tbx** toolbox and have the following requirements:
 * ArcGIS Pro 1.1+
 * Python 3.4.1 for ArcGIS Pro
 
-###For ArcGIS Desktkop
+###For ArcGIS Desktop
+Tools for ArcMap are in the **Military_Tools_10.3.tbx** toolbox and have the following requirements:
 * ArcGIS for Desktop 10.3.1+
 * Python 2.7+
 
