@@ -98,19 +98,24 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 
 ## Requirements
 
+Tools for ArcMap are in the **Military_Tools_10.3.tbx** toolbox and have the following requirements:
+
 * ArcGIS Desktop 10.3.1 and Python 2.7
+
+Tools for ArcGIS Pro are in the **Military_Tools.tbx** toolbox and have the following requirements: 
+
 * ArcGIS Pro 1.3 and Python 3.4
 
-Requires Spatial Analyst:
+Additionally there are additional extensions needed for certain tools:
 
-* Find Local Peaks
-* Highest Points
-* Lowest Points
-* Radial Line Of Sight
+* Requires Spatial Analyst:
+	* Find Local Peaks
+	* Highest Points
+	* Lowest Points
+	* Radial Line Of Sight
 
-Requires Spatial Analyst and 3D Analyst:
-
-* Linear Line Of Sight
+* Requires Spatial Analyst and 3D Analyst:
+	* Linear Line Of Sight
 
 ## Instructions
 
