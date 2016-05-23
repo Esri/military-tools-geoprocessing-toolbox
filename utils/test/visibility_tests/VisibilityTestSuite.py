@@ -47,9 +47,12 @@ def getVisibilityTestSuites():
     findLocalPeaksProTests = ['test_find_local_peaks_pro']
     lowestPointsDesktopTests = ['test_lowest_points_desktop']
     lowestPointsProTests = ['test_lowest_points_pro']
-
     highestPointsDesktopTests = ['test_highest_points_desktop']
     highestPointsProTests = ['test_highest_points_pro']
+    linearLineOfSightDesktopTests = ['test_linear_line_of_sight_desktop']
+    linearLineOfSightProTests = ['test_linear_line_of_sight_pro']
+    radialLineOfSightDesktopTests = ['test_radial_line_of_sight_desktop']
+    radialLineOfSightProTests = ['test_radial_line_of_sight_pro']
 
     if Configuration.DEBUG == True:
         print("   VisibilityTestSuite.getVisibilityTestSuites")
@@ -61,12 +64,16 @@ def getVisibilityTestSuites():
         addFindLocalPeaksTests(findLocalPeaksDesktopTests)
         addHighestPointsTests(highestPointsDesktopTests)
         addLowestPointsTests(lowestPointsDesktopTests)
+        addLinearLineOfSightTests(linearLineOfSightDesktopTests)
+        addRadialLineOfSightTests(radialLineOfSightDesktopTests)
 
     else:
         Configuration.Logger.info("Visibility Pro tests")
         addFindLocalPeaksTests(findLocalPeaksProTests)
         addHighestPointsTests(highestPointsProTests)
         addLowestPointsTests(lowestPointsProTests)
+        addLinearLineOfSightTests(linearLineOfSightProTests)
+        addRadialLineOfSightTests(radialLineOfSightProTests)
 
     return TestSuite
 
@@ -85,7 +92,7 @@ def addHighestPointsTests(inputTestList):
         print("adding test: " + str(test))
         Configuration.Logger.info(test)
         TestSuite.addTest(HighestPointsTestCase.HighestPointsTestCase(test))
-		
+        
 def addLowestPointsTests(inputTestList):
     if Configuration.DEBUG == True: print("      VisibilityTestSuite.addLowestPointsTests")
     from . import LowestPointsTestCase
@@ -93,6 +100,23 @@ def addLowestPointsTests(inputTestList):
         print("adding test: " + str(test))
         Configuration.Logger.info(test)
         TestSuite.addTest(LowestPointsTestCase.LowestPointsTestCase(test))
+
+def addLinearLineOfSightTests(inputTestList):
+    if Configuration.DEBUG == True: print("      VisibilityTestSuite.addLinearLineOfSightTests")
+    from . import LinearLineOfSightTestCase
+    for test in inputTestList:
+        print("adding test: " + str(test))
+        Configuration.Logger.info(test)
+        TestSuite.addTest(LinearLineOfSightTestCase.LinearLineOfSightTestCase(test))
+
+def addRadialLineOfSightTests(inputTestList):
+    if Configuration.DEBUG == True: print("      VisibilityTestSuite.addRadialLineOfSightTests")
+    from . import RadialLineOfSightTestCase
+    for test in inputTestList:
+        print("adding test: " + str(test))
+        Configuration.Logger.info(test)
+        TestSuite.addTest(RadialLineOfSightTestCase.RadialLineOfSightTestCase(test))
+
 
 
 
