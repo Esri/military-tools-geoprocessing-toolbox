@@ -12,6 +12,9 @@ arc.dir
 *.pyt.xml
 *.zip
 
+log/
+*.log
+
 # Python
 *.py[cod]
 # Packages
