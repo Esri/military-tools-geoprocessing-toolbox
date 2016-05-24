@@ -39,6 +39,8 @@ class TableToLineOfBearingTestCase(unittest.TestCase):
     ''' Test all tools and methods related to the Table To Line Of Bearing tool
     in the Military Tools toolbox'''
     
+    inputTable = None
+    outputLineOfBearing = None
     
     def setUp(self):
         if Configuration.DEBUG == True: print("     TableToLineOfBearingTestCase.setUp")    
@@ -46,7 +48,10 @@ class TableToLineOfBearingTestCase(unittest.TestCase):
         UnitTestUtilities.checkArcPy()
         if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
-            
+        
+        csvFolder = os.path.join(Configuration.militaryDataPath, "CSV")
+        self.inputTable = os.path.join(csvFolder, "TabletoLineofBearing.csv")
+        self.outputLineOfBearing = os.path.join(Configuration.militaryScratchGDB, "outputLines")
         
     def tearDown(self):
         if Configuration.DEBUG == True: print("     TableToLineOfBearingTestCase.tearDown")
@@ -64,15 +69,17 @@ class TableToLineOfBearingTestCase(unittest.TestCase):
         try:
             if Configuration.DEBUG == True: print("     TableToLineOfBearingTestCase.test_table_to_lineofbearing") 
             
-            # arcpy.ImportToolbox(toolboxPath, "mdat")
-            # runToolMessage = "Running tool (Farthest On Circle)"
-            # arcpy.AddMessage(runToolMessage)
-            # Configuration.Logger.info(runToolMessage)
+            arcpy.ImportToolbox(toolboxPath, "mt")
+            runToolMessage = "Running tool (Table To Line Of Bearing)"
+            arcpy.AddMessage(runToolMessage)
+            Configuration.Logger.info(runToolMessage)
             
-            # arcpy.CheckOutExtension("Spatial")
-            # arcpy.FarthestOnCircle_mdat(self.position, "#", "#", self.hoursOfTransit)
+            arcpy.TableToLOB_mt(self.inputTable, "#", "x", "y", "#", "Orientation", "#", "Distance", self.outputLineOfBearing)
             
-            # self.assertTrue(arcpy.Exists(self.hoursOfTransit))
+            self.assertTrue(arcpy.Exists(self.outputLineOfBearing))
+            
+            featureCount = int(arcpy.GetCount_management(self.outputLineOfBearing).getOutput(0))
+            self.assertEqual(featureCount, int(23))
        
             
         except arcpy.ExecuteError:
