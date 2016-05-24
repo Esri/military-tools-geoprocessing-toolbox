@@ -27,29 +27,19 @@ company: Esri
 description:
 This test suite collects all of the range ring tests.
 
-To run tests from command line:
-* cd ./military-tools-geoprocessing-toolbox/toolboxes/scripts
-* python rangeringtestsuite.py -v
-
 ==================================================
 history:
 3/30/2016 - mf - original coding
+5/23/2016 - mf - update for framework
 ==================================================
 '''
 
+import logging
 import unittest
+import Configuration
+import RangeRingUtilsTestCase
 
 TestSuite = unittest.TestSuite()
-
-def runTestSuite():
-    ''' collect all test suites before running them '''
-    result = unittest.TestResult()
-    tests = getRangeRingTestSuite()
-
-    print("running " + str(TestSuite.countTestCases()) + " tests...")
-    TestSuite.run(result)
-    print("Test success: {0}".format(str(result.wasSuccessful())))
-    return result
 
 def getRangeRingTestSuite():
     ''' Range Rings test suite '''
@@ -67,59 +57,16 @@ def getRangeRingTestSuite():
                     'test_rangeRingsFromList',
                     'test_rangeRingsFromInterval']
 
-    addRangeRingUtilsTests(testCaseList)
-    print("ALL TESTS ADDED")
+    if Configuration.Platform == "DESKTOP":
+        addRangeRingUtilsTests(testCaseList)
+    else:
+        addRangeRingUtilsTests(testCaseList)
+    
     return TestSuite
 
 def addRangeRingUtilsTests(inputTestList):
     ''' add all of the tests from RangeRingTestCase.py '''
-    #from . import RangeRingUtilsTestCase
-    import RangeRingUtilsTestCase
     for test in inputTestList:
         print(" adding test: " + str(test))
         TestSuite.addTest(RangeRingUtilsTestCase.RangeRingUtilsTestCase(test))
-
-def resultsHeader(result):
-    ''' Generic header for the results in the log file '''
-    msg = "RESULTS =================================================\n\n"
-    msg += "Number of tests run: " + str(result.testsRun) + "\n"
-    msg += "Number of errors: " + str(len(result.errors)) + "\n"
-    msg += "Number of failures: " + str(len(result.failures)) + "\n"
-    return msg
-
-def resultsErrors(result):
-    ''' Error results formatting '''
-    msg = "ERRORS =================================================\n\n"
-    for i in result.errors:
-        for j in i:
-            msg += str(j)
-        msg += "\n"
-    return msg
-
-def resultsFailures(result):
-    ''' Assert failures formatting '''
-    msg = "FAILURES ===============================================\n\n"
-    for i in result.failures:
-        for j in i:
-            msg += str(j)
-        msg += "\n"
-    return msg
-
-def main():
-    ''' main '''
-    print("BEGIN TESTING")
-    result = runTestSuite()
-    resultHead = resultsHeader(result)
-    print(resultHead)
-    if len(result.errors) > 0:
-        rError = resultsErrors(result)
-        print(rError)
-    if len(result.failures) > 0:
-        rFail = resultsFailures(result)
-        print(rFail)
-    print("END OF RESULTS===========================================\n")
-
-# MAIN =============================================
-if __name__ == "__main__":
-    main()
 

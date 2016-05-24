@@ -26,12 +26,13 @@ description: unittest test case for Range Rings
 ==================================================
 history:
 3/30/2016 - mf - initial coding
+5/23/2016 - mf - update for framework
 ==================================================
 '''
 import os
 import arcpy
 import unittest
-import RangeRingUtils
+from toolboxes.scripts.RangeRingUtils import *
 
 srWebMerc = arcpy.SpatialReference(3857) #WGS_1984_Web_Mercator
 srWGS84 = arcpy.SpatialReference(4326) #GCS_WGS_1984
