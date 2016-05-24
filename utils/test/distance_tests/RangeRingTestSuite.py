@@ -37,7 +37,7 @@ history:
 import logging
 import unittest
 import Configuration
-import RangeRingUtilsTestCase
+from . import RangeRingUtilsTestCase
 
 TestSuite = unittest.TestSuite()
 

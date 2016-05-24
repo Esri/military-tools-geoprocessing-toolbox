@@ -32,7 +32,7 @@ history:
 import os
 import arcpy
 import unittest
-from toolboxes.scripts.RangeRingUtils import *
+from military-tools-geoprocessing-toolbox.toolboxes.scripts import RangeRingUtils
 
 srWebMerc = arcpy.SpatialReference(3857) #WGS_1984_Web_Mercator
 srWGS84 = arcpy.SpatialReference(4326) #GCS_WGS_1984
