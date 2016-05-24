@@ -86,6 +86,7 @@ class TableToPolylineTestCase(unittest.TestCase):
             compareFeatures = arcpy.FeatureCompare_management(self.baseFC, self.outputPolylines, "Shape_Length")
             # identical = 'true' means that there are no differences between the baseFC and the output feature class
             identical = compareFeatures.getOutput(1)
+            self.assertEqual(identical, "true")
        
             
         except arcpy.ExecuteError:
