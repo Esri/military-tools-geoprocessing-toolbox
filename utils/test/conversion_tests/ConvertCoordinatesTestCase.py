@@ -73,7 +73,7 @@ class ConvertCoordinatesTestCase(unittest.TestCase):
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
             
-            arcpy.ConvertCoordinates_mt(self.inputTable, "#", "Location_X", "Location_Y", self.outputConvert)
+            arcpy.ConvertCoordinates_mt(self.inputTable, "DD_2", "Location_X", "Location_Y", self.outputConvert)
             
             self.assertTrue(arcpy.Exists(self.outputConvert))
             

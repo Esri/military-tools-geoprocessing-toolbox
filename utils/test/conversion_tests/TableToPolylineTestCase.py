@@ -74,7 +74,7 @@ class TableToPolylineTestCase(unittest.TestCase):
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
             
-            arcpy.TableToPolyline_mt(self.inputTable, "#", "POINT_X", "POINT_Y", self.outputPolylines)
+            arcpy.TableToPolyline_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolylines)
             
             self.assertTrue(arcpy.Exists(self.outputPolylines))
             
