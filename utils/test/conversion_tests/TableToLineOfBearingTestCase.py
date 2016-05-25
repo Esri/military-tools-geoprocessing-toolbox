@@ -74,8 +74,7 @@ class TableToLineOfBearingTestCase(unittest.TestCase):
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
             
-            arcpy.TableToLOB_mt(self.inputTable, "#", "x", "y", "#", "Orientation", "#", "Distance", self.outputLineOfBearing)
-            
+            arcpy.TableToLOB_mt(self.inputTable, "DD_2", "x", "y", "DEGREES", "Orientation", "METERS", "Distance", self.outputLineOfBearing, "GEODESIC")
             self.assertTrue(arcpy.Exists(self.outputLineOfBearing))
             
             featureCount = int(arcpy.GetCount_management(self.outputLineOfBearing).getOutput(0))
