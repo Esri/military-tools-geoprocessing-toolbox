@@ -41,6 +41,7 @@ class TableToPointTestCase(unittest.TestCase):
 
     inputTable = None
     outputPoints = None
+    baseFC = None
 
     def setUp(self):
         if Configuration.DEBUG == True: print("     TableToPointTestCase.setUp")
@@ -51,6 +52,9 @@ class TableToPointTestCase(unittest.TestCase):
 
         self.inputTable = os.path.join(Configuration.militaryInputDataGDB, "SigActs")
         self.outputPoints = os.path.join(Configuration.militaryScratchGDB, "outputTableToPoint")
+        self.baseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToPoint")
+        
+        UnitTestUtilities.checkFilePaths([Configuration.militaryDataPath, Configuration.militaryInputDataGDB, Configuration.militaryScratchGDB, Configuration.militaryResultsGDB, Configuration.military_ProToolboxPath, Configuration.military_DesktopToolboxPath])
 
     def tearDown(self):
         if Configuration.DEBUG == True: print("     TableToPointTestCase.tearDown")
@@ -79,6 +83,11 @@ class TableToPointTestCase(unittest.TestCase):
 
             pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
             self.assertEqual(pointCount, int(288))
+            
+            compareFeatures = arcpy.FeatureCompare_management(self.baseFC, self.outputPoints, "OID")
+            # identical = 'true' means that there are no differences between the baseFC and the output feature class
+            identical = compareFeatures.getOutput(1)
+            self.assertEqual(identical, "true")
 
 
         except arcpy.ExecuteError:

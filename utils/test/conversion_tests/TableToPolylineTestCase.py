@@ -55,6 +55,8 @@ class TableToPolylineTestCase(unittest.TestCase):
         self.outputPolylines = os.path.join(Configuration.militaryScratchGDB, "outputPolylines")
         self.baseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToPolyline")
         
+        UnitTestUtilities.checkFilePaths([Configuration.militaryDataPath, self.inputTable, Configuration.militaryScratchGDB, Configuration.militaryResultsGDB, Configuration.military_ProToolboxPath, Configuration.military_DesktopToolboxPath])
+        
     def tearDown(self):
         if Configuration.DEBUG == True: print("     TableToPolylineTestCase.tearDown")
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
