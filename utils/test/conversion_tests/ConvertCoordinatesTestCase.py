@@ -39,6 +39,9 @@ class ConvertCoordinatesTestCase(unittest.TestCase):
     ''' Test all tools and methods related to the Convert Coordinates tool
     in the Military Tools toolbox'''
     
+    inputTable = None
+    outputConvert = None
+    
     def setUp(self):
         if Configuration.DEBUG == True: print("     ConvertCoordinatesTestCase.setUp")    
         
@@ -46,6 +49,8 @@ class ConvertCoordinatesTestCase(unittest.TestCase):
         if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
 
+        self.inputTable = os.path.join(Configuration.militaryInputDataGDB, "SigActs")
+        self.outputConvert = os.path.join(Configuration.militaryScratchGDB, "outputConvert")
         
     def tearDown(self):
         if Configuration.DEBUG == True: print("     ConvertCoordinatesTestCase.tearDown")
@@ -63,14 +68,17 @@ class ConvertCoordinatesTestCase(unittest.TestCase):
         try:
             if Configuration.DEBUG == True: print("     ConvertCoordinatesTestCase.test_farthest_on_cirle") 
             
-            # arcpy.ImportToolbox(toolboxPath, "mdat")
-            # runToolMessage = "Running tool (Farthest On Circle)"
-            # arcpy.AddMessage(runToolMessage)
-            # Configuration.Logger.info(runToolMessage)
+            arcpy.ImportToolbox(toolboxPath, "mt")
+            runToolMessage = "Running tool (Convert Coordinates)"
+            arcpy.AddMessage(runToolMessage)
+            Configuration.Logger.info(runToolMessage)
             
-            # arcpy.FarthestOnCircle_mdat(self.position, "#", "#", self.hoursOfTransit)
+            arcpy.ConvertCoordinates_mt(self.inputTable, "DD_2", "Location_X", "Location_Y", self.outputConvert)
             
-            # self.assertTrue(arcpy.Exists(self.hoursOfTransit))
+            self.assertTrue(arcpy.Exists(self.outputConvert))
+            
+            featureCount = int(arcpy.GetCount_management(self.outputConvert).getOutput(0))
+            self.assertEqual(featureCount, int(288))
        
             
         except arcpy.ExecuteError:

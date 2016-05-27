@@ -41,6 +41,7 @@ class TableToPolylineTestCase(unittest.TestCase):
     
     inputTable = None
     outputPolylines = None
+    baseFC = None
     
     def setUp(self):
         if Configuration.DEBUG == True: print("     TableToPolylineTestCase.setUp")    
@@ -52,6 +53,7 @@ class TableToPolylineTestCase(unittest.TestCase):
         csvPath = os.path.join(Configuration.militaryDataPath, "CSV")
         self.inputTable = os.path.join(csvPath, "TabletoPolyline.csv")
         self.outputPolylines = os.path.join(Configuration.militaryScratchGDB, "outputPolylines")
+        self.baseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToPolyline")
         
     def tearDown(self):
         if Configuration.DEBUG == True: print("     TableToPolylineTestCase.tearDown")
@@ -74,12 +76,17 @@ class TableToPolylineTestCase(unittest.TestCase):
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
             
-            arcpy.TableToPolyline_mt(self.inputTable, "#", "POINT_X", "POINT_Y", self.outputPolylines)
+            arcpy.TableToPolyline_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolylines)
             
             self.assertTrue(arcpy.Exists(self.outputPolylines))
             
             polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
             self.assertEqual(polylineCount, int(1))
+            
+            compareFeatures = arcpy.FeatureCompare_management(self.baseFC, self.outputPolylines, "Shape_Length")
+            # identical = 'true' means that there are no differences between the baseFC and the output feature class
+            identical = compareFeatures.getOutput(1)
+            self.assertEqual(identical, "true")
        
             
         except arcpy.ExecuteError:
