@@ -39,12 +39,25 @@ class TableToEllipseTestCase(unittest.TestCase):
     ''' Test all tools and methods related to the Table To Ellipse tool
     in the Military Tools toolbox'''
     
+    inputTable = None
+    outputEllipses = None
+    desktopBaseFC = None
+    platform = None
+    
     def setUp(self):
         if Configuration.DEBUG == True: print("     TableToEllipseTestCase.setUp")    
         
         UnitTestUtilities.checkArcPy()
         if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
+            
+        csvPath = os.path.join(Configuration.militaryDataPath, "CSV")
+        self.inputTable = os.path.join(csvPath, "TableToEllipse.csv")
+        self.outputEllipses = os.path.join(Configuration.militaryScratchGDB, "outputEllipses")
+        self.desktopBaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToEllipse")
+        
+        UnitTestUtilities.checkFilePaths([Configuration.militaryDataPath, self.inputTable, Configuration.militaryScratchGDB, Configuration.militaryResultsGDB, Configuration.military_ProToolboxPath, Configuration.military_DesktopToolboxPath])
+        
         
     def tearDown(self):
         if Configuration.DEBUG == True: print("     TableToEllipseTestCase.tearDown")
@@ -52,24 +65,35 @@ class TableToEllipseTestCase(unittest.TestCase):
     
     def test_table_to_ellipse_desktop(self):
         arcpy.AddMessage("Testing Farthest On Circle (Desktop).")
+        self.platform = "Desktop"
         self.test_table_to_ellipse(Configuration.military_DesktopToolboxPath)
         
     def test_table_to_ellipse_pro(self):
         arcpy.AddMessage("Testing Farthest On Circle (Pro).")
+        self.platform = "Pro"
         self.test_table_to_ellipse(Configuration.military_ProToolboxPath)
         
     def test_table_to_ellipse(self, toolboxPath):
         try:
             if Configuration.DEBUG == True: print("     TableToEllipseTestCase.test_table_to_ellipse") 
             
-            # arcpy.ImportToolbox(toolboxPath, "ma")
-            # runToolMessage = "Running tool (Farthest On Circle)"
-            # arcpy.AddMessage(runToolMessage)
-            # Configuration.Logger.info(runToolMessage)
+            arcpy.ImportToolbox(toolboxPath, "mt")
+            runToolMessage = "Running tool (Table To Ellipse)"
+            arcpy.AddMessage(runToolMessage)
+            Configuration.Logger.info(runToolMessage)
             
-            # arcpy.FarthestOnCircle_mdat(self.position, "#", "#", self.hoursOfTransit)
+            arcpy.TableToEllipse_mt(self.inputTable, "#", "x", "y", "Major", "Minor", "KILOMETERS", self.outputEllipses)
+            self.assertTrue(arcpy.Exists(self.outputEllipses))
             
-            # self.assertTrue(arcpy.Exists(self.hoursOfTransit))
+            ellipseCount = int(arcpy.GetCount_management(self.outputEllipses).getOutput(0))
+            self.assertEqual(ellipseCount, int(23))
+            
+            if self.platform == "Desktop":
+                compareFeatures = arcpy.FeatureCompare_management(self.desktopBaseFC, self.outputEllipses, "Major")
+                
+            # identical = 'true' means that there are no differences between the base and the output feature class
+            identical = compareFeatures.getOutput(1)
+            self.assertEqual(identical, "true")
             
         except arcpy.ExecuteError:
             UnitTestUtilities.handleArcPyError()

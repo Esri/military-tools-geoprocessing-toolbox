@@ -65,23 +65,23 @@ def getConversionTestSuites():
     
     if Configuration.Platform == "DESKTOP":
         Configuration.Logger.info("Conversion Desktop tests")
-        addConvertCoordinatesTests(convertCoordinatesDesktopTests)
-        addTableToTwoPointLineTests(tableToTwoPointDesktopTests)
+        # addConvertCoordinatesTests(convertCoordinatesDesktopTests)
+        # addTableToTwoPointLineTests(tableToTwoPointDesktopTests)
         addTableToEllipseTests(tableToEllipseDesktopTests)
-        addTableToLineOfBearingTests(tableToLineOfBearingDesktopTests)
-        addTableToPointTests(tableToPointDesktopTests)
-        addTableToPolygonTests(tableToPolygonDesktopTests)
-        addTableToPolylineTests(tableToPolylineDesktopTests)
+        # addTableToLineOfBearingTests(tableToLineOfBearingDesktopTests)
+        # addTableToPointTests(tableToPointDesktopTests)
+        # addTableToPolygonTests(tableToPolygonDesktopTests)
+        # addTableToPolylineTests(tableToPolylineDesktopTests)
         
     else:
         Configuration.Logger.info("Conversion Pro tests")
-        addConvertCoordinatesTests(convertCoordinatesProTests)
-        addTableToTwoPointLineTests(tableToTwoPointProTests)
+        # addConvertCoordinatesTests(convertCoordinatesProTests)
+        # addTableToTwoPointLineTests(tableToTwoPointProTests)
         addTableToEllipseTests(tableToEllipseProTests)
-        addTableToLineOfBearingTests(tableToLineOfBearingProTests)
-        addTableToPointTests(tableToPointProTests)
-        addTableToPolygonTests(tableToPolygonProTests)
-        addTableToPolylineTests(tableToPolylineProTests)
+        # addTableToLineOfBearingTests(tableToLineOfBearingProTests)
+        # addTableToPointTests(tableToPointProTests)
+        # addTableToPolygonTests(tableToPolygonProTests)
+        # addTableToPolylineTests(tableToPolylineProTests)
     
     
     return TestSuite
