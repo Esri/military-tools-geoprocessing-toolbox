@@ -41,6 +41,9 @@ class TableToLineOfBearingTestCase(unittest.TestCase):
     
     inputTable = None
     outputLineOfBearing = None
+    proBaseFC = None
+    desktopBaseFC = None
+    platform = None
     
     def setUp(self):
         if Configuration.DEBUG == True: print("     TableToLineOfBearingTestCase.setUp")    
@@ -52,6 +55,10 @@ class TableToLineOfBearingTestCase(unittest.TestCase):
         csvFolder = os.path.join(Configuration.militaryDataPath, "CSV")
         self.inputTable = os.path.join(csvFolder, "TabletoLineofBearing.csv")
         self.outputLineOfBearing = os.path.join(Configuration.militaryScratchGDB, "outputLines")
+        self.proBaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToLOBPro")
+        self.desktopBaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToLOB")
+        
+        UnitTestUtilities.checkFilePaths([Configuration.militaryDataPath, self.inputTable, Configuration.militaryScratchGDB, Configuration.militaryResultsGDB, Configuration.military_ProToolboxPath, Configuration.military_DesktopToolboxPath])
         
     def tearDown(self):
         if Configuration.DEBUG == True: print("     TableToLineOfBearingTestCase.tearDown")
@@ -59,10 +66,12 @@ class TableToLineOfBearingTestCase(unittest.TestCase):
     
     def test_table_to_lineofbearing_desktop(self):
         arcpy.AddMessage("Testing Table To Line Of Bearing (Desktop).")
+        self.platform = "Desktop"
         self.test_table_to_lineofbearing(Configuration.military_DesktopToolboxPath)
         
     def test_table_to_lineofbearing_pro(self):
         arcpy.AddMessage("Testing Table To Line Of Bearing (Pro).")
+        self.platform = "Pro"
         self.test_table_to_lineofbearing(Configuration.military_ProToolboxPath)
         
     def test_table_to_lineofbearing(self, toolboxPath):
@@ -74,12 +83,21 @@ class TableToLineOfBearingTestCase(unittest.TestCase):
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
             
-            arcpy.TableToLOB_mt(self.inputTable, "#", "x", "y", "#", "Orientation", "#", "Distance", self.outputLineOfBearing)
-            
+            arcpy.TableToLOB_mt(self.inputTable, "DD_2", "x", "y", "DEGREES", "Orientation", "METERS", "Distance", self.outputLineOfBearing, "GEODESIC")
             self.assertTrue(arcpy.Exists(self.outputLineOfBearing))
             
             featureCount = int(arcpy.GetCount_management(self.outputLineOfBearing).getOutput(0))
             self.assertEqual(featureCount, int(23))
+            
+            if self.platform == "Desktop":
+                compareFeatures = arcpy.FeatureCompare_management(self.desktopBaseFC, self.outputLineOfBearing, "OID")
+                
+            else:
+                compareFeatures = arcpy.FeatureCompare_management(self.proBaseFC, self.outputLineOfBearing, "OID")
+                
+            # identical = 'true' means that there are no differences between the base and the output feature class
+            identical = compareFeatures.getOutput(1)
+            self.assertEqual(identical, "true")
        
             
         except arcpy.ExecuteError:
