@@ -41,8 +41,7 @@ class TableToEllipseTestCase(unittest.TestCase):
     
     inputTable = None
     outputEllipses = None
-    desktopBaseFC = None
-    platform = None
+    baseFC = None
     
     def setUp(self):
         if Configuration.DEBUG == True: print("     TableToEllipseTestCase.setUp")    
@@ -54,7 +53,7 @@ class TableToEllipseTestCase(unittest.TestCase):
         csvPath = os.path.join(Configuration.militaryDataPath, "CSV")
         self.inputTable = os.path.join(csvPath, "TableToEllipse.csv")
         self.outputEllipses = os.path.join(Configuration.militaryScratchGDB, "outputEllipses")
-        self.desktopBaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToEllipse")
+        self.baseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToEllipse")
         
         UnitTestUtilities.checkFilePaths([Configuration.militaryDataPath, self.inputTable, Configuration.militaryScratchGDB, Configuration.militaryResultsGDB, Configuration.military_ProToolboxPath, Configuration.military_DesktopToolboxPath])
         
@@ -64,41 +63,63 @@ class TableToEllipseTestCase(unittest.TestCase):
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
     
     def test_table_to_ellipse_desktop(self):
-        arcpy.AddMessage("Testing Farthest On Circle (Desktop).")
-        self.platform = "Desktop"
-        self.test_table_to_ellipse(Configuration.military_DesktopToolboxPath)
-        
-    def test_table_to_ellipse_pro(self):
-        arcpy.AddMessage("Testing Farthest On Circle (Pro).")
-        self.platform = "Pro"
-        self.test_table_to_ellipse(Configuration.military_ProToolboxPath)
-        
-    def test_table_to_ellipse(self, toolboxPath):
         try:
-            if Configuration.DEBUG == True: print("     TableToEllipseTestCase.test_table_to_ellipse") 
+            if Configuration.DEBUG == True: print("     TableToEllipseTestCase.test_table_to_ellipse_desktop")
+            arcpy.AddMessage("Testing Table To Ellipse (Desktop).")
             
-            arcpy.ImportToolbox(toolboxPath, "mt")
+            arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
             runToolMessage = "Running tool (Table To Ellipse)"
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
             
             arcpy.TableToEllipse_mt(self.inputTable, "#", "x", "y", "Major", "Minor", "KILOMETERS", self.outputEllipses)
-            self.assertTrue(arcpy.Exists(self.outputEllipses))
+            self.assertTrue(arcpy.Exists(self.outputEllipses), "Output dataset does not exist.")
             
             ellipseCount = int(arcpy.GetCount_management(self.outputEllipses).getOutput(0))
-            self.assertEqual(ellipseCount, int(23))
+            expectedFeatures = int(23)
+            self.assertEqual(ellipseCount, expectedFeatures, "Expected %s features but got %s" % (str(expectedFeatures),str(ellipseCount)))
             
-            if self.platform == "Desktop":
-                compareFeatures = arcpy.FeatureCompare_management(self.desktopBaseFC, self.outputEllipses, "Major")
+            compareFeatures = arcpy.FeatureCompare_management(self.baseFC, self.outputEllipses, "Major")
                 
             # identical = 'true' means that there are no differences between the base and the output feature class
             identical = compareFeatures.getOutput(1)
-            self.assertEqual(identical, "true")
+            self.assertEqual(identical, "true", "Feature Compare failed: \n %s" % arcpy.GetMessages())
             
         except arcpy.ExecuteError:
+            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
             UnitTestUtilities.handleArcPyError()
             
-        except:
-            UnitTestUtilities.handleGeneralError()
+       
+        
+        
+    def test_table_to_ellipse_pro(self):
+        try:
+            if Configuration.DEBUG == True: print("     TableToEllipseTestCase.test_table_to_ellipse_pro")
+            arcpy.AddMessage("Testing Table To Ellipse (Pro).")
+            
+            arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+            runToolMessage = "Running tool (Table To Ellipse)"
+            arcpy.AddMessage(runToolMessage)
+            Configuration.Logger.info(runToolMessage)
+            
+            arcpy.TableToEllipse_mt(self.inputTable, "#", "x", "y", "Major", "Minor", "KILOMETERS", self.outputEllipses)
+            self.assertTrue(arcpy.Exists(self.outputEllipses), "Output dataset does not exist.")
+            
+            ellipseCount = int(arcpy.GetCount_management(self.outputEllipses).getOutput(0))
+            expectedFeatures = int(23)
+            self.assertEqual(ellipseCount, expectedFeatures, "Expected %s features but got %s" % (str(expectedFeatures),str(ellipseCount)))
+            
+            compareFeatures = arcpy.FeatureCompare_management(self.baseFC, self.outputEllipses, "Major")
+                
+            # identical = 'true' means that there are no differences between the base and the output feature class
+            identical = compareFeatures.getOutput(1)
+            self.assertEqual(identical, "true", "Feature Compare failed: \n %s" % arcpy.GetMessages())
+            
+        except arcpy.ExecuteError:
+            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
+            UnitTestUtilities.handleArcPyError()
+            
+       
+        
 
         
