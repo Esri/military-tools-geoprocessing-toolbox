@@ -1,33 +1,36 @@
 # coding: utf-8
-# -----------------------------------------------------------------------------
-# Copyright 2016 Esri
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# -----------------------------------------------------------------------------
+'''
+-----------------------------------------------------------------------------
+Copyright 2016 Esri
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-# ==================================================
-# TableToPointTestCase.py
-# --------------------------------------------------
-# requirements:
-# * ArcGIS Desktop 10.X+ or ArcGIS Pro 1.X+
-# * Python 2.7 or Python 3.4
-#
-# author: ArcGIS Solutions
-# company: Esri
-#
-# ==================================================
-# history:
-# 5/18/2016 - DJH - initial creation
-# ==================================================
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-----------------------------------------------------------------------------
+
+==================================================
+TableToPointTestCase.py
+--------------------------------------------------
+requirements:
+* ArcGIS Desktop 10.X+ or ArcGIS Pro 1.X+
+* Python 2.7 or Python 3.4
+
+author: ArcGIS Solutions
+company: Esri
+
+==================================================
+history:
+5/18/2016 - DJH - initial creation
+5/31/2016 - MF - change error handling
+==================================================
+'''
 
 import unittest
 import arcpy
@@ -63,40 +66,53 @@ class HighestPointsTestCase(unittest.TestCase):
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
 
     def test_highest_points_desktop(self):
-        arcpy.AddMessage("Testing Highest Points (Desktop).")
-        self.test_highest_points(Configuration.military_DesktopToolboxPath)
-
-    def test_highest_points_pro(self):
-        arcpy.AddMessage("Testing Highest Points (Pro).")
-        self.test_highest_points(Configuration.military_ProToolboxPath)
-
-    def test_highest_points(self, toolboxPath):
+        ''' Test Highest Points for ArcGIS Desktop '''
         try:
-            if Configuration.DEBUG == True: print("     HighestPointsTestCase.test_highest_points")
-
-            arcpy.ImportToolbox(toolboxPath, "mt")
-            runToolMessage = "Running tool (Highest Points)"
+            runToolMessage = ".....HighestPointsTestCase.test_highest_points_desktop"
+            arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
 
             arcpy.HighestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)
-            self.assertTrue(arcpy.Exists(self.outputPoints))
+            self.assertTrue(arcpy.Exists(self.outputPoints), "Output dataset does not exist or was not created")
 
             pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
-            self.assertEqual(pointCount, int(1))
+            expectedFeatures = int(1)
+            self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures),str(pointCount)))
 
             rows = arcpy.SearchCursor(self.outputPoints)
             row = rows.next()
             while row:
                 elevation = row.Elevation
-                self.assertEqual(elevation, int(1123))
+                self.assertEqual(elevation, int(1123), "Bad elevation value: %s" % str(elevation))
                 row = rows.next()
 
-
         except arcpy.ExecuteError:
+            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
             UnitTestUtilities.handleArcPyError()
 
-        except:
-            UnitTestUtilities.handleGeneralError()
+    def test_highest_points_pro(self):
+        ''' Test Highest Points for ArcGIS Pro '''
+        try:
+            runToolMessage = ".....HighestPointsTestCase.test_highest_points_pro"
+            arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+            arcpy.AddMessage(runToolMessage)
+            Configuration.Logger.info(runToolMessage)
 
+            arcpy.HighestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)
+            self.assertTrue(arcpy.Exists(self.outputPoints), "Output dataset does not exist or was not created")
 
+            pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
+            expectedFeatures = int(1)
+            self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures),str(pointCount)))
+
+            rows = arcpy.SearchCursor(self.outputPoints)
+            row = rows.next()
+            while row:
+                elevation = row.Elevation
+                self.assertEqual(elevation, int(1123), "Bad elevation value: %s" % str(elevation))
+                row = rows.next()
+
+        except arcpy.ExecuteError:
+            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
+            UnitTestUtilities.handleArcPyError()
