@@ -41,6 +41,9 @@ class TableToPointTestCase(unittest.TestCase):
 
     inputTable = None
     outputPoints = None
+    proBaseFC = None
+    desktopBaseFC = None
+    platform = None
 
     def setUp(self):
         if Configuration.DEBUG == True: print("     TableToPointTestCase.setUp")
@@ -51,6 +54,10 @@ class TableToPointTestCase(unittest.TestCase):
 
         self.inputTable = os.path.join(Configuration.militaryInputDataGDB, "SigActs")
         self.outputPoints = os.path.join(Configuration.militaryScratchGDB, "outputTableToPoint")
+        self.desktopBaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToPoint")
+        self.proBaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToPointPro")
+        
+        UnitTestUtilities.checkFilePaths([Configuration.militaryDataPath, Configuration.militaryInputDataGDB, Configuration.militaryScratchGDB, Configuration.militaryResultsGDB, Configuration.military_ProToolboxPath, Configuration.military_DesktopToolboxPath])
 
     def tearDown(self):
         if Configuration.DEBUG == True: print("     TableToPointTestCase.tearDown")
@@ -58,10 +65,12 @@ class TableToPointTestCase(unittest.TestCase):
 
     def test_table_to_point_desktop(self):
         arcpy.AddMessage("Testing Table To Point (Desktop).")
+        self.platform = "Desktop"
         self.test_table_to_point(Configuration.military_DesktopToolboxPath)
 
     def test_table_to_point_pro(self):
         arcpy.AddMessage("Testing Table To Point (Pro).")
+        self.platform = "Pro"
         self.test_table_to_point(Configuration.military_ProToolboxPath)
 
     def test_table_to_point(self, toolboxPath):
@@ -79,6 +88,16 @@ class TableToPointTestCase(unittest.TestCase):
 
             pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
             self.assertEqual(pointCount, int(288))
+            
+            if self.platform == "Desktop":
+                compareFeatures = arcpy.FeatureCompare_management(self.desktopBaseFC, self.outputPoints, "OID")
+            
+            else:
+                compareFeatures = arcpy.FeatureCompare_management(self.proBaseFC, self.outputPoints, "OID")
+            
+            # identical = 'true' means that there are no differences between the baseFC and the output feature class
+            identical = compareFeatures.getOutput(1)
+            self.assertEqual(identical, "true")
 
 
         except arcpy.ExecuteError:
