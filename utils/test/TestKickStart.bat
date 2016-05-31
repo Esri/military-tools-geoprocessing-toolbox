@@ -39,7 +39,7 @@ REM If you have BOTH versions of Python installed:
 
 ECHO Python 3.4 Tests ===============================
 REM py -3.4 TestRunner.py %LOG%
-"C:\Python34\python.exe" TestRunner.py %LOG%
+"C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\python.exe" TestRunner.py %LOG%
 
 ECHO Python 2.7 Tests ===============================
 REM py -2.7 TestRunner.py %LOG%
