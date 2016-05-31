@@ -87,7 +87,7 @@ class FindLocalPeaksTestCase(unittest.TestCase):
             UnitTestUtilities.handleArcPyError()
 
 
-    def test_find_local_peaks_pro(self, toolboxPath):
+    def test_find_local_peaks_pro(self):
         ''' Test Find Local Peaks for ArcGIS Pro '''
         try:
             runToolMessage = ".....FindLocalPeaksTestCase.test_find_local_peaks_pro"
