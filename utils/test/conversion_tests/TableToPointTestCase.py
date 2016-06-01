@@ -45,7 +45,7 @@ class TableToPointTestCase(unittest.TestCase):
     inputTable = None
     outputPoints = None
     proBaseFC = None
-    desktopBaseFC = None
+    BaseFC = None
     platform = None
 
     def setUp(self):
@@ -57,8 +57,7 @@ class TableToPointTestCase(unittest.TestCase):
 
         self.inputTable = os.path.join(Configuration.militaryInputDataGDB, "SigActs")
         self.outputPoints = os.path.join(Configuration.militaryScratchGDB, "outputTableToPoint")
-        self.desktopBaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToPoint")
-        self.proBaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToPointPro")
+        self.BaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToPoint")
         
         UnitTestUtilities.checkFilePaths([Configuration.militaryDataPath, Configuration.militaryInputDataGDB, Configuration.militaryScratchGDB, Configuration.militaryResultsGDB, Configuration.military_ProToolboxPath, Configuration.military_DesktopToolboxPath])
 
@@ -82,7 +81,7 @@ class TableToPointTestCase(unittest.TestCase):
             expectedFeatures = int(288)
             self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
             
-            compareFeatures = arcpy.FeatureCompare_management(self.desktopBaseFC, self.outputPoints, "OID")         
+            compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPoints, "OID")         
             # identical = 'true' means that there are no differences between the baseFC and the output feature class
             identical = compareFeatures.getOutput(1)
             self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
@@ -107,7 +106,7 @@ class TableToPointTestCase(unittest.TestCase):
             expectedFeatures = int(288)
             self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
             
-            compareFeatures = arcpy.FeatureCompare_management(self.proBaseFC, self.outputPoints, "OID")            
+            compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPoints, "OID")            
             # identical = 'true' means that there are no differences between the baseFC and the output feature class
             identical = compareFeatures.getOutput(1)
             self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
