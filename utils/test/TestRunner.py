@@ -66,7 +66,12 @@ def main():
     result = runTestSuite()
     logTestResults(result)
     print("END OF TEST =========================================\n")
-    return
+    if result.wasSuccessful:
+        #tests successful
+        sys.exit(0)
+    else:
+        # test errors or failures
+        sys.exit(1)
 
 def logTestResults(result):
     ''' Write the log file '''
@@ -99,7 +104,7 @@ def resultsErrors(result):
     for i in result.errors:
         for j in i:
             msg += str(j)
-        msg += "\n"
+        msg += "\n.............................................................."
     return msg
 
 def resultsFailures(result):
@@ -108,7 +113,7 @@ def resultsFailures(result):
     for i in result.failures:
         for j in i:
             msg += str(j)
-        msg += "\n"
+        msg += "\n.............................................................."
     return msg
 
 def runTestSuite():
