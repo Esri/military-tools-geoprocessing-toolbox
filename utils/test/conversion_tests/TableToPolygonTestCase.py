@@ -51,32 +51,41 @@ class TableToPolygonTestCase(unittest.TestCase):
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
     
     def test_table_to_polygon_desktop(self):
-        arcpy.AddMessage("Testing Table To Polygon (Desktop).")
-        self.test_table_to_polygon(Configuration.military_DesktopToolboxPath)
+        '''Test Table To Polygon for ArcGIS Desktop'''
+        try:
+            runToolMessage = "TEST NOT COMPLETE.....TableToPolygonTestCase.test_table_to_polygon_desktop"
+            
+            #TODO: write the test here
+            #arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+            arcpy.AddMessage(runToolMessage)
+            #Configuration.Logger.info(runToolMessage)
+            
+            # arcpy.CheckOutExtension("Spatial")
+            # arcpy.FarthestOnCircle_mdat(self.position, "#", "#", self.hoursOfTransit)
+            
+            # self.assertTrue(arcpy.Exists(self.hoursOfTransit), "error message here")
+       
+        except arcpy.ExecuteError:
+            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
+            UnitTestUtilities.handleArcPyError()
+
         
     def test_table_to_polygon_pro(self):
-        arcpy.AddMessage("Testing Table To Polygon (Pro).")
-        self.test_table_to_polygon(Configuration.military_ProToolboxPath)
-        
-    def test_table_to_polygon(self, toolboxPath):
+        '''Test Table To Polygon for ArcGIS Pro'''
         try:
-            if Configuration.DEBUG == True: print("     TableToPolygonTestCase.test_table_to_polygon") 
+            runToolMessage = "TEST NOT COMPLETE.....TableToPolygonTestCase.test_table_to_polygon_pro"
             
-            # arcpy.ImportToolbox(toolboxPath, "mdat")
-            # runToolMessage = "Running tool (Farthest On Circle)"
-            # arcpy.AddMessage(runToolMessage)
+            #TODO: write the test here
+            # arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+            arcpy.AddMessage(runToolMessage)
             # Configuration.Logger.info(runToolMessage)
             
             # arcpy.CheckOutExtension("Spatial")
             # arcpy.FarthestOnCircle_mdat(self.position, "#", "#", self.hoursOfTransit)
             
-            # self.assertTrue(arcpy.Exists(self.hoursOfTransit))
+            # self.assertTrue(arcpy.Exists(self.hoursOfTransit), "error message here")
        
-            
         except arcpy.ExecuteError:
+            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
             UnitTestUtilities.handleArcPyError()
             
-        except:
-            UnitTestUtilities.handleGeneralError()
-            
-        

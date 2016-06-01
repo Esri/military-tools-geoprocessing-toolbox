@@ -1,33 +1,36 @@
 # coding: utf-8
-# -----------------------------------------------------------------------------
-# Copyright 2016 Esri
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# -----------------------------------------------------------------------------
+'''
+-----------------------------------------------------------------------------
+Copyright 2016 Esri
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-# ==================================================
-# TableToPolylineTestCase.py
-# --------------------------------------------------
-# requirements:
-# * ArcGIS Desktop 10.X+ or ArcGIS Pro 1.X+
-# * Python 2.7 or Python 3.4
-#
-# author: ArcGIS Solutions
-# company: Esri
-#
-# ==================================================
-# history:
-# 5/11/2016 - JH - initial creation
-# ==================================================
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-----------------------------------------------------------------------------
+
+==================================================
+TableToPolylineTestCase.py
+--------------------------------------------------
+requirements:
+* ArcGIS Desktop 10.X+ or ArcGIS Pro 1.X+
+* Python 2.7 or Python 3.4
+
+author: ArcGIS Solutions
+company: Esri
+
+==================================================
+history:
+5/11/2016 - JH - initial creation
+6/1/2016 - MF - update error handling
+==================================================
+'''
 
 import unittest
 import arcpy
@@ -55,8 +58,7 @@ class TableToPolylineTestCase(unittest.TestCase):
         csvPath = os.path.join(Configuration.militaryDataPath, "CSV")
         self.inputTable = os.path.join(csvPath, "TabletoPolyline.csv")
         self.outputPolylines = os.path.join(Configuration.militaryScratchGDB, "outputPolylines")
-        self.desktopBaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToPolyline")
-        self.proBaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToPolylinePro")
+        self.BaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToPolyline")
         
         UnitTestUtilities.checkFilePaths([Configuration.militaryDataPath, self.inputTable, Configuration.militaryScratchGDB, Configuration.militaryResultsGDB, Configuration.military_ProToolboxPath, Configuration.military_DesktopToolboxPath])
         
@@ -65,46 +67,53 @@ class TableToPolylineTestCase(unittest.TestCase):
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
     
     def test_table_to_polyline_desktop(self):
-        arcpy.AddMessage("Testing Table To Polyline (Desktop).")
-        self.platform = "Desktop"
-        self.test_table_to_polyline(Configuration.military_DesktopToolboxPath)
-        
-    def test_table_to_polyline_pro(self):
-        arcpy.AddMessage("Testing Table To Polyline (Pro).")
-        self.platform = "Pro"
-        self.test_table_to_polyline(Configuration.military_ProToolboxPath)
-        
-    def test_table_to_polyline(self, toolboxPath):
+        '''Test Table To Polyline for ArcGIS Desktop'''
         try:
-            if Configuration.DEBUG == True: print("     TableToPolylineTestCase.test_table_to_polyline") 
-
-            arcpy.ImportToolbox(toolboxPath, "mt")
-            runToolMessage = "Running tool (Table To Polyline)"
+            runToolMessage = ".....TableToPolylineTestCase.test_table_to_polyline_desktop"
+            arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
             
             arcpy.TableToPolyline_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolylines)
             
-            self.assertTrue(arcpy.Exists(self.outputPolylines))
+            self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
             
             polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
-            self.assertEqual(polylineCount, int(1))
+            expectedFeatures = int(1)
+            self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
             
-            if self.platform == "Desktop":
-                compareFeatures = arcpy.FeatureCompare_management(self.desktopBaseFC, self.outputPolylines, "Shape_Length")
-                
-            else:
-                compareFeatures = arcpy.FeatureCompare_management(self.proBaseFC, self.outputPolylines, "Shape_Length")
-                
+            compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPolylines, "Shape_Length")
             # identical = 'true' means that there are no differences between the base and the output feature class
             identical = compareFeatures.getOutput(1)
-            self.assertEqual(identical, "true")
+            self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
             
         except arcpy.ExecuteError:
+            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
+            UnitTestUtilities.handleArcPyError()        
+
+        
+    def test_table_to_polyline_pro(self):
+        '''Test Table To Polyline for ArcGIS Pro'''
+        try:
+            runToolMessage = ".....TableToPolylineTestCase.test_table_to_polyline_pro"
+            arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+            arcpy.AddMessage(runToolMessage)
+            Configuration.Logger.info(runToolMessage)
+            
+            arcpy.TableToPolyline_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolylines)
+            
+            self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
+            
+            polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
+            expectedFeatures = int(1)
+            self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
+            
+            compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPolylines, "Shape_Length")
+            # identical = 'true' means that there are no differences between the base and the output feature class
+            identical = compareFeatures.getOutput(1)
+            self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+            
+        except arcpy.ExecuteError:
+            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
             UnitTestUtilities.handleArcPyError()
-            
-        except:
-            UnitTestUtilities.handleGeneralError()
-            
-            
         
