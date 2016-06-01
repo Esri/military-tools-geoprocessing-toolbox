@@ -58,8 +58,7 @@ class TableToLineOfBearingTestCase(unittest.TestCase):
         csvFolder = os.path.join(Configuration.militaryDataPath, "CSV")
         self.inputTable = os.path.join(csvFolder, "TabletoLineofBearing.csv")
         self.outputLineOfBearing = os.path.join(Configuration.militaryScratchGDB, "outputLines")
-        self.proBaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToLOBPro")
-        self.desktopBaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToLOB")
+        self.BaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToLOB")
         
         UnitTestUtilities.checkFilePaths([Configuration.militaryDataPath, self.inputTable, Configuration.militaryScratchGDB, Configuration.militaryResultsGDB, Configuration.military_ProToolboxPath, Configuration.military_DesktopToolboxPath])
         
@@ -83,7 +82,7 @@ class TableToLineOfBearingTestCase(unittest.TestCase):
             expectedFeatures = int(23)
             self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
 
-            compareFeatures = arcpy.FeatureCompare_management(self.desktopBaseFC, self.outputLineOfBearing, "OID")
+            compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputLineOfBearing, "OID")
             # identical = 'true' means that there are no differences between the base and the output feature class
             identical = compareFeatures.getOutput(1)
             self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
@@ -108,7 +107,7 @@ class TableToLineOfBearingTestCase(unittest.TestCase):
             expectedFeatures = int(23)
             self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
 
-            compareFeatures = arcpy.FeatureCompare_management(self.proBaseFC, self.outputLineOfBearing, "OID")
+            compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputLineOfBearing, "OID")
 
             # identical = 'true' means that there are no differences between the base and the output feature class
             identical = compareFeatures.getOutput(1)
