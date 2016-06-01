@@ -140,8 +140,8 @@ def addMilitarySuite():
     testSuite.addTests(ConversionTestSuite.getConversionTestSuites())
     
     # TODO: wire up RangeRingUtilsTestCase
-    # from distance_tests import RangeRingTestSuite
-    # testSuite.addTests(RangeRingTestSuite.getRangeRingTestSuite())
+    from distance_tests import RangeRingTestSuite
+    testSuite.addTests(RangeRingTestSuite.getRangeRingTestSuite())
     
     from visibility_tests import VisibilityTestSuite
     testSuite.addTests(VisibilityTestSuite.getVisibilityTestSuites())
