@@ -77,16 +77,18 @@ class RangeRingUtilsTestCase(unittest.TestCase):
                                       ringDistanceList,
                                       "METERS",
                                       srWAZED)
-        self.assertEquals(rm.ringCount, len(ringDistanceList))
-        self.assertEquals(rm.ringMin, 10.0)
-        self.assertEquals(rm.ringMax, 40.0)
+        self.assertEquals(rm.ringCount, len(ringDistanceList), "Incorrect ring count. Expected %s, but got %s" % (str(rm.ringCount), str(len(ringDistanceList))))
+        expectedRingMin = float(10.0)
+        self.assertEquals(rm.ringMin, expectedRingMin, "Incorrect min ring distance. Expected %s, but got %s" % (str(expectedRingMin), str(rm.ringMin)))
+        expectedRingMax = float(40.0)
+        self.assertEquals(rm.ringMax, expectedRingMax, "Incorrect max ring distance. Expected %s, but got %s" % (str(expectedRingMax), str(rm.ringMax)))
         return
 
     def test_RingMaker_sortList_empty(self):
         ''' test RingMaker's internal _sortList method if it handles an empty list'''
         print("RangeRingsUtilsTestCase.test_RingMaker_sortList_emtpy")
         outList = RangeRingUtils.RingMaker._sortList(self, [])
-        self.assertIsNone(outList)
+        self.assertIsNone(outList, "Expected empty sorted list, but got %s" % str(outList))
         return
 
     def test_RingMaker_sortList_isSorted(self):
