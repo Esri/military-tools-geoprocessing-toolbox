@@ -33,9 +33,7 @@ import os
 import arcpy
 import unittest
 #TODO: this is the problem line here:
-from military-tools-geoprocessing-toolbox.toolboxes.scripts import RangeRingUtils
-#from  .....toolboxes.scripts import RangeRingUtils
-#from .....military-tools-geoprocessing-toolbox.toolboxes.scripts import RangeRingUtils
+from miltools.toolboxes.scripts.RangeRingUtils import *
 
 srWebMerc = arcpy.SpatialReference(3857) #WGS_1984_Web_Mercator
 srWGS84 = arcpy.SpatialReference(4326) #GCS_WGS_1984
