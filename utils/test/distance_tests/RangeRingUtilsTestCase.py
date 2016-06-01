@@ -96,7 +96,7 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         print("RangeRingsUtilsTestCase.test_sortList_isSorted")
         l = [7, 5, 9, 3, 8, 1, 6, 2, 4, 0]
         outList = RangeRingUtils.RingMaker._sortList(self, l)
-        self.assertEqual(outList, sorted(l))
+        self.assertEqual(outList, sorted(l), "List not sorted as expected")
         return
 
     def test_RingMaker_addFieldsToTable(self):
@@ -110,7 +110,7 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         newfc = rm._addFieldsToTable(fc, fields)
         numFieldsAfter = len(list(arcpy.ListFields(newfc)))
 
-        self.assertEqual(numFieldsAfter, numFieldsBefore + 2)
+        self.assertEqual(numFieldsAfter, numFieldsBefore + 2, "Error adding fields. Expected %s but got %s" % (str(numFieldsBefore + 2), str(numFieldsAfter)))
         deleteme.append(fc)
         return
 
@@ -119,7 +119,7 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         print("RangeRingsUtilsTestCase.test_RingMaker_makeTempTable")
         rm = RangeRingUtils.RingMaker(self.pointGeographic, [10.0, 20.0], "METERS", srWAZED)
         tempTab = rm._makeTempTable("tempTab", {"a":"TEXT"})
-        self.assertTrue(arcpy.Exists(tempTab))
+        self.assertTrue(arcpy.Exists(tempTab), "Temp table was not created or does not exist")
         deleteme.append(tempTab)
         return
 
@@ -131,7 +131,7 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         rm = RangeRingUtils.RingMaker(self.pointGeographic, ringDistanceList, "METERS", srWAZED)
         rm.makeRingsFromDistances()
         ringCountActual = int(arcpy.GetCount_management(rm.ringFeatures).getOutput(0))
-        self.assertEqual(ringCountEstimate, ringCountActual)
+        self.assertEqual(ringCountEstimate, ringCountActual, "Did not create rings correctly. Expected %s, but got %s" % (str(ringCountEstimate), str(ringCountActual)))
         return
 
     def test_RingMaker_makeRadials(self):
@@ -144,7 +144,7 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         radialCountEstimate = radialsToMake * int(arcpy.GetCount_management(self.pointGeographic).getOutput(0))
         rm.makeRadials(radialsToMake)
         radialCountActual = int(arcpy.GetCount_management(rm.radialFeatures).getOutput(0))
-        self.assertEqual(radialCountEstimate, radialCountActual)
+        self.assertEqual(radialCountEstimate, radialCountActual, "Did not create radials correctly. Expected %s but got %s" % (str(radialCountEstimate), str(radialCountActual)))
         return
 
     def test_RingMaker_saveRingsAsFeatures(self):
@@ -157,7 +157,7 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         tempRings = os.path.join(self.DataGDB, "tempRings")
         if arcpy.Exists(tempRings): arcpy.Delete_management(tempRings)
         ringFeatures = rm.saveRingsAsFeatures(tempRings)
-        self.assertTrue(arcpy.Exists(ringFeatures))
+        self.assertTrue(arcpy.Exists(ringFeatures), "Ring features were not created or do not exist")
         deleteme.append(ringFeatures)
         return
 
@@ -171,7 +171,7 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         tempRadials = os.path.join(self.DataGDB, "tempRadials")
         if arcpy.Exists(tempRadials): arcpy.Delete_management(tempRadials)
         radialFeatures = rm.saveRadialsAsFeatures(tempRadials)
-        self.assertTrue(arcpy.Exists(radialFeatures))
+        self.assertTrue(arcpy.Exists(radialFeatures), "Radial features were not created or do not exist")
         deleteme.append(radialFeatures)
         return
 
@@ -195,11 +195,11 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         outRings = rr[0]
         outRadials = rr[1]
 
-        self.assertTrue(arcpy.Exists(outRings))
-        self.assertEqual(int(arcpy.GetCount_management(outRings).getOutput(0)), numCenters * 2)
+        self.assertTrue(arcpy.Exists(outRings), "Ring features not created or do not exist")
+        self.assertEqual(int(arcpy.GetCount_management(outRings).getOutput(0)), numCenters * 2, "Wrong number of expected ring features")
 
-        self.assertTrue(arcpy.Exists(outRadials))
-        self.assertEqual(int(arcpy.GetCount_management(outRadials).getOutput(0)), numRadials * numCenters)
+        self.assertTrue(arcpy.Exists(outRadials), "Radial features not created or do not exist")
+        self.assertEqual(int(arcpy.GetCount_management(outRadials).getOutput(0)), numRadials * numCenters, "Wrong number of expected radial features")
 
         deleteme.append(rings)
         deleteme.append(radials)
@@ -223,11 +223,11 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         outRings = rr[0]
         outRadials = rr[1]
 
-        self.assertTrue(arcpy.Exists(outRings))
-        self.assertEqual(int(arcpy.GetCount_management(outRings).getOutput(0)), len(ringList) * numCenters)
+        self.assertTrue(arcpy.Exists(outRings), "Ring features not created or do not exist")
+        self.assertEqual(int(arcpy.GetCount_management(outRings).getOutput(0)), len(ringList) * numCenters, "Wrong number of expected ring features")
 
-        self.assertTrue(arcpy.Exists(outRadials))
-        self.assertEqual(int(arcpy.GetCount_management(outRadials).getOutput(0)), numRadials * numCenters)
+        self.assertTrue(arcpy.Exists(outRadials), "Radial features not created or do not exist")
+        self.assertEqual(int(arcpy.GetCount_management(outRadials).getOutput(0)), numRadials * numCenters, "Wrong number of expected radial features")
 
         deleteme.append(rings)
         deleteme.append(radials)
@@ -253,11 +253,11 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         outRings = rr[0]
         outRadials = rr[1]
 
-        self.assertTrue(arcpy.Exists(outRings))
-        self.assertEqual(int(arcpy.GetCount_management(outRings).getOutput(0)), 4 * numCenters)
+        self.assertTrue(arcpy.Exists(outRings), "Ring features not created or do not exist")
+        self.assertEqual(int(arcpy.GetCount_management(outRings).getOutput(0)), 4 * numCenters, "Wrong number of expected ring features")
 
-        self.assertTrue(arcpy.Exists(outRadials))
-        self.assertEqual(int(arcpy.GetCount_management(outRadials).getOutput(0)), numRadials * numCenters)
+        self.assertTrue(arcpy.Exists(outRadials), "Radial features not created or do not exist")
+        self.assertEqual(int(arcpy.GetCount_management(outRadials).getOutput(0)), numRadials * numCenters, "Wrong number of expected radial features")
 
         deleteme.append(rings)
         deleteme.append(radials)
