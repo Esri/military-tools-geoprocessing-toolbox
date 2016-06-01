@@ -58,8 +58,7 @@ class TableToPolylineTestCase(unittest.TestCase):
         csvPath = os.path.join(Configuration.militaryDataPath, "CSV")
         self.inputTable = os.path.join(csvPath, "TabletoPolyline.csv")
         self.outputPolylines = os.path.join(Configuration.militaryScratchGDB, "outputPolylines")
-        self.desktopBaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToPolyline")
-        self.proBaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToPolylinePro")
+        self.BaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToPolyline")
         
         UnitTestUtilities.checkFilePaths([Configuration.militaryDataPath, self.inputTable, Configuration.militaryScratchGDB, Configuration.militaryResultsGDB, Configuration.military_ProToolboxPath, Configuration.military_DesktopToolboxPath])
         
@@ -83,7 +82,7 @@ class TableToPolylineTestCase(unittest.TestCase):
             expectedFeatures = int(1)
             self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
             
-            compareFeatures = arcpy.FeatureCompare_management(self.desktopBaseFC, self.outputPolylines, "Shape_Length")
+            compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPolylines, "Shape_Length")
             # identical = 'true' means that there are no differences between the base and the output feature class
             identical = compareFeatures.getOutput(1)
             self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
@@ -109,7 +108,7 @@ class TableToPolylineTestCase(unittest.TestCase):
             expectedFeatures = int(1)
             self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
             
-            compareFeatures = arcpy.FeatureCompare_management(self.proBaseFC, self.outputPolylines, "Shape_Length")
+            compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPolylines, "Shape_Length")
             # identical = 'true' means that there are no differences between the base and the output feature class
             identical = compareFeatures.getOutput(1)
             self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
