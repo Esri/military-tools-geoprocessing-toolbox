@@ -91,7 +91,7 @@ class TableToPointTestCase(unittest.TestCase):
             self.fail(runToolMessage + "\n" + arcpy.GetMessages())
             UnitTestUtilities.handleArcPyError()
 
-    def test_table_to_point_pro(self, toolboxPath):
+    def test_table_to_point_pro(self):
         '''Test Table To Point for ArcGIS Pro'''
         try:
             runToolMessage = ".....TableToPointTestCase.test_table_to_point_pro"

@@ -93,7 +93,7 @@ class TableToPolylineTestCase(unittest.TestCase):
             UnitTestUtilities.handleArcPyError()        
 
         
-    def test_table_to_polyline_pro(self, toolboxPath):
+    def test_table_to_polyline_pro(self):
         '''Test Table To Polyline for ArcGIS Pro'''
         try:
             runToolMessage = ".....TableToPolylineTestCase.test_table_to_polyline_pro"
