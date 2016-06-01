@@ -52,32 +52,35 @@ class TableToTwoPointLineTestCase(unittest.TestCase):
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
     
     def test_table_to_twopointline_desktop(self):
-        arcpy.AddMessage("Testing Table To 2-Point Line (Desktop).")
-        self.test_table_to_twopointline(Configuration.military_DesktopToolboxPath)
-        
-    def test_table_to_twopointline_pro(self):
-        arcpy.AddMessage("Testing Table To 2-Point Line (Pro).")
-        self.test_table_to_twopointline(Configuration.military_ProToolboxPath)
-        
-    def test_table_to_twopointline(self, toolboxPath):
+        '''Test Table To Two Point Line for ArcGIS Desktop'''
         try:
-            if Configuration.DEBUG == True: print("     TableToTwoPointLineTestCase.test_table_to_twopointline") 
-            
-            # arcpy.ImportToolbox(toolboxPath, "mdat")
-            # runToolMessage = "Running tool (Farthest On Circle)"
-            # arcpy.AddMessage(runToolMessage)
+            runToolMessage = "TEST NOT COMPLETE.....TableToTwoPointLineTestCase.test_table_to_twopointline_desktop"
+            # arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+            arcpy.AddMessage(runToolMessage)
             # Configuration.Logger.info(runToolMessage)
             
             # arcpy.CheckOutExtension("Spatial")
             # arcpy.FarthestOnCircle_mdat(self.position, "#", "#", self.hoursOfTransit)
             
             # self.assertTrue(arcpy.Exists(self.hoursOfTransit))
-       
-            
-        except arcpy.ExecuteError:
-            UnitTestUtilities.handleArcPyError()
-            
-        except:
-            UnitTestUtilities.handleGeneralError()
 
+        except arcpy.ExecuteError:
+            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
+            UnitTestUtilities.handleArcPyError()
         
+    def test_table_to_twopointline_pro(self):
+        '''Test Table To Two Point Line for ArcGIS Pro'''
+        try:
+            runToolMessage = "TEST NOT COMPLETE.....TableToTwoPointLineTestCase.test_table_to_twopointline_pro"
+            # arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+            arcpy.AddMessage(runToolMessage)
+            # Configuration.Logger.info(runToolMessage)
+            
+            # arcpy.CheckOutExtension("Spatial")
+            # arcpy.FarthestOnCircle_mdat(self.position, "#", "#", self.hoursOfTransit)
+            
+            # self.assertTrue(arcpy.Exists(self.hoursOfTransit))
+
+        except arcpy.ExecuteError:
+            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
+            UnitTestUtilities.handleArcPyError()
