@@ -53,6 +53,8 @@ def getVisibilityTestSuites():
     linearLineOfSightProTests = ['test_linear_line_of_sight_pro']
     radialLineOfSightDesktopTests = ['test_radial_line_of_sight_desktop']
     radialLineOfSightProTests = ['test_radial_line_of_sight_pro']
+    #addLLOSFieldsDesktopTests = ['test_add_llos_fields_desktop']
+    addLLOSFieldsProTests = ['test_add_llos_fields_pro']
 
     if Configuration.DEBUG == True:
         print("   VisibilityTestSuite.getVisibilityTestSuites")
@@ -66,6 +68,8 @@ def getVisibilityTestSuites():
         addLowestPointsTests(lowestPointsDesktopTests)
         addLinearLineOfSightTests(linearLineOfSightDesktopTests)
         addRadialLineOfSightTests(radialLineOfSightDesktopTests)
+        #addAddLLOSFieldsTests(addLLOSFieldsDesktopTests)
+
 
     else:
         Configuration.Logger.info("Visibility Pro tests")
@@ -74,6 +78,7 @@ def getVisibilityTestSuites():
         addLowestPointsTests(lowestPointsProTests)
         addLinearLineOfSightTests(linearLineOfSightProTests)
         addRadialLineOfSightTests(radialLineOfSightProTests)
+        addAddLLOSFieldsTests(addLLOSFieldsProTests)
 
     return TestSuite
 
@@ -92,7 +97,7 @@ def addHighestPointsTests(inputTestList):
         print("adding test: " + str(test))
         Configuration.Logger.info(test)
         TestSuite.addTest(HighestPointsTestCase.HighestPointsTestCase(test))
-        
+
 def addLowestPointsTests(inputTestList):
     if Configuration.DEBUG == True: print("      VisibilityTestSuite.addLowestPointsTests")
     from . import LowestPointsTestCase
@@ -116,6 +121,14 @@ def addRadialLineOfSightTests(inputTestList):
         print("adding test: " + str(test))
         Configuration.Logger.info(test)
         TestSuite.addTest(RadialLineOfSightTestCase.RadialLineOfSightTestCase(test))
+
+def addAddLLOSFieldsTests(inputTestList):
+    if Configuration.DEBUG == True: print("      VisibilityTestSuite.addAddLLOSFieldsTests")
+    from . import AddLLOSFieldsTestCase
+    for test in inputTestList:
+        print("adding test: " + str(test))
+        Configuration.Logger.info(test)
+        TestSuite.addTest(AddLLOSFieldsTestCase.AddLLOSFieldsTestCase(test))
 
 
 
