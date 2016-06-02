@@ -55,6 +55,7 @@ def getVisibilityTestSuites():
     radialLineOfSightProTests = ['test_radial_line_of_sight_pro']
     #addLLOSFieldsDesktopTests = ['test_add_llos_fields_desktop']
     addLLOSFieldsProTests = ['test_add_llos_fields_pro']
+    addRLOSObserverProTests = ['test_add_rlos_observer_fields_pro']
 
     if Configuration.DEBUG == True:
         print("   VisibilityTestSuite.getVisibilityTestSuites")
@@ -79,6 +80,7 @@ def getVisibilityTestSuites():
         addLinearLineOfSightTests(linearLineOfSightProTests)
         addRadialLineOfSightTests(radialLineOfSightProTests)
         addAddLLOSFieldsTests(addLLOSFieldsProTests)
+        addAddRLOSObserverFieldsTests(addRLOSObserverProTests)
 
     return TestSuite
 
@@ -129,6 +131,14 @@ def addAddLLOSFieldsTests(inputTestList):
         print("adding test: " + str(test))
         Configuration.Logger.info(test)
         TestSuite.addTest(AddLLOSFieldsTestCase.AddLLOSFieldsTestCase(test))
+
+def addAddRLOSObserverFieldsTests(inputTestList):
+    if Configuration.DEBUG == True: print("      VisibilityTestSuite.addAddRLOSObserverFieldsTests")
+    from . import AddRLOSObserverFieldsTestCase
+    for test in inputTestList:
+        print("adding test: " + str(test))
+        Configuration.Logger.info(test)
+        TestSuite.addTest(AddRLOSObserverFieldsTestCase.AddRLOSObserverFieldsTestCase(test))
 
 
 
