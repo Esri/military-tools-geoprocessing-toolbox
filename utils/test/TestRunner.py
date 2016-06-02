@@ -25,7 +25,6 @@
  description:
  This test suite collects all of the Military Tools toolbox test suites:
 
-
 ========================================================================
  history:
  5/10/2016 - JH - initial creation
@@ -105,7 +104,7 @@ def resultsErrors(result):
     for i in result.errors:
         for j in i:
             msg += str(j)
-        msg += "\n.............................................................."
+        msg += "\n..............................................................\n"
     return msg
 
 def resultsFailures(result):
@@ -114,7 +113,7 @@ def resultsFailures(result):
     for i in result.failures:
         for j in i:
             msg += str(j)
-        msg += "\n.............................................................."
+        msg += "\n..............................................................\n"
     return msg
 
 def runTestSuite():
@@ -139,12 +138,19 @@ def runTestSuite():
 def addMilitarySuite():
     ''' Add all tests in the Military Tools suite '''
     if Configuration.DEBUG == True: print("TestRunner.py - addMilitarySuite")
-    from conversion_tests import ConversionTestSuite
+    
     testSuite = unittest.TestSuite()
+    
+    from conversion_tests import ConversionTestSuite
     testSuite.addTests(ConversionTestSuite.getConversionTestSuites())
-    # TODO: add tests from the other test suites
+    
+    # TODO: wire up RangeRingUtilsTestCase
+    from distance_tests import RangeRingTestSuite
+    testSuite.addTests(RangeRingTestSuite.getRangeRingTestSuite())
+    
     from visibility_tests import VisibilityTestSuite
     testSuite.addTests(VisibilityTestSuite.getVisibilityTestSuites())
+    
     return testSuite
 
 
