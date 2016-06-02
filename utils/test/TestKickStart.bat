@@ -51,7 +51,7 @@ REM of ArcGIS Pro. Modify the following line as necessary:
 
 ECHO Python 2.7 Tests ===============================
 REM py -2.7 TestRunner.py %LOG%
-REM python TestRunner.py %LOG%
+python TestRunner.py %LOG%
 
 REM =====================================================
 REM If you only have ONE version of Python installed:

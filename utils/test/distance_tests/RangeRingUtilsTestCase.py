@@ -99,7 +99,7 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         
-        outList = RangeRingUtils.RingMaker._sortList(self, [])
+        outList = RangeRingUtils.RingMaker._sortList([])
         self.assertIsNone(outList, "Expected empty sorted list, but got %s" % str(outList))
         return
 
@@ -109,9 +109,9 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         
-        l = [7, 5, 9, 3, 8, 1, 6, 2, 4, 0]
-        outList = RangeRingUtils.RingMaker._sortList(self, l)
-        self.assertEqual(outList, sorted(l), "List not sorted as expected")
+        listToSort = [7, 5, 9, 3, 8, 1, 6, 2, 4, 0]
+        outList = RangeRingUtils.RingMaker._sortList(listToSort)
+        self.assertEqual(outList, sorted(listToSort), "List not sorted as expected")
         return
 
     def test_RingMaker_addFieldsToTable(self):
