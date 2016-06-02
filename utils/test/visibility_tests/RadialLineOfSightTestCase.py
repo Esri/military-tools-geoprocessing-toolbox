@@ -53,7 +53,7 @@ class RadialLineOfSightTestCase(unittest.TestCase):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
             arcpy.env.scratchWorkspace = Configuration.militaryScratchGDB
 
-        self.observers = os.path.join(Configuration.militaryInputDataGDB, "Observers")
+        self.observers = os.path.join(Configuration.militaryInputDataGDB, "RLOS_Observers")
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
         self.outputRLOS = os.path.join(Configuration.militaryScratchGDB, "outputRadialLineOfSight")
 
