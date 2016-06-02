@@ -104,7 +104,7 @@ def resultsErrors(result):
     for i in result.errors:
         for j in i:
             msg += str(j)
-        msg += "\n.............................................................."
+        msg += "\n..............................................................\n"
     return msg
 
 def resultsFailures(result):
@@ -113,7 +113,7 @@ def resultsFailures(result):
     for i in result.failures:
         for j in i:
             msg += str(j)
-        msg += "\n.............................................................."
+        msg += "\n..............................................................\n"
     return msg
 
 def runTestSuite():

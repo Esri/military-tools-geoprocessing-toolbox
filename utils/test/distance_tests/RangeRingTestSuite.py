@@ -67,6 +67,6 @@ def getRangeRingTestSuite():
 def addRangeRingUtilsTests(inputTestList):
     ''' add all of the tests from RangeRingTestCase.py '''
     for test in inputTestList:
-        print(" adding test: " + str(test))
+        print("adding test: " + str(test))
         TestSuite.addTest(RangeRingUtilsTestCase.RangeRingUtilsTestCase(test))
 

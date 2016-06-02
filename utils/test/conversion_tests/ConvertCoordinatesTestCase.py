@@ -62,7 +62,7 @@ class ConvertCoordinatesTestCase(unittest.TestCase):
     def test_convert_coordinates_desktop(self):
         '''Test Convert Coordinates in ArcGIS Desktop'''
         try:
-            runToolMessage = ".....ConvertCoordinatesTestCase.test_farthest_on_cirle_desktop"
+            runToolMessage = ".....ConvertCoordinatesTestCase.test_convert_coordinates_desktop"
             arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
@@ -84,7 +84,7 @@ class ConvertCoordinatesTestCase(unittest.TestCase):
     def test_convert_coordinates_pro(self):
         '''Test Convert Coordinates in ArcGIS Pro'''
         try:
-            runToolMessage = ".....ConvertCoordinatesTestCase.test_farthest_on_cirle_pro"
+            runToolMessage = ".....ConvertCoordinatesTestCase.test_convert_coordinates_pro"
             arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
