@@ -69,7 +69,6 @@ def getVisibilityTestSuites():
         addLinearLineOfSightTests(linearLineOfSightDesktopTests)
         addRadialLineOfSightTests(radialLineOfSightDesktopTests)
 
-
     else:
         Configuration.Logger.info("Visibility Pro tests")
         addFindLocalPeaksTests(findLocalPeaksProTests)
