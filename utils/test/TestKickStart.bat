@@ -43,7 +43,7 @@ REM py -3.4 TestRunner.py %LOG%
 
 ECHO Python 2.7 Tests ===============================
 REM py -2.7 TestRunner.py %LOG%
-REM C:\Python27\ArcGIS10.3\python.exe TestRunner.py %LOG%
+python.exe TestRunner.py %LOG%
 
 REM =====================================================
 REM If you only have ONE version of Python installed:

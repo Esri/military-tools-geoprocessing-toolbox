@@ -56,41 +56,56 @@ class AddLLOSFieldsTestCase(unittest.TestCase):
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
 
     def test_add_llos_fields_desktop(self):
-        arcpy.AddMessage("Testing Add LLOS Fields (Desktop).")
-        self.test_add_llos_fields(Configuration.military_DesktopToolboxPath)
-
-    def test_add_llos_fields_pro(self):
-        arcpy.AddMessage("Testing Add LLOS Fields (Pro).")
-        self.test_add_llos_fields(Configuration.military_ProToolboxPath)
-
-    def test_add_llos_fields(self, toolboxPath):
         try:
-            if Configuration.DEBUG == True: print("     AddLLOSFieldsTestCase.test_add_llos_fields")
-
-            arcpy.ImportToolbox(toolboxPath, "mt")
+            arcpy.AddMessage("Testing Add LLOS Fields (Desktop).")
+            arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
             runToolMessage = "Running tool (Add LLOS Fields)"
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
 
             arcpy.AddLLOSFields_mt(self.inputObservers, 2, self.inputTargets, 0)
 
-            self.assertTrue(arcpy.Exists(self.inputObservers))
-            self.assertTrue(arcpy.Exists(self.inputTargets))
+            self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist")
+            self.assertTrue(arcpy.Exists(self.inputTargets), "Input dataset does not exist")
 
             fieldList = arcpy.ListFields(self.inputObservers, "height")
             fieldCount = len(fieldList)
 
-            self.assertEquals(fieldCount, 1)
+            self.assertEqual(fieldCount, 1, "Expected a field count of 1")
 
             fieldList = arcpy.ListFields(self.inputTargets, "height")
             fieldCount = len(fieldList)
 
-            self.assertEquals(fieldCount, 1)
+            self.assertEqual(fieldCount, 1, "Expected a field count of 1")
 
         except arcpy.ExecuteError:
+            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
             UnitTestUtilities.handleArcPyError()
 
-        except:
-            UnitTestUtilities.handleGeneralError()
+    def test_add_llos_fields_pro(self):
+        try:
+            arcpy.AddMessage("Testing Add LLOS Fields (Pro).")
+            arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+            runToolMessage = "Running tool (Add LLOS Fields)"
+            arcpy.AddMessage(runToolMessage)
+            Configuration.Logger.info(runToolMessage)
 
+            arcpy.AddLLOSFields_mt(self.inputObservers, 2, self.inputTargets, 0)
+
+            self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist")
+            self.assertTrue(arcpy.Exists(self.inputTargets), "Input dataset does not exist")
+
+            fieldList = arcpy.ListFields(self.inputObservers, "height")
+            fieldCount = len(fieldList)
+
+            self.assertEqual(fieldCount, 1, "Expected a field count of 1 for Observers")
+
+            fieldList = arcpy.ListFields(self.inputTargets, "height")
+            fieldCount = len(fieldList)
+
+            self.assertEqual(fieldCount, 1, "Expected a field count of 1 for Targets")
+
+        except arcpy.ExecuteError:
+            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
+            UnitTestUtilities.handleArcPyError()
 
