@@ -96,7 +96,7 @@ class AddRLOSObserverFieldsTestCase(unittest.TestCase):
             self.fail(runToolMessage + "\n" + arcpy.GetMessages())
             UnitTestUtilities.handleArcPyError()
 
-    def test_add_llos_fields_pro(self):
+    def test_add_rlos_observer_fields_pro(self):
         try:
             arcpy.AddMessage("Testing Add RLOS Observer Fields (Pro).")
             arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
