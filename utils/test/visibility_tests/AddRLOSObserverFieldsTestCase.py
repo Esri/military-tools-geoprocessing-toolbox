@@ -91,6 +91,27 @@ class AddRLOSObserverFieldsTestCase(unittest.TestCase):
             fieldCount = len(fieldList)
             self.assertEqual(fieldCount, 1, "Expected a field count of 1")
 
+            rows = arcpy.SearchCursor(self.inputObservers)
+            row = rows.next()
+            while row:
+                radius1 = row.RADIUS1
+                self.assertEqual(radius1, float(0), "Bad RADIUS1 value: %s" % str(radius1))
+                radius2 = row.RADIUS2
+                self.assertEqual(radius2, float(1000), "Bad RADIUS2 value: %s" % str(radius2))
+                offseta = row.OFFSETA
+                self.assertEqual(offseta, float(2), "Bad OFFSETA value: %s" % str(offseta))
+                offsetb = row.OFFSETB
+                self.assertEqual(offsetb, float(0), "Bad OFFSETB value: %s" % str(offsetb))
+                azimuth1 = row.AZIMUTH1
+                self.assertEqual(azimuth1, float(0), "Bad AZIMUTH1 value: %s" % str(azimuth1))
+                azimuth2 = row.AZIMUTH2
+                self.assertEqual(azimuth2, float(360), "Bad AZIMUTH2 value: %s" % str(azimuth2))
+                vert1 = row.VERT1
+                self.assertEqual(vert1, float(90), "Bad VERT1 value: %s" % str(vert1))
+                vert2 = row.VERT2
+                self.assertEqual(vert2, float(-90), "Bad VERT2 value: %s" % str(vert2))
+
+                row = rows.next()
 
         except arcpy.ExecuteError:
             self.fail(runToolMessage + "\n" + arcpy.GetMessages())
@@ -132,6 +153,28 @@ class AddRLOSObserverFieldsTestCase(unittest.TestCase):
             fieldList = arcpy.ListFields(self.inputObservers, "VERT2")
             fieldCount = len(fieldList)
             self.assertEqual(fieldCount, 1, "Expected a field count of 1")
+
+            rows = arcpy.SearchCursor(self.inputObservers)
+            row = rows.next()
+            while row:
+                radius1 = row.RADIUS1
+                self.assertEqual(radius1, float(0), "Bad RADIUS1 value: %s" % str(radius1))
+                radius2 = row.RADIUS2
+                self.assertEqual(radius2, float(1000), "Bad RADIUS2 value: %s" % str(radius2))
+                offseta = row.OFFSETA
+                self.assertEqual(offseta, float(2), "Bad OFFSETA value: %s" % str(offseta))
+                offsetb = row.OFFSETB
+                self.assertEqual(offsetb, float(0), "Bad OFFSETB value: %s" % str(offsetb))
+                azimuth1 = row.AZIMUTH1
+                self.assertEqual(azimuth1, float(0), "Bad AZIMUTH1 value: %s" % str(azimuth1))
+                azimuth2 = row.AZIMUTH2
+                self.assertEqual(azimuth2, float(360), "Bad AZIMUTH2 value: %s" % str(azimuth2))
+                vert1 = row.VERT1
+                self.assertEqual(vert1, float(90), "Bad VERT1 value: %s" % str(vert1))
+                vert2 = row.VERT2
+                self.assertEqual(vert2, float(-90), "Bad VERT2 value: %s" % str(vert2))
+
+                row = rows.next()
 
         except arcpy.ExecuteError:
             self.fail(runToolMessage + "\n" + arcpy.GetMessages())
