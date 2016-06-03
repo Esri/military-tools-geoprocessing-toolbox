@@ -53,6 +53,8 @@ def getVisibilityTestSuites():
     linearLineOfSightProTests = ['test_linear_line_of_sight_pro']
     radialLineOfSightDesktopTests = ['test_radial_line_of_sight_desktop']
     radialLineOfSightProTests = ['test_radial_line_of_sight_pro']
+    addLLOSFieldsProTests = ['test_add_llos_fields_pro']
+    addRLOSObserverProTests = ['test_add_rlos_observer_fields_pro']
 
     if Configuration.DEBUG == True:
         print("   VisibilityTestSuite.getVisibilityTestSuites")
@@ -74,6 +76,8 @@ def getVisibilityTestSuites():
         addLowestPointsTests(lowestPointsProTests)
         addLinearLineOfSightTests(linearLineOfSightProTests)
         addRadialLineOfSightTests(radialLineOfSightProTests)
+        addAddLLOSFieldsTests(addLLOSFieldsProTests)
+        addAddRLOSObserverFieldsTests(addRLOSObserverProTests)
 
     return TestSuite
 
@@ -92,7 +96,7 @@ def addHighestPointsTests(inputTestList):
         print("adding test: " + str(test))
         Configuration.Logger.info(test)
         TestSuite.addTest(HighestPointsTestCase.HighestPointsTestCase(test))
-        
+
 def addLowestPointsTests(inputTestList):
     if Configuration.DEBUG == True: print("      VisibilityTestSuite.addLowestPointsTests")
     from . import LowestPointsTestCase
@@ -116,6 +120,22 @@ def addRadialLineOfSightTests(inputTestList):
         print("adding test: " + str(test))
         Configuration.Logger.info(test)
         TestSuite.addTest(RadialLineOfSightTestCase.RadialLineOfSightTestCase(test))
+
+def addAddLLOSFieldsTests(inputTestList):
+    if Configuration.DEBUG == True: print("      VisibilityTestSuite.addAddLLOSFieldsTests")
+    from . import AddLLOSFieldsTestCase
+    for test in inputTestList:
+        print("adding test: " + str(test))
+        Configuration.Logger.info(test)
+        TestSuite.addTest(AddLLOSFieldsTestCase.AddLLOSFieldsTestCase(test))
+
+def addAddRLOSObserverFieldsTests(inputTestList):
+    if Configuration.DEBUG == True: print("      VisibilityTestSuite.addAddRLOSObserverFieldsTests")
+    from . import AddRLOSObserverFieldsTestCase
+    for test in inputTestList:
+        print("adding test: " + str(test))
+        Configuration.Logger.info(test)
+        TestSuite.addTest(AddRLOSObserverFieldsTestCase.AddRLOSObserverFieldsTestCase(test))
 
 
 
