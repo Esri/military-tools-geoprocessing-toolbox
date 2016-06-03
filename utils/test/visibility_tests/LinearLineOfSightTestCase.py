@@ -53,8 +53,8 @@ class LinearLineOfSightTestCase(unittest.TestCase):
         if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
 
-        self.observers = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Observers_ArcMap")
-        self.targets = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Targets_ArcMap")
+        self.observers = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Observers")
+        self.targets = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Targets")
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
         self.outputLOS = os.path.join(Configuration.militaryScratchGDB, "outputLinearLineOfSight")
         self.outputSightLines = os.path.join(Configuration.militaryScratchGDB, "outputSightLines")
