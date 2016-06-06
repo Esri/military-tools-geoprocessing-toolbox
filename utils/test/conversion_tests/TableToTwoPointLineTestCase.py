@@ -39,13 +39,22 @@ class TableToTwoPointLineTestCase(unittest.TestCase):
     ''' Test all tools and methods related to the Table To 2-Point Line tool
     in the Military Tools toolbox'''
     
+    inputTable = None
+    outputLines = None
+    
     def setUp(self):
         if Configuration.DEBUG == True: print("     TableToTwoPointLineTestCase.setUp")    
         
         UnitTestUtilities.checkArcPy()
         if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
-            
+        
+        csvFolder = os.path.join(Configuration.militaryDataPath, "CSV")
+        self.inputTable = os.path.join(csvFolder, "TableTo2PointLine.csv")
+        self.outputLines = os.path.join(Configuration.militaryScratchGDB, "output2PointLines")
+        
+        UnitTestUtilities.checkFilePaths([Configuration.militaryDataPath, Configuration.militaryInputDataGDB, Configuration.militaryScratchGDB, Configuration.militaryResultsGDB, Configuration.military_ProToolboxPath, Configuration.military_DesktopToolboxPath])
+        
         
     def tearDown(self):
         if Configuration.DEBUG == True: print("     TableToTwoPointLineTestCase.tearDown")
@@ -54,15 +63,18 @@ class TableToTwoPointLineTestCase(unittest.TestCase):
     def test_table_to_twopointline_desktop(self):
         '''Test Table To Two Point Line for ArcGIS Desktop'''
         try:
-            runToolMessage = "TEST NOT COMPLETE.....TableToTwoPointLineTestCase.test_table_to_twopointline_desktop"
-            # arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+            runToolMessage = ".....TableToTwoPointLineTestCase.test_table_to_twopointline_desktop"
+            arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
             arcpy.AddMessage(runToolMessage)
-            # Configuration.Logger.info(runToolMessage)
+            Configuration.Logger.info(runToolMessage)
             
-            # arcpy.CheckOutExtension("Spatial")
-            # arcpy.FarthestOnCircle_mdat(self.position, "#", "#", self.hoursOfTransit)
+            arcpy.TableTo2PointLine_mt(self.inputTable, "#", "POINT_X", "POINT_Y", "#", "POINT_X2", "POINT_Y2", self.outputLines)
             
-            # self.assertTrue(arcpy.Exists(self.hoursOfTransit))
+            self.assertTrue(arcpy.Exists(self.outputLines), "Output features do not exist or were not created")
+            
+            lineCount = int(arcpy.GetCount_management(self.outputLines).getOutput(0))
+            expectedFeatures = int(3)
+            self.assertEqual(lineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(lineCount)))
 
         except arcpy.ExecuteError:
             self.fail(runToolMessage + "\n" + arcpy.GetMessages())
@@ -71,15 +83,18 @@ class TableToTwoPointLineTestCase(unittest.TestCase):
     def test_table_to_twopointline_pro(self):
         '''Test Table To Two Point Line for ArcGIS Pro'''
         try:
-            runToolMessage = "TEST NOT COMPLETE.....TableToTwoPointLineTestCase.test_table_to_twopointline_pro"
-            # arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+            runToolMessage = ".....TableToTwoPointLineTestCase.test_table_to_twopointline_pro"
+            arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
             arcpy.AddMessage(runToolMessage)
-            # Configuration.Logger.info(runToolMessage)
+            Configuration.Logger.info(runToolMessage)
             
-            # arcpy.CheckOutExtension("Spatial")
-            # arcpy.FarthestOnCircle_mdat(self.position, "#", "#", self.hoursOfTransit)
+            arcpy.TableTo2PointLine_mt(self.inputTable, "#", "POINT_X", "POINT_Y", "#", "POINT_X2", "POINT_Y2", self.outputLines)
             
-            # self.assertTrue(arcpy.Exists(self.hoursOfTransit))
+            self.assertTrue(arcpy.Exists(self.outputLines), "Output features do not exist or were not created")
+            
+            lineCount = int(arcpy.GetCount_management(self.outputLines).getOutput(0))
+            expectedFeatures = int(3)
+            self.assertEqual(lineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(lineCount)))
 
         except arcpy.ExecuteError:
             self.fail(runToolMessage + "\n" + arcpy.GetMessages())
