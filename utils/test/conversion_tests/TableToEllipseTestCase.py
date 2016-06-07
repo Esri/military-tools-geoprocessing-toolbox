@@ -64,15 +64,12 @@ class TableToEllipseTestCase(unittest.TestCase):
     
     def test_table_to_ellipse_desktop(self):
         try:
-            if Configuration.DEBUG == True: print("     TableToEllipseTestCase.test_table_to_ellipse_desktop")
-            arcpy.AddMessage("Testing Table To Ellipse (Desktop).")
-            
+            runToolMessage = ".....TableToEllipseTestCase.test_table_to_ellipse_desktop"
             arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-            runToolMessage = "Running tool (Table To Ellipse)"
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
             
-            arcpy.TableToEllipse_mt(self.inputTable, "#", "x", "y", "Major", "Minor", "KILOMETERS", self.outputEllipses)
+            arcpy.TableToEllipse_mt(self.inputTable, "DD_2", "x", "y", "Major", "Minor", "KILOMETERS", self.outputEllipses)
             self.assertTrue(arcpy.Exists(self.outputEllipses), "Output dataset does not exist.")
             
             ellipseCount = int(arcpy.GetCount_management(self.outputEllipses).getOutput(0))
@@ -94,15 +91,12 @@ class TableToEllipseTestCase(unittest.TestCase):
         
     def test_table_to_ellipse_pro(self):
         try:
-            if Configuration.DEBUG == True: print("     TableToEllipseTestCase.test_table_to_ellipse_pro")
-            arcpy.AddMessage("Testing Table To Ellipse (Pro).")
-            
+            runToolMessage = ".....TableToEllipseTestCase.test_table_to_ellipse_pro"           
             arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-            runToolMessage = "Running tool (Table To Ellipse)"
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
             
-            arcpy.TableToEllipse_mt(self.inputTable, "#", "x", "y", "Major", "Minor", "KILOMETERS", self.outputEllipses)
+            arcpy.TableToEllipse_mt(self.inputTable, "DD_2", "x", "y", "Major", "Minor", "KILOMETERS", self.outputEllipses)
             self.assertTrue(arcpy.Exists(self.outputEllipses), "Output dataset does not exist.")
             
             ellipseCount = int(arcpy.GetCount_management(self.outputEllipses).getOutput(0))
