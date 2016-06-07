@@ -39,12 +39,22 @@ class TableToPolygonTestCase(unittest.TestCase):
     ''' Test all tools and methods related to the Table To Polygon tool
     in the Military Tools toolbox'''
     
+    inputTable = None
+    outputPolygons = None
+    
     def setUp(self):
         if Configuration.DEBUG == True: print("     TableToPolygonTestCase.setUp")    
         
         UnitTestUtilities.checkArcPy()
         if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
+            
+        csvFolder = os.path.join(Configuration.militaryDataPath, "CSV")
+        self.inputTable = os.path.join(csvFolder, "TableToPolyline.csv")
+        self.outputPolygons = os.path.join(Configuration.militaryScratchGDB, "outputPolygons")
+        
+        UnitTestUtilities.checkFilePaths([Configuration.militaryDataPath, Configuration.militaryInputDataGDB, Configuration.militaryScratchGDB, Configuration.militaryResultsGDB, Configuration.military_ProToolboxPath, Configuration.military_DesktopToolboxPath])
+        
         
     def tearDown(self):
         if Configuration.DEBUG == True: print("     TableToPolygonTestCase.tearDown")
@@ -53,17 +63,18 @@ class TableToPolygonTestCase(unittest.TestCase):
     def test_table_to_polygon_desktop(self):
         '''Test Table To Polygon for ArcGIS Desktop'''
         try:
-            runToolMessage = "TEST NOT COMPLETE.....TableToPolygonTestCase.test_table_to_polygon_desktop"
-            
-            #TODO: write the test here
-            #arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+            runToolMessage = ".....TableToPolygonTestCase.test_table_to_polygon_desktop"
+            arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
             arcpy.AddMessage(runToolMessage)
-            #Configuration.Logger.info(runToolMessage)
+            Configuration.Logger.info(runToolMessage)
             
-            # arcpy.CheckOutExtension("Spatial")
-            # arcpy.FarthestOnCircle_mdat(self.position, "#", "#", self.hoursOfTransit)
+            arcpy.TableToPolygon_mt(self.inputTable, "#", "POINT_X", "POINT_Y", self.outputPolygons)
             
-            # self.assertTrue(arcpy.Exists(self.hoursOfTransit), "error message here")
+            self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
+            
+            polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
+            expectedFeatures = int(1)
+            self.assertEqual(polygonCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polygonCount)))
        
         except arcpy.ExecuteError:
             self.fail(runToolMessage + "\n" + arcpy.GetMessages())
@@ -73,17 +84,18 @@ class TableToPolygonTestCase(unittest.TestCase):
     def test_table_to_polygon_pro(self):
         '''Test Table To Polygon for ArcGIS Pro'''
         try:
-            runToolMessage = "TEST NOT COMPLETE.....TableToPolygonTestCase.test_table_to_polygon_pro"
-            
-            #TODO: write the test here
-            # arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+            runToolMessage = ".....TableToPolygonTestCase.test_table_to_polygon_pro"
+            arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
             arcpy.AddMessage(runToolMessage)
-            # Configuration.Logger.info(runToolMessage)
+            Configuration.Logger.info(runToolMessage)
             
-            # arcpy.CheckOutExtension("Spatial")
-            # arcpy.FarthestOnCircle_mdat(self.position, "#", "#", self.hoursOfTransit)
+            arcpy.TableToPolygon_mt(self.inputTable, "#", "POINT_X", "POINT_Y", self.outputPolygons)
             
-            # self.assertTrue(arcpy.Exists(self.hoursOfTransit), "error message here")
+            self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
+            
+            polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
+            expectedFeatures = int(1)
+            self.assertEqual(polygonCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polygonCount)))
        
         except arcpy.ExecuteError:
             self.fail(runToolMessage + "\n" + arcpy.GetMessages())
