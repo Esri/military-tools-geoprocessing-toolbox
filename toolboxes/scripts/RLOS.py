@@ -26,6 +26,7 @@
 # history:
 # 4/1/2015 - mf - update for coding standards
 # 4/23/2015 - mf - Updates for Extent properties
+# 6/7/2016 - mf - better modification of Azimuthal Equidistant SR
 # ==================================================
 
 import os
@@ -33,6 +34,7 @@ import sys
 import traceback
 import math
 import decimal
+import re
 import arcpy
 from arcpy import env, sa
 
@@ -41,7 +43,9 @@ observers = arcpy.GetParameterAsText(0)
 input_surface = arcpy.GetParameterAsText(1)
 output_rlos = arcpy.GetParameterAsText(2)
 RADIUS2_to_infinity = arcpy.GetParameterAsText(3)
-GCS_WGS_1984 = arcpy.GetParameterAsText(4)
+outputSpatialReference = arcpy.GetParameterAsText(4)
+
+GCS_WGS_1984 = arcpy.SpatialReference(4326)
 
 if RADIUS2_to_infinity is True:
     arcpy.AddMessage("RLOS to infinity will use horizon for calculation.")
@@ -54,7 +58,7 @@ else:
 delete_me = []
 terrestrial_refractivity_coefficient = 0.13
 polygon_simplify = "SIMPLIFY"
-debug = True
+DEBUG= True
 
 
 def maxVizModifiers(obs):
@@ -227,20 +231,34 @@ def main():
         del row
         del rows
         # write new central meridian and latitude of origin...
-        strAZED = '''PROJCS["World_Azimuthal_Equidistant",
-        GEOGCS["GCS_WGS_1984",
-        DATUM["D_WGS_1984",
-        SPHEROID["WGS_1984",6378137.0,298.257223563]],
-        PRIMEM["Greenwich",0.0],
-        UNIT["Degree",0.0174532925199433]],
-        PROJECTION["Azimuthal_Equidistant"],
-        PARAMETER["False_Easting",0.0],
-        PARAMETER["False_Northing",0.0],
-        PARAMETER["Central_Meridian",' + str(pointx) + '],
-        PARAMETER["Latitude_Of_Origin",' + str(pointy) + '],
-        UNIT["Meter",1.0],
-        AUTHORITY["ESRI",54032]]'''
+        # strAZED = '''PROJCS["World_Azimuthal_Equidistant",
+        # GEOGCS["GCS_WGS_1984",
+        # DATUM["D_WGS_1984",
+        # SPHEROID["WGS_1984",6378137.0,298.257223563]],
+        # PRIMEM["Greenwich",0.0],
+        # UNIT["Degree",0.0174532925199433]],
+        # PROJECTION["Azimuthal_Equidistant"],
+        # PARAMETER["False_Easting",0.0],
+        # PARAMETER["False_Northing",0.0],
+        # PARAMETER["Central_Meridian",' + str(pointx) + '],
+        # PARAMETER["Latitude_Of_Origin",' + str(pointy) + '],
+        # UNIT["Meter",1.0],
+        # AUTHORITY["ESRI",54032]]'''
         delete_me.append(mbgCenterWGS84)
+        
+        srAZED = arcpy.SpatialReference(54032)
+        # srAZED.centralMeridianInDegrees = float(pointx)
+        # srAZED.latitudeOfOrigin = float(pointy)
+        strAZED = srAZED.exportToString()
+        strAZED = re.sub('PARAMETER\[\'Central_Meridian\'\,.+?]',
+               'PARAMETER\[\'Central_Meridian\',%s]' % (str(pointx)),
+               strAZED)
+        strAZED = re.sub('PARAMETER\[\'Latitude_Of_Origin\'\,.+?]',
+               'PARAMETER\[\'Latitude_Of_Origin\',%s]' % (str(pointy)),
+               strAZED)
+        srAZED.loadFromString(strAZED)
+        
+        
 
         # Clip the input surface to the maximum visibilty range and extract
         # it to a 1000 x 1000 raster
@@ -278,18 +296,20 @@ def main():
         # Project surface to the new AZED
         extract_prj = os.path.join(env.scratchWorkspace, "extract_prj")
         arcpy.AddMessage("Projecting surface ...")
-        arcpy.ProjectRaster_management(surf_extract, extract_prj, strAZED)
+        #Pro: ProjectRaster_management (in_raster, out_raster, out_coor_system, {resampling_type}, {cell_size}, {geographic_transform}, {Registration_Point}, {in_coor_system})
+        #Dsk: ProjectRaster_management (in_raster, out_raster, out_coor_system, {resampling_type}, {cell_size}, {geographic_transform}, {Registration_Point}, {in_coor_system})
+        arcpy.ProjectRaster_management(surf_extract, extract_prj, srAZED)
         delete_me.append(extract_prj)
 
         # Project observers to the new AZED
         obs_prj = os.path.join(env.scratchWorkspace, "obs_prj")
         arcpy.AddMessage("Projecting observers ...")
-        arcpy.Project_management(observers, obs_prj, strAZED)
+        arcpy.Project_management(observers, obs_prj, srAZED)
         delete_me.append(obs_prj)
 
         # Project the MBG buffer to AZED
         obs_buf = os.path.join(env.scratchWorkspace, "obs_buf")
-        arcpy.Project_management(mbgBufferPrj, obs_buf, strAZED)
+        arcpy.Project_management(mbgBufferPrj, obs_buf, srAZED)
         delete_me.append(obs_buf)
 
         # Finally ... run Viewshed
@@ -307,6 +327,7 @@ def main():
         delete_me.append(ras_poly)
 
         # clip output polys to buffer
+        env.outputCoordinateSystem = outputSpatialReference
         if RADIUS2_to_infinity is not True:
             out_buf = os.path.join(env.scratchWorkspace, "out_buf")
             arcpy.Buffer_analysis(obs_prj, out_buf, "RADIUS2")
@@ -321,7 +342,8 @@ def main():
         # cleanup
         arcpy.AddMessage("Removing scratch datasets:")
         for ds in delete_me:
-            arcpy.AddMessage(str(ds))
+            if DEBUG == True:
+                arcpy.AddMessage(str(ds))
             arcpy.Delete_management(ds)
 
     except arcpy.ExecuteError:
