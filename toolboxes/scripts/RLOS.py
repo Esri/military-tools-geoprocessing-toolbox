@@ -58,7 +58,7 @@ else:
 delete_me = []
 terrestrial_refractivity_coefficient = 0.13
 polygon_simplify = "SIMPLIFY"
-DEBUG= True
+DEBUG = False
 
 
 def maxVizModifiers(obs):
