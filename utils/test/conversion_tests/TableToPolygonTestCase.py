@@ -50,7 +50,7 @@ class TableToPolygonTestCase(unittest.TestCase):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
             
         csvFolder = os.path.join(Configuration.militaryDataPath, "CSV")
-        self.inputTable = os.path.join(csvFolder, "TableToPolyline.csv")
+        self.inputTable = os.path.join(csvFolder, "TableToPolygon.csv")
         self.outputPolygons = os.path.join(Configuration.militaryScratchGDB, "outputPolygons")
         
         UnitTestUtilities.checkFilePaths([Configuration.militaryDataPath, Configuration.militaryInputDataGDB, Configuration.militaryScratchGDB, Configuration.militaryResultsGDB, Configuration.military_ProToolboxPath, Configuration.military_DesktopToolboxPath])
@@ -68,7 +68,7 @@ class TableToPolygonTestCase(unittest.TestCase):
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
             
-            arcpy.TableToPolygon_mt(self.inputTable, "#", "POINT_X", "POINT_Y", self.outputPolygons)
+            arcpy.TableToPolygon_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolygons)
             
             self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
             
@@ -89,7 +89,7 @@ class TableToPolygonTestCase(unittest.TestCase):
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
             
-            arcpy.TableToPolygon_mt(self.inputTable, "#", "POINT_X", "POINT_Y", self.outputPolygons)
+            arcpy.TableToPolygon_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolygons)
             
             self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
             
