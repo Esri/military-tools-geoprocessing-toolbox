@@ -29,37 +29,60 @@ rem ==================================================
 rem  history:
 rem  5/9/2016: JH - initial creation
 rem  6/1/2016: MF - Add RangeRingUtils.py copy for testing
+rem  6/3/2016: MF - work on exit codes
 rem ==================================================
 
-REM ==================================================
-REM Copy RangeRingUtils.py to utils/test/distance_tests
+REM === TEST SETUP ===================================
 ECHO Copying RangeRingUtils.py ...
 COPY ..\..\toolboxes\scripts\RangeRingUtils.py .\distance_tests\RangeRingUtils.py
+REM === TEST SETUP ===================================
 
-REM ==================================================
+
+REM === LOG SETUP ====================================
 REM usage: set LOG=<defaultLogFileName.log>
 REM name is optional; if not specified, name will be specified for you
 set LOG=
+REM === LOG SETUP ====================================
 
+
+REM === SINGLE VERSION ==================================
+REM If you only have ONE version of Python installed
+REM uncomment the following lines
 REM =====================================================
-REM If you have BOTH versions of Python installed:
+REM python TestRunner.py
+REM IF %ERRORLEVEL% NEQ 0 (
+REM    ECHO 'One or more tests failed'
+REM )
+REM === SINGLE VERSION ==================================
+
+
+REM === MULTIPLE VERSIONS ===============================
+REM If you have BOTH versions of Python installed use
+REM these lines
+REM =====================================================
 ECHO Python 3.4 Tests ===============================
 REM py -3.4 TestRunner.py %LOG%
 REM The location of python.exe will depend upon your installation
 REM of ArcGIS Pro. Modify the following line as necessary:
 "C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\python.exe" TestRunner.py %LOG%
+REM check if ArcGIS Pro/Python 3.4 tests failed
+IF %ERRORLEVEL% NEQ 0 (
+   ECHO 'One or more tests failed'
+)
 
 ECHO Python 2.7 Tests ===============================
 REM py -2.7 TestRunner.py %LOG%
 python TestRunner.py %LOG%
+REM check if Desktop for ArcGIS/Python 2.7 tests failed
+IF %ERRORLEVEL% NEQ 0 (
+   ECHO 'One or more tests failed'
+)
+REM === MULTIPLE VERSIONS ===============================
 
-REM =====================================================
-REM If you only have ONE version of Python installed:
-REM python TestRunner.py
 
-REM ==================================================
-REM Remove utils/test/distance_tests/RangeRingUtils.py after done testing
+REM === CLEANUP =========================================
 ECHO Removing RangeRingUtils.py ...
 DEL ".\distance_tests\RangeRingUtils.py"
+REM === CLEANUP =========================================
 
 pause
