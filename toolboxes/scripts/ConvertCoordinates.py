@@ -62,7 +62,7 @@ try:
     currentOverwriteOutput = env.overwriteOutput
     env.overwriteOutput = True
 
-    scratchWS = env.scratchWorkspace
+    scratchWS = env.scratchGDB
     if scratchWS == None:
         scratchWS = r'in_memory'
 
