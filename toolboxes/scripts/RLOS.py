@@ -55,7 +55,7 @@ else:
     RADIUS2_to_infinity = False
 
 
-delete_me = []
+intermediateDataToDelete = []
 terrestrial_refractivity_coefficient = 0.13
 polygon_simplify = "SIMPLIFY"
 DEBUG = False
@@ -160,7 +160,7 @@ def main():
 
         # Do a Minimum Bounding Geometry (MBG) on the input observers
         observers_mbg = os.path.join(env.scratchWorkspace, "observers_mbg")
-        delete_me.append(observers_mbg)
+        intermediateDataToDelete.append(observers_mbg)
         arcpy.AddMessage("Finding observer's minimum bounding envelope ...")
         # ENVELOPE would be better but would make it ArcInfo-only.
         arcpy.MinimumBoundingGeometry_management(observers, observers_mbg,
@@ -183,7 +183,7 @@ def main():
         feat.setValue(mbgShapeFieldName, arcpy.Point(mbgCenterX, mbgCenterY))
         rows.insertRow(feat)
         del rows
-        delete_me.append(mbgCenterPoint)
+        intermediateDataToDelete.append(mbgCenterPoint)
 
         # Get the maximum radius of the observers
         maxRad = obsMaximums['RADIUS2']
@@ -231,24 +231,8 @@ def main():
         del row
         del rows
         # write new central meridian and latitude of origin...
-        # strAZED = '''PROJCS["World_Azimuthal_Equidistant",
-        # GEOGCS["GCS_WGS_1984",
-        # DATUM["D_WGS_1984",
-        # SPHEROID["WGS_1984",6378137.0,298.257223563]],
-        # PRIMEM["Greenwich",0.0],
-        # UNIT["Degree",0.0174532925199433]],
-        # PROJECTION["Azimuthal_Equidistant"],
-        # PARAMETER["False_Easting",0.0],
-        # PARAMETER["False_Northing",0.0],
-        # PARAMETER["Central_Meridian",' + str(pointx) + '],
-        # PARAMETER["Latitude_Of_Origin",' + str(pointy) + '],
-        # UNIT["Meter",1.0],
-        # AUTHORITY["ESRI",54032]]'''
-        delete_me.append(mbgCenterWGS84)
-        
+        intermediateDataToDelete.append(mbgCenterWGS84)
         srAZED = arcpy.SpatialReference(54032)
-        # srAZED.centralMeridianInDegrees = float(pointx)
-        # srAZED.latitudeOfOrigin = float(pointy)
         strAZED = srAZED.exportToString()
         strAZED = re.sub('PARAMETER\[\'Central_Meridian\'\,.+?]',
                'PARAMETER\[\'Central_Meridian\',%s]' % (str(pointx)),
@@ -267,11 +251,11 @@ def main():
         if RADIUS2_to_infinity is True:
             mbgBuffer = os.path.join(env.scratchWorkspace, "mbgBuffer")
             arcpy.Buffer_analysis(observers_mbg, mbgBuffer, horizonDistance)
-            delete_me.append(mbgBuffer)
+            intermediateDataToDelete.append(mbgBuffer)
             surfaceSR = arcpy.Describe(input_surface).spatialReference
             mbgBufferPrj = os.path.join(env.scratchWorkspace, "mbgBufferPrj")
             arcpy.Project_management(mbgBuffer, mbgBufferPrj, surfaceSR)
-            delete_me.append(mbgBufferPrj)
+            intermediateDataToDelete.append(mbgBufferPrj)
             mbgBufferPrjExtent = arcpy.Describe(mbgBufferPrj).extent
             cellSize = max(float(mbgBufferPrjExtent.width)/1000.0,
                            float(mbgBufferPrjExtent.height)/1000.0)
@@ -283,39 +267,37 @@ def main():
             # buffer MBG by max RADIUS 2 + 10%
             mbgBuffer = os.path.join(env.scratchWorkspace, "mbgBuffer")
             arcpy.Buffer_analysis(observers_mbg, mbgBuffer, obsMaximums['RADIUS2'])
-            delete_me.append(mbgBuffer)
+            intermediateDataToDelete.append(mbgBuffer)
             # project buffer to surface SR
             surfaceSR = arcpy.Describe(input_surface).spatialReference
             mbgBufferPrj = os.path.join(env.scratchWorkspace, "mbgBufferPrj")
             arcpy.Project_management(mbgBuffer, mbgBufferPrj, surfaceSR)
-            delete_me.append(mbgBufferPrj)
+            intermediateDataToDelete.append(mbgBufferPrj)
             # clip surface to projected buffer
             arcpy.Clip_management(input_surface, "#", surf_extract, mbgBufferPrj)
-        delete_me.append(surf_extract)
+        intermediateDataToDelete.append(surf_extract)
 
         # Project surface to the new AZED
         extract_prj = os.path.join(env.scratchWorkspace, "extract_prj")
         arcpy.AddMessage("Projecting surface ...")
-        #Pro: ProjectRaster_management (in_raster, out_raster, out_coor_system, {resampling_type}, {cell_size}, {geographic_transform}, {Registration_Point}, {in_coor_system})
-        #Dsk: ProjectRaster_management (in_raster, out_raster, out_coor_system, {resampling_type}, {cell_size}, {geographic_transform}, {Registration_Point}, {in_coor_system})
         arcpy.ProjectRaster_management(surf_extract, extract_prj, srAZED)
-        delete_me.append(extract_prj)
+        intermediateDataToDelete.append(extract_prj)
 
         # Project observers to the new AZED
         obs_prj = os.path.join(env.scratchWorkspace, "obs_prj")
         arcpy.AddMessage("Projecting observers ...")
         arcpy.Project_management(observers, obs_prj, srAZED)
-        delete_me.append(obs_prj)
+        intermediateDataToDelete.append(obs_prj)
 
         # Project the MBG buffer to AZED
         obs_buf = os.path.join(env.scratchWorkspace, "obs_buf")
         arcpy.Project_management(mbgBufferPrj, obs_buf, srAZED)
-        delete_me.append(obs_buf)
+        intermediateDataToDelete.append(obs_buf)
 
         # Finally ... run Viewshed
         arcpy.AddMessage("Calculating Viewshed ...")
         vshed = os.path.join(env.scratchWorkspace, "vshed")
-        delete_me.append(vshed)
+        intermediateDataToDelete.append(vshed)
         outVshed = sa.Viewshed(extract_prj, obs_prj, 1.0, "CURVED_EARTH",
                                terrestrial_refractivity_coefficient)
         outVshed.save(vshed)
@@ -324,14 +306,14 @@ def main():
         arcpy.AddMessage("Converting to polygons ...")
         ras_poly = os.path.join(env.scratchWorkspace, "ras_poly")
         arcpy.RasterToPolygon_conversion(vshed, ras_poly, polygon_simplify)
-        delete_me.append(ras_poly)
+        intermediateDataToDelete.append(ras_poly)
 
         # clip output polys to buffer
         env.outputCoordinateSystem = outputSpatialReference
         if RADIUS2_to_infinity is not True:
             out_buf = os.path.join(env.scratchWorkspace, "out_buf")
             arcpy.Buffer_analysis(obs_prj, out_buf, "RADIUS2")
-            delete_me.append(out_buf)
+            intermediateDataToDelete.append(out_buf)
             arcpy.Clip_analysis(ras_poly, out_buf, output_rlos)
         else:
             arcpy.CopyFeatures_management(ras_poly, output_rlos)
@@ -340,8 +322,8 @@ def main():
         arcpy.SetParameter(2, output_rlos)
 
         # cleanup
-        arcpy.AddMessage("Removing scratch datasets:")
-        for ds in delete_me:
+        arcpy.AddMessage("Removing scratch datasets...")
+        for ds in intermediateDataToDelete:
             if DEBUG == True:
                 arcpy.AddMessage(str(ds))
             arcpy.Delete_management(ds)
