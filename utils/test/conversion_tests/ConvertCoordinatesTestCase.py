@@ -46,17 +46,17 @@ class ConvertCoordinatesTestCase(unittest.TestCase):
     outputConvert = None
     
     def setUp(self):
-        if Configuration.DEBUG == True: print("     ConvertCoordinatesTestCase.setUp")    
+        if Configuration.DEBUG == True: print(".....ConvertCoordinatesTestCase.setUp")    
         
         UnitTestUtilities.checkArcPy()
-        if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
+        if not Configuration.militaryScratchGDB:
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
 
         self.inputTable = os.path.join(Configuration.militaryInputDataGDB, "SigActs")
         self.outputConvert = os.path.join(Configuration.militaryScratchGDB, "outputConvert")
         
     def tearDown(self):
-        if Configuration.DEBUG == True: print("     ConvertCoordinatesTestCase.tearDown")
+        if Configuration.DEBUG == True: print(".....ConvertCoordinatesTestCase.tearDown")
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
     
     def test_convert_coordinates_desktop(self):

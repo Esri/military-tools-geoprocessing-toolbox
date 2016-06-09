@@ -144,7 +144,6 @@ def addMilitarySuite():
     from conversion_tests import ConversionTestSuite
     testSuite.addTests(ConversionTestSuite.getConversionTestSuites())
     
-    # TODO: wire up RangeRingUtilsTestCase
     from distance_tests import RangeRingTestSuite
     testSuite.addTests(RangeRingTestSuite.getRangeRingTestSuite())
     
