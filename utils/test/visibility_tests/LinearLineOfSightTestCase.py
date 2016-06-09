@@ -50,8 +50,7 @@ class LinearLineOfSightTestCase(unittest.TestCase):
         if Configuration.DEBUG == True: print("     LinearLineOfSightTestCase.setUp")
 
         UnitTestUtilities.checkArcPy()
-        if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
-            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
+        Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
 
         self.observers = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Observers")
         self.targets = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Targets")
