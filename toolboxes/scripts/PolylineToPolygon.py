@@ -35,7 +35,7 @@ try:
     outpolygonsFC = arcpy.CreateFeatureclass_management(os.path.dirname(outputPolygons),os.path.basename(outputPolygons),"POLYGON","#","#","#",sr)
 
     #Add ID field
-    arcpy.AddMessage("Adding ID field ...")
+    arcpy.AddMessage("Adding ID field: %s ..." % str(inputIDFieldName))
     arcpy.AddField_management(outpolygonsFC,inputIDFieldName,"LONG")
     arcpy.AddMessage("Opening cursors ...")
 

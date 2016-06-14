@@ -42,11 +42,10 @@ class AddLLOSFieldsTestCase(unittest.TestCase):
     outputPoints = None
 
     def setUp(self):
-        if Configuration.DEBUG == True: print("     AddLLOSFieldsTestCase.setUp")
+        if Configuration.DEBUG == True: print(".....AddLLOSFieldsTestCase.setUp")
 
         UnitTestUtilities.checkArcPy()
-        if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
-            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
+        Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
 
         originalObservers = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Observers")
         originalTargets = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Targets")
@@ -54,18 +53,21 @@ class AddLLOSFieldsTestCase(unittest.TestCase):
         self.inputObservers = os.path.join(Configuration.militaryScratchGDB, "LLOS_Observers")
         self.inputTargets = os.path.join(Configuration.militaryScratchGDB, "LLOS_Targets")
 
+        if Configuration.DEBUG: print("Copying %s to %s..." % (originalObservers, self.inputObservers))
         arcpy.CopyFeatures_management(originalObservers, self.inputObservers)
+        if Configuration.DEBUG: print("Copying %s to %s..." % (originalTargets, self.inputTargets))
         arcpy.CopyFeatures_management(originalTargets, self.inputTargets)
+        return
 
     def tearDown(self):
-        if Configuration.DEBUG == True: print("     AddLLOSFieldsTestCase.tearDown")
+        if Configuration.DEBUG == True: print(".....AddLLOSFieldsTestCase.tearDown")
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+        return
 
     def test_add_llos_fields_pro(self):
         try:
-            arcpy.AddMessage("Testing Add LLOS Fields (Pro).")
+            runToolMessage = "...AddLLOSFieldsTestCase.test_add_llos_fields_pro"
             arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-            runToolMessage = "Running tool (Add LLOS Fields)"
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
 

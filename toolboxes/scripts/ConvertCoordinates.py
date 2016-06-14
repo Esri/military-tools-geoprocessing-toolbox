@@ -1,136 +1,143 @@
-#------------------------------------------------------------------------------
-# Copyright 2014 Esri
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#------------------------------------------------------------------------------
-# Name: ConvertCoordinates.py
-# Description: ConvertCoordinates
-# Requirements: ArcGIS Desktop Standard
-#------------------------------------------------------------------------------
+# coding: utf-8
+'''
+------------------------------------------------------------------------------
+Copyright 2016 Esri
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+------------------------------------------------------------------------------
+ ConvertCoordinates.py
+------------------------------------------------------------------------------
+ requirements:
+ * ArcGIS Desktop 10.X+ or ArcGIS Pro 1.X+
+ * Python 2.7 or Python 3.4
+ author: ArcGIS Solutions
+ company: Esri
+========================================================================
+ description:
+ Converts coordinates in input table from one format to multipe output formats
+
+========================================================================
+ history:
+ 2014 - ? - initial creation
+ 6/9/2016 - mf - refactor ID count and internal methods
+========================================================================
+'''
 
 #Imports
 import sys, os, traceback
 import arcpy
 from arcpy import env
 
-delete_me = []
+deleteIntermediateDatasets = []
+joinFieldName = "JoinID"
+scratchTable = None
+Output_Table = None
+DEBUG = True
+
+def addUniqueID(dataset, fieldName):
+    ''' adding unique ID field '''
+    counter = 1
+    arcpy.AddMessage("Adding field: " + str(fieldName))
+    arcpy.AddField_management(dataset,fieldName,"LONG")
+
+    # add unique numbers to each row
+    fields = [str(fieldName)]
+    arcpy.AddMessage("Adding unique row IDs...")
+    rows = arcpy.da.UpdateCursor(dataset,fields)
+    for row in rows:
+        row[0] = counter
+        rows.updateRow(row)
+        counter += 1
+    del rows
+    return dataset
+
+def addNotation(notationType, fieldsToAdd):
+    ''' '''
+    arcpy.AddMessage("Converting & appending %s ..." % notationType)
+    arcpy.ConvertCoordinateNotation_management(Output_Table,
+                                               scratchTable,
+                                               X_Field__Longitude__UTM__MGRS__USNG__GARS__GeoRef_,
+                                               Y_Field__Latitude_,
+                                               Input_Coordinate_Format,
+                                               notationType,
+                                               joinFieldName,
+                                               Spatial_Reference)
+    arcpy.JoinField_management(Output_Table, joinFieldName,
+                               scratchTable, joinFieldName,
+                               fieldsToAdd)
+    return True
 
 try:
-
-    # Load required toolboxes
-    scriptpath = sys.path[0]
-    #toolboxpath = os.path.join(scriptpath,"..\\Military Tools.tbx")
-    toolboxpath = os.path.join(scriptpath,"..\\Military_Tools.tbx")
-    arcpy.ImportToolbox(toolboxpath)
-
+    
     # Script arguments
     Input_Table = arcpy.GetParameterAsText(0)
-    arcpy.AddMessage(Input_Table)
-    if Input_Table == '#' or not Input_Table:
-        Input_Table = "C:\\Workspace\\Data\\Geometry Importers\\linewizard.dbf" # provide a default value if unspecified
 
     Input_Coordinate_Format = arcpy.GetParameterAsText(1)
-    if Input_Coordinate_Format == '#' or not Input_Coordinate_Format:
+    if not Input_Coordinate_Format:
         Input_Coordinate_Format = "DD" # provide a default value if unspecified
 
     X_Field__Longitude__UTM__MGRS__USNG__GARS__GeoRef_ = arcpy.GetParameterAsText(2)
-    if X_Field__Longitude__UTM__MGRS__USNG__GARS__GeoRef_ == '#' or not X_Field__Longitude__UTM__MGRS__USNG__GARS__GeoRef_:
+    if not X_Field__Longitude__UTM__MGRS__USNG__GARS__GeoRef_:
         X_Field__Longitude__UTM__MGRS__USNG__GARS__GeoRef_ = "Lond" # provide a default value if unspecified
 
     Y_Field__Latitude_ = arcpy.GetParameterAsText(3)
-    if Y_Field__Latitude_ == '#' or not Y_Field__Latitude_:
+    if not Y_Field__Latitude_:
         Y_Field__Latitude_ = "Latd" # provide a default value if unspecified
 
     Output_Table = arcpy.GetParameterAsText(4)
-    arcpy.AddMessage(Output_Table)
-    if Output_Table == '#' or not Output_Table:
+    if not Output_Table:
         pass
 
     Spatial_Reference = arcpy.GetParameterAsText(5)
-    if Spatial_Reference == '#' or not Spatial_Reference:
-        Spatial_Reference = "GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',SPHEROID['WGS_1984',6378137.0,298.257223563]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]];-400 -400 1000000000;-100000 10000;-100000 10000;8.98315284119522E-09;0.001;0.001;IsHighPrecision" # provide a default value if unspecified
+    if not Spatial_Reference:
+        Spatial_Reference = arcpy.SpatialReference(4326) #GCS_WGS_1984
 
     currentOverwriteOutput = env.overwriteOutput
     env.overwriteOutput = True
 
-    scratchWS = env.scratchWorkspace
-    if scratchWS == None:
+    scratchWS = env.scratchGDB
+    if not scratchWS:
         scratchWS = r'in_memory'
 
-
     scratchTable = os.path.join(scratchWS,"cc_temp")
-    delete_me.append(scratchTable)
+    deleteIntermediateDatasets.append(scratchTable)
 
-    # Local variables:
-    intermed = Output_Table
-
-    # Process: Copy Rows
-    arcpy.CopyRows_management(Input_Table, Output_Table, "")
-
-    # Process: Add Unique Row ID
-    arcpy.AddMessage("Before Add Unique Row ID ...")
-    #arcpy.AddUniqueRowID_InC(Output_Table, "JoinID")
-    #arcpy.AddUniqueRowID_ma(Output_Table, "JoinID")
-    arcpy.AddUniqueRowID_mt(Output_Table, "JoinID")
-    #arcpy.mt.AddUniqueRowID(Output_Table, "JoinID")
-    arcpy.AddMessage("After Add Unique Row ID ...")
+    if DEBUG:
+        arcpy.AddMessage("Copying %s to %s" % (Input_Table, Output_Table))
+    arcpy.CopyRows_management(Input_Table, Output_Table)
     
+    Output_Table = addUniqueID(Output_Table, "JoinID")
 
-    # Process: Convert Coordinate Notation (GARS)
-    arcpy.AddMessage("Converting & appending GARS ...")
-    arcpy.ConvertCoordinateNotation_management(intermed, scratchTable, X_Field__Longitude__UTM__MGRS__USNG__GARS__GeoRef_, Y_Field__Latitude_, Input_Coordinate_Format, "GARS", "JoinID", Spatial_Reference)
-    arcpy.JoinField_management(intermed, "JoinID", scratchTable, "JoinID", "GARS")
+    # {"format":"field_name(s)", ...}
+    notationsToAdd = {"GARS":"GARS",
+                      "DD":"DDLat; DDLon",
+                      "DDM":"DDMLat; DDMLon",
+                      "DMS":"DMS",
+                      "UTM":"UTM",
+                      "MGRS":"MGRS",
+                      "UTM":"UTM",
+                      "GEOREF":"GEOREF"}
 
-    # Process: Convert Coordinate Notation (DD)
-    arcpy.AddMessage("Converting & appending Decimal Degrees ...")
-    arcpy.ConvertCoordinateNotation_management(intermed, scratchTable, X_Field__Longitude__UTM__MGRS__USNG__GARS__GeoRef_, Y_Field__Latitude_, Input_Coordinate_Format, "DD", "JoinID", Spatial_Reference)
-    arcpy.JoinField_management(intermed, "JoinID", scratchTable, "JoinID", "DDLat;DDLon")
-
-    # Process: Convert Coordinate Notation (DDM)
-    arcpy.AddMessage("Converting & appending Degrees Decimal Minutes ...")
-    arcpy.ConvertCoordinateNotation_management(intermed, scratchTable, X_Field__Longitude__UTM__MGRS__USNG__GARS__GeoRef_, Y_Field__Latitude_, Input_Coordinate_Format, "DDM", "JoinID", Spatial_Reference)
-    arcpy.JoinField_management(intermed, "JoinID", scratchTable, "JoinID", "DDMLat;DDMLon")
-
-    # Process: Convert Coordinate Notation (DMS)
-    arcpy.AddMessage("Converting & appending Degrees Minutes Seconds ...")
-    arcpy.ConvertCoordinateNotation_management(intermed, scratchTable, X_Field__Longitude__UTM__MGRS__USNG__GARS__GeoRef_, Y_Field__Latitude_, Input_Coordinate_Format, "DMS", "JoinID", Spatial_Reference)
-    arcpy.JoinField_management(intermed, "JoinID", scratchTable, "JoinID", "DMS")
-
-    # Process: Convert Coordinate Notation (UTM)
-    arcpy.AddMessage("Converting & appending UTM ...")
-    arcpy.ConvertCoordinateNotation_management(intermed, scratchTable, X_Field__Longitude__UTM__MGRS__USNG__GARS__GeoRef_, Y_Field__Latitude_, Input_Coordinate_Format, "UTM", "JoinID", Spatial_Reference)
-    arcpy.JoinField_management(intermed, "JoinID", scratchTable, "JoinID", "UTM")
-
-    # Process: Convert Coordinate Notation (MGRS)
-    arcpy.AddMessage("Converting & appending MGRS ...")
-    arcpy.ConvertCoordinateNotation_management(intermed, scratchTable, X_Field__Longitude__UTM__MGRS__USNG__GARS__GeoRef_, Y_Field__Latitude_, Input_Coordinate_Format, "MGRS", "JoinID", Spatial_Reference)
-    arcpy.JoinField_management(intermed, "JoinID", scratchTable, "JoinID", "MGRS")
-
-    # Process: Convert Coordinate Notation (USNG)
-    arcpy.AddMessage("Converting & appending USNG ...")
-    arcpy.ConvertCoordinateNotation_management(intermed, scratchTable, X_Field__Longitude__UTM__MGRS__USNG__GARS__GeoRef_, Y_Field__Latitude_, Input_Coordinate_Format, "USNG", "JoinID", Spatial_Reference)
-    arcpy.JoinField_management(intermed, "JoinID", scratchTable, "JoinID", "USNG")
-
-    # Process: Convert Coordinate Notation (GeoRef)
-    arcpy.AddMessage("Converting & appending GeoRef ...")
-    arcpy.ConvertCoordinateNotation_management(intermed, scratchTable, X_Field__Longitude__UTM__MGRS__USNG__GARS__GeoRef_, Y_Field__Latitude_, Input_Coordinate_Format, "GEOREF", "JoinID", Spatial_Reference)
-    arcpy.JoinField_management(intermed, "JoinID", scratchTable, "JoinID", "GEOREF")
+    for notationFormat in notationsToAdd:
+        if not addNotation(notationFormat, notationsToAdd[notationFormat]):
+            raise
 
     # cleanup
-    arcpy.AddMessage("Removing scratch datasets:")
-    for ds in delete_me:
-        arcpy.AddMessage(str(ds))
+    arcpy.AddMessage("Removing scratch datasets...")
+    for ds in deleteIntermediateDatasets:
+        #arcpy.AddMessage(str(ds))
         arcpy.Delete_management(ds)
 
+    arcpy.SetParameter(4, Output_Table)
     env.overwriteOutput = currentOverwriteOutput
 
 except arcpy.ExecuteError:

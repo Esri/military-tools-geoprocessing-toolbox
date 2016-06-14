@@ -42,31 +42,31 @@ class AddRLOSObserverFieldsTestCase(unittest.TestCase):
     outputPoints = None
 
     def setUp(self):
-        if Configuration.DEBUG == True: print("     AddRLOSObserverFieldsTestCase.setUp")
+        if Configuration.DEBUG == True: print(".....AddRLOSObserverFieldsTestCase.setUp")
 
         UnitTestUtilities.checkArcPy()
-        if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
-            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
+        Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
 
         originalObservers = os.path.join(Configuration.militaryInputDataGDB, "RLOS_Observers")
-
         self.inputObservers = os.path.join(Configuration.militaryScratchGDB, "RLOS_Observers")
-
+        if Configuration.DEBUG: print("Copying %s to %s..." % (originalObservers, self.inputObservers))
         arcpy.CopyFeatures_management(originalObservers, self.inputObservers)
+        
+        return
 
     def tearDown(self):
-        if Configuration.DEBUG == True: print("     AddRLOSObserverFieldsTestCase.tearDown")
+        if Configuration.DEBUG == True: print(".....AddRLOSObserverFieldsTestCase.tearDown")
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+        return
 
     def test_add_rlos_observer_fields_pro(self):
         try:
-            arcpy.AddMessage("Testing Add RLOS Observer Fields (Pro).")
+            runToolMessage = "...AddRLOSObserverFieldsTestCase.test_add_rlos_observer_fields_pro"
             arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-            runToolMessage = "Running tool (Add RLOS Observer Fields)"
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
 
-            self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist")
+            self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist: %s" % self.inputObservers)
 
             arcpy.AddRLOSObserverFields_mt(self.inputObservers, 0, 1000, 2, 0, 0, 360, 90, -90)
 

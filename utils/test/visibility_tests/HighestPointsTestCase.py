@@ -46,11 +46,10 @@ class HighestPointsTestCase(unittest.TestCase):
     outputPoints = None
 
     def setUp(self):
-        if Configuration.DEBUG == True: print("     HighestPointsTestCase.setUp")
+        if Configuration.DEBUG == True: print(".....HighestPointsTestCase.setUp")
 
         UnitTestUtilities.checkArcPy()
-        if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
-            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
+        Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
 
         self.inputArea = os.path.join(Configuration.militaryInputDataGDB, "AreaofInterest")
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
@@ -58,17 +57,17 @@ class HighestPointsTestCase(unittest.TestCase):
 
         if arcpy.CheckExtension("Spatial") == "Available":
             arcpy.CheckOutExtension("Spatial")
-            arcpy.AddMessage("Spatial checked out")
+            arcpy.AddMessage(".....Spatial checked out")
 
     def tearDown(self):
-        if Configuration.DEBUG == True: print("     HighestPointsTestCase.tearDown")
+        if Configuration.DEBUG == True: print(".....HighestPointsTestCase.tearDown")
         arcpy.CheckInExtension("Spatial");
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
 
     def test_highest_points_desktop(self):
         ''' Test Highest Points for ArcGIS Desktop '''
         try:
-            runToolMessage = ".....HighestPointsTestCase.test_highest_points_desktop"
+            runToolMessage = "...HighestPointsTestCase.test_highest_points_desktop"
             arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
@@ -94,7 +93,7 @@ class HighestPointsTestCase(unittest.TestCase):
     def test_highest_points_pro(self):
         ''' Test Highest Points for ArcGIS Pro '''
         try:
-            runToolMessage = ".....HighestPointsTestCase.test_highest_points_pro"
+            runToolMessage = "...HighestPointsTestCase.test_highest_points_pro"
             arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)

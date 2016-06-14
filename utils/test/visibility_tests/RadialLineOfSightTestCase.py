@@ -49,9 +49,7 @@ class RadialLineOfSightTestCase(unittest.TestCase):
         if Configuration.DEBUG == True: print("     RadialLineOfSightTestCase.setUp")
 
         UnitTestUtilities.checkArcPy()
-        if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
-            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
-            arcpy.env.scratchWorkspace = Configuration.militaryScratchGDB
+        Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
 
         self.observers = os.path.join(Configuration.militaryInputDataGDB, "RLOS_Observers")
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
@@ -59,7 +57,7 @@ class RadialLineOfSightTestCase(unittest.TestCase):
 
         if arcpy.CheckExtension("Spatial") == "Available":
             arcpy.CheckOutExtension("Spatial")
-            arcpy.AddMessage("Spatial checked out")
+            arcpy.AddMessage(".....Spatial checked out")
 
     def tearDown(self):
         if Configuration.DEBUG == True: print("     RadialLineOfSightTestCase.tearDown")
