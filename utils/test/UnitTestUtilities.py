@@ -123,36 +123,36 @@ def setUpLogFileHeader():
 
 def checkArcPy():
     ''' sanity check that ArcPy is working '''
-    if Configuration.DEBUG == True: print("UnitTestUtilities - checkArcPy")
-    arcpy.AddMessage("ArcPy works")
+    if Configuration.DEBUG == True: print(".....UnitTestUtilities.checkArcPy")
+    arcpy.AddMessage(".....ArcPy works")
 
 def checkExists(p):
     ''' Python check for existance '''
-    if Configuration.DEBUG == True: print("UnitTestUtilities - checkExists")
+    if Configuration.DEBUG == True: print(".....UnitTestUtilities.checkExists")
     return os.path.exists(p)
 
 def createScratch(scratchPath):
     ''' create scratch geodatabase '''
-    if Configuration.DEBUG == True: print("UnitTestUtilities - createScratch")
+    if Configuration.DEBUG == True: print(".....UnitTestUtilities.createScratch")
     scratchName = 'scratch.gdb'
     scratchGDB = os.path.join(scratchPath, scratchName)
     if checkExists(scratchGDB):
         print("Scratch already exists")
         return scratchGDB
     try:
-        if Configuration.DEBUG == True: print("Creating scratch geodatabase...")
+        if Configuration.DEBUG == True: print(".....Creating scratch geodatabase...")
         arcpy.CreateFileGDB_management(scratchPath, scratchName)
-        if Configuration.DEBUG == True: print("Created scratch gdb.")
+        if Configuration.DEBUG == True: print(".....Created scratch gdb.")
     except:
         print("Problem creating scratch.gdb")
     return scratchGDB
 
 def deleteScratch(scratchPath):
     ''' delete scratch geodatabase '''
-    if Configuration.DEBUG == True: print("UnitTestUtilities - deleteScratch")
+    if Configuration.DEBUG == True: print(".....UnitTestUtilities.deleteScratch")
     try:
         arcpy.Delete_management(scratchPath)
-        if Configuration.DEBUG == True: print("Deleted scratch gdb.")
+        if Configuration.DEBUG == True: print(".....Deleted scratch gdb.")
     except:
         print("scratch.gdb delete failed")
     return

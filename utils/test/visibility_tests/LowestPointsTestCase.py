@@ -46,11 +46,10 @@ class LowestPointsTestCase(unittest.TestCase):
     outputPoints = None
 
     def setUp(self):
-        if Configuration.DEBUG == True: print("     LowestPointsTestCase.setUp")
+        if Configuration.DEBUG == True: print(".....LowestPointsTestCase.setUp")
 
         UnitTestUtilities.checkArcPy()
-        if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
-            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
+        Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
 
         self.inputArea = os.path.join(Configuration.militaryInputDataGDB, "AreaofInterest")
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
@@ -61,14 +60,14 @@ class LowestPointsTestCase(unittest.TestCase):
             arcpy.AddMessage("Spatial checked out")
 
     def tearDown(self):
-        if Configuration.DEBUG == True: print("     LowestPointsTestCase.tearDown")
+        if Configuration.DEBUG == True: print(".....LowestPointsTestCase.tearDown")
         arcpy.CheckInExtension("Spatial");
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
 
     def test_lowest_points_desktop(self):
         ''' Test Lowest Points tool in ArcGIS Desktop '''
         try:
-            runToolMessage = ".....LowestPointsTestCase.test_lowest_points_desktop"
+            runToolMessage = "...LowestPointsTestCase.test_lowest_points_desktop"
 
             arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
             arcpy.AddMessage(runToolMessage)
@@ -89,7 +88,7 @@ class LowestPointsTestCase(unittest.TestCase):
     def test_lowest_points_pro(self):
         ''' Test Lowest Points tool in ArcGIS Pro '''
         try:
-            runToolMessage = ".....LowestPointsTestCase.test_lowest_points_pro"
+            runToolMessage = "...LowestPointsTestCase.test_lowest_points_pro"
 
             arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
             arcpy.AddMessage(runToolMessage)
