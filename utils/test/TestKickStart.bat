@@ -69,7 +69,6 @@ REM check if ArcGIS Pro/Python 3.4 tests failed
 IF %ERRORLEVEL% NEQ 0 (
    ECHO 'One or more tests failed'
 )
-
 ECHO Python 2.7 Tests ===============================
 REM py -2.7 TestRunner.py %LOG%
 python TestRunner.py %LOG%

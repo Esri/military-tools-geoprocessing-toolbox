@@ -54,6 +54,8 @@ def getVisibilityTestSuites():
     radialLineOfSightDesktopTests = ['test_radial_line_of_sight_desktop']
     radialLineOfSightProTests = ['test_radial_line_of_sight_pro']
     addLLOSFieldsProTests = ['test_add_llos_fields_pro']
+    addLLOSFieldsDesktopTests = ['test_add_llos_fields_desktop']
+    addRLOSObserverDesktopTests = ['test_add_rlos_observer_fields_desktop']
     addRLOSObserverProTests = ['test_add_rlos_observer_fields_pro']
 
     if Configuration.DEBUG == True:
@@ -66,6 +68,8 @@ def getVisibilityTestSuites():
         addFindLocalPeaksTests(findLocalPeaksDesktopTests)
         addHighestPointsTests(highestPointsDesktopTests)
         addLowestPointsTests(lowestPointsDesktopTests)
+        addAddLLOSFieldsTests(addLLOSFieldsDesktopTests)
+        addAddRLOSObserverDesktopTests(addRLOSObserverDesktopTests)
         addLinearLineOfSightTests(linearLineOfSightDesktopTests)
         addRadialLineOfSightTests(radialLineOfSightDesktopTests)
 

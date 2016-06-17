@@ -72,7 +72,7 @@ class RadialLineOfSightTestCase(unittest.TestCase):
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
 
-            arcpy.RadialLineOfSight_mt(self.observers, self.inputSurface, self.outputRLOS)
+            arcpy.RadialLineOfSight_mt(self.observers, 2.0, 2000.0, self.inputSurface, self.outputRLOS)
             self.assertTrue(arcpy.Exists(self.outputRLOS), "Output dataset does not exist or was not created")
 
             featureCount = int(arcpy.GetCount_management(self.outputRLOS).getOutput(0))
@@ -91,7 +91,7 @@ class RadialLineOfSightTestCase(unittest.TestCase):
             arcpy.AddMessage(runToolMessage)
             Configuration.Logger.info(runToolMessage)
 
-            arcpy.RadialLineOfSight_mt(self.observers, self.inputSurface, self.outputRLOS)
+            arcpy.RadialLineOfSight_mt(self.observers, 2.0, 2000.0, self.inputSurface, self.outputRLOS)
             self.assertTrue(arcpy.Exists(self.outputRLOS), "Output dataset does not exist or was not created")
 
             featureCount = int(arcpy.GetCount_management(self.outputRLOS).getOutput(0))
