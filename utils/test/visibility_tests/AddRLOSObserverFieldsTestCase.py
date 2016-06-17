@@ -1,32 +1,36 @@
 # coding: utf-8
-# -----------------------------------------------------------------------------
-# Copyright 2016 Esri
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#   http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# -----------------------------------------------------------------------------
+'''
+-----------------------------------------------------------------------------
+Copyright 2016 Esri
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-# ==================================================
-# AddRLOSObserverFieldsTestCase.py
-# --------------------------------------------------
-# requirements:
-# * ArcGIS Desktop 10.X+ or ArcGIS Pro 1.X+
-# * Python 2.7 or Python 3.4
-#
-# author: ArcGIS Solutions
-# company: Esri
-#
-# ==================================================
-# history:
-# ==================================================
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-----------------------------------------------------------------------------
+
+==================================================
+AddRLOSObserverFieldsTestCase.py
+--------------------------------------------------
+requirements:
+* ArcGIS Desktop 10.X+ or ArcGIS Pro 1.X+
+* Python 2.7 or Python 3.4
+
+author: ArcGIS Solutions
+company: Esri
+
+==================================================
+history:
+? - dh - original test writeup
+6/17/2016 
+==================================================
+'''
 
 import unittest
 import arcpy
@@ -68,7 +72,7 @@ class AddRLOSObserverFieldsTestCase(unittest.TestCase):
 
             self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist: %s" % self.inputObservers)
 
-            arcpy.AddRLOSObserverFields_mt(self.inputObservers, 0, 1000, 2, 0, 0, 360, 90, -90)
+            arcpy.AddRLOSObserverFields_mt(self.inputObservers, 2.0, 0.0, 0.0, 1000.0, 0.0, 360.0, 90.0, -90.0)
 
             fieldList = arcpy.ListFields(self.inputObservers, "RADIUS1")
             fieldCount = len(fieldList)
@@ -130,7 +134,7 @@ class AddRLOSObserverFieldsTestCase(unittest.TestCase):
 
             self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist: %s" % self.inputObservers)
 
-            arcpy.AddRLOSObserverFields_mt(self.inputObservers, 0, 1000, 2, 0, 0, 360, 90, -90)
+            arcpy.AddRLOSObserverFields_mt(self.inputObservers, 2.0, 0.0, 0.0, 1000.0, 0.0, 360.0, 90.0, -90.0)
 
             fieldList = arcpy.ListFields(self.inputObservers, "RADIUS1")
             fieldCount = len(fieldList)

@@ -69,7 +69,7 @@ def getVisibilityTestSuites():
         addHighestPointsTests(highestPointsDesktopTests)
         addLowestPointsTests(lowestPointsDesktopTests)
         addAddLLOSFieldsTests(addLLOSFieldsDesktopTests)
-        addAddRLOSObserverDesktopTests(addRLOSObserverDesktopTests)
+        addAddRLOSObserverFieldsTests(addRLOSObserverDesktopTests)
         addLinearLineOfSightTests(linearLineOfSightDesktopTests)
         addRadialLineOfSightTests(radialLineOfSightDesktopTests)
 
