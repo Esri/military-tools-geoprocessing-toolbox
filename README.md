@@ -18,83 +18,8 @@ is a collection of models, scripts, and tools for use in ArcGIS for Desktop and 
 This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to import geometry from tables, determine ranges, and provide basic visibility analysis capabilities.
 
 ### Contents
-* [toolboxes](./toolboxes)
-	* Military Tools.tbx (same tools as below)
-	* Military Tools_10.3.tbx
-		* Conversion
-			* Convert Coordinates
-			* Table To 2-Point Line
-			* Table To Ellipse
-			* Table To Line Of Bearing
-			* Table To Point
-			* Table To Polygon
-			* Table To Polyline
-		* Distance and Direction
-			* Range Rings (from Interval)
-			* Range Rings from Minimum Maximum
-			* Range Rings from Minimum Maximum Table
-		* Source Scripts
-			* Add Unique Row ID
-			* Polyline To Polygon
-			* sourceCC
-			* sourceRLOSscript
-		* Visibility
-			* Add Observer Fields (ArcGIS Pro only)
-			* Linear Line Of Sight
-			* Radial Line Of Sight
-			* Find Local Peaks
-			* Highest Points
-			* Lowest Point
-	* [scripts](./toolboxes/scripts)
-		* AddUniqueRowID.py
-		* ConvertCoordinates.py
-		* PolylineToPolygon.py
-		* RangeRingsUtils.py
-		* RangeRingFromMinMaxTable.py
-		* RangeRingMinMax.py
-		* RangeRingsFromInterval.py
-		* RLOS.py
-	* [layers](./toolboxes/layers)
-		* Highest Point Output.lyr
-		* Linear Line of Sight Output.lyr
-		* Lowest Point Output.lyr
-		* Radial Line Of Sight Output.lyr
-		* RangeRadials.lyr
-		* RangeRingInputObserver.lyr
-		* RangeRings.lyr
-	* [tooldata](./toolboxes/tooldata)
-		* [Range Rings.gdb]
-			* rrInputTable
-* [testdata](./testdata)
-	* CSV
-		* TabletoLineofBearing.csv
-		* TabletoPoint.csv
-		* TabletoPolyline.csv
-	* DataCreditsforMilitaryToolsGeoprocessingToolbox.txt
-	* Elevation
-		* USGS SRTMData Citation_1.pdf
-		* [SRTM30M]
-			* 36.dt2
-		* [SRTM90M]
-			* [dted]
-				* [w121]
-					* n35.dt1
-					* n36.dt1
-				* [w122]
-					* n35.dt1
-					* n36.dt1
-				* [w123]
-					* n36.dt1
-	* [MilitaryToolsTestData.gdb]
-		* ElevationSurface - surface data
-		* sampleRangePoints- sample points
-		* SigActs - event and coordinate test data 
-		* Targets
-		* Observers
-		* ElevationUTM_Zone10 (elevation data)
-	* Results.gdb
-		* Viewshed
-		
+
+[Contents](./Contents.md)
 
 ## Requirements
 
