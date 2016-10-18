@@ -53,12 +53,9 @@ Additionally there are additional extensions needed for certain tools:
 Find a bug or want to request a new feature?  Please let us know by submitting an [issue](https://github.com/Esri/military-tools-geoprocessing-toolbox/issues).
 Please note that issues might be copied or transferred to other repositories as needed.
 
-1. Use a concise, one-line title
-2. The Description should include:
-	* A *detailed* description of what the problem or question is, what was expected, what differed.
-	* A *numbered* list of steps to reproduce the problem (don't assume the person fixing the issue will know how to reproduce the problem)
-	* Screenshots are helpful
-	* blocks of script/code (if necessary)
+1. Click **New issue**
+2. Fill out the issue template with as much detail as possible. Add screenshots as needed.
+3. Click **Submit new issue**
 
 ## Contributing
 
