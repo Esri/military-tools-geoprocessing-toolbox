@@ -66,52 +66,38 @@ class HighestPointsTestCase(unittest.TestCase):
 
     def test_highest_points_desktop(self):
         ''' Test Highest Points for ArcGIS Desktop '''
-        try:
-            runToolMessage = "...HighestPointsTestCase.test_highest_points_desktop"
-            arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
-
-            arcpy.HighestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)
-            self.assertTrue(arcpy.Exists(self.outputPoints), "Output dataset does not exist or was not created")
-
-            pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
-            expectedFeatures = int(1)
-            self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures),str(pointCount)))
-
-            rows = arcpy.SearchCursor(self.outputPoints)
+        runToolMessage = "...HighestPointsTestCase.test_highest_points_desktop"
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.HighestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)
+        self.assertTrue(arcpy.Exists(self.outputPoints), "Output dataset does not exist or was not created")
+        pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
+        expectedFeatures = int(1)
+        self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures),str(pointCount)))
+        rows = arcpy.SearchCursor(self.outputPoints)
+        row = rows.next()
+        while row:
+            elevation = row.Elevation
+            self.assertEqual(elevation, int(1123), "Bad elevation value: %s" % str(elevation))
             row = rows.next()
-            while row:
-                elevation = row.Elevation
-                self.assertEqual(elevation, int(1123), "Bad elevation value: %s" % str(elevation))
-                row = rows.next()
-
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()
+        return
 
     def test_highest_points_pro(self):
         ''' Test Highest Points for ArcGIS Pro '''
-        try:
-            runToolMessage = "...HighestPointsTestCase.test_highest_points_pro"
-            arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
-
-            arcpy.HighestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)
-            self.assertTrue(arcpy.Exists(self.outputPoints), "Output dataset does not exist or was not created")
-
-            pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
-            expectedFeatures = int(1)
-            self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures),str(pointCount)))
-
-            rows = arcpy.SearchCursor(self.outputPoints)
+        runToolMessage = "...HighestPointsTestCase.test_highest_points_pro"
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.HighestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)
+        self.assertTrue(arcpy.Exists(self.outputPoints), "Output dataset does not exist or was not created")
+        pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
+        expectedFeatures = int(1)
+        self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures),str(pointCount)))
+        rows = arcpy.SearchCursor(self.outputPoints)
+        row = rows.next()
+        while row:
+            elevation = row.Elevation
+            self.assertEqual(elevation, int(1123), "Bad elevation value: %s" % str(elevation))
             row = rows.next()
-            while row:
-                elevation = row.Elevation
-                self.assertEqual(elevation, int(1123), "Bad elevation value: %s" % str(elevation))
-                row = rows.next()
-
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()
+        return

@@ -19,27 +19,31 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 
 ### Contents
 
-[Contents](./Contents.md)
+* [Repository contents list](./Contents.md)
 
 ## Requirements
 
-Tools for ArcMap are in the **Military_Tools_10.3.tbx** toolbox and have the following requirements:
+Tools for ArcMap are in the **Military Tools 10.3.tbx** toolbox and have the following requirements:
 
-* ArcGIS 10.3.1 for Desktop and Python 2.7
+* **ArcGIS 10.3.1 for Desktop**
+* **ArcGIS 10.4 for Desktop**
+* **ArcGIS 10.4.1 for Desktop**
+
 
 Tools for ArcGIS Pro are in the **Military_Tools.tbx** toolbox and have the following requirements: 
 
-* ArcGIS Pro 1.3 and Python 3.4
+* **ArcGIS Pro 1.2**
+* **ArcGIS Pro 1.3**
 
 Additionally there are additional extensions needed for certain tools:
 
-* Requires ArcGIS Spatial Analyst:
+* Requires **ArcGIS Spatial Analyst**:
 	* Find Local Peaks
 	* Highest Points
 	* Lowest Points
 	* Radial Line Of Sight
 
-* Requires ArcGIS Spatial Analyst and ArcGIS 3D Analyst:
+* Requires **ArcGIS Spatial Analyst** *and* **ArcGIS 3D Analyst**:
 	* Linear Line Of Sight
 
 ## Instructions
@@ -59,17 +63,31 @@ Please note that issues might be copied or transferred to other repositories as 
 
 ## Contributing
 
-Esri welcomes contributions from anyone and everyone. Please see our [guidelines for contributing](https://github.com/esri/contributing).
+Esri welcomes contributions from anyone and everyone.
+
+Repository specific instructions:
+
+* Make a new branch from *dev* branch
+* Clone the repository to your local machine
+* Make changes on your local machine
+* Synchronize changes with your branch often
+* When you would like to share your changes:
+	* Pull the recent updates from *dev*
+	* create a **New Pull Request** against the *dev* branch
+
+Please see Esri general [guidelines for contributing](https://github.com/esri/contributing).
 
 ### Repository Points of Contact
 
 Repository Owner: [Matt Funk](https://github.com/mfunk)
+
 * Merge Pull Requests
 * Creates Releases and Tags
 * Manages Milestones
 * Manages and Assigns Issues
 
 Secondary Contact: [Lyle Wright](https://github.com/topowright)
+
 * Backup when the Owner is away
 
 ## Resources

@@ -63,57 +63,44 @@ class TableToEllipseTestCase(unittest.TestCase):
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
     
     def test_table_to_ellipse_desktop(self):
-        try:
-            runToolMessage = ".....TableToEllipseTestCase.test_table_to_ellipse_desktop"
-            arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
+        '''test_table_to_ellipse_desktop '''
+        runToolMessage = ".....TableToEllipseTestCase.test_table_to_ellipse_desktop"
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        
+        arcpy.TableToEllipse_mt(self.inputTable, "DD_2", "x", "y", "Major", "Minor", "KILOMETERS", self.outputEllipses)
+        self.assertTrue(arcpy.Exists(self.outputEllipses), "Output dataset does not exist.")
+        
+        ellipseCount = int(arcpy.GetCount_management(self.outputEllipses).getOutput(0))
+        expectedFeatures = int(23)
+        self.assertEqual(ellipseCount, expectedFeatures, "Expected %s features but got %s" % (str(expectedFeatures),str(ellipseCount)))
+        
+        compareFeatures = arcpy.FeatureCompare_management(self.baseFC, self.outputEllipses, "Major")
             
-            arcpy.TableToEllipse_mt(self.inputTable, "DD_2", "x", "y", "Major", "Minor", "KILOMETERS", self.outputEllipses)
-            self.assertTrue(arcpy.Exists(self.outputEllipses), "Output dataset does not exist.")
-            
-            ellipseCount = int(arcpy.GetCount_management(self.outputEllipses).getOutput(0))
-            expectedFeatures = int(23)
-            self.assertEqual(ellipseCount, expectedFeatures, "Expected %s features but got %s" % (str(expectedFeatures),str(ellipseCount)))
-            
-            compareFeatures = arcpy.FeatureCompare_management(self.baseFC, self.outputEllipses, "Major")
-                
-            # identical = 'true' means that there are no differences between the base and the output feature class
-            identical = compareFeatures.getOutput(1)
-            self.assertEqual(identical, "true", "Feature Compare failed: \n %s" % arcpy.GetMessages())
-            
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()
-            
-       
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature Compare failed: \n %s" % arcpy.GetMessages())
+        return
         
         
     def test_table_to_ellipse_pro(self):
-        try:
-            runToolMessage = ".....TableToEllipseTestCase.test_table_to_ellipse_pro"           
-            arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
-            
-            arcpy.TableToEllipse_mt(self.inputTable, "DD_2", "x", "y", "Major", "Minor", "KILOMETERS", self.outputEllipses)
-            self.assertTrue(arcpy.Exists(self.outputEllipses), "Output dataset does not exist.")
-            
-            ellipseCount = int(arcpy.GetCount_management(self.outputEllipses).getOutput(0))
-            expectedFeatures = int(23)
-            self.assertEqual(ellipseCount, expectedFeatures, "Expected %s features but got %s" % (str(expectedFeatures),str(ellipseCount)))
-            
-            compareFeatures = arcpy.FeatureCompare_management(self.baseFC, self.outputEllipses, "Major")
-                
-            # identical = 'true' means that there are no differences between the base and the output feature class
-            identical = compareFeatures.getOutput(1)
-            self.assertEqual(identical, "true", "Feature Compare failed: \n %s" % arcpy.GetMessages())
-            
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()
-            
-       
+        '''test_table_to_ellipse_pro'''
+        runToolMessage = ".....TableToEllipseTestCase.test_table_to_ellipse_pro"           
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
         
-
+        arcpy.TableToEllipse_mt(self.inputTable, "DD_2", "x", "y", "Major", "Minor", "KILOMETERS", self.outputEllipses)
+        self.assertTrue(arcpy.Exists(self.outputEllipses), "Output dataset does not exist.")
         
+        ellipseCount = int(arcpy.GetCount_management(self.outputEllipses).getOutput(0))
+        expectedFeatures = int(23)
+        self.assertEqual(ellipseCount, expectedFeatures, "Expected %s features but got %s" % (str(expectedFeatures),str(ellipseCount)))
+        
+        compareFeatures = arcpy.FeatureCompare_management(self.baseFC, self.outputEllipses, "Major")
+            
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature Compare failed: \n %s" % arcpy.GetMessages())
+        return
