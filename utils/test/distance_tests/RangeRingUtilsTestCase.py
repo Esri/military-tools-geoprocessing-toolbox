@@ -98,8 +98,8 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         runToolMessage = ".....RangeRingsUtilsTestCase.test_RingMaker_sortList_emtpy"
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
-        
-        outList = RangeRingUtils.RingMaker._sortList([])
+        rr = RangeRingUtils.RingMaker(self.pointGeographic, [10.0, 20.0], "METERS", srWAZED)
+        outList = rr._sortList([])
         self.assertIsNone(outList, "Expected empty sorted list, but got %s" % str(outList))
         return
 
@@ -108,9 +108,9 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         runToolMessage = "......RangeRingsUtilsTestCase.test_sortList_isSorted"
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
-        
         listToSort = [7, 5, 9, 3, 8, 1, 6, 2, 4, 0]
-        outList = RangeRingUtils.RingMaker._sortList(listToSort)
+        rr = RangeRingUtils.RingMaker(self.pointGeographic, [10.0, 20.0], "METERS", srWAZED)
+        outList = rr._sortList(listToSort)
         self.assertEqual(outList, sorted(listToSort), "List not sorted as expected")
         return
 
