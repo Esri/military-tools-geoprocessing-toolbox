@@ -73,6 +73,7 @@ class LinearLineOfSightTestCase(unittest.TestCase):
     def test_linear_line_of_sight_desktop(self):
         ''' Test Linear Line Of Sight in ArcGIS Desktop'''
         runToolMessage = ".....LinearLineOfSightTestCase.test_linear_line_of_sight_desktop"
+        arcpy.env.overwriteOutput = True
         arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
@@ -86,6 +87,7 @@ class LinearLineOfSightTestCase(unittest.TestCase):
     def test_linear_line_of_sight_pro(self):
         ''' Test Linear Line Of Sight in ArcGIS Pro '''
         runToolMessage = ".....LinearLineOfSightTestCase.test_linear_line_of_sight_pro"
+        arcpy.env.overwriteOutput = True
         arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
