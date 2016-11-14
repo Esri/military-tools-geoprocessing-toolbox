@@ -77,11 +77,14 @@ class LinearLineOfSightTestCase(unittest.TestCase):
         arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
-        arcpy.LinearLineOfSight_mt(self.observers, self.targets, self.inputSurface, self.outputLOS)
+        arcpy.LinearLineOfSight_mt(self.observers, self.targets, self.inputSurface, self.outputLOS, self.outputSightLines, 2.0, 0.0)
         self.assertTrue(arcpy.Exists(self.outputLOS), "Output LOS does not exist or was not created")
+        self.assertTrue(arcpy.Exists(self.outputSightLines), "Output Sight Lines to not exist or were not created")
         featureCount = int(arcpy.GetCount_management(self.outputLOS).getOutput(0))
         expectedFeatures = int(32)
         self.assertEqual(featureCount, expectedFeatures, "Expected %s features but got %s" % (str(expectedFeatures), str(featureCount)))
+        featureCountSightLines = int(arcpy.GetCount_management(self.outputSightLines).getOutput(0))
+        #self.assertEqual(featureCountSightLines, int(1))
         return
 
     def test_linear_line_of_sight_pro(self):
