@@ -76,7 +76,7 @@ class TableToEllipseTestCase(unittest.TestCase):
         expectedFeatures = int(23)
         self.assertEqual(ellipseCount, expectedFeatures, "Expected %s features but got %s" % (str(expectedFeatures),str(ellipseCount)))
         
-        compareFeatures = arcpy.FeatureCompare_management(self.baseFC, self.outputEllipses, "Major")
+        compareFeatures = arcpy.FeatureCompare_management(self.baseFC, self.outputEllipses, "JoinID")
             
         # identical = 'true' means that there are no differences between the base and the output feature class
         identical = compareFeatures.getOutput(1)
@@ -98,7 +98,7 @@ class TableToEllipseTestCase(unittest.TestCase):
         expectedFeatures = int(23)
         self.assertEqual(ellipseCount, expectedFeatures, "Expected %s features but got %s" % (str(expectedFeatures),str(ellipseCount)))
         
-        compareFeatures = arcpy.FeatureCompare_management(self.baseFC, self.outputEllipses, "Major")
+        compareFeatures = arcpy.FeatureCompare_management(self.baseFC, self.outputEllipses, "JoinID")
             
         # identical = 'true' means that there are no differences between the base and the output feature class
         identical = compareFeatures.getOutput(1)
