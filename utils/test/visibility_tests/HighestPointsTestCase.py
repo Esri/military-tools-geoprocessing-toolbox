@@ -68,6 +68,7 @@ class HighestPointsTestCase(unittest.TestCase):
         ''' Test Highest Points for ArcGIS Desktop '''
         runToolMessage = "...HighestPointsTestCase.test_highest_points_desktop"
         arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.env.overwriteOutput = True
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         arcpy.HighestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)
@@ -87,6 +88,7 @@ class HighestPointsTestCase(unittest.TestCase):
         ''' Test Highest Points for ArcGIS Pro '''
         runToolMessage = "...HighestPointsTestCase.test_highest_points_pro"
         arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.env.overwriteOutput = True
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         arcpy.HighestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)

@@ -68,6 +68,7 @@ class FindLocalPeaksTestCase(unittest.TestCase):
         ''' Test Find Local Peaks for ArcGIS Desktop '''
         runToolMessage = ".....FindLocalPeaksTestCase.test_find_local_peaks_desktop"
         arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.env.overwriteOutput = True
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         arcpy.FindLocalPeaks_mt(self.inputArea, 10, self.inputSurface, self.outputPoints)
@@ -82,6 +83,7 @@ class FindLocalPeaksTestCase(unittest.TestCase):
         ''' Test Find Local Peaks for ArcGIS Pro '''
         runToolMessage = ".....FindLocalPeaksTestCase.test_find_local_peaks_pro"
         arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.env.overwriteOutput = True
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         arcpy.FindLocalPeaks_mt(self.inputArea, 10, self.inputSurface, self.outputPoints)

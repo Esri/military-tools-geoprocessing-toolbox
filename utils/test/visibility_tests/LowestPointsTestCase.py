@@ -68,6 +68,7 @@ class LowestPointsTestCase(unittest.TestCase):
         ''' Test Lowest Points tool in ArcGIS Desktop '''
         runToolMessage = "...LowestPointsTestCase.test_lowest_points_desktop"
         arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.env.overwriteOutput = True
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         arcpy.LowestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)
@@ -81,6 +82,7 @@ class LowestPointsTestCase(unittest.TestCase):
         ''' Test Lowest Points tool in ArcGIS Pro '''
         runToolMessage = "...LowestPointsTestCase.test_lowest_points_pro"
         arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.env.overwriteOutput = True
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         arcpy.LowestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)
