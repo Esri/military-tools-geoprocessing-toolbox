@@ -71,7 +71,6 @@ IF %ERRORLEVEL% NEQ 0 (
    ECHO 'One or more tests failed'
 )
 ECHO Python 2.7 Tests ===============================
-REM py -2.7 TestRunner.py %LOG%
 py -2.7 TestRunner.py %LOG%
 REM check if Desktop for ArcGIS/Python 2.7 tests failed
 IF %ERRORLEVEL% NEQ 0 (
