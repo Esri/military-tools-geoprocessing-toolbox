@@ -21,7 +21,7 @@ from arcpy import env
 import traceback
 
 debug = True
-
+srDefault = arcpy.SpatialReference(4326) # GCS_WGS_1984
     
 def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
     '''
@@ -39,7 +39,8 @@ def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
         env.overwriteOutput = True
         #Create output Poly FC
         sr = arcpy.Describe(inputPolylines).spatialReference
-        arcpy.AddMessage("Spatial reference is " + str(sr.name))
+        if debug:
+            arcpy.AddMessage("Spatial reference is " + str(sr.name))
         arcpy.AddMessage("Creating output feature class...")
         outpolygonsFC = arcpy.CreateFeatureclass_management(os.path.dirname(outputPolygons),
                                                             os.path.basename(outputPolygons),
@@ -59,7 +60,6 @@ def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
             
         arcpy.AddMessage("Opening cursors ...")
         #Open Search cursor on polyline
-        if debug: arcpy.AddMessage("inFields: " + str(inFields))
         inRows = arcpy.da.SearchCursor(inputPolylines, inFields)
     
         #Open Insert cursor on polygons
@@ -70,7 +70,8 @@ def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
             if inputIDFieldName:
                 inID = row[1]
     
-            arcpy.AddMessage("Building points from lines.")
+            if debug:
+                arcpy.AddMessage("Building points from lines.")
             #Build array of points for the line
             polyArray = arcpy.Array()
             partnum = 0
@@ -79,7 +80,8 @@ def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
                     polyArray.add(arcpy.Point(pnt.X, pnt.Y))
                 partnum += 1
     
-            arcpy.AddMessage("Creating polygon from points.")
+            if debug:
+                arcpy.AddMessage("Creating polygon from points.")
             #convert the array to a polygon, and insert the features
             outPoly = arcpy.Polygon(polyArray)
             if inputIDFieldName:
@@ -195,11 +197,19 @@ def tableToPolygon(inputTable, inputCoordinateFormat,
         
         scratch = 'in_memory'
         if env.scratchWorkspace:
-            scratch = env.scratchWorkspace  
+            scratch = env.scratchWorkspace
+            
+        if not inputSpatialReference:
+            arcpy.AddMessage("Defaulting to {0}".format(srDefault.name))
+            inputSpatialReference = srDefault
         
         copyRows = os.path.join(scratch, "copyRows")
         arcpy.CopyRows_management(inputTable, copyRows)
         copyCCN = os.path.join(scratch, "copyCCN")
+        
+        #TODO: 
+        #ExecuteError: ERROR 000622: Failed to execute (Convert Coordinate Notation). Parameters are not valid.
+        #ERROR 000614: Cannot create Spatial Reference for spatial_reference.
         arcpy.ConvertCoordinateNotation_management(copyRows,
                                                    copyCCN,
                                                    inputXField,
@@ -207,7 +217,7 @@ def tableToPolygon(inputTable, inputCoordinateFormat,
                                                    inputCoordinateFormat,
                                                    "DD_2",
                                                    "#",
-                                                   inputSpatialReference)
+                                                   inputSpatialReference.exportToString())
         
         copyPointsToLine = os.path.join(scratch, "copyPointsToLine")
         arcpy.PointsToLine_management(copyCCN,

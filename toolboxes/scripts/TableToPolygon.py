@@ -45,7 +45,7 @@ outputPolygonFeatures = arcpy.GetParameterAsText(4) # Output Polygon Features
 inputLineField = arcpy.GetParameterAsText(5) # Line Field (optional) - from inputTable
 inputSortField = arcpy.GetParameterAsText(6) # Sort Field (optional) - from inputTable
 inputSpatialReference = arcpy.GetParameter(7) # Spatial Reference (optional)
-if not inputSpatialReference:
+if not inputSpatialReference or inputSpatialReference == "" or inputSpatialReference == "#":
     inputSpatialReference = arcpy.SpatialReference(4326) #default is GCS_WGS_1984
 
 
