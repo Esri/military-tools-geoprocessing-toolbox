@@ -12,6 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 --------------------------------------------------------------------------
+
+
 '''
 
 import os
@@ -21,7 +23,8 @@ from arcpy import env
 import traceback
 
 debug = True
-srDefault = arcpy.SpatialReference(4326) # GCS_WGS_1984
+srWGS84 = arcpy.SpatialReference(4326) # GCS_WGS_1984
+#srWAZED = arcpy.SpatialReference() # World Azimuthal Equidistant
     
 def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
     '''
@@ -174,8 +177,170 @@ def addUniqueRowID(dataset, fieldName="JoinID"):
         #print msgs #UPDATE
         print(msgs)
 
+def _formatLat(sLat):
+    '''
+    For DD latitude fields with "S" hemisphere indicators,
+    change to "-"
+    '''
+   if sLat[-1:] == "S":
+      sLat = -1.0 * float(sLat[:-1])
+   else:
+      sLat = float(sLat[:-1])
+   return sLat
+
+def _formatLon(sLon):
+    '''
+    for DD longitude fields with "W" hemisphere indicators,
+    change to "-"
+    '''
+   if sLon[-1:] == "W":
+      sLon = -1.0 * float(sLon[:-1])
+   else:
+      sLon = float(sLon[:-1])
+   return sLon
+
 ''' TOOL METHODS '''
-def tableToPolygon(inputTable, inputCoordinateFormat,
+def tableToLineOfBearing(inputTable,
+                         inputCoordinateFormat="DD_2",
+                         inputXField,
+                         inputYField,
+                         inputBearingUnits="DEGREES",
+                         inputBearingField,
+                         inputDistanceUnits="METERS",
+                         outputLineFeatures,
+                         inputLineType="GEODESIC",
+                         inputSpatialReference):
+    '''
+    Tool method for converting a table of starting points, bearings, and distances
+    to line features.
+    
+    inputTable - input table, each row will be a separate line feature in output
+    inputCoordinateFormat - coordinate notation format of input vertices
+    inputXField - field in inputTable for vertex x-coordinate, or full coordinate
+    inputYField - field in inputTable for vertex y-coordinate, or None
+    inputBearingUnits -
+    inputBearingField -
+    inputDistanceUnits -
+    inputDistanceField -
+    outputLineFeatures - polyline feature class to create
+    inputLineType - 
+    inputSpatialReference - spatial reference of input coordinates
+    
+    returns polyline feature class
+    
+    inputCoordinateFormat must be one of the following:
+    •	DD_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    •	DD_2: Longitude and latitude values are in two separate fields.
+    •	DDM_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    •	DDM_2: Longitude and latitude values are in two separate fields.
+    •	DMS_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    •	DMS_2: Longitude and latitude values are in two separate fields.
+    •	GARS: Global Area Reference System. Based on latitude and longitude, it divides and subdivides the world into cells.
+    •	GEOREF: World Geographic Reference System. A grid-based system that divides the world into 15-degree quadrangles and then subdivides into smaller quadrangles.
+    •	UTM_ZONES: The letter N or S after the UTM zone number designates only North or South hemisphere.
+    •	UTM_BANDS: The letter after the UTM zone number designates one of the 20 latitude bands. N or S does not designate a hemisphere.
+    •	USNG: United States National Grid. Almost exactly the same as MGRS but uses North American Datum 1983 (NAD83) as its datum.
+    •	MGRS: Military Grid Reference System. Follows the UTM coordinates and divides the world into 6-degree longitude and 20 latitude bands, but MGRS then further subdivides the grid zones into smaller 100,000-meter grids. These 100,000-meter grids are then divided into 10,000-meter, 1,000-meter, 100-meter, 10-meter, and 1-meter grids.
+    •	SHAPE: Only available when a point feature layer is selected as input. The coordinates of each point are used to define the output format
+    
+    inputBearingUnits must be one of the following:
+    •	DEGREES
+    •	MILS
+    •	RADS
+    •	GRAD
+    
+    inputDistanceUnits must be one of the following:
+    •	METERS
+    •	KILOMETERS
+    •	MILES
+    •	NAUTICAL_MILES
+    •	FEET
+    •	US_SURVEY_FEET
+    
+    '''
+    deleteme = []
+    try:
+        deleteme = []
+        scratch = 'in_memory'
+        if env.scratchWorkspace:
+            scratch = env.scratchWorkspace
+            
+        if not inputSpatialReference:
+            arcpy.AddMessage("Defaulting to {0}".format(srWGS84.name))
+            inputSpatialReference = srWGS84
+            
+        copyRows = os.path.join(scratch, "copyRows")
+        arcpy.CopyRows_management(inputTable, copyRows)
+        
+        copyCCN = os.path.join(scratch, "copyCCN")
+        arcpy.ConvertCoordinateNotation_management(copyRows,
+                                                   copyCCN,
+                                                   inputXField,
+                                                   inputYField,
+                                                   inputCoordinateFormat,
+                                                   "DD_2",
+                                                   "#",
+                                                   inputSpatialReference.exportToString())
+        
+        # Fix DDLat and DDLon field values
+        fields = ['DDLat', 'DDLon']
+        with arcpy.da.UpdateCursor(copyCCN, fields) as rows:
+            for row in rows:
+                # update latitude
+                row[0] = _formatLat(row[0])
+                # update longitude
+                row[1] = _formatLon(row[1])
+                rows.updateRow(row)
+        del row
+        del rows
+                    
+        arcpy.BearingDistanceToLine_management(copyCCN,
+                                               outputLineFeatures,
+                                               "DDLon",
+                                               "DDLat",
+                                               inputDistanceField,
+                                               inputDistanceUnits,
+                                               inputBearingField,
+                                               inputBearingUnits,
+                                               inputLineType,
+                                               "#",
+                                               inputSpatialReference)
+        
+        return outputLineFeatures
+    
+    except arcpy.ExecuteError:
+        # Get the tool error messages
+        msgs = arcpy.GetMessages()
+        arcpy.AddError(msgs)
+        print(msgs)
+
+    except:
+        # Get the traceback object
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+
+        # Return python error messages for use in script tool or Python Window
+        arcpy.AddError(pymsg)
+        arcpy.AddError(msgs)
+
+        # Print Python error messages for use in Python / Python Window
+        print(pymsg + "\n")
+        print(msgs)
+        
+    finally:
+        if debug == False and len(deleteme) > 0:
+            # cleanup intermediate datasets
+            if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
+            for i in deleteme:
+                if debug == True: arcpy.AddMessage("Removing: " + str(i))
+                arcpy.Delete_management(i)
+            if debug == True: arcpy.AddMessage("Done")
+
+def tableToPolygon(inputTable, inputCoordinateFormat="DD_2",
                    inputXField, inputYField,
                    outputPolygonFeatures, inputLineField,
                    inputSortField, inputSpatialReference):
@@ -192,24 +357,37 @@ def tableToPolygon(inputTable, inputCoordinateFormat,
     inputSpatialReference - spatial reference of input coordinates
     
     returns polygon feature class
+    
+    inputCoordinateFormat must be one of the following:
+    •	DD_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    •	DD_2: Longitude and latitude values are in two separate fields.
+    •	DDM_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    •	DDM_2: Longitude and latitude values are in two separate fields.
+    •	DMS_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    •	DMS_2: Longitude and latitude values are in two separate fields.
+    •	GARS: Global Area Reference System. Based on latitude and longitude, it divides and subdivides the world into cells.
+    •	GEOREF: World Geographic Reference System. A grid-based system that divides the world into 15-degree quadrangles and then subdivides into smaller quadrangles.
+    •	UTM_ZONES: The letter N or S after the UTM zone number designates only North or South hemisphere.
+    •	UTM_BANDS: The letter after the UTM zone number designates one of the 20 latitude bands. N or S does not designate a hemisphere.
+    •	USNG: United States National Grid. Almost exactly the same as MGRS but uses North American Datum 1983 (NAD83) as its datum.
+    •	MGRS: Military Grid Reference System. Follows the UTM coordinates and divides the world into 6-degree longitude and 20 latitude bands, but MGRS then further subdivides the grid zones into smaller 100,000-meter grids. These 100,000-meter grids are then divided into 10,000-meter, 1,000-meter, 100-meter, 10-meter, and 1-meter grids.
+    •	SHAPE: Only available when a point feature layer is selected as input. The coordinates of each point are used to define the output format
+        
     '''
     try:
-        
+        deleteme = []
         scratch = 'in_memory'
         if env.scratchWorkspace:
             scratch = env.scratchWorkspace
             
         if not inputSpatialReference:
-            arcpy.AddMessage("Defaulting to {0}".format(srDefault.name))
-            inputSpatialReference = srDefault
+            arcpy.AddMessage("Defaulting to {0}".format(srWGS84.name))
+            inputSpatialReference = srWGS84
         
         copyRows = os.path.join(scratch, "copyRows")
         arcpy.CopyRows_management(inputTable, copyRows)
         copyCCN = os.path.join(scratch, "copyCCN")
         
-        #TODO: 
-        #ExecuteError: ERROR 000622: Failed to execute (Convert Coordinate Notation). Parameters are not valid.
-        #ERROR 000614: Cannot create Spatial Reference for spatial_reference.
         arcpy.ConvertCoordinateNotation_management(copyRows,
                                                    copyCCN,
                                                    inputXField,
@@ -252,3 +430,12 @@ def tableToPolygon(inputTable, inputCoordinateFormat,
         # Print Python error messages for use in Python / Python Window
         print(pymsg + "\n")
         print(msgs)
+        
+    finally:
+        if debug == False and len(deleteme) > 0:
+            # cleanup intermediate datasets
+            if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
+            for i in deleteme:
+                if debug == True: arcpy.AddMessage("Removing: " + str(i))
+                arcpy.Delete_management(i)
+            if debug == True: arcpy.AddMessage("Done")
