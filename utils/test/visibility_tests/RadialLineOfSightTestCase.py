@@ -66,38 +66,26 @@ class RadialLineOfSightTestCase(unittest.TestCase):
 
     def test_radial_line_of_sight_desktop(self):
         ''' Test Radial Line Of Sight in ArcGIS Desktop'''
-        try:
-            runToolMessage = ".....RadialLineOfSightTestCase.test_Radial_line_of_sight_desktop"
-            arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
-
-            arcpy.RadialLineOfSight_mt(self.observers, 2.0, 2000.0, self.inputSurface, self.outputRLOS)
-            self.assertTrue(arcpy.Exists(self.outputRLOS), "Output dataset does not exist or was not created")
-
-            featureCount = int(arcpy.GetCount_management(self.outputRLOS).getOutput(0))
-            expectedFeatures = int(3501)
-            self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
-
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()
+        runToolMessage = ".....RadialLineOfSightTestCase.test_Radial_line_of_sight_desktop"
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.RadialLineOfSight_mt(self.observers, 2.0, 2000.0, self.inputSurface, self.outputRLOS)
+        self.assertTrue(arcpy.Exists(self.outputRLOS), "Output dataset does not exist or was not created")
+        featureCount = int(arcpy.GetCount_management(self.outputRLOS).getOutput(0))
+        expectedFeatures = int(3501)
+        self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
+        return
 
     def test_radial_line_of_sight_pro(self):
         ''' Test Radial Line Of Sight in ArcGIS Pro'''
-        try:
-            runToolMessage = ".....RadialLineOfSightTestCase.test_Radial_line_of_sight_pro"
-            arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
-
-            arcpy.RadialLineOfSight_mt(self.observers, 2.0, 2000.0, self.inputSurface, self.outputRLOS)
-            self.assertTrue(arcpy.Exists(self.outputRLOS), "Output dataset does not exist or was not created")
-
-            featureCount = int(arcpy.GetCount_management(self.outputRLOS).getOutput(0))
-            expectedFeatures = int(3501)
-            self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
-
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()
+        runToolMessage = ".....RadialLineOfSightTestCase.test_Radial_line_of_sight_pro"
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.RadialLineOfSight_mt(self.observers, 2.0, 2000.0, self.inputSurface, self.outputRLOS)
+        self.assertTrue(arcpy.Exists(self.outputRLOS), "Output dataset does not exist or was not created")
+        featureCount = int(arcpy.GetCount_management(self.outputRLOS).getOutput(0))
+        expectedFeatures = int(3501)
+        self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
+        return

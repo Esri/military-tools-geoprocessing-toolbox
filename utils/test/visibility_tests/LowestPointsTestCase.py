@@ -66,42 +66,28 @@ class LowestPointsTestCase(unittest.TestCase):
 
     def test_lowest_points_desktop(self):
         ''' Test Lowest Points tool in ArcGIS Desktop '''
-        try:
-            runToolMessage = "...LowestPointsTestCase.test_lowest_points_desktop"
-
-            arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
-
-            arcpy.LowestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)
-
-            self.assertTrue(arcpy.Exists(self.outputPoints), "Output dataset does not exist or was not created")
-
-            pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
-            expectedFeatures = int(6)
-            self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
-
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()
+        runToolMessage = "...LowestPointsTestCase.test_lowest_points_desktop"
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.env.overwriteOutput = True
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.LowestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)
+        self.assertTrue(arcpy.Exists(self.outputPoints), "Output dataset does not exist or was not created")
+        pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
+        expectedFeatures = int(6)
+        self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
+        return
 
     def test_lowest_points_pro(self):
         ''' Test Lowest Points tool in ArcGIS Pro '''
-        try:
-            runToolMessage = "...LowestPointsTestCase.test_lowest_points_pro"
-
-            arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
-
-            arcpy.LowestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)
-
-            self.assertTrue(arcpy.Exists(self.outputPoints), "Output dataset does not exist or was not created")
-
-            pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
-            expectedFeatures = int(6)
-            self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
-
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()
+        runToolMessage = "...LowestPointsTestCase.test_lowest_points_pro"
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.env.overwriteOutput = True
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.LowestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)
+        self.assertTrue(arcpy.Exists(self.outputPoints), "Output dataset does not exist or was not created")
+        pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
+        expectedFeatures = int(6)
+        self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
+        return

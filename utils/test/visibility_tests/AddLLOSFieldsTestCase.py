@@ -65,54 +65,34 @@ class AddLLOSFieldsTestCase(unittest.TestCase):
         return
 
     def test_add_llos_fields_desktop(self):
-        try:
-            runToolMessage = "...AddLLOSFieldsTestCase.test_add_llos_fields_desktop"
-            arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
-
-            self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist, %s" % self.inputObservers)
-            self.assertTrue(arcpy.Exists(self.inputTargets), "Input dataset does not exist, %s" % self.inputTargets)
-
-            arcpy.AddLLOSFields_mt(self.inputObservers, 2, self.inputTargets, 0)
-
-            fieldList = arcpy.ListFields(self.inputObservers, "height")
-            fieldCount = len(fieldList)
-
-            self.assertEqual(fieldCount, 1, "Expected a field count of 1 for Observers but got %s." % str(fieldCount))
-
-            fieldList = arcpy.ListFields(self.inputTargets, "height")
-            fieldCount = len(fieldList)
-
-            self.assertEqual(fieldCount, 1, "Expected a field count of 1 for Targets but got %s." % str(fieldCount))
-            
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()
+        runToolMessage = "...AddLLOSFieldsTestCase.test_add_llos_fields_desktop"
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist, %s" % self.inputObservers)
+        self.assertTrue(arcpy.Exists(self.inputTargets), "Input dataset does not exist, %s" % self.inputTargets)
+        arcpy.AddLLOSFields_mt(self.inputObservers, 2, self.inputTargets, 0)
+        fieldList = arcpy.ListFields(self.inputObservers, "height")
+        fieldCount = len(fieldList)
+        self.assertEqual(fieldCount, 1, "Expected a field count of 1 for Observers but got %s." % str(fieldCount))
+        fieldList = arcpy.ListFields(self.inputTargets, "height")
+        fieldCount = len(fieldList)
+        self.assertEqual(fieldCount, 1, "Expected a field count of 1 for Targets but got %s." % str(fieldCount))
+        return
 
     def test_add_llos_fields_pro(self):
-        try:
-            runToolMessage = "...AddLLOSFieldsTestCase.test_add_llos_fields_pro"
-            arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
-
-            self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist, %s" % self.inputObservers)
-            self.assertTrue(arcpy.Exists(self.inputTargets), "Input dataset does not exist, %s" % self.inputTargets)
-
-            arcpy.AddLLOSFields_mt(self.inputObservers, 2, self.inputTargets, 0)
-
-            fieldList = arcpy.ListFields(self.inputObservers, "height")
-            fieldCount = len(fieldList)
-
-            self.assertEqual(fieldCount, 1, "Expected a field count of 1 for Observers but got %s." % str(fieldCount))
-
-            fieldList = arcpy.ListFields(self.inputTargets, "height")
-            fieldCount = len(fieldList)
-
-            self.assertEqual(fieldCount, 1, "Expected a field count of 1 for Targets but got %s." % str(fieldCount))
-
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()
+        runToolMessage = "...AddLLOSFieldsTestCase.test_add_llos_fields_pro"
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist, %s" % self.inputObservers)
+        self.assertTrue(arcpy.Exists(self.inputTargets), "Input dataset does not exist, %s" % self.inputTargets)
+        arcpy.AddLLOSFields_mt(self.inputObservers, 2, self.inputTargets, 0)
+        fieldList = arcpy.ListFields(self.inputObservers, "height")
+        fieldCount = len(fieldList)
+        self.assertEqual(fieldCount, 1, "Expected a field count of 1 for Observers but got %s." % str(fieldCount))
+        fieldList = arcpy.ListFields(self.inputTargets, "height")
+        fieldCount = len(fieldList)
+        self.assertEqual(fieldCount, 1, "Expected a field count of 1 for Targets but got %s." % str(fieldCount))
+        return
 

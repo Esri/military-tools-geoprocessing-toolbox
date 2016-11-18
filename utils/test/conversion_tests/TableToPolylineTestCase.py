@@ -68,52 +68,36 @@ class TableToPolylineTestCase(unittest.TestCase):
     
     def test_table_to_polyline_desktop(self):
         '''Test Table To Polyline for ArcGIS Desktop'''
-        try:
-            runToolMessage = ".....TableToPolylineTestCase.test_table_to_polyline_desktop"
-            arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
-            
-            arcpy.TableToPolyline_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolylines)
-            
-            self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
-            
-            polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
-            expectedFeatures = int(1)
-            self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
-            
-            compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPolylines, "Shape_Length")
-            # identical = 'true' means that there are no differences between the base and the output feature class
-            identical = compareFeatures.getOutput(1)
-            self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
-            
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()        
+        runToolMessage = ".....TableToPolylineTestCase.test_table_to_polyline_desktop"
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToPolyline_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolylines)
+        self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
+        polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
+        expectedFeatures = int(1)
+        self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPolylines, "Shape_Length")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return  
 
         
     def test_table_to_polyline_pro(self):
         '''Test Table To Polyline for ArcGIS Pro'''
-        try:
-            runToolMessage = ".....TableToPolylineTestCase.test_table_to_polyline_pro"
-            arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
-            
-            arcpy.TableToPolyline_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolylines)
-            
-            self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
-            
-            polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
-            expectedFeatures = int(1)
-            self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
-            
-            compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPolylines, "Shape_Length")
-            # identical = 'true' means that there are no differences between the base and the output feature class
-            identical = compareFeatures.getOutput(1)
-            self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
-            
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()
+        runToolMessage = ".....TableToPolylineTestCase.test_table_to_polyline_pro"
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToPolyline_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolylines)
+        self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
+        polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
+        expectedFeatures = int(1)
+        self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPolylines, "Shape_Length")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return
         

@@ -30,6 +30,7 @@ history:
 5/18/2016 - DJH - initial creation
 5/24/2016 - MF - update for parameter changes in Pro
 5/31/2016 - MF - change error handling
+11/15/2016 - MF - update for change in offsets and observer & target outputs
 ==================================================
 '''
 
@@ -57,6 +58,8 @@ class LinearLineOfSightTestCase(unittest.TestCase):
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
         self.outputLOS = os.path.join(Configuration.militaryScratchGDB, "outputLinearLineOfSight")
         self.outputSightLines = os.path.join(Configuration.militaryScratchGDB, "outputSightLines")
+        self.outputObservers = os.path.join(Configuration.militaryScratchGDB, "outputObservers")
+        self.outputTargets = os.path.join(Configuration.militaryScratchGDB, "outputTargets")
 
         if arcpy.CheckExtension("Spatial") == "Available":
             arcpy.CheckOutExtension("Spatial")
@@ -72,42 +75,72 @@ class LinearLineOfSightTestCase(unittest.TestCase):
 
     def test_linear_line_of_sight_desktop(self):
         ''' Test Linear Line Of Sight in ArcGIS Desktop'''
-        try:
-            runToolMessage = ".....LinearLineOfSightTestCase.test_linear_line_of_sight_desktop"
-            arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
-
-            arcpy.LinearLineOfSight_mt(self.observers, self.targets, self.inputSurface, self.outputLOS)
-            self.assertTrue(arcpy.Exists(self.outputLOS), "Output LOS does not exist or was not created")
-
-            featureCount = int(arcpy.GetCount_management(self.outputLOS).getOutput(0))
-            expectedFeatures = int(32)
-            self.assertEqual(featureCount, expectedFeatures, "Expected %s features but got %s" % (str(expectedFeatures), str(featureCount)))
-
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()
+        runToolMessage = ".....LinearLineOfSightTestCase.test_linear_line_of_sight_desktop"
+        arcpy.env.overwriteOutput = True
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.LinearLineOfSight_mt(self.observers, 2.0,
+                                   self.targets, 0.0,
+                                   self.inputSurface,
+                                   self.outputLOS,
+                                   self.outputSightLines,
+                                   self.outputObservers,
+                                   self.outputTargets)
+        self.assertTrue(arcpy.Exists(self.outputLOS), "Output LOS does not exist or was not created")
+        self.assertTrue(arcpy.Exists(self.outputSightLines), "Output Sight Lines to not exist or were not created")
+        self.assertTrue(arcpy.Exists(self.outputObservers), "Output Observers do not exist or were not created")
+        self.assertTrue(arcpy.Exists(self.outputTargets), "Output Targets do not exist or were not created")
+        featureCount = int(arcpy.GetCount_management(self.outputLOS).getOutput(0))
+        expectedFeatures = int(32)
+        self.assertEqual(featureCount, expectedFeatures, "Expected %s features but got %s" % (str(expectedFeatures), str(featureCount)))
+        featureCountSightLines = int(arcpy.GetCount_management(self.outputSightLines).getOutput(0))
+        self.assertEqual(featureCountSightLines, int(16), "Expected 16 Sight Lines but got {0}".format(featureCountSightLines))
+        expectedObserverCount = int(arcpy.GetCount_management(self.observers).getOutput(0)) * 4
+        actualObserverCount = int(arcpy.GetCount_management(self.outputObservers).getOutput(0))
+        self.assertEqual(expectedObserverCount,
+                         actualObserverCount,
+                         "Expected {0} observers but got {1}".format(expectedObserverCount, actualObserverCount))
+        expectedTargetCount = int(arcpy.GetCount_management(self.targets).getOutput(0)) * 4
+        actualTargetCount = int(arcpy.GetCount_management(self.outputTargets).getOutput(0))
+        self.assertEqual(expectedTargetCount,
+                         actualTargetCount,
+                         "Expected {0} targets but got {1}".format(expectedTargetCount, actualTargetCount))
+        #TODO: check attached profile graphs were created
+        return
 
     def test_linear_line_of_sight_pro(self):
         ''' Test Linear Line Of Sight in ArcGIS Pro '''
-        try:
-            runToolMessage = ".....LinearLineOfSightTestCase.test_linear_line_of_sight_pro"
-            arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
-
-            arcpy.LinearLineOfSight_mt(self.observers, self.targets, self.inputSurface, self.outputLOS, self.outputSightLines, 2.0, 0.0)
-            self.assertTrue(arcpy.Exists(self.outputLOS), "Output LOS does not exist or was not created")
-            self.assertTrue(arcpy.Exists(self.outputSightLines), "Output Sight Lines to not exist or were not created")
-
-            featureCount = int(arcpy.GetCount_management(self.outputLOS).getOutput(0))
-            expectedFeatures = int(32)
-            self.assertEqual(featureCount, expectedFeatures, "Expected %s features but got %s" % (str(expectedFeatures), str(featureCount)))
-            
-            featureCountSightLines = int(arcpy.GetCount_management(self.outputSightLines).getOutput(0))
-            #self.assertEqual(featureCountSightLines, int(1))
-
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()
+        runToolMessage = ".....LinearLineOfSightTestCase.test_linear_line_of_sight_pro"
+        arcpy.env.overwriteOutput = True
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.LinearLineOfSight_mt(self.observers, 2.0,
+                                   self.targets, 0.0,
+                                   self.inputSurface,
+                                   self.outputLOS,
+                                   self.outputSightLines,
+                                   self.outputObservers,
+                                   self.outputTargets)
+        self.assertTrue(arcpy.Exists(self.outputLOS), "Output LOS does not exist or was not created")
+        self.assertTrue(arcpy.Exists(self.outputSightLines), "Output Sight Lines do not exist or were not created")
+        self.assertTrue(arcpy.Exists(self.outputObservers), "Output Observers do not exist or were not created")
+        self.assertTrue(arcpy.Exists(self.outputTargets), "Output Targets do not exist or were not created")
+        featureCount = int(arcpy.GetCount_management(self.outputLOS).getOutput(0))
+        expectedFeatures = int(32)
+        self.assertEqual(featureCount, expectedFeatures, "Expected %s features but got %s" % (str(expectedFeatures), str(featureCount)))
+        featureCountSightLines = int(arcpy.GetCount_management(self.outputSightLines).getOutput(0))
+        self.assertEqual(featureCountSightLines, int(16), "Expected 16 Sight Lines but got {0}".format(featureCountSightLines))
+        expectedObserverCount = int(arcpy.GetCount_management(self.observers).getOutput(0))
+        actualObserverCount = int(arcpy.GetCount_management(self.outputObservers).getOutput(0))
+        self.assertEqual(expectedObserverCount,
+                         actualObserverCount,
+                         "Expected {0} observers but got {1}".format(expectedObserverCount, actualObserverCount))
+        expectedTargetCount = int(arcpy.GetCount_management(self.targets).getOutput(0))
+        actualTargetCount = int(arcpy.GetCount_management(self.outputTargets).getOutput(0))
+        self.assertEqual(expectedTargetCount,
+                         actualTargetCount,
+                         "Expected {0} targets but got {1}".format(expectedTargetCount, actualTargetCount))
+        #TODO: check attached profile graphs were created
+        return

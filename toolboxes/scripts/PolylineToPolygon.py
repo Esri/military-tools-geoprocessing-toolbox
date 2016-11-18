@@ -17,59 +17,65 @@
 import os, sys
 import arcpy, traceback
 from arcpy import env
+import ConversionUtilities
 
 inputPolylines = arcpy.GetParameterAsText(0)
 inputIDFieldName = arcpy.GetParameterAsText(1)
 outputPolygons = arcpy.GetParameterAsText(2)
 delete_me = []
-debug = False
+debug = True
 
 try:
     currentOverwriteOutput = env.overwriteOutput
     env.overwriteOutput = True
+    
+    ConversionUtilities.polylineToPolygon(inputPolylines,
+                                          inputIDFieldName,
+                                          outputPolygons)
 
-    #Create output Poly FC
-    sr = arcpy.Describe(inputPolylines).spatialReference
-    arcpy.AddMessage("Spatial reference is " + str(sr))
-    arcpy.AddMessage("Creating output feature class...")
-    outpolygonsFC = arcpy.CreateFeatureclass_management(os.path.dirname(outputPolygons),os.path.basename(outputPolygons),"POLYGON","#","#","#",sr)
-
-    #Add ID field
-    arcpy.AddMessage("Adding ID field: %s ..." % str(inputIDFieldName))
-    arcpy.AddField_management(outpolygonsFC,inputIDFieldName,"LONG")
-    arcpy.AddMessage("Opening cursors ...")
-
-    #Open Search cursor on polyline
-    inFields = ["SHAPE@", inputIDFieldName]
-    inRows = arcpy.da.SearchCursor(inputPolylines, inFields)
-
-    #Open Insert cursor on polygons
-    outRows = arcpy.da.InsertCursor(outpolygonsFC,inFields)
-
-    for row in inRows:
-        feat = row[0]
-        inID = row[1]
-
-        arcpy.AddMessage("Building points from lines.")
-        #Build array of points for the line
-        polyArray = arcpy.Array()
-        partnum = 0
-        for part in feat:
-            for pnt in feat.getPart(partnum):
-                polyArray.add(arcpy.Point(pnt.X, pnt.Y))
-            partnum += 1
-
-        arcpy.AddMessage("Creating polygon from points.")
-        #convert the array to a polygon, and insert the features
-        outPoly = arcpy.Polygon(polyArray)
-        outRows.insertRow([outPoly, inID])
-
-    #close cursors
-    del outRows
-    del inRows
+    # Create output Poly FC
+    # sr = arcpy.Describe(inputPolylines).spatialReference
+    # arcpy.AddMessage("Spatial reference is " + str(sr))
+    # arcpy.AddMessage("Creating output feature class...")
+    # outpolygonsFC = arcpy.CreateFeatureclass_management(os.path.dirname(outputPolygons),os.path.basename(outputPolygons),"POLYGON","#","#","#",sr)
+    # 
+    # Add ID field
+    # arcpy.AddMessage("Adding ID field: %s ..." % str(inputIDFieldName))
+    # arcpy.AddField_management(outpolygonsFC,inputIDFieldName,"LONG")
+    # arcpy.AddMessage("Opening cursors ...")
+    # 
+    # Open Search cursor on polyline
+    # inFields = ["SHAPE@", inputIDFieldName]
+    # if debug: arcpy.AddMessage("inFields: " + str(inFields))
+    # inRows = arcpy.da.SearchCursor(inputPolylines, inFields)
+    # 
+    # Open Insert cursor on polygons
+    # outRows = arcpy.da.InsertCursor(outpolygonsFC,inFields)
+    # 
+    # for row in inRows:
+    #     feat = row[0]
+    #     inID = row[1]
+    # 
+    #     arcpy.AddMessage("Building points from lines.")
+    #     Build array of points for the line
+    #     polyArray = arcpy.Array()
+    #     partnum = 0
+    #     for part in feat:
+    #         for pnt in feat.getPart(partnum):
+    #             polyArray.add(arcpy.Point(pnt.X, pnt.Y))
+    #         partnum += 1
+    # 
+    #     arcpy.AddMessage("Creating polygon from points.")
+    #     convert the array to a polygon, and insert the features
+    #     outPoly = arcpy.Polygon(polyArray)
+    #     outRows.insertRow([outPoly, inID])
+    # 
+    # close cursors
+    # del outRows
+    # del inRows
 
     #set outputs
-    arcpy.SetParameter(2,outpolygonsFC)
+    arcpy.SetParameter(2,outputPolygons)
 
     # cleanup
     arcpy.AddMessage("Removing scratch datasets:")

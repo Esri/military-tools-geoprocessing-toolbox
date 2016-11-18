@@ -67,50 +67,38 @@ class TableToPointTestCase(unittest.TestCase):
 
     def test_table_to_point_desktop(self):
         '''Test Table To Point for ArcGIS Desktop'''
-        try:
-            runToolMessage = ".....TableToPointTestCase.test_table_to_point_desktop"
-            arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
-
-            arcpy.TableToPoint_mt(self.inputTable, "DD_2", "Location_X", "Location_Y", self.outputPoints)
-
-            self.assertTrue(arcpy.Exists(self.outputPoints), "Output features do not exist or were not created")
-
-            pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
-            expectedFeatures = int(288)
-            self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
-            
-            compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPoints, "OID")         
-            # identical = 'true' means that there are no differences between the baseFC and the output feature class
-            identical = compareFeatures.getOutput(1)
-            self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
-
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()
+        runToolMessage = ".....TableToPointTestCase.test_table_to_point_desktop"
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToPoint_mt(self.inputTable, "DD_2", "Location_X", "Location_Y", self.outputPoints)
+        self.assertTrue(arcpy.Exists(self.outputPoints), "Output features do not exist or were not created")
+        pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
+        expectedFeatures = int(288)
+        self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPoints, "OID")         
+        # identical = 'true' means that there are no differences between the baseFC and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return
 
     def test_table_to_point_pro(self):
         '''Test Table To Point for ArcGIS Pro'''
-        try:
-            runToolMessage = ".....TableToPointTestCase.test_table_to_point_pro"
-            arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
+        runToolMessage = ".....TableToPointTestCase.test_table_to_point_pro"
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
 
-            arcpy.TableToPoint_mt(self.inputTable, "DD_2", "Location_X", "Location_Y", self.outputPoints)
+        arcpy.TableToPoint_mt(self.inputTable, "DD_2", "Location_X", "Location_Y", self.outputPoints)
 
-            self.assertTrue(arcpy.Exists(self.outputPoints), "Output features do not exist or were not created")
+        self.assertTrue(arcpy.Exists(self.outputPoints), "Output features do not exist or were not created")
 
-            pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
-            expectedFeatures = int(288)
-            self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
-            
-            compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPoints, "OID")            
-            # identical = 'true' means that there are no differences between the baseFC and the output feature class
-            identical = compareFeatures.getOutput(1)
-            self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
-
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()
+        pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
+        expectedFeatures = int(288)
+        self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
+        
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPoints, "OID")            
+        # identical = 'true' means that there are no differences between the baseFC and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return

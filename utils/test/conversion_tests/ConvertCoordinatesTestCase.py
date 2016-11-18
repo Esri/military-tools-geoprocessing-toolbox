@@ -61,45 +61,32 @@ class ConvertCoordinatesTestCase(unittest.TestCase):
     
     def test_convert_coordinates_desktop(self):
         '''Test Convert Coordinates in ArcGIS Desktop'''
-        try:
-            runToolMessage = ".....ConvertCoordinatesTestCase.test_convert_coordinates_desktop"
-            arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
-            
-            arcpy.ConvertCoordinates_mt(self.inputTable, "DD_2", "Location_X", "Location_Y", self.outputConvert)
-            
-            self.assertTrue(arcpy.Exists(self.outputConvert), "Output features do not exist or were not created")
-            
-            featureCount = int(arcpy.GetCount_management(self.outputConvert).getOutput(0))
-            expectedFeatures = int(288)
-            self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
-            
-            #TODO: Were correct fields added to the output?
-
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()
+        runToolMessage = ".....ConvertCoordinatesTestCase.test_convert_coordinates_desktop"
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
         
+        arcpy.ConvertCoordinates_mt(self.inputTable, "DD_2", "Location_X", "Location_Y", self.outputConvert)
+        
+        self.assertTrue(arcpy.Exists(self.outputConvert), "Output features do not exist or were not created")
+        
+        featureCount = int(arcpy.GetCount_management(self.outputConvert).getOutput(0))
+        expectedFeatures = int(288)
+        self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
+        #TODO: Were correct fields added to the output?
+        return
+
+
     def test_convert_coordinates_pro(self):
         '''Test Convert Coordinates in ArcGIS Pro'''
-        try:
-            runToolMessage = ".....ConvertCoordinatesTestCase.test_convert_coordinates_pro"
-            arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
-            
-            arcpy.ConvertCoordinates_mt(self.inputTable, "DD_2", "Location_X", "Location_Y", self.outputConvert)
-            
-            self.assertTrue(arcpy.Exists(self.outputConvert), "Output features do not exist or were not created")
-            
-            featureCount = int(arcpy.GetCount_management(self.outputConvert).getOutput(0))
-            expectedFeatures = int(288)
-            self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
-            
-            #TODO: Were correct fields added to the output?
-
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()
-    
+        runToolMessage = ".....ConvertCoordinatesTestCase.test_convert_coordinates_pro"
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.ConvertCoordinates_mt(self.inputTable, "DD_2", "Location_X", "Location_Y", self.outputConvert)
+        self.assertTrue(arcpy.Exists(self.outputConvert), "Output features do not exist or were not created")
+        featureCount = int(arcpy.GetCount_management(self.outputConvert).getOutput(0))
+        expectedFeatures = int(288)
+        self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
+        #TODO: Were correct fields added to the output?
+        return

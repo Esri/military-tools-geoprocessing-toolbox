@@ -62,40 +62,27 @@ class TableToTwoPointLineTestCase(unittest.TestCase):
     
     def test_table_to_twopointline_desktop(self):
         '''Test Table To Two Point Line for ArcGIS Desktop'''
-        try:
-            runToolMessage = ".....TableToTwoPointLineTestCase.test_table_to_twopointline_desktop"
-            arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
-            
-            arcpy.TableTo2PointLine_mt(self.inputTable, "#", "POINT_X", "POINT_Y", "#", "POINT_X2", "POINT_Y2", self.outputLines)
-            
-            self.assertTrue(arcpy.Exists(self.outputLines), "Output features do not exist or were not created")
-            
-            lineCount = int(arcpy.GetCount_management(self.outputLines).getOutput(0))
-            expectedFeatures = int(3)
-            self.assertEqual(lineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(lineCount)))
+        runToolMessage = ".....TableToTwoPointLineTestCase.test_table_to_twopointline_desktop"
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableTo2PointLine_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", "DD_2", "POINT_X2", "POINT_Y2", self.outputLines, "GEODESIC")
+        self.assertTrue(arcpy.Exists(self.outputLines), "Output features do not exist or were not created")
+        lineCount = int(arcpy.GetCount_management(self.outputLines).getOutput(0))
+        expectedFeatures = int(3)
+        self.assertEqual(lineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(lineCount)))
+        return
 
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()
         
     def test_table_to_twopointline_pro(self):
         '''Test Table To Two Point Line for ArcGIS Pro'''
-        try:
-            runToolMessage = ".....TableToTwoPointLineTestCase.test_table_to_twopointline_pro"
-            arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-            arcpy.AddMessage(runToolMessage)
-            Configuration.Logger.info(runToolMessage)
-            
-            arcpy.TableTo2PointLine_mt(self.inputTable, "#", "POINT_X", "POINT_Y", "#", "POINT_X2", "POINT_Y2", self.outputLines)
-            
-            self.assertTrue(arcpy.Exists(self.outputLines), "Output features do not exist or were not created")
-            
-            lineCount = int(arcpy.GetCount_management(self.outputLines).getOutput(0))
-            expectedFeatures = int(3)
-            self.assertEqual(lineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(lineCount)))
-
-        except arcpy.ExecuteError:
-            self.fail(runToolMessage + "\n" + arcpy.GetMessages())
-            UnitTestUtilities.handleArcPyError()
+        runToolMessage = ".....TableToTwoPointLineTestCase.test_table_to_twopointline_pro"
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableTo2PointLine_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", "DD_2", "POINT_X2", "POINT_Y2", self.outputLines, "GEODESIC")
+        self.assertTrue(arcpy.Exists(self.outputLines), "Output features do not exist or were not created")
+        lineCount = int(arcpy.GetCount_management(self.outputLines).getOutput(0))
+        expectedFeatures = int(3)
+        self.assertEqual(lineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(lineCount)))
+        return
