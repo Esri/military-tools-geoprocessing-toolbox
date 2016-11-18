@@ -276,6 +276,10 @@ def tableToLineOfBearing(inputTable,
     •	US_SURVEY_FEET
     
     inputLineType must be one of the following:
+    * GEODESIC:
+    * GREAT_CIRCLE:
+    * RHUMB_LINE:
+    * NORMAL_SECTION:
     
     '''
     deleteme = []

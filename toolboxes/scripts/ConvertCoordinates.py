@@ -17,7 +17,7 @@ You may obtain a copy of the License at
  ConvertCoordinates.py
 ------------------------------------------------------------------------------
  requirements:
- * ArcGIS Desktop 10.X+ or ArcGIS Pro 1.X+
+ * ArcGIS Desktop 10.3+ or ArcGIS Pro 1.2+
  * Python 2.7 or Python 3.4
  author: ArcGIS Solutions
  company: Esri
@@ -29,141 +29,185 @@ You may obtain a copy of the License at
  history:
  2014 - ? - initial creation
  6/9/2016 - mf - refactor ID count and internal methods
+ 11/18/2016 - mf - refactor as stand-alone GP script tool
 ========================================================================
 '''
 
-#Imports
 import sys, os, traceback
 import arcpy
 from arcpy import env
 
+# Script arguments
+inputTable = arcpy.GetParameterAsText(0)
+inputCoordinateFormat = arcpy.GetParameterAsText(1)
+inputXField = arcpy.GetParameterAsText(2)
+inputYField = arcpy.GetParameterAsText(3)
+outputTable = arcpy.GetParameterAsText(4)
+inputSpatialReference = arcpy.GetParameterAsText(5)
+if not inputSpatialReference:
+    inputSpatialReference = arcpy.SpatialReference(4326) #GCS_WGS_1984
+
 deleteIntermediateDatasets = []
-joinFieldName = "JoinID"
-scratchTable = None
-Output_Table = None
 DEBUG = True
 
 def addUniqueID(dataset, fieldName):
     ''' adding unique ID field '''
-    counter = 1
-    arcpy.AddMessage("Adding field: " + str(fieldName))
-    arcpy.AddField_management(dataset,fieldName,"LONG")
+    try:
+        counter = 1
+        arcpy.AddMessage("Adding field: " + str(fieldName))
+        arcpy.AddField_management(dataset,fieldName,"LONG")
+    
+        # add unique numbers to each row
+        fields = [str(fieldName)]
+        arcpy.AddMessage("Adding unique row IDs...")
+        rows = arcpy.da.UpdateCursor(dataset,fields)
+        for row in rows:
+            row[0] = counter
+            rows.updateRow(row)
+            counter += 1
+        del rows
+        return dataset
+    except arcpy.ExecuteError:
+        error = True
+        # Get the tool error messages
+        msgs = arcpy.GetMessages()
+        arcpy.AddError(msgs)
+        #print msgs #UPDATE
+        print(msgs)
 
-    # add unique numbers to each row
-    fields = [str(fieldName)]
-    arcpy.AddMessage("Adding unique row IDs...")
-    rows = arcpy.da.UpdateCursor(dataset,fields)
-    for row in rows:
-        row[0] = counter
-        rows.updateRow(row)
-        counter += 1
-    del rows
-    return dataset
-
-def addNotation(notationType, fieldsToAdd):
+def addNotation(notationType, fieldsToAdd, joinFieldName, outputTable, scratchTable):
     ''' '''
-    arcpy.AddMessage("Converting & appending %s ..." % notationType)
-    arcpy.ConvertCoordinateNotation_management(Output_Table,
-                                               scratchTable,
-                                               X_Field__Longitude__UTM__MGRS__USNG__GARS__GeoRef_,
-                                               Y_Field__Latitude_,
-                                               Input_Coordinate_Format,
-                                               notationType,
-                                               joinFieldName,
-                                               Spatial_Reference)
-    arcpy.JoinField_management(Output_Table, joinFieldName,
-                               scratchTable, joinFieldName,
-                               fieldsToAdd)
-    return True
+    try:
+        arcpy.AddMessage("Converting & appending %s ..." % notationType)
+        arcpy.ConvertCoordinateNotation_management(outputTable,
+                                                   scratchTable,
+                                                   inputXField,
+                                                   inputYField,
+                                                   inputCoordinateFormat,
+                                                   notationType,
+                                                   joinFieldName,
+                                                   inputSpatialReference)
+        arcpy.JoinField_management(outputTable, joinFieldName,
+                                   scratchTable, joinFieldName,
+                                   fieldsToAdd)
+        return True
+    except arcpy.ExecuteError:
+        error = True
+        # Get the tool error messages
+        msgs = arcpy.GetMessages()
+        arcpy.AddError(msgs)
+        #print msgs #UPDATE
+        print(msgs)
 
-try:
+def convertCoordinates(inputTable,
+                       inputCoordinateFormat,
+                       inputXField,
+                       inputYField,
+                       outputTable,
+                       inputSpatialReference):
+    '''
+    inputTable - input table, each row will be a separate line feature in output
+    inputCoordinateFormat - coordinate notation format of input vertices
+    inputXField - field in inputTable for vertex x-coordinate, or full coordinate
+    inputYField - field in inputTable for vertex y-coordinate, or None
+    outputTable -  output table containing converted coordinate notations
+    inputSpatialReference - spatial reference of input coordinates
     
-    # Script arguments
-    Input_Table = arcpy.GetParameterAsText(0)
-
-    Input_Coordinate_Format = arcpy.GetParameterAsText(1)
-    if not Input_Coordinate_Format:
-        Input_Coordinate_Format = "DD" # provide a default value if unspecified
-
-    X_Field__Longitude__UTM__MGRS__USNG__GARS__GeoRef_ = arcpy.GetParameterAsText(2)
-    if not X_Field__Longitude__UTM__MGRS__USNG__GARS__GeoRef_:
-        X_Field__Longitude__UTM__MGRS__USNG__GARS__GeoRef_ = "Lond" # provide a default value if unspecified
-
-    Y_Field__Latitude_ = arcpy.GetParameterAsText(3)
-    if not Y_Field__Latitude_:
-        Y_Field__Latitude_ = "Latd" # provide a default value if unspecified
-
-    Output_Table = arcpy.GetParameterAsText(4)
-    if not Output_Table:
-        pass
-
-    Spatial_Reference = arcpy.GetParameterAsText(5)
-    if not Spatial_Reference:
-        Spatial_Reference = arcpy.SpatialReference(4326) #GCS_WGS_1984
-
-    currentOverwriteOutput = env.overwriteOutput
-    env.overwriteOutput = True
-
-    scratchWS = env.scratchGDB
-    if not scratchWS:
-        scratchWS = r'in_memory'
-
-    scratchTable = os.path.join(scratchWS,"cc_temp")
-    deleteIntermediateDatasets.append(scratchTable)
-
-    if DEBUG:
-        arcpy.AddMessage("Copying %s to %s" % (Input_Table, Output_Table))
-    arcpy.CopyRows_management(Input_Table, Output_Table)
+    returns table
     
-    Output_Table = addUniqueID(Output_Table, "JoinID")
+    inputCoordinateFormat must be one of the following:
+    •	DD_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    •	DD_2: Longitude and latitude values are in two separate fields.
+    •	DDM_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    •	DDM_2: Longitude and latitude values are in two separate fields.
+    •	DMS_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    •	DMS_2: Longitude and latitude values are in two separate fields.
+    •	GARS: Global Area Reference System. Based on latitude and longitude, it divides and subdivides the world into cells.
+    •	GEOREF: World Geographic Reference System. A grid-based system that divides the world into 15-degree quadrangles and then subdivides into smaller quadrangles.
+    •	UTM_ZONES: The letter N or S after the UTM zone number designates only North or South hemisphere.
+    •	UTM_BANDS: The letter after the UTM zone number designates one of the 20 latitude bands. N or S does not designate a hemisphere.
+    •	USNG: United States National Grid. Almost exactly the same as MGRS but uses North American Datum 1983 (NAD83) as its datum.
+    •	MGRS: Military Grid Reference System. Follows the UTM coordinates and divides the world into 6-degree longitude and 20 latitude bands, but MGRS then further subdivides the grid zones into smaller 100,000-meter grids. These 100,000-meter grids are then divided into 10,000-meter, 1,000-meter, 100-meter, 10-meter, and 1-meter grids.
+    •	SHAPE: Only available when a point feature layer is selected as input. The coordinates of each point are used to define the output format
+    '''
+    try:
+        currentOverwriteOutput = env.overwriteOutput
+        env.overwriteOutput = True
+        joinFieldName = "JoinID"
+    
+        scratchWS = env.scratchGDB
+        if not scratchWS:
+            scratchWS = r'in_memory'
+    
+        scratchTable = os.path.join(scratchWS,"cc_temp")
+        deleteIntermediateDatasets.append(scratchTable)
+    
+        if DEBUG:
+            arcpy.AddMessage("Copying %s to %s" % (inputTable, outputTable))
+        arcpy.CopyRows_management(inputTable, outputTable)
+        
+        outputTable = addUniqueID(outputTable, joinFieldName)
+    
+        # {"format":"field_name(s)", ...}
+        notationsToAdd = {"DD":"DDLat; DDLon",
+                          "DDM":"DDMLat; DDMLon",
+                          "DMS":"DMS",
+                          "UTM":"UTM",
+                          "MGRS":"MGRS",
+                          "USNG":"USNG",
+                          "GARS":"GARS",
+                          "GEOREF":"GEOREF"}
+    
+        for notationFormat in notationsToAdd:
+            if not addNotation(notationFormat, notationsToAdd[notationFormat],
+                               joinFieldName, outputTable, scratchTable):
+                raise
+    
+        # cleanup
+        arcpy.AddMessage("Removing scratch datasets...")
+        for ds in deleteIntermediateDatasets:
+            if arcpy.Exists(ds):
+                arcpy.Delete_management(ds)
+            
+        return outputTable
+        
+    
+    except arcpy.ExecuteError:
+        error = True
+        # Get the tool error messages
+        msgs = arcpy.GetMessages()
+        arcpy.AddError(msgs)
+        #print msgs #UPDATE
+        print(msgs)
+    
+    except:
+        # Get the traceback object
+        error = True
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+    
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+    
+        # Return python error messages for use in script tool or Python Window
+        arcpy.AddError(pymsg)
+        arcpy.AddError(msgs)
+    
+        # Print Python error messages for use in Python / Python Window
+        #print pymsg + "\n" #UPDATE
+        print(pymsg + "\n")
+        #print msgs #UPDATE
+        print(msgs)
+        
 
-    # {"format":"field_name(s)", ...}
-    notationsToAdd = {"GARS":"GARS",
-                      "DD":"DDLat; DDLon",
-                      "DDM":"DDMLat; DDMLon",
-                      "DMS":"DMS",
-                      "UTM":"UTM",
-                      "MGRS":"MGRS",
-                      "UTM":"UTM",
-                      "GEOREF":"GEOREF"}
-
-    for notationFormat in notationsToAdd:
-        if not addNotation(notationFormat, notationsToAdd[notationFormat]):
-            raise
-
-    # cleanup
-    arcpy.AddMessage("Removing scratch datasets...")
-    for ds in deleteIntermediateDatasets:
-        #arcpy.AddMessage(str(ds))
-        arcpy.Delete_management(ds)
-
-    arcpy.SetParameter(4, Output_Table)
-    env.overwriteOutput = currentOverwriteOutput
-
-except arcpy.ExecuteError:
-    error = True
-    # Get the tool error messages
-    msgs = arcpy.GetMessages()
-    arcpy.AddError(msgs)
-    #print msgs #UPDATE
-    print(msgs)
-
-except:
-    # Get the traceback object
-    error = True
-    tb = sys.exc_info()[2]
-    tbinfo = traceback.format_tb(tb)[0]
-
-    # Concatenate information together concerning the error into a message string
-    pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
-    msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
-
-    # Return python error messages for use in script tool or Python Window
-    arcpy.AddError(pymsg)
-    arcpy.AddError(msgs)
-
-    # Print Python error messages for use in Python / Python Window
-    #print pymsg + "\n" #UPDATE
-    print(pymsg + "\n")
-    #print msgs #UPDATE
-    print(msgs)
+# MAIN =============================================
+if __name__ == "__main__":
+    output = convertCoordinates(inputTable,
+                       inputCoordinateFormat,
+                       inputXField,
+                       inputYField,
+                       outputTable,
+                       inputSpatialReference)
+    arcpy.SetParameter(4, output)
+    
