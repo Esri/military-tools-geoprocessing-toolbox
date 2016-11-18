@@ -13,6 +13,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 --------------------------------------------------------------------------
 
+ ==================================================
+ ConversionUtilities.py
+ --------------------------------------------------
+ requirments: ArcGIS 10.3.1+, Python 2.7 or Python 3.4
+ author: ArcGIS Solutions
+ contact: support@esri.com
+ company: Esri
+ ==================================================
+ description:
+ Utility module for conversion tools.
+ Supports the following tools:
+ * Table To Line Of Bearing
+ * Table To Polygon
+ ==================================================
+ history:
+ 11/15/2016 - MF - Original writeup
+ 11/16/2016 - MF - Added Table To Line Of Bearing
+ ==================================================
 
 '''
 
@@ -182,33 +200,33 @@ def _formatLat(sLat):
     For DD latitude fields with "S" hemisphere indicators,
     change to "-"
     '''
-   if sLat[-1:] == "S":
-      sLat = -1.0 * float(sLat[:-1])
-   else:
-      sLat = float(sLat[:-1])
-   return sLat
+    if sLat[-1:] == "S":
+       sLat = -1.0 * float(sLat[:-1])
+    else:
+       sLat = float(sLat[:-1])
+    return sLat
 
 def _formatLon(sLon):
     '''
     for DD longitude fields with "W" hemisphere indicators,
     change to "-"
     '''
-   if sLon[-1:] == "W":
-      sLon = -1.0 * float(sLon[:-1])
-   else:
-      sLon = float(sLon[:-1])
-   return sLon
+    if sLon[-1:] == "W":
+       sLon = -1.0 * float(sLon[:-1])
+    else:
+       sLon = float(sLon[:-1])
+    return sLon
 
 ''' TOOL METHODS '''
 def tableToLineOfBearing(inputTable,
-                         inputCoordinateFormat="DD_2",
+                         inputCoordinateFormat,
                          inputXField,
                          inputYField,
-                         inputBearingUnits="DEGREES",
+                         inputBearingUnits,
                          inputBearingField,
-                         inputDistanceUnits="METERS",
+                         inputDistanceUnits,
                          outputLineFeatures,
-                         inputLineType="GEODESIC",
+                         inputLineType,
                          inputSpatialReference):
     '''
     Tool method for converting a table of starting points, bearings, and distances
@@ -256,6 +274,8 @@ def tableToLineOfBearing(inputTable,
     •	NAUTICAL_MILES
     •	FEET
     •	US_SURVEY_FEET
+    
+    inputLineType must be one of the following:
     
     '''
     deleteme = []
@@ -340,7 +360,7 @@ def tableToLineOfBearing(inputTable,
                 arcpy.Delete_management(i)
             if debug == True: arcpy.AddMessage("Done")
 
-def tableToPolygon(inputTable, inputCoordinateFormat="DD_2",
+def tableToPolygon(inputTable, inputCoordinateFormat,
                    inputXField, inputYField,
                    outputPolygonFeatures, inputLineField,
                    inputSortField, inputSpatialReference):

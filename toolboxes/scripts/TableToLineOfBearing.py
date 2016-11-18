@@ -22,7 +22,7 @@
  ==================================================
  description:
  Converts an input table of staring points, bearings, and distances
- to line features
+ to line features.
  ==================================================
  history:
  11/16/2016 - mf - Original code based on original model builder doc
