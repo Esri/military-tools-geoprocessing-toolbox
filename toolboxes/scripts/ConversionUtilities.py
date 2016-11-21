@@ -761,7 +761,12 @@ def tableToLineOfBearing(inputTable,
                 arcpy.Delete_management(i)
             if debug == True: arcpy.AddMessage("Done")
 
-def tableToPoint():
+def tableToPoint(inputTable,
+                 inputCoordinateFormat,
+                 inputXField,
+                 inputYField,
+                 outputPointFeatures,
+                 inputSpatialReference):
     '''
     Converts table of coordinate formats to point features.
     
@@ -769,7 +774,7 @@ def tableToPoint():
     inputCoordinateFormat - coordinate notation format of input vertices
     inputXField - field in inputTable for vertex x-coordinate, or full coordinate
     inputYField - field in inputTable for vertex y-coordinate, or None
-    outputPoints - output point features to create
+    outputPointFeatures - output point features to create
     inputSpatialReference - spatial reference of input coordinates
     
     returns point feature class
@@ -787,11 +792,28 @@ def tableToPoint():
     * UTM_BANDS: The letter after the UTM zone number designates one of the 20 latitude bands. N or S does not designate a hemisphere.
     * USNG: United States National Grid. Almost exactly the same as MGRS but uses North American Datum 1983 (NAD83) as its datum.
     * MGRS: Military Grid Reference System. Follows the UTM coordinates and divides the world into 6-degree longitude and 20 latitude bands, but MGRS then further subdivides the grid zones into smaller 100,000-meter grids. These 100,000-meter grids are then divided into 10,000-meter, 1,000-meter, 100-meter, 10-meter, and 1-meter grids.
-    
-    
+
     '''
     try:
-        return
+        
+        deleteme = []
+        scratch = 'in_memory'
+        if env.scratchWorkspace:
+            scratch = env.scratchWorkspace
+            
+        if not inputSpatialReference:
+            arcpy.AddMessage("Defaulting to {0}".format(srWGS84.name))
+            inputSpatialReference = srWGS84
+        
+        arcpy.ConvertCoordinateNotation_management(inputTable,
+                                                   outputPointFeatures,
+                                                   inputXField,
+                                                   inputYField,
+                                                   inputCoordinateFormat,
+                                                   "DD_NUMERIC",
+                                                   "#",
+                                                   inputSpatialReference.exportToString())
+        return outputPointFeatures
     
     except arcpy.ExecuteError:
         # Get the tool error messages
@@ -825,10 +847,14 @@ def tableToPoint():
                 arcpy.Delete_management(i)
             if debug == True: arcpy.AddMessage("Done")
 
-def tableToPolygon(inputTable, inputCoordinateFormat,
-                   inputXField, inputYField,
-                   outputPolygonFeatures, inputLineField,
-                   inputSortField, inputSpatialReference):
+def tableToPolygon(inputTable,
+                   inputCoordinateFormat,
+                   inputXField,
+                   inputYField,
+                   outputPolygonFeatures,
+                   inputLineField,
+                   inputSortField,
+                   inputSpatialReference):
     '''
     Tool method for converting a table of vertices to polygon features.
     
