@@ -54,7 +54,7 @@ if not inputSpatialReference or inputSpatialReference == "" or inputSpatialRefer
 
 # LOCALS ===========================================
 deleteme = [] # intermediate datasets to be deleted
-debug = True # extra messaging during development
+debug = False # extra messaging during development
 
 # FUNCTIONS ========================================
 

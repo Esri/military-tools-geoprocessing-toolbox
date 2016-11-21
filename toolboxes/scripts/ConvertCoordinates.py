@@ -48,7 +48,7 @@ if not inputSpatialReference:
     inputSpatialReference = arcpy.SpatialReference(4326) #GCS_WGS_1984
 
 deleteIntermediateDatasets = []
-DEBUG = True
+DEBUG = False
 
 def addUniqueID(dataset, fieldName):
     ''' adding unique ID field '''

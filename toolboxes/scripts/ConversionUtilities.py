@@ -24,7 +24,10 @@ limitations under the License.
  description:
  Utility module for conversion tools.
  Supports the following tools:
+ * Table To 2-Point Line
+ * Table To Ellipse
  * Table To Line Of Bearing
+ * Table To Point
  * Table To Polygon
  ==================================================
  history:
@@ -164,8 +167,8 @@ def addUniqueRowID(dataset, fieldName="JoinID"):
     try:
         counter = 1
         # add unique ID field
-        arcpy.AddMessage("Adding LONG field " + str(fieldName))
-        arcpy.AddField_management(dataset,fieldName,"LONG")
+        if debug: arcpy.AddMessage("Adding LONG field " + str(fieldName))
+        arcpy.AddField_management(dataset, fieldName, "LONG")
     
         # add unique numbers to each row
         fields = [str(fieldName)]
@@ -322,6 +325,8 @@ def _tableFieldsForJoin(inputTable, additionalExcludeFields):
         print(msgs)
 
 ''' TOOL METHODS '''
+
+
 def tableTo2PointLine(inputTable,
                         inputStartCoordinateFormat,
                         inputStartXField,
@@ -629,6 +634,7 @@ def tableToLineOfBearing(inputTable,
                          inputBearingUnits,
                          inputBearingField,
                          inputDistanceUnits,
+                         inputDistanceField,
                          outputLineFeatures,
                          inputLineType,
                          inputSpatialReference):
@@ -719,9 +725,73 @@ def tableToLineOfBearing(inputTable,
                                                inputBearingUnits,
                                                inputLineType,
                                                "#",
-                                               inputSpatialReference)
+                                               inputSpatialReference.exportToString())
         
         return outputLineFeatures
+    
+    except arcpy.ExecuteError:
+        # Get the tool error messages
+        msgs = arcpy.GetMessages()
+        arcpy.AddError(msgs)
+        print(msgs)
+
+    except:
+        # Get the traceback object
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+
+        # Return python error messages for use in script tool or Python Window
+        arcpy.AddError(pymsg)
+        arcpy.AddError(msgs)
+
+        # Print Python error messages for use in Python / Python Window
+        print(pymsg + "\n")
+        print(msgs)
+        
+    finally:
+        if debug == False and len(deleteme) > 0:
+            # cleanup intermediate datasets
+            if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
+            for i in deleteme:
+                if debug == True: arcpy.AddMessage("Removing: " + str(i))
+                arcpy.Delete_management(i)
+            if debug == True: arcpy.AddMessage("Done")
+
+def tableToPoint():
+    '''
+    Converts table of coordinate formats to point features.
+    
+    inputTable - input table, each row will be a separate line feature in output
+    inputCoordinateFormat - coordinate notation format of input vertices
+    inputXField - field in inputTable for vertex x-coordinate, or full coordinate
+    inputYField - field in inputTable for vertex y-coordinate, or None
+    outputPoints - output point features to create
+    inputSpatialReference - spatial reference of input coordinates
+    
+    returns point feature class
+    
+    inputCoordinateFormat must be one of the following:
+    * DD_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    * DD_2: Longitude and latitude values are in two separate fields.
+    * DDM_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    * DDM_2: Longitude and latitude values are in two separate fields.
+    * DMS_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    * DMS_2: Longitude and latitude values are in two separate fields.
+    * GARS: Global Area Reference System. Based on latitude and longitude, it divides and subdivides the world into cells.
+    * GEOREF: World Geographic Reference System. A grid-based system that divides the world into 15-degree quadrangles and then subdivides into smaller quadrangles.
+    * UTM_ZONES: The letter N or S after the UTM zone number designates only North or South hemisphere.
+    * UTM_BANDS: The letter after the UTM zone number designates one of the 20 latitude bands. N or S does not designate a hemisphere.
+    * USNG: United States National Grid. Almost exactly the same as MGRS but uses North American Datum 1983 (NAD83) as its datum.
+    * MGRS: Military Grid Reference System. Follows the UTM coordinates and divides the world into 6-degree longitude and 20 latitude bands, but MGRS then further subdivides the grid zones into smaller 100,000-meter grids. These 100,000-meter grids are then divided into 10,000-meter, 1,000-meter, 100-meter, 10-meter, and 1-meter grids.
+    
+    
+    '''
+    try:
+        return
     
     except arcpy.ExecuteError:
         # Get the tool error messages
