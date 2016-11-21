@@ -13,19 +13,20 @@
  limitations under the License.
 ------------------------------------------------------------------------------
  ==================================================
- TableToLineOfBearing.py
+ TableToEllipse.py
  --------------------------------------------------
- requirements: minimum ArcGIS 10.3.1 for Desktop
+ requirements: ArcGIS 10.3+
  author: ArcGIS Solutions
  contact: support@esri.com
  company: Esri
  ==================================================
  description:
- Converts an input table of staring points, bearings, and distances
- to line features.
+ Creates one or more ellipses from a table that contains fields for X and
+ Y (Longitude and Latitude) of the ellipse center, major axis length,
+ minor axis length, and azimuth of the major axis.
  ==================================================
  history:
- 11/16/2016 - mf - Original code based on original model builder doc
+ 11/18/2016 - MF - Initial writeup from Model Builder
  ==================================================
 '''
 
@@ -41,16 +42,15 @@ inputTable = arcpy.GetParameterAsText(0) # Input Table
 inputCoordinateFormat = arcpy.GetParameterAsText(1) # Input Coordinate Format
 inputXField = arcpy.GetParameterAsText(2) # X Field (Longitude, UTM, MGRS, USNG, GARS, GeoRef) - from inputTable
 inputYField = arcpy.GetParameterAsText(3) # Y Field (Latitude)
-inputBearingUnits = arcpy.GetParameterAsText(4) # Bearing Units - from ValueList
-inputBearingField = arcpy.GetParameterAsText(5) # Bearing Field - from inputTable
-inputDistanceUnits = arcpy.GetParameterAsText(6) # Distance Units - from ValueList
-inputDistanceField = arcpy.GetParameterAsText(7) # Distance Field - from inputTable
-outputLineFeatures = arcpy.GetParameterAsText(8) # Output Lines
-inputLineType = arcpy.GetParameterAsText(9) # Line Type - from ValueList
+inputMajorAxisField = arcpy.GetParameterAsText(4) # Major Field - from inputTable
+inputMinorAxisField = arcpy.GetParameterAsText(5) # Minor Field - from inputTable
+inputDistanceUnits = arcpy.GetParameterAsText(6) # Distance Units - from valuelist
+outputEllipseFeatures = arcpy.GetParameterAsText(7) # Output Ellipse
+inputAzimuthField = arcpy.GetParameterAsText(8) # Azimuth Field - from inputTable
+inputAzimuthUnits = arcpy.GetParameterAsText(9) # Azimuth Units - from valuelist
 inputSpatialReference = arcpy.GetParameter(10) # Spatial Reference (optional)
 if not inputSpatialReference or inputSpatialReference == "" or inputSpatialReference == "#":
     inputSpatialReference = arcpy.SpatialReference(4326) #default is GCS_WGS_1984
-
 
 # LOCALS ===========================================
 deleteme = [] # intermediate datasets to be deleted
@@ -62,21 +62,20 @@ def main():
     try:
         # get/set environment
         env.overwriteOutput = True
-        ConversionUtilities.tableToLineOfBearing(inputTable,
-                                                 inputCoordinateFormat,
-                                                 inputXField,
-                                                 inputYField,
-                                                 inputBearingUnits,
-                                                 inputBearingField,
-                                                 inputDistanceUnits,
-                                                 inputDistanceField,
-                                                 outputLineFeatures,
-                                                 inputLineType,
-                                                 inputSpatialReference)
+        ConversionUtilities.tableToEllipse(inputTable,
+                                           inputCoordinateFormat,
+                                           inputXField,
+                                           inputYField,
+                                           inputMajorAxisField,
+                                           inputMinorAxisField,
+                                           inputDistanceUnits,
+                                           outputEllipseFeatures,
+                                           inputAzimuthField,
+                                           inputAzimuthUnits,
+                                           inputSpatialReference)
         
         # Set output
-        arcpy.SetParameter(8, outputLineFeatures)
-
+        arcpy.SetParameter(7, outputEllipseFeatures)
 
     except arcpy.ExecuteError: 
         # Get the tool error messages

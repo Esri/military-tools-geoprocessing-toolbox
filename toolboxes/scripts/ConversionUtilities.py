@@ -30,8 +30,8 @@ limitations under the License.
  history:
  11/15/2016 - MF - Original writeup
  11/16/2016 - MF - Added Table To Line Of Bearing
+ 11/21/2016 - MF - Added other script tools
  ==================================================
-
 '''
 
 import os
@@ -43,6 +43,18 @@ import traceback
 debug = True
 srWGS84 = arcpy.SpatialReference(4326) # GCS_WGS_1984
 #srWAZED = arcpy.SpatialReference() # World Azimuthal Equidistant
+
+unitsAngle = ["DEGREES", "MILS", "RADS", "GRADS"]
+unitsDistance = ["METERS", "KILOMETERS",
+                 "MILES", "NAUTICAL_MILES",
+                 "FEET", "US_SURVEY_FEET"]
+formatsCoordinateNotation = ["DD_1", "DD_2",
+                             "DDM_1", "DDM_2",
+                             "DMS_1", "DMS_2",
+                             "GARS", "GEOREF",
+                             "UTM", "MGRS",
+                             "USNG"]
+formatsLineTypes = ["GEODESIC", "GREAT_CIRCLE", "RHUMB_LINE", "NORMAL_SECTION"]
     
 def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
     '''
@@ -62,7 +74,7 @@ def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
         sr = arcpy.Describe(inputPolylines).spatialReference
         if debug:
             arcpy.AddMessage("Spatial reference is " + str(sr.name))
-        arcpy.AddMessage("Creating output feature class...")
+            arcpy.AddMessage("Creating output feature class...")
         outpolygonsFC = arcpy.CreateFeatureclass_management(os.path.dirname(outputPolygons),
                                                             os.path.basename(outputPolygons),
                                                             "POLYGON",
@@ -75,11 +87,13 @@ def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
         inFields = ["SHAPE@"]
         if inputIDFieldName:
             #Add ID field
-            arcpy.AddMessage("Adding ID field: %s ..." % str(inputIDFieldName))
+            if debug:
+                arcpy.AddMessage("Adding ID field: %s ..." % str(inputIDFieldName))
             arcpy.AddField_management(outpolygonsFC,inputIDFieldName,"TEXT")
             inFields = ["SHAPE@", inputIDFieldName]
             
-        arcpy.AddMessage("Opening cursors ...")
+        if debug:
+            arcpy.AddMessage("Opening cursors ...")
         #Open Search cursor on polyline
         inRows = arcpy.da.SearchCursor(inputPolylines, inFields)
     
@@ -217,7 +231,397 @@ def _formatLon(sLon):
        sLon = float(sLon[:-1])
     return sLon
 
+def _tableFieldNames(inputTable):
+    '''
+    Uses arcpy.ListFields to get a list of field NAMES
+    
+    returns list of strings
+    '''
+    try:
+        fieldNames = []
+        for f in arcpy.ListFields(inputTable):
+            fieldNames.append(f.name)
+        return fieldNames
+    
+    except arcpy.ExecuteError:
+        error = True
+        # Get the tool error messages 
+        msgs = arcpy.GetMessages() 
+        arcpy.AddError(msgs) 
+        #print msgs #UPDATE
+        print(msgs)
+    
+    except:
+        # Get the traceback object
+        error = True
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+    
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+    
+        # Return python error messages for use in script tool or Python Window
+        arcpy.AddError(pymsg)
+        arcpy.AddError(msgs)
+    
+        # Print Python error messages for use in Python / Python Window
+        #print pymsg + "\n" #UPDATE
+        print(pymsg + "\n")
+        #print msgs #UPDATE
+        print(msgs)
+    
+def _tableFieldsForJoin(inputTable, additionalExcludeFields):
+    '''
+    returns a list of fields in a table, except OBJECTID, OID, SHAPE, and
+    user added
+    inputTable - source table from which we get the original list
+    additionalExcludeFields - list of additional field names to exclude
+    '''
+    try:
+        fieldList = []
+        excludeList = ["OBJECTID", "OID", "SHAPE"]
+        fieldNames = _tableFieldNames(inputTable)
+        
+        if additionalExcludeFields:
+            excludeList = set(excludeList + list(additionalExcludeFields))
+        else:
+            excludeList = set(excludeList)
+            
+        fields = set(fieldNames)
+        fieldList = list(fields - excludeList)
+        
+        return fieldList
+    
+    except arcpy.ExecuteError:
+        error = True
+        # Get the tool error messages 
+        msgs = arcpy.GetMessages() 
+        arcpy.AddError(msgs) 
+        #print msgs #UPDATE
+        print(msgs)
+    
+    except:
+        # Get the traceback object
+        error = True
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+    
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+    
+        # Return python error messages for use in script tool or Python Window
+        arcpy.AddError(pymsg)
+        arcpy.AddError(msgs)
+    
+        # Print Python error messages for use in Python / Python Window
+        #print pymsg + "\n" #UPDATE
+        print(pymsg + "\n")
+        #print msgs #UPDATE
+        print(msgs)
+
 ''' TOOL METHODS '''
+def tableTo2PointLine(inputTable,
+                        inputStartCoordinateFormat,
+                        inputStartXField,
+                        inputStartYField,
+                        inputEndCoordinateFormat,
+                        inputEndXField,
+                        inputEndYField,
+                        outputLineFeatures,
+                        inputLineType,
+                        inputSpatialReference):
+    '''
+    Creates line features from a start point coordinate and an endpoint coordinate.
+
+    inputTable - Input Table
+    inputStartCoordinateFormat - Start Point Format (from Value List)
+    inputStartXField - Start X Field (longitude, UTM, MGRS, USNG, GARS, GEOREF)(from Input Table)
+    inputStartYField - Start Y Field (latitude)(from Input Table)
+    inputEndCoordinateFormat - End Point Format (from Value List)
+    inputEndXField - End X Field (longitude, UTM, MGRS, USNG, GARS, GEOREF)(from Input Table)
+    inputEndYField - End Y Field (latitude) (from Input Table)
+    outputLineFeatures - Output Line
+    inputLineType - Line Type (from Value List)
+    inputSpatialReference - Spatial Reference, default is GCS_WGS_1984
+
+    returns line feature class
+
+    inputStartCoordinateFormat and inputEndCoordinateFormat must be one of the following:
+    * DD_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    * DD_2: Longitude and latitude values are in two separate fields.
+    * DDM_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    * DDM_2: Longitude and latitude values are in two separate fields.
+    * DMS_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    * DMS_2: Longitude and latitude values are in two separate fields.
+    * GARS: Global Area Reference System. Based on latitude and longitude, it divides and subdivides the world into cells.
+    * GEOREF: World Geographic Reference System. A grid-based system that divides the world into 15-degree quadrangles and then subdivides into smaller quadrangles.
+    * UTM_ZONES: The letter N or S after the UTM zone number designates only North or South hemisphere.
+    * UTM_BANDS: The letter after the UTM zone number designates one of the 20 latitude bands. N or S does not designate a hemisphere.
+    * USNG: United States National Grid. Almost exactly the same as MGRS but uses North American Datum 1983 (NAD83) as its datum.
+    * MGRS: Military Grid Reference System. Follows the UTM coordinates and divides the world into 6-degree longitude and 20 latitude bands, but MGRS then further subdivides the grid zones into smaller 100,000-meter grids. These 100,000-meter grids are then divided into 10,000-meter, 1,000-meter, 100-meter, 10-meter, and 1-meter grids.
+    
+    inputLineType must be one of the following:
+    * GEODESIC:
+    * GREAT_CIRCLE:
+    * RHUMB_LINE:
+    * NORMAL_SECTION:
+
+    '''
+    try:
+        # get/set environment
+        env.overwriteOutput = True
+        
+        deleteme = []
+        scratch = 'in_memory'
+        
+        joinFieldName = "JoinID"
+        startXFieldName = "startX"
+        startYFieldName = "startY"
+        endXFieldName = "endX"
+        endYFieldName = "endY"
+        
+        if env.scratchWorkspace:
+            scratch = env.scratchWorkspace
+            
+        if not inputSpatialReference:
+            arcpy.AddMessage("Defaulting to {0}".format(srWGS84.name))
+            inputSpatialReference = srWGS84
+            
+        copyRows = os.path.join(scratch, "copyRows")
+        arcpy.CopyRows_management(inputTable, copyRows)
+        originalTableFieldNames = _tableFieldNames(inputTable)
+        
+        addUniqueRowID(copyRows, joinFieldName)
+        
+        #Convert Start Point
+        arcpy.AddMessage("Formatting start point...")
+        startCCN = os.path.join(scratch, "startCCN")
+        arcpy.ConvertCoordinateNotation_management(copyRows,
+                                                   startCCN,
+                                                   inputStartXField,
+                                                   inputStartYField,
+                                                   inputStartCoordinateFormat,
+                                                   "DD_NUMERIC",
+                                                   joinFieldName)
+        arcpy.AddField_management(startCCN, startXFieldName, "DOUBLE")
+        arcpy.CalculateField_management(startCCN, startXFieldName, "!DDLon!","PYTHON_9.3")
+        arcpy.AddField_management(startCCN, startYFieldName, "DOUBLE")
+        arcpy.CalculateField_management(startCCN, startYFieldName, "!DDLat!","PYTHON_9.3")
+        arcpy.JoinField_management(copyRows, joinFieldName,
+                                   startCCN, joinFieldName,
+                                   [startXFieldName, startYFieldName]) 
+
+        #Convert End Point
+        arcpy.AddMessage("Formatting end point...")
+        endCCN = os.path.join(scratch, "endCCN")
+        arcpy.ConvertCoordinateNotation_management(copyRows,
+                                                   endCCN,
+                                                   inputEndXField,
+                                                   inputEndYField,
+                                                   inputEndCoordinateFormat,
+                                                   "DD_NUMERIC",
+                                                   joinFieldName)
+        arcpy.AddField_management(endCCN, endXFieldName, "DOUBLE")
+        arcpy.CalculateField_management(endCCN, endXFieldName, "!DDLon!","PYTHON_9.3")
+        arcpy.AddField_management(endCCN, endYFieldName, "DOUBLE")
+        arcpy.CalculateField_management(endCCN, endYFieldName, "!DDLat!","PYTHON_9.3")
+        arcpy.JoinField_management(copyRows, joinFieldName,
+                                   endCCN, joinFieldName,
+                                   [endXFieldName, endYFieldName])
+
+        #XY TO LINE
+        arcpy.AddMessage("Connecting start point to end point as {0}...".format(inputLineType))
+        arcpy.XYToLine_management(copyRows,
+                                  outputLineFeatures,
+                                  startXFieldName, startYFieldName,
+                                  endXFieldName, endYFieldName,
+                                  inputLineType,
+                                  joinFieldName,
+                                  inputSpatialReference)
+        
+        #Join original table fields to output
+        arcpy.AddMessage("Joining fields from input table to output line features...")
+        arcpy.JoinField_management(outputLineFeatures, joinFieldName,
+                                   copyRows, joinFieldName,
+                                   originalTableFieldNames)
+        
+        arcpy.DeleteField_management(outputLineFeatures, [joinFieldName,
+                                                startXFieldName, startYFieldName,
+                                                endXFieldName, endYFieldName])
+
+        return outputLineFeatures
+
+    except arcpy.ExecuteError: 
+        # Get the tool error messages
+        msgs = arcpy.GetMessages()
+        arcpy.AddError(msgs)
+        print(msgs)
+
+    except:
+        # Get the traceback object
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+
+        # Return python error messages for use in script tool or Python Window
+        arcpy.AddError(pymsg)
+        arcpy.AddError(msgs)
+
+        # Print Python error messages for use in Python / Python Window
+        print(pymsg + "\n")
+        print(msgs)
+
+    finally:
+        if debug == False and len(deleteme) > 0:
+            # cleanup intermediate datasets
+            if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
+            for i in deleteme:
+                if debug == True: arcpy.AddMessage("Removing: " + str(i))
+                arcpy.Delete_management(i)
+            if debug == True: arcpy.AddMessage("Done")
+
+def tableToEllipse(inputTable,
+                   inputCoordinateFormat,
+                   inputXField,
+                   inputYField,
+                   inputMajorAxisField,
+                   inputMinorAxisField,
+                   inputDistanceUnits,
+                   outputEllipseFeatures,
+                   inputAzimuthField,
+                   inputAzimuthUnits,
+                   inputSpatialReference):
+
+    '''
+    inputTable - input table, each row will be a separate line feature in output
+    inputCoordinateFormat - coordinate notation format of input vertices
+    inputXField - field in inputTable for vertex x-coordinate, or full coordinate
+    inputYField - field in inputTable for vertex y-coordinate, or None
+    inputMajorAxisField -
+    inputMinorAxisField - 
+    inputDistanceUnits -
+    outputEllipseFeatures - polyline feature class to create
+    inputAzimuthField - field in inputTable of rotation of ellipse from north
+    inputAzimuthUnits - angular units of azimuth (rotation)
+    inputSpatialReference - spatial reference of input coordinates
+    
+    returns polygon ellipse feature class
+    
+    inputCoordinateFormat must be one of the following:
+    * DD_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    * DD_2: Longitude and latitude values are in two separate fields.
+    * DDM_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    * DDM_2: Longitude and latitude values are in two separate fields.
+    * DMS_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    * DMS_2: Longitude and latitude values are in two separate fields.
+    * GARS: Global Area Reference System. Based on latitude and longitude, it divides and subdivides the world into cells.
+    * GEOREF: World Geographic Reference System. A grid-based system that divides the world into 15-degree quadrangles and then subdivides into smaller quadrangles.
+    * UTM_ZONES: The letter N or S after the UTM zone number designates only North or South hemisphere.
+    * UTM_BANDS: The letter after the UTM zone number designates one of the 20 latitude bands. N or S does not designate a hemisphere.
+    * USNG: United States National Grid. Almost exactly the same as MGRS but uses North American Datum 1983 (NAD83) as its datum.
+    * MGRS: Military Grid Reference System. Follows the UTM coordinates and divides the world into 6-degree longitude and 20 latitude bands, but MGRS then further subdivides the grid zones into smaller 100,000-meter grids. These 100,000-meter grids are then divided into 10,000-meter, 1,000-meter, 100-meter, 10-meter, and 1-meter grids.
+    
+    inputAzimuthUnits must be one of the following:
+    * DEGREES
+    * MILS
+    * RADS
+    * GRAD
+    
+    inputDistanceUnits must be one of the following:
+    * METERS
+    * KILOMETERS
+    * MILES
+    * NAUTICAL_MILES
+    * FEET
+    * US_SURVEY_FEET
+    '''
+    try:
+        deleteme = []
+        scratch = 'in_memory'
+        if env.scratchWorkspace:
+            scratch = env.scratchWorkspace
+            
+        if not inputSpatialReference:
+            arcpy.AddMessage("Defaulting to {0}".format(srWGS84.name))
+            inputSpatialReference = srWGS84
+            
+        copyRows = os.path.join(scratch, "copyRows")
+        arcpy.CopyRows_management(inputTable, copyRows)
+        
+        joinFieldName = "JoinID"
+        addUniqueRowID(copyRows, joinFieldName)
+        
+        copyCCN = os.path.join(scratch, "copyCCN")
+        arcpy.ConvertCoordinateNotation_management(copyRows,
+                                                   copyCCN,
+                                                   inputXField,
+                                                   inputYField,
+                                                   inputCoordinateFormat,
+                                                   "DD_NUMERIC",
+                                                   joinFieldName,
+                                                   inputSpatialReference.exportToString()) 
+    
+        #Table To Ellipse
+        copyEllipse = os.path.join(scratch, "copyEllipse")
+        arcpy.TableToEllipse_management(copyCCN,
+                                        copyEllipse,
+                                        "DDLon", "DDLat",
+                                        inputMajorAxisField,
+                                        inputMinorAxisField,
+                                        inputDistanceUnits,
+                                        inputAzimuthField,
+                                        inputAzimuthUnits,
+                                        joinFieldName,
+                                        inputSpatialReference.exportToString())
+        
+        #Polyline To Polygon
+        polylineToPolygon(copyEllipse, joinFieldName, outputEllipseFeatures)
+        
+        fieldsToJoin = _tableFieldsForJoin(copyCCN, ["DDLon", "DDLat"])
+        if debug:
+            arcpy.AddMessage("fieldsToJoin: " + str(fieldsToJoin))
+        arcpy.JoinField_management(outputEllipseFeatures, joinFieldName,
+                                   copyRows, joinFieldName, fieldsToJoin)
+    
+        return outputEllipseFeatures
+    
+    except arcpy.ExecuteError:
+        # Get the tool error messages
+        msgs = arcpy.GetMessages()
+        arcpy.AddError(msgs)
+        print(msgs)
+
+    except:
+        # Get the traceback object
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+
+        # Return python error messages for use in script tool or Python Window
+        arcpy.AddError(pymsg)
+        arcpy.AddError(msgs)
+
+        # Print Python error messages for use in Python / Python Window
+        print(pymsg + "\n")
+        print(msgs)
+        
+    finally:
+        if debug == False and len(deleteme) > 0:
+            # cleanup intermediate datasets
+            if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
+            for i in deleteme:
+                if debug == True: arcpy.AddMessage("Removing: " + str(i))
+                arcpy.Delete_management(i)
+            if debug == True: arcpy.AddMessage("Done")
+
 def tableToLineOfBearing(inputTable,
                          inputCoordinateFormat,
                          inputXField,
@@ -247,33 +651,32 @@ def tableToLineOfBearing(inputTable,
     returns polyline feature class
     
     inputCoordinateFormat must be one of the following:
-    •	DD_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
-    •	DD_2: Longitude and latitude values are in two separate fields.
-    •	DDM_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
-    •	DDM_2: Longitude and latitude values are in two separate fields.
-    •	DMS_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
-    •	DMS_2: Longitude and latitude values are in two separate fields.
-    •	GARS: Global Area Reference System. Based on latitude and longitude, it divides and subdivides the world into cells.
-    •	GEOREF: World Geographic Reference System. A grid-based system that divides the world into 15-degree quadrangles and then subdivides into smaller quadrangles.
-    •	UTM_ZONES: The letter N or S after the UTM zone number designates only North or South hemisphere.
-    •	UTM_BANDS: The letter after the UTM zone number designates one of the 20 latitude bands. N or S does not designate a hemisphere.
-    •	USNG: United States National Grid. Almost exactly the same as MGRS but uses North American Datum 1983 (NAD83) as its datum.
-    •	MGRS: Military Grid Reference System. Follows the UTM coordinates and divides the world into 6-degree longitude and 20 latitude bands, but MGRS then further subdivides the grid zones into smaller 100,000-meter grids. These 100,000-meter grids are then divided into 10,000-meter, 1,000-meter, 100-meter, 10-meter, and 1-meter grids.
-    •	SHAPE: Only available when a point feature layer is selected as input. The coordinates of each point are used to define the output format
+    * DD_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    * DD_2: Longitude and latitude values are in two separate fields.
+    * DDM_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    * DDM_2: Longitude and latitude values are in two separate fields.
+    * DMS_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    * DMS_2: Longitude and latitude values are in two separate fields.
+    * GARS: Global Area Reference System. Based on latitude and longitude, it divides and subdivides the world into cells.
+    * GEOREF: World Geographic Reference System. A grid-based system that divides the world into 15-degree quadrangles and then subdivides into smaller quadrangles.
+    * UTM_ZONES: The letter N or S after the UTM zone number designates only North or South hemisphere.
+    * UTM_BANDS: The letter after the UTM zone number designates one of the 20 latitude bands. N or S does not designate a hemisphere.
+    * USNG: United States National Grid. Almost exactly the same as MGRS but uses North American Datum 1983 (NAD83) as its datum.
+    * MGRS: Military Grid Reference System. Follows the UTM coordinates and divides the world into 6-degree longitude and 20 latitude bands, but MGRS then further subdivides the grid zones into smaller 100,000-meter grids. These 100,000-meter grids are then divided into 10,000-meter, 1,000-meter, 100-meter, 10-meter, and 1-meter grids.
     
     inputBearingUnits must be one of the following:
-    •	DEGREES
-    •	MILS
-    •	RADS
-    •	GRAD
+    * DEGREES
+    * MILS
+    * RADS
+    * GRAD
     
     inputDistanceUnits must be one of the following:
-    •	METERS
-    •	KILOMETERS
-    •	MILES
-    •	NAUTICAL_MILES
-    •	FEET
-    •	US_SURVEY_FEET
+    * METERS
+    * KILOMETERS
+    * MILES
+    * NAUTICAL_MILES
+    * FEET
+    * US_SURVEY_FEET
     
     inputLineType must be one of the following:
     * GEODESIC:
@@ -282,7 +685,6 @@ def tableToLineOfBearing(inputTable,
     * NORMAL_SECTION:
     
     '''
-    deleteme = []
     try:
         deleteme = []
         scratch = 'in_memory'
@@ -302,22 +704,11 @@ def tableToLineOfBearing(inputTable,
                                                    inputXField,
                                                    inputYField,
                                                    inputCoordinateFormat,
-                                                   "DD_2",
+                                                   "DD_NUMERIC",
                                                    "#",
                                                    inputSpatialReference.exportToString())
         
-        # Fix DDLat and DDLon field values
-        fields = ['DDLat', 'DDLon']
-        with arcpy.da.UpdateCursor(copyCCN, fields) as rows:
-            for row in rows:
-                # update latitude
-                row[0] = _formatLat(row[0])
-                # update longitude
-                row[1] = _formatLon(row[1])
-                rows.updateRow(row)
-        del row
-        del rows
-                    
+                   
         arcpy.BearingDistanceToLine_management(copyCCN,
                                                outputLineFeatures,
                                                "DDLon",
@@ -383,19 +774,18 @@ def tableToPolygon(inputTable, inputCoordinateFormat,
     returns polygon feature class
     
     inputCoordinateFormat must be one of the following:
-    •	DD_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
-    •	DD_2: Longitude and latitude values are in two separate fields.
-    •	DDM_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
-    •	DDM_2: Longitude and latitude values are in two separate fields.
-    •	DMS_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
-    •	DMS_2: Longitude and latitude values are in two separate fields.
-    •	GARS: Global Area Reference System. Based on latitude and longitude, it divides and subdivides the world into cells.
-    •	GEOREF: World Geographic Reference System. A grid-based system that divides the world into 15-degree quadrangles and then subdivides into smaller quadrangles.
-    •	UTM_ZONES: The letter N or S after the UTM zone number designates only North or South hemisphere.
-    •	UTM_BANDS: The letter after the UTM zone number designates one of the 20 latitude bands. N or S does not designate a hemisphere.
-    •	USNG: United States National Grid. Almost exactly the same as MGRS but uses North American Datum 1983 (NAD83) as its datum.
-    •	MGRS: Military Grid Reference System. Follows the UTM coordinates and divides the world into 6-degree longitude and 20 latitude bands, but MGRS then further subdivides the grid zones into smaller 100,000-meter grids. These 100,000-meter grids are then divided into 10,000-meter, 1,000-meter, 100-meter, 10-meter, and 1-meter grids.
-    •	SHAPE: Only available when a point feature layer is selected as input. The coordinates of each point are used to define the output format
+    * DD_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    * DD_2: Longitude and latitude values are in two separate fields.
+    * DDM_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    * DDM_2: Longitude and latitude values are in two separate fields.
+    * DMS_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    * DMS_2: Longitude and latitude values are in two separate fields.
+    * GARS: Global Area Reference System. Based on latitude and longitude, it divides and subdivides the world into cells.
+    * GEOREF: World Geographic Reference System. A grid-based system that divides the world into 15-degree quadrangles and then subdivides into smaller quadrangles.
+    * UTM_ZONES: The letter N or S after the UTM zone number designates only North or South hemisphere.
+    * UTM_BANDS: The letter after the UTM zone number designates one of the 20 latitude bands. N or S does not designate a hemisphere.
+    * USNG: United States National Grid. Almost exactly the same as MGRS but uses North American Datum 1983 (NAD83) as its datum.
+    * MGRS: Military Grid Reference System. Follows the UTM coordinates and divides the world into 6-degree longitude and 20 latitude bands, but MGRS then further subdivides the grid zones into smaller 100,000-meter grids. These 100,000-meter grids are then divided into 10,000-meter, 1,000-meter, 100-meter, 10-meter, and 1-meter grids.
         
     '''
     try:
@@ -417,7 +807,7 @@ def tableToPolygon(inputTable, inputCoordinateFormat,
                                                    inputXField,
                                                    inputYField,
                                                    inputCoordinateFormat,
-                                                   "DD_2",
+                                                   "DD_NUMERIC",
                                                    "#",
                                                    inputSpatialReference.exportToString())
         

@@ -13,19 +13,18 @@
  limitations under the License.
 ------------------------------------------------------------------------------
  ==================================================
- TableToLineOfBearing.py
+ TableTo2PointLine.py
  --------------------------------------------------
- requirements: minimum ArcGIS 10.3.1 for Desktop
+ requirements: ArcGIS 10.3+, Python 2.7 or Python 3.4
  author: ArcGIS Solutions
  contact: support@esri.com
  company: Esri
  ==================================================
  description:
- Converts an input table of staring points, bearings, and distances
- to line features.
+ Creates line features from a start point and an endpoint.
  ==================================================
  history:
- 11/16/2016 - mf - Original code based on original model builder doc
+ 11/21/2016 - MF - Original conversion from model builder tool
  ==================================================
 '''
 
@@ -38,19 +37,17 @@ from arcpy import env
 import ConversionUtilities
 
 inputTable = arcpy.GetParameterAsText(0) # Input Table
-inputCoordinateFormat = arcpy.GetParameterAsText(1) # Input Coordinate Format
-inputXField = arcpy.GetParameterAsText(2) # X Field (Longitude, UTM, MGRS, USNG, GARS, GeoRef) - from inputTable
-inputYField = arcpy.GetParameterAsText(3) # Y Field (Latitude)
-inputBearingUnits = arcpy.GetParameterAsText(4) # Bearing Units - from ValueList
-inputBearingField = arcpy.GetParameterAsText(5) # Bearing Field - from inputTable
-inputDistanceUnits = arcpy.GetParameterAsText(6) # Distance Units - from ValueList
-inputDistanceField = arcpy.GetParameterAsText(7) # Distance Field - from inputTable
-outputLineFeatures = arcpy.GetParameterAsText(8) # Output Lines
-inputLineType = arcpy.GetParameterAsText(9) # Line Type - from ValueList
-inputSpatialReference = arcpy.GetParameter(10) # Spatial Reference (optional)
+inputStartCoordinateFormat = arcpy.GetParameterAsText(1) # Start Point Format (from Value List)
+inputStartXField = arcpy.GetParameterAsText(2) # Start X Field (longitude, UTM, MGRS, USNG, GARS, GEOREF)(from Input Table)
+inputStartYField = arcpy.GetParameterAsText(3) # Start Y Field (latitude)(from Input Table)
+inputEndCoordinateFormat = arcpy.GetParameterAsText(4) # End Point Format (from Value List)
+inputEndXField = arcpy.GetParameterAsText(5) # End X Field (longitude, UTM, MGRS, USNG, GARS, GEOREF)(from Input Table)
+inputEndYField = arcpy.GetParameterAsText(6) # End Y Field (latitude) (from Input Table)
+outputLineFeatures = arcpy.GetParameterAsText(7) # Output Line
+inputLineType = arcpy.GetParameterAsText(8) # Line Type (from Value List)
+inputSpatialReference = arcpy.GetParameterAsText(9) # Spatial Reference
 if not inputSpatialReference or inputSpatialReference == "" or inputSpatialReference == "#":
     inputSpatialReference = arcpy.SpatialReference(4326) #default is GCS_WGS_1984
-
 
 # LOCALS ===========================================
 deleteme = [] # intermediate datasets to be deleted
@@ -62,20 +59,20 @@ def main():
     try:
         # get/set environment
         env.overwriteOutput = True
-        ConversionUtilities.tableToLineOfBearing(inputTable,
-                                                 inputCoordinateFormat,
-                                                 inputXField,
-                                                 inputYField,
-                                                 inputBearingUnits,
-                                                 inputBearingField,
-                                                 inputDistanceUnits,
-                                                 inputDistanceField,
-                                                 outputLineFeatures,
-                                                 inputLineType,
-                                                 inputSpatialReference)
-        
+
+        ConversionUtilities.tableTo2PointLine(inputTable,
+                                              inputStartCoordinateFormat,
+                                              inputStartXField,
+                                              inputStartYField,
+                                              inputEndCoordinateFormat,
+                                              inputEndXField,
+                                              inputEndYField,
+                                              outputLineFeatures,
+                                              inputLineType,
+                                              inputSpatialReference)
+
         # Set output
-        arcpy.SetParameter(8, outputLineFeatures)
+        arcpy.SetParameter(7, outputLineFeatures)
 
 
     except arcpy.ExecuteError: 
