@@ -13,19 +13,18 @@
  limitations under the License.
 ------------------------------------------------------------------------------
  ==================================================
- TableToPolygon.py
+ TableToPolyline.py
  --------------------------------------------------
- requirements: minimum ArcGIS 10.3.1 for Desktop
+ requirements: ArcGIS 10.3+, Python 2.7 or Python 3.4
  author: ArcGIS Solutions
  contact: support@esri.com
  company: Esri
  ==================================================
  description:
- Converts an input table of vertex points to one or more
- polygon features.
+ Converts a table of vertices to one or more polyline features.
  ==================================================
  history:
- 11/15/2016 - mf - Original code based on original model builder doc
+ 11/22/2016 - mf - Original conversion from Model to script tool
  ==================================================
 '''
 
@@ -41,10 +40,10 @@ inputTable = arcpy.GetParameterAsText(0) # Input Table
 inputCoordinateFormat = arcpy.GetParameterAsText(1) # Input Coordinate Format - from ValueList
 inputXField = arcpy.GetParameterAsText(2) # X Field (Longitude, UTM, MGRS, USNG, GARS, GeoRef) - from inputTable
 inputYField = arcpy.GetParameterAsText(3) # Y Field (Latitude)
-outputPolygonFeatures = arcpy.GetParameterAsText(4) # Output Polygon Features
+outputPolylineFeatures = arcpy.GetParameterAsText(4) # Output Polygon Features
 inputLineField = arcpy.GetParameterAsText(5) # Line Field (optional) - from inputTable
 inputSortField = arcpy.GetParameterAsText(6) # Sort Field (optional) - from inputTable
-inputSpatialReference = arcpy.GetParameter(7) # Spatial Reference (optional)
+inputSpatialReference = arcpy.GetParameterAsText(7) # Spatial Reference (optional)
 if not inputSpatialReference or inputSpatialReference == "" or inputSpatialReference == "#":
     inputSpatialReference = arcpy.SpatialReference(4326) #default is GCS_WGS_1984
 
@@ -58,17 +57,17 @@ def main():
     try:
         # get/set environment
         env.overwriteOutput = True
-        ConversionUtilities.tableToPolygon(inputTable,
-                                           inputCoordinateFormat,
-                                           inputXField,
-                                           inputYField,
-                                           outputPolygonFeatures,
-                                           inputLineField,
-                                           inputSortField,
-                                           inputSpatialReference)
-        
+        ConversionUtilities.tableToPolyline(inputTable,
+                                            inputCoordinateFormat,
+                                            inputXField,
+                                            inputYField,
+                                            outputPolylineFeatures,
+                                            inputLineField,
+                                            inputSortField,
+                                            inputSpatialReference)
+
         # Set output
-        arcpy.SetParameter(4, outputPolygonFeatures)
+        arcpy.SetParameter(4, outputPolylineFeatures)
 
 
     except arcpy.ExecuteError: 

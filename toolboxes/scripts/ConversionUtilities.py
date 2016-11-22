@@ -326,7 +326,6 @@ def _tableFieldsForJoin(inputTable, additionalExcludeFields):
 
 ''' TOOL METHODS '''
 
-
 def tableTo2PointLine(inputTable,
                         inputStartCoordinateFormat,
                         inputStartXField,
@@ -548,6 +547,8 @@ def tableToEllipse(inputTable,
     try:
         deleteme = []
         scratch = 'in_memory'
+        joinFieldName = "JoinID"
+        
         if env.scratchWorkspace:
             scratch = env.scratchWorkspace
             
@@ -557,8 +558,7 @@ def tableToEllipse(inputTable,
             
         copyRows = os.path.join(scratch, "copyRows")
         arcpy.CopyRows_management(inputTable, copyRows)
-        
-        joinFieldName = "JoinID"
+        originalTableFieldNames = _tableFieldNames(inputTable)
         addUniqueRowID(copyRows, joinFieldName)
         
         copyCCN = os.path.join(scratch, "copyCCN")
@@ -587,11 +587,14 @@ def tableToEllipse(inputTable,
         #Polyline To Polygon
         polylineToPolygon(copyEllipse, joinFieldName, outputEllipseFeatures)
         
-        fieldsToJoin = _tableFieldsForJoin(copyCCN, ["DDLon", "DDLat"])
-        if debug:
-            arcpy.AddMessage("fieldsToJoin: " + str(fieldsToJoin))
+        #Join original table fields to output
+        arcpy.AddMessage("Joining fields from input table to output line features...")
         arcpy.JoinField_management(outputEllipseFeatures, joinFieldName,
-                                   copyRows, joinFieldName, fieldsToJoin)
+                                   copyRows, joinFieldName,
+                                   originalTableFieldNames)
+        
+        arcpy.DeleteField_management(outputEllipseFeatures,
+                                     [joinFieldName])
     
         return outputEllipseFeatures
     
@@ -693,6 +696,7 @@ def tableToLineOfBearing(inputTable,
     '''
     try:
         deleteme = []
+        joinFieldName = "JoinID"
         scratch = 'in_memory'
         if env.scratchWorkspace:
             scratch = env.scratchWorkspace
@@ -703,7 +707,10 @@ def tableToLineOfBearing(inputTable,
             
         copyRows = os.path.join(scratch, "copyRows")
         arcpy.CopyRows_management(inputTable, copyRows)
+        originalTableFieldNames = _tableFieldNames(inputTable)
+        addUniqueRowID(copyRows, joinFieldName)
         
+        arcpy.AddMessage("Formatting start point...")
         copyCCN = os.path.join(scratch, "copyCCN")
         arcpy.ConvertCoordinateNotation_management(copyRows,
                                                    copyCCN,
@@ -711,10 +718,10 @@ def tableToLineOfBearing(inputTable,
                                                    inputYField,
                                                    inputCoordinateFormat,
                                                    "DD_NUMERIC",
-                                                   "#",
+                                                   joinFieldName,
                                                    inputSpatialReference.exportToString())
         
-                   
+        arcpy.AddMessage("Creating lines as {0}...".format(inputLineType))
         arcpy.BearingDistanceToLine_management(copyCCN,
                                                outputLineFeatures,
                                                "DDLon",
@@ -724,8 +731,17 @@ def tableToLineOfBearing(inputTable,
                                                inputBearingField,
                                                inputBearingUnits,
                                                inputLineType,
-                                               "#",
+                                               joinFieldName,
                                                inputSpatialReference.exportToString())
+        
+        #Join original table fields to output
+        arcpy.AddMessage("Joining fields from input table to output line features...")
+        arcpy.JoinField_management(outputLineFeatures, joinFieldName,
+                                   copyRows, joinFieldName,
+                                   originalTableFieldNames)
+        
+        arcpy.DeleteField_management(outputLineFeatures,
+                                     [joinFieldName])
         
         return outputLineFeatures
     
@@ -862,7 +878,7 @@ def tableToPolygon(inputTable,
     inputCoordinateFormat - coordinate notation format of input vertices
     inputXField - field in inputTable for vertex x-coordinate, or full coordinate
     inputYField - field in inputTable for vertex y-coordinate, or None
-    outputPolygnFeatures - polygon feature class to create
+    outputPolygonFeatures - polygon feature class to create
     inputLineField - field in inputTable to identify separate polygons
     inputSortField - field in inputTable to sort vertices
     inputSpatialReference - spatial reference of input coordinates
@@ -917,6 +933,108 @@ def tableToPolygon(inputTable,
         polylineToPolygon(copyPointsToLine, inputLineField, outputPolygonFeatures)
         
         return outputPolygonFeatures
+    
+    except arcpy.ExecuteError:
+        # Get the tool error messages
+        msgs = arcpy.GetMessages()
+        arcpy.AddError(msgs)
+        print(msgs)
+
+    except:
+        # Get the traceback object
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+
+        # Return python error messages for use in script tool or Python Window
+        arcpy.AddError(pymsg)
+        arcpy.AddError(msgs)
+
+        # Print Python error messages for use in Python / Python Window
+        print(pymsg + "\n")
+        print(msgs)
+        
+    finally:
+        if debug == False and len(deleteme) > 0:
+            # cleanup intermediate datasets
+            if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
+            for i in deleteme:
+                if debug == True: arcpy.AddMessage("Removing: " + str(i))
+                arcpy.Delete_management(i)
+            if debug == True: arcpy.AddMessage("Done")
+              
+def tableToPolyline(inputTable,
+                    inputCoordinateFormat,
+                    inputXField,
+                    inputYField,
+                    outputPolylineFeatures,
+                    inputLineField,
+                    inputSortField,
+                    inputSpatialReference):
+    '''
+    Converts a table of vertices to one or more polyline features.
+    
+    inputTable - input table, each row is a vertex
+    inputCoordinateFormat - coordinate notation format of input vertices
+    inputXField - field in inputTable for vertex x-coordinate, or full coordinate
+    inputYField - field in inputTable for vertex y-coordinate, or None
+    outputPolylineFeatures - polyline feature class to create
+    inputLineField - field in inputTable to identify separate polylines
+    inputSortField - field in inputTable to sort vertices
+    inputSpatialReference - spatial reference of input coordinates
+    
+    returns polyline feature class
+    
+    inputCoordinateFormat must be one of the following:
+    * DD_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    * DD_2: Longitude and latitude values are in two separate fields.
+    * DDM_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    * DDM_2: Longitude and latitude values are in two separate fields.
+    * DMS_1: Both longitude and latitude values are in a single field. Two values are separated by a space, a comma, or a slash.
+    * DMS_2: Longitude and latitude values are in two separate fields.
+    * GARS: Global Area Reference System. Based on latitude and longitude, it divides and subdivides the world into cells.
+    * GEOREF: World Geographic Reference System. A grid-based system that divides the world into 15-degree quadrangles and then subdivides into smaller quadrangles.
+    * UTM_ZONES: The letter N or S after the UTM zone number designates only North or South hemisphere.
+    * UTM_BANDS: The letter after the UTM zone number designates one of the 20 latitude bands. N or S does not designate a hemisphere.
+    * USNG: United States National Grid. Almost exactly the same as MGRS but uses North American Datum 1983 (NAD83) as its datum.
+    * MGRS: Military Grid Reference System. Follows the UTM coordinates and divides the world into 6-degree longitude and 20 latitude bands, but MGRS then further subdivides the grid zones into smaller 100,000-meter grids. These 100,000-meter grids are then divided into 10,000-meter, 1,000-meter, 100-meter, 10-meter, and 1-meter grids.
+     
+    '''
+    try:
+        deleteme = []
+        joinFieldName = "JoinID"
+        scratch = 'in_memory'
+        if env.scratchWorkspace:
+            scratch = env.scratchWorkspace
+            
+        if not inputSpatialReference:
+            arcpy.AddMessage("Defaulting to {0}".format(srWGS84.name))
+            inputSpatialReference = srWGS84
+        
+        copyRows = os.path.join(scratch, "copyRows")
+        arcpy.CopyRows_management(inputTable, copyRows)
+        addUniqueRowID(copyRows, joinFieldName)
+        
+        copyCCN = os.path.join(scratch, "copyCCN")
+        arcpy.ConvertCoordinateNotation_management(copyRows,
+                                                   copyCCN,
+                                                   inputXField,
+                                                   inputYField,
+                                                   inputCoordinateFormat,
+                                                   "DD_NUMERIC",
+                                                   joinFieldName,
+                                                   inputSpatialReference.exportToString())
+        
+        arcpy.PointsToLine_management(copyCCN,
+                                      outputPolylineFeatures,
+                                      inputLineField,
+                                      inputSortField,
+                                      "CLOSE")
+        
+        return outputPolylineFeatures
     
     except arcpy.ExecuteError:
         # Get the tool error messages
