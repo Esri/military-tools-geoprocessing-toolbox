@@ -42,7 +42,9 @@ TestSuite = unittest.TestSuite()
 
 def getVisibilityTestSuites():
     ''' Add all of the tests in ./visibility_tests to the test suite '''
-
+    visibilityUtilitiesTests = ['test__getFieldNameList',
+                                'test__addDoubleField',
+                                'test__calculateFieldValue']
     findLocalPeaksDesktopTests = ['test_find_local_peaks_desktop']
     findLocalPeaksProTests = ['test_find_local_peaks_pro']
     lowestPointsDesktopTests = ['test_lowest_points_desktop']
@@ -65,6 +67,7 @@ def getVisibilityTestSuites():
 
     if Configuration.Platform == "DESKTOP":
         Configuration.Logger.info("Visibility Desktop tests")
+        addVisibilityUtilitiesTests(visibilityUtilitiesTests)
         addFindLocalPeaksTests(findLocalPeaksDesktopTests)
         addHighestPointsTests(highestPointsDesktopTests)
         addLowestPointsTests(lowestPointsDesktopTests)
@@ -75,6 +78,7 @@ def getVisibilityTestSuites():
 
     else:
         Configuration.Logger.info("Visibility Pro tests")
+        addVisibilityUtilitiesTests(visibilityUtilitiesTests)
         addFindLocalPeaksTests(findLocalPeaksProTests)
         addHighestPointsTests(highestPointsProTests)
         addLowestPointsTests(lowestPointsProTests)
@@ -84,6 +88,14 @@ def getVisibilityTestSuites():
         addAddRLOSObserverFieldsTests(addRLOSObserverProTests)
 
     return TestSuite
+
+def addVisibilityUtilitiesTests(inputTestList):
+    if Configuration.DEBUG == True: print(".....VisibilityTestSuite.addVisibilityUtilitiesTests")
+    from . import VisibilityUtilitiesTestCase
+    for test in inputTestList:
+        print("adding test {0}".format(str(test)))
+        Configuration.Logger.info(test)
+        TestSuite.addTest(VisibilityUtilitiesTestCase.VisibilityUtilitiesTestCase(test))
 
 def addFindLocalPeaksTests(inputTestList):
     if Configuration.DEBUG == True: print("      VisibilityTestSuite.addFindLocalPeaksTests")
