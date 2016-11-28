@@ -13,19 +13,20 @@
  limitations under the License.
 ------------------------------------------------------------------------------
  ==================================================
- TableToPolygon.py
+ TableToEllipse.py
  --------------------------------------------------
- requirements: minimum ArcGIS 10.3.1 for Desktop
+ requirements: ArcGIS 10.3+
  author: ArcGIS Solutions
  contact: support@esri.com
  company: Esri
  ==================================================
  description:
- Converts an input table of vertex points to one or more
- polygon features.
+ Creates one or more ellipses from a table that contains fields for X and
+ Y (Longitude and Latitude) of the ellipse center, major axis length,
+ minor axis length, and azimuth of the major axis.
  ==================================================
  history:
- 11/15/2016 - mf - Original code based on original model builder doc
+ 11/18/2016 - MF - Initial writeup from Model Builder
  ==================================================
 '''
 
@@ -38,13 +39,16 @@ from arcpy import env
 import ConversionUtilities
 
 inputTable = arcpy.GetParameterAsText(0) # Input Table
-inputCoordinateFormat = arcpy.GetParameterAsText(1) # Input Coordinate Format - from ValueList
+inputCoordinateFormat = arcpy.GetParameterAsText(1) # Input Coordinate Format
 inputXField = arcpy.GetParameterAsText(2) # X Field (Longitude, UTM, MGRS, USNG, GARS, GeoRef) - from inputTable
 inputYField = arcpy.GetParameterAsText(3) # Y Field (Latitude)
-outputPolygonFeatures = arcpy.GetParameterAsText(4) # Output Polygon Features
-inputLineField = arcpy.GetParameterAsText(5) # Line Field (optional) - from inputTable
-inputSortField = arcpy.GetParameterAsText(6) # Sort Field (optional) - from inputTable
-inputSpatialReference = arcpy.GetParameter(7) # Spatial Reference (optional)
+inputMajorAxisField = arcpy.GetParameterAsText(4) # Major Field - from inputTable
+inputMinorAxisField = arcpy.GetParameterAsText(5) # Minor Field - from inputTable
+inputDistanceUnits = arcpy.GetParameterAsText(6) # Distance Units - from valuelist
+outputEllipseFeatures = arcpy.GetParameterAsText(7) # Output Ellipse
+inputAzimuthField = arcpy.GetParameterAsText(8) # Azimuth Field - from inputTable
+inputAzimuthUnits = arcpy.GetParameterAsText(9) # Azimuth Units - from valuelist
+inputSpatialReference = arcpy.GetParameter(10) # Spatial Reference (optional)
 if not inputSpatialReference or inputSpatialReference == "" or inputSpatialReference == "#":
     inputSpatialReference = arcpy.SpatialReference(4326) #default is GCS_WGS_1984
 
@@ -58,18 +62,20 @@ def main():
     try:
         # get/set environment
         env.overwriteOutput = True
-        ConversionUtilities.tableToPolygon(inputTable,
+        ConversionUtilities.tableToEllipse(inputTable,
                                            inputCoordinateFormat,
                                            inputXField,
                                            inputYField,
-                                           outputPolygonFeatures,
-                                           inputLineField,
-                                           inputSortField,
+                                           inputMajorAxisField,
+                                           inputMinorAxisField,
+                                           inputDistanceUnits,
+                                           outputEllipseFeatures,
+                                           inputAzimuthField,
+                                           inputAzimuthUnits,
                                            inputSpatialReference)
         
         # Set output
-        arcpy.SetParameter(4, outputPolygonFeatures)
-
+        arcpy.SetParameter(7, outputEllipseFeatures)
 
     except arcpy.ExecuteError: 
         # Get the tool error messages

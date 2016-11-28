@@ -13,19 +13,18 @@
  limitations under the License.
 ------------------------------------------------------------------------------
  ==================================================
- TableToPolygon.py
+ TableToPoints.py
  --------------------------------------------------
- requirements: minimum ArcGIS 10.3.1 for Desktop
+ requirements: ArcGIS 10.3+, Python 2.7 or Python 3.4
  author: ArcGIS Solutions
  contact: support@esri.com
  company: Esri
  ==================================================
  description:
- Converts an input table of vertex points to one or more
- polygon features.
+ Creates point features from input table of coordinate formats.
  ==================================================
  history:
- 11/15/2016 - mf - Original code based on original model builder doc
+ 11/21/2016 - MF - Original conversion from Model Builder tool
  ==================================================
 '''
 
@@ -37,14 +36,12 @@ import arcpy
 from arcpy import env
 import ConversionUtilities
 
-inputTable = arcpy.GetParameterAsText(0) # Input Table
-inputCoordinateFormat = arcpy.GetParameterAsText(1) # Input Coordinate Format - from ValueList
-inputXField = arcpy.GetParameterAsText(2) # X Field (Longitude, UTM, MGRS, USNG, GARS, GeoRef) - from inputTable
-inputYField = arcpy.GetParameterAsText(3) # Y Field (Latitude)
-outputPolygonFeatures = arcpy.GetParameterAsText(4) # Output Polygon Features
-inputLineField = arcpy.GetParameterAsText(5) # Line Field (optional) - from inputTable
-inputSortField = arcpy.GetParameterAsText(6) # Sort Field (optional) - from inputTable
-inputSpatialReference = arcpy.GetParameter(7) # Spatial Reference (optional)
+inputTable = arcpy.GetParameterAsText(0)
+inputCoordinateFormat = arcpy.GetParameterAsText(1)
+inputXField = arcpy.GetParameterAsText(2)
+inputYField = arcpy.GetParameterAsText(3)
+outputPointFeatures = arcpy.GetParameterAsText(4)
+inputSpatialReference = arcpy.GetParameterAsText(5)
 if not inputSpatialReference or inputSpatialReference == "" or inputSpatialReference == "#":
     inputSpatialReference = arcpy.SpatialReference(4326) #default is GCS_WGS_1984
 
@@ -54,22 +51,22 @@ debug = True # extra messaging during development
 
 # FUNCTIONS ========================================
 
+
+
 def main():
     try:
         # get/set environment
         env.overwriteOutput = True
-        ConversionUtilities.tableToPolygon(inputTable,
-                                           inputCoordinateFormat,
-                                           inputXField,
-                                           inputYField,
-                                           outputPolygonFeatures,
-                                           inputLineField,
-                                           inputSortField,
-                                           inputSpatialReference)
-        
-        # Set output
-        arcpy.SetParameter(4, outputPolygonFeatures)
 
+        ConversionUtilities.tableToPoint(inputTable,
+                                         inputCoordinateFormat,
+                                         inputXField,
+                                         inputYField,
+                                         outputPointFeatures,
+                                         inputSpatialReference)
+
+        # Set output
+        arcpy.SetParameter(4, outputPointFeatures)
 
     except arcpy.ExecuteError: 
         # Get the tool error messages
@@ -102,7 +99,6 @@ def main():
                 if debug == True: arcpy.AddMessage("Removing: " + str(i))
                 arcpy.Delete_management(i)
             if debug == True: arcpy.AddMessage("Done")
-
 
 
 # MAIN =============================================

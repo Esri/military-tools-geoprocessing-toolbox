@@ -46,7 +46,7 @@ inputBearingField = arcpy.GetParameterAsText(5) # Bearing Field - from inputTabl
 inputDistanceUnits = arcpy.GetParameterAsText(6) # Distance Units - from ValueList
 inputDistanceField = arcpy.GetParameterAsText(7) # Distance Field - from inputTable
 outputLineFeatures = arcpy.GetParameterAsText(8) # Output Lines
-inputLineType = arpcy.GetParamterAsText(9) # Line Type - from ValueList
+inputLineType = arcpy.GetParameterAsText(9) # Line Type - from ValueList
 inputSpatialReference = arcpy.GetParameter(10) # Spatial Reference (optional)
 if not inputSpatialReference or inputSpatialReference == "" or inputSpatialReference == "#":
     inputSpatialReference = arcpy.SpatialReference(4326) #default is GCS_WGS_1984
@@ -54,7 +54,7 @@ if not inputSpatialReference or inputSpatialReference == "" or inputSpatialRefer
 
 # LOCALS ===========================================
 deleteme = [] # intermediate datasets to be deleted
-debug = True # extra messaging during development
+debug = False # extra messaging during development
 
 # FUNCTIONS ========================================
 

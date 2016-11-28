@@ -123,8 +123,12 @@ def setUpLogFileHeader():
 
 def checkArcPy():
     ''' sanity check that ArcPy is working '''
-    if Configuration.DEBUG == True: print(".....UnitTestUtilities.checkArcPy")
-    arcpy.AddMessage(".....ArcPy works")
+    try:
+        if Configuration.DEBUG == True: print(".....UnitTestUtilities.checkArcPy")
+        #arcpy.AddMessage(".....ArcPy works")
+        v = arcpy.GetInstallInfo()['Version']
+    except arcpy.ExecuteError:
+        print("arcpy.ExecuteError")
 
 def checkExists(p):
     ''' Python check for existance '''
