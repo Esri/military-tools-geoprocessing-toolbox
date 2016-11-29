@@ -28,7 +28,8 @@ company: Esri
 ==================================================
 history:
 ? - dh - original test writeup
-6/17/2016 
+6/17/2016
+ 11/29/2016 - mf - remove input check in unittest (unnecessary)
 ==================================================
 '''
 
@@ -68,8 +69,10 @@ class AddRLOSObserverFieldsTestCase(unittest.TestCase):
         arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
-        self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist: %s" % self.inputObservers)
+        #self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist: %s" % self.inputObservers)
+        
         arcpy.AddRLOSObserverFields_mt(self.inputObservers, 2.0, 0.0, 0.0, 1000.0, 0.0, 360.0, 90.0, -90.0)
+        
         fieldList = arcpy.ListFields(self.inputObservers, "RADIUS1")
         fieldCount = len(fieldList)
         self.assertEqual(fieldCount, 1, "Expected a field count of 1 for RADIUS1 but got %s" % str(fieldCount))
@@ -121,8 +124,10 @@ class AddRLOSObserverFieldsTestCase(unittest.TestCase):
         arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
-        self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist: %s" % self.inputObservers)
+        #self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist: %s" % self.inputObservers)
+        
         arcpy.AddRLOSObserverFields_mt(self.inputObservers, 2.0, 0.0, 0.0, 1000.0, 0.0, 360.0, 90.0, -90.0)
+        
         fieldList = arcpy.ListFields(self.inputObservers, "RADIUS1")
         fieldCount = len(fieldList)
         self.assertEqual(fieldCount, 1, "Expected a field count of 1 for RADIUS1 but got %s" % str(fieldCount))

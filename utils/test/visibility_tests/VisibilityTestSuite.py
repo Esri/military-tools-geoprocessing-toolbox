@@ -93,7 +93,7 @@ def addVisibilityUtilitiesTests(inputTestList):
     if Configuration.DEBUG == True: print(".....VisibilityTestSuite.addVisibilityUtilitiesTests")
     from . import VisibilityUtilitiesTestCase
     for test in inputTestList:
-        print("adding test {0}".format(str(test)))
+        print("adding test: {0}".format(str(test)))
         Configuration.Logger.info(test)
         TestSuite.addTest(VisibilityUtilitiesTestCase.VisibilityUtilitiesTestCase(test))
 

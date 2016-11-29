@@ -13,17 +13,18 @@
  limitations under the License.
 ------------------------------------------------------------------------------
  ==================================================
- .py
+ VisibilityUtilitiesTestCase.py
  --------------------------------------------------
- requirements: ArcGIS X.X, Python 2.7 or Python 3.4
+ requirements: ArcGIS 10.3+, Python 2.7 or Python 3.4
  author: ArcGIS Solutions
  contact: support@esri.com
  company: Esri
  ==================================================
- description: <Description>
+ description:
+ Unit tests for Visibility tools
  ==================================================
  history:
- <date> - <initals> - <modifications>
+ 11/28/2016 - mf - original coding
  ==================================================
 '''
 
@@ -48,7 +49,9 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
     '''
     '''
 
-    def setup(self):
+    def setUp(self):
+        runToolMessage = ".....VisibilityUtilityTestCase.setup"
+        arcpy.AddMessage(runToolMessage)
         if arcpy.CheckExtension("Spatial") == "Available":
             arcpy.CheckOutExtension("Spatial")
         else:
@@ -62,11 +65,14 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         UnitTestUtilities.checkArcPy()
         Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
             
-    def teardown(self):
+    def tearDown(self):
+        runToolMessage = ".....VisibilityUtilityTestCase.teardown"
+        arcpy.AddMessage(runToolMessage)
         arcpy.CheckInExtension("Spatial")
         arcpy.CheckInExtension("3D")
         for i in deleteIntermediateData:
             if arcpy.Exists(i):
+                if debug: arcpy.AddMessage("Removing intermediate: {0}".format(i))
                 arcpy.Delete_management(i)
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
 
@@ -79,14 +85,17 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         
-        expectedNames = ["D1", "T2"]
-        junkTable = arcpy.RecordSet()
-        arcpy.AddTable_Management(junkTable, expectedNames[0], "DOUBLE")
-        arcpy.AddTable_Management(junkTable, expectedNames[1], "TEXT")
+        expectedNames = ["ObjectID", "D1", "T2"]
+        junkTable = os.path.join("in_memory","junkTable")
+        #if arcpy.Exists(junkTable): arcpy.Delete_management(junkTable)
+        arcpy.CreateTable_management(os.path.dirname(junkTable),
+                                     os.path.basename(junkTable))
+        deleteIntermediateData.append(junkTable)
+        arcpy.AddField_management(junkTable, expectedNames[1], "DOUBLE")
+        arcpy.AddField_management(junkTable, expectedNames[2], "TEXT")
         
         resultNames = VisibilityUtilities._getFieldNameList(junkTable)
         self.assertEqual(expectedNames, resultNames, "Did not get expected field names. Got {0} instead.".format(str(resultNames)))
-        del junkTable
 
     def test__addDoubleField(self):
         '''
@@ -99,44 +108,76 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         newFields = {"A1":[0.0, "A1 field"],
                      "A2":[1.1, "A2 field"]}
         
-        junkTable = arcpy.RecordSet()
-        resultTable = VisibilityUtilities._addDoubleField(junkTable, newFields)
+        junkTable = os.path.join("in_memory","junkTable")
+        #if arcpy.Exists(junkTable): arcpy.Delete_management(junkTable)
+        arcpy.CreateTable_management(os.path.dirname(junkTable),
+                                     os.path.basename(junkTable))
+        deleteIntermediateData.append(junkTable)
+        
+        VisibilityUtilities._addDoubleField(junkTable, newFields)
         
         resultFields = []
-        for f in arcpy.ListFields(resultTable):
+        for f in arcpy.ListFields(junkTable):
             resultFields.append(f.name)
-        self.assertEqual(list(newFields.keys()), resultFields, "Expected fields were not added.")
-        del junkTable
+        expectedFields = list(["ObjectID"] + newFields.keys())
+        self.assertEqual(expectedFields,
+                         resultFields,
+                         "Expected fields {0} were not added. Got {1} instead.".format(expectedFields, resultFields))
 
     def test__calculateFieldValue(self):
         '''
         Testing internal method _calculateFieldValue()
         '''
-        runToolMessage = ".....VisibilityUtilityTestCase.test__addDoubleField"
+        runToolMessage = ".....VisibilityUtilityTestCase.test__calculateFieldValue"
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         
         expectedNames = ["D1", "T2"]
-        junkTable = arcpy.RecordSet()
-        arcpy.AddTable_Management(junkTable, expectedNames[0], "DOUBLE")
-        arcpy.AddTable_Management(junkTable, expectedNames[1], "TEXT")
+        junkTable = os.path.join("in_memory","junkTable")
+        #if arcpy.Exists(junkTable): arcpy.Delete_management(junkTable)
+        arcpy.CreateTable_management(os.path.dirname(junkTable),
+                                     os.path.basename(junkTable))
+        arcpy.AddField_management(junkTable, expectedNames[0], "DOUBLE")
+        arcpy.AddField_management(junkTable, expectedNames[1], "TEXT")
+        deleteIntermediateData.append(junkTable)
         with arcpy.da.InsertCursor(junkTable, [expectedNames[0]]) as iCursor:
             for i in xrange(0,4):
-                iCursor.insertow(float(i))
+                iCursor.insertRow([float(i)])
         del iCursor
-        testValue = 'valueT2'
-        resultTable = VisibilityUtilities._calculateFieldValue(junkTable,
-                                                               expectedNames[1],
-                                                               testValue)
+        testValue = "'valueT2'"
+        
+        VisibilityUtilities._calculateFieldValue(junkTable,
+                                                 expectedNames[1],
+                                                 testValue)
 
-        resultFieldValueSet = set([row[0] for row in arcpy.da.SearchCursor(resultTable, [expectedNames[1]])])
+        resultFieldValueSet = set([row[0] for row in arcpy.da.SearchCursor(junkTable, [expectedNames[1]])])
         self.assertEqual(len(resultFieldValueSet),1,"_calculateFieldValue returned bad field values: {0}".format(str(resultFieldValueSet)))
 
 
     # Test external methods
 
     # Test tool methods
-    def test_addLLOSFields(self):
-        '''
-        '''
-        
+    
+    # def test_addLLOSFields001(self):
+    #     '''
+    #     Test addLLOSFields with user-defined values
+    #     '''
+    #     pass
+    # 
+    # def test_addLLOSFields002(self):
+    #     '''
+    #     Test addLLOSFields with default values
+    #     '''
+    #     pass
+    # 
+    # def test_addRLOSObserverFields001(self):
+    #     '''
+    #     Test addRLOSObserverFields with user-defined values
+    #     '''
+    #     pass
+    #     
+    # def test_addRLOSObserverFields002(self):
+    #     '''
+    #     Test addRLOSObserverFields with default values
+    #     '''
+    #     pass
