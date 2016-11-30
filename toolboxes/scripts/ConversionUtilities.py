@@ -42,6 +42,7 @@ import sys
 import arcpy
 from arcpy import env
 import traceback
+import types
 
 debug = True
 srWGS84 = arcpy.SpatialReference(4326) # GCS_WGS_1984
@@ -324,6 +325,17 @@ def _tableFieldsForJoin(inputTable, additionalExcludeFields):
         #print msgs #UPDATE
         print(msgs)
 
+def _checkSpatialRef(inputSpatialReference):
+    '''
+    if None make it WGS_84, if it is an object, make it a string
+    '''
+    if not inputSpatialReference:
+        arcpy.AddMessage("Defaulting to {0}".format(srWGS84.name))
+        inputSpatialReference = srWGS84
+    elif not isinstance(inputSpatialReference, str if sys.version_info[0] >= 3 else basestring):
+        inputSpatialReference = inputSpatialReference.exportToString()
+    return inputSpatialReference
+
 ''' TOOL METHODS '''
 
 def tableTo2PointLine(inputTable,
@@ -388,10 +400,8 @@ def tableTo2PointLine(inputTable,
         
         if env.scratchWorkspace:
             scratch = env.scratchWorkspace
-            
-        if not inputSpatialReference:
-            arcpy.AddMessage("Defaulting to {0}".format(srWGS84.name))
-            inputSpatialReference = srWGS84
+        
+        inputSpatialReference = _checkSpatialRef(inputSpatialReference)
             
         copyRows = os.path.join(scratch, "copyRows")
         arcpy.CopyRows_management(inputTable, copyRows)
@@ -552,9 +562,7 @@ def tableToEllipse(inputTable,
         if env.scratchWorkspace:
             scratch = env.scratchWorkspace
             
-        if not inputSpatialReference:
-            arcpy.AddMessage("Defaulting to {0}".format(srWGS84.name))
-            inputSpatialReference = srWGS84
+        inputSpatialReference = _checkSpatialRef(inputSpatialReference)
             
         copyRows = os.path.join(scratch, "copyRows")
         arcpy.CopyRows_management(inputTable, copyRows)
@@ -569,7 +577,7 @@ def tableToEllipse(inputTable,
                                                    inputCoordinateFormat,
                                                    "DD_NUMERIC",
                                                    joinFieldName,
-                                                   inputSpatialReference.exportToString()) 
+                                                   inputSpatialReference) 
     
         #Table To Ellipse
         copyEllipse = os.path.join(scratch, "copyEllipse")
@@ -582,7 +590,7 @@ def tableToEllipse(inputTable,
                                         inputAzimuthField,
                                         inputAzimuthUnits,
                                         joinFieldName,
-                                        inputSpatialReference.exportToString())
+                                        inputSpatialReference)
         
         #Polyline To Polygon
         polylineToPolygon(copyEllipse, joinFieldName, outputEllipseFeatures)
@@ -701,9 +709,7 @@ def tableToLineOfBearing(inputTable,
         if env.scratchWorkspace:
             scratch = env.scratchWorkspace
             
-        if not inputSpatialReference:
-            arcpy.AddMessage("Defaulting to {0}".format(srWGS84.name))
-            inputSpatialReference = srWGS84
+        inputSpatialReference = _checkSpatialRef(inputSpatialReference)
             
         copyRows = os.path.join(scratch, "copyRows")
         arcpy.CopyRows_management(inputTable, copyRows)
@@ -719,7 +725,7 @@ def tableToLineOfBearing(inputTable,
                                                    inputCoordinateFormat,
                                                    "DD_NUMERIC",
                                                    joinFieldName,
-                                                   inputSpatialReference.exportToString())
+                                                   inputSpatialReference)
         
         arcpy.AddMessage("Creating lines as {0}...".format(inputLineType))
         arcpy.BearingDistanceToLine_management(copyCCN,
@@ -732,7 +738,7 @@ def tableToLineOfBearing(inputTable,
                                                inputBearingUnits,
                                                inputLineType,
                                                joinFieldName,
-                                               inputSpatialReference.exportToString())
+                                               inputSpatialReference)
         
         #Join original table fields to output
         arcpy.AddMessage("Joining fields from input table to output line features...")
@@ -817,9 +823,7 @@ def tableToPoint(inputTable,
         if env.scratchWorkspace:
             scratch = env.scratchWorkspace
             
-        if not inputSpatialReference:
-            arcpy.AddMessage("Defaulting to {0}".format(srWGS84.name))
-            inputSpatialReference = srWGS84
+        inputSpatialReference = _checkSpatialRef(inputSpatialReference)
         
         arcpy.ConvertCoordinateNotation_management(inputTable,
                                                    outputPointFeatures,
@@ -828,7 +832,7 @@ def tableToPoint(inputTable,
                                                    inputCoordinateFormat,
                                                    "DD_NUMERIC",
                                                    "#",
-                                                   inputSpatialReference.exportToString())
+                                                   inputSpatialReference)
         return outputPointFeatures
     
     except arcpy.ExecuteError:
@@ -906,9 +910,7 @@ def tableToPolygon(inputTable,
         if env.scratchWorkspace:
             scratch = env.scratchWorkspace
             
-        if not inputSpatialReference:
-            arcpy.AddMessage("Defaulting to {0}".format(srWGS84.name))
-            inputSpatialReference = srWGS84
+        inputSpatialReference = _checkSpatialRef(inputSpatialReference)
         
         copyRows = os.path.join(scratch, "copyRows")
         arcpy.CopyRows_management(inputTable, copyRows)
@@ -921,7 +923,7 @@ def tableToPolygon(inputTable,
                                                    inputCoordinateFormat,
                                                    "DD_NUMERIC",
                                                    "#",
-                                                   inputSpatialReference.exportToString())
+                                                   inputSpatialReference)
         
         copyPointsToLine = os.path.join(scratch, "copyPointsToLine")
         arcpy.PointsToLine_management(copyCCN,
@@ -1010,9 +1012,7 @@ def tableToPolyline(inputTable,
         if env.scratchWorkspace:
             scratch = env.scratchWorkspace
             
-        if not inputSpatialReference:
-            arcpy.AddMessage("Defaulting to {0}".format(srWGS84.name))
-            inputSpatialReference = srWGS84
+        inputSpatialReference = _checkSpatialRef(inputSpatialReference)
         
         copyRows = os.path.join(scratch, "copyRows")
         arcpy.CopyRows_management(inputTable, copyRows)
@@ -1026,7 +1026,7 @@ def tableToPolyline(inputTable,
                                                    inputCoordinateFormat,
                                                    "DD_NUMERIC",
                                                    joinFieldName,
-                                                   inputSpatialReference.exportToString())
+                                                   inputSpatialReference)
         
         arcpy.PointsToLine_management(copyCCN,
                                       outputPolylineFeatures,

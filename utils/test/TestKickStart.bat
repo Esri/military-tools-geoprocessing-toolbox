@@ -35,6 +35,8 @@ rem ==================================================
 REM === TEST SETUP ===================================
 ECHO Copying RangeRingUtils.py ...
 COPY ..\..\toolboxes\scripts\RangeRingUtils.py .\distance_tests\RangeRingUtils.py
+ECHO Copying VisibilityUtilities.py
+COPY ..\..\toolboxes\scripts\VisibilityUtilities.py .\visibility_tests\VisibilityUtilities.py
 REM === TEST SETUP ===================================
 
 
@@ -82,6 +84,8 @@ REM === MULTIPLE VERSIONS ===============================
 REM === CLEANUP =========================================
 ECHO Removing RangeRingUtils.py ...
 DEL ".\distance_tests\RangeRingUtils.py"
+ECHO Removing VisibilityUtilities.py ...
+DEL ".\visibility_tests\VisibilityUtilities.py"
 REM === CLEANUP =========================================
 
 pause
