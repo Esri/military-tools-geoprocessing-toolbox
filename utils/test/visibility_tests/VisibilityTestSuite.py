@@ -44,7 +44,8 @@ def getVisibilityTestSuites():
     ''' Add all of the tests in ./visibility_tests to the test suite '''
     visibilityUtilitiesTests = ['test__getFieldNameList',
                                 'test__addDoubleField',
-                                'test__calculateFieldValue']
+                                'test__calculateFieldValue',
+                                'test__getRasterMinMax']
     findLocalPeaksDesktopTests = ['test_find_local_peaks_desktop']
     findLocalPeaksProTests = ['test_find_local_peaks_pro']
     lowestPointsDesktopTests = ['test_lowest_points_desktop']

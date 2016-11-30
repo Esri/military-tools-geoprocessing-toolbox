@@ -15,7 +15,7 @@
  ==================================================
  VisibilityUtilities.py
  --------------------------------------------------
- requirements: ArcGIS X.X, Python 2.7 or Python 3.4
+ requirements: ArcGIS 10.3+, Python 2.7 or Python 3.4
  author: ArcGIS Solutions
  contact: support@esri.com
  company: Esri
@@ -24,9 +24,11 @@
  Provides methods for Visibility tools:
  * Add LLOS Fields
  * Add RLOS Observer Fields
+ * Find Local Peaks
  ==================================================
  history:
  11/28/2016 - mf - Original coding
+ 11/29/2016 - mf - Added Find Localk Peaks tool
  ==================================================
 '''
 
@@ -41,7 +43,7 @@ from arcpy import env
 deleteme = [] # intermediate datasets to be deleted
 debug = True # extra messaging during development
 srWGS84 = arcpy.SpatialReference(4326) # GCS_WGS_1984
-#srWAZED = arcpy.SpatialReference() # World Azimuthal Equidistant
+srWAZED = arcpy.SpatialReference(54032) # World Azimuthal Equidistant
 llosFields = {"OFFSET":[2.0, "Offset height above surface"]}
 rlosFields = {"OFFSETA":[2.0, "Observer offset above surface"],
               "OFFSETB":[0.0, "Target offset above surface"],
@@ -54,7 +56,7 @@ rlosFields = {"OFFSETA":[2.0, "Observer offset above surface"],
 acceptableDistanceUnits = ['METERS', 'KILOMETERS',
                            'MILES', 'NAUTICAL_MILES',
                            'FEET', 'US_SURVEY_FEET']
-
+scratch = None
 # FUNCTIONS ========================================
 
 def _getFieldNameList(targetTable):
@@ -215,6 +217,118 @@ def _calculateFieldValue(targetTable, fieldName, fieldValue):
         print(pymsg + "\n")
         print(msgs)
 
+def _getRasterMinMax(inputRaster):
+    '''
+    returns minimum and maximum statistic value from an input raster
+    '''
+    try:
+        min = float(arcpy.GetRasterProperties_management(inputRaster, "MINIMUM").getOutput(0))
+        max = float(arcpy.GetRasterProperties_management(inputRaster, "MAXIMUM").getOutput(0))
+        return [min, max]
+    except arcpy.ExecuteError:
+        # Get the tool error messages
+        msgs = arcpy.GetMessages()
+        arcpy.AddError(msgs)
+        print(msgs)
+
+    except:
+        # Get the traceback object
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + \
+                "\nError Info:\n" + str(sys.exc_info()[1])
+        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+
+        # Return python error messages for use in script tool or Python Window
+        arcpy.AddError(pymsg)
+        arcpy.AddError(msgs)
+        # Print Python error messages for use in Python / Python Window
+        print(pymsg + "\n")
+        print(msgs) 
+
+def _clipRasterToArea(inputSurface, inputArea):
+    '''
+    returns a raster subset that is clipped from inputSurface using inputArea.
+    '''
+    try:
+        #Need Spatial Analyst to run this tool
+        if arcpy.CheckExtension("Spatial") == "Available":
+            arcpy.CheckOutExtension("Spatial")
+        else:
+            raise Exception("Spatial Analyst license is not available.")
+        from arcpy import sa
+        
+        arcpy.AddMessage("Clipping {0} to area {1}...".format(os.path.basename(inputSurface),
+                                                              os.path.basename(inputArea)))
+        saClipSurface = sa.ExtractByMask(inputSurface, inputArea)
+        clipSurface = os.path.join(scratch, "clipSurface")
+        saClipSurface.save(clipSurface)
+
+        return clipSurface
+    
+    except arcpy.ExecuteError:
+        # Get the tool error messages
+        msgs = arcpy.GetMessages()
+        arcpy.AddError(msgs)
+        print(msgs)
+
+    except:
+        # Get the traceback object
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+
+        # Return python error messages for use in script tool or Python Window
+        arcpy.AddError(pymsg)
+        arcpy.AddError(msgs)
+
+        # Print Python error messages for use in Python / Python Window
+        print(pymsg + "\n")
+        print(msgs)  
+
+def _getUniqueValuesFromField(inputTable, inputField):
+    '''
+    Get a list of unique values from inputField in inputTable
+    '''
+    try:
+        valueList = []
+        with arcpy.da.SearchCursor(inputTable, inputField) as cursor:
+            for row in cursor:
+                if not row[0] in valueList:
+                    valueList.append(row[0])
+        valueList.sort(reverse=True)
+        #if debug: arcpy.AddMessage("Sorted list: {0}".format(valueList))
+        return valueList
+    
+    except arcpy.ExecuteError:
+        # Get the tool error messages
+        msgs = arcpy.GetMessages()
+        arcpy.AddError(msgs)
+        print(msgs)
+
+    except:
+        # Get the traceback object
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+
+        # Return python error messages for use in script tool or Python Window
+        arcpy.AddError(pymsg)
+        arcpy.AddError(msgs)
+
+        # Print Python error messages for use in Python / Python Window
+        print(pymsg + "\n")
+        print(msgs)  
+    
+
 #TODO: _isValidLLOS()
 #TODO: _getImageFileName()
 #TODO: _MakePofileGraph()
@@ -365,3 +479,130 @@ def addRLOSObserverFields(inputFeatures,
                 arcpy.Delete_management(i)
             if debug == True: arcpy.AddMessage("Done")
 
+def findLocalPeaks(inputAreaFeature,
+                   inputNumberOfPeaks,
+                   inputSurfaceRaster,
+                   outputPeakFeatures):
+    '''
+    Uses an inverted sinks method to find several local peaks on a surface
+    inputAreaFeature - Input Area where to find the peaks
+    inputNumberOfPeaks - Number of Highest Points (peaks)  to find
+    inputSurfaceRaster - Input Surface to find peaks
+    outputPeakFeatures - Output Peak Points to create
+    
+    returns output point feature class
+    '''
+    global scratch
+    try:
+        #Need Spatial Analyst to run this tool
+        if arcpy.CheckExtension("Spatial") == "Available":
+            arcpy.CheckOutExtension("Spatial")
+        else:
+            raise Exception("Spatial Analyst license is not available.")
+        from arcpy import sa
+        
+        if arcpy.env.scratchWorkspace:
+            scratch = arcpy.env.scratchWorkspace
+        else:
+            scratch = "in_memory"
+        
+        #Get SR of the surface and set as default output
+        surfaceDescribe = arcpy.Describe(inputSurfaceRaster)
+        srSurface = surfaceDescribe.spatialReference
+        surfaceCellSize = max(surfaceDescribe.meanCellHeight, surfaceDescribe.meanCellWidth)
+        arcpy.env.outputCoordinateSystem = srSurface
+        arcpy.AddMessage("Using {0} for analysis.".format(srSurface.name))
+            
+        #Make a copy of the input Area in the SR of the surface
+        tempAreaFeatures = os.path.join(scratch, "tempAreaFeatures")
+        deleteme.append(tempAreaFeatures)
+        arcpy.Project_management(inputAreaFeature,
+                                 tempAreaFeatures,
+                                 srSurface)
+        
+        #Clipping surface to area
+        clipSurface = _clipRasterToArea(inputSurfaceRaster, tempAreaFeatures)
+        arcpy.AddMessage("Inverting clipped surface...")
+        minStatValue, maxStatValue = _getRasterMinMax(clipSurface)
+        invertedMapAlgebra = (((arcpy.Raster(clipSurface) - minStatValue) * -1) + maxStatValue)
+
+        #flow direction & sink
+        arcpy.AddMessage("Finding inverted sinks...")
+        saFlowDirection = sa.FlowDirection(invertedMapAlgebra, "NORMAL")
+        saSink = sa.Sink(saFlowDirection)
+        invertedSinks = os.path.join(scratch, "invertedSinks")
+        saSink.save(invertedSinks)
+        deleteme.append(invertedSinks)
+        
+        #raster to point (Grid_code)
+        pointSinks = os.path.join(scratch, "pointSinks")
+        arcpy.RasterToPoint_conversion(invertedSinks, pointSinks)
+        deleteme.append(pointSinks)
+        
+        #extract values to points
+        arcpy.AddMessage("Extracting elevation values from {0}...".format(inputSurfaceRaster))
+        sinkValues = os.path.join(scratch, "sinkValues")
+        sa.ExtractValuesToPoints(pointSinks, inputSurfaceRaster, sinkValues, "NONE", "VALUE_ONLY")
+        deleteme.append(sinkValues)
+        
+        # select X highest values.
+        valueField = "RASTERVALU"
+        uniqueElevationList = _getUniqueValuesFromField(sinkValues, valueField)
+        cutoffValue = uniqueElevationList[int(inputNumberOfPeaks) - 1]
+        arcpy.AddMessage("Using cutoff value of {0} to find {1} highest peak elevations...".format(cutoffValue, inputNumberOfPeaks))
+        arcpy.MakeFeatureLayer_management(sinkValues, "sortedPoints")
+        selectExpression = r'{0} >= {1}'.format(valueField, cutoffValue)
+        arcpy.SelectLayerByAttribute_management("sortedPoints",
+                                                "NEW_SELECTION",
+                                                selectExpression)
+        arcpy.CopyFeatures_management("sortedPoints", outputPeakFeatures)
+        peakCount = arcpy.GetCount_management(outputPeakFeatures).getOutput(0)
+        peakList = uniqueElevationList[:int(inputNumberOfPeaks) - 1]
+        arcpy.AddMessage("Found {0} peaks of with elevations {1}".format(int(peakCount), peakList))
+                
+        # Add 'Elevation' field
+        elevField = "Elevation"
+        arcpy.AddField_management(outputPeakFeatures,
+                                  elevField,
+                                  "DOUBLE")
+        calculateFieldExpression = r"!{0}!".format(valueField)
+        arcpy.CalculateField_management(outputPeakFeatures,
+                                        elevField,
+                                        calculateFieldExpression,
+                                        "PYTHON_9.3")
+        # Remove unnecessary fields
+        arcpy.DeleteField_management(outputPeakFeatures, [valueField, "grid_code", "pointid"])
+        
+        return outputPeakFeatures
+    
+    except arcpy.ExecuteError:
+        # Get the tool error messages
+        msgs = arcpy.GetMessages()
+        arcpy.AddError(msgs)
+        print(msgs)
+
+    except:
+        # Get the traceback object
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+
+        # Return python error messages for use in script tool or Python Window
+        arcpy.AddError(pymsg)
+        arcpy.AddError(msgs)
+
+        # Print Python error messages for use in Python / Python Window
+        print(pymsg + "\n")
+        print(msgs)
+        
+    finally:
+        if debug == False and len(deleteme) > 0:
+            # cleanup intermediate datasets
+            if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
+            for i in deleteme:
+                if debug == True: arcpy.AddMessage("Removing: " + str(i))
+                arcpy.Delete_management(i)
+            if debug == True: arcpy.AddMessage("Done")

@@ -52,6 +52,7 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
     def setUp(self):
         runToolMessage = ".....VisibilityUtilityTestCase.setup"
         arcpy.AddMessage(runToolMessage)
+        UnitTestUtilities.checkArcPy()        
         if arcpy.CheckExtension("Spatial") == "Available":
             arcpy.CheckOutExtension("Spatial")
         else:
@@ -62,7 +63,9 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         else:
             raise Exception("3D license is not available.")
         
-        UnitTestUtilities.checkArcPy()
+        self.inputArea = os.path.join(Configuration.militaryInputDataGDB, "AreaofInterest")
+        self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
+        
         Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
             
     def tearDown(self):
@@ -153,6 +156,28 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         resultFieldValueSet = set([row[0] for row in arcpy.da.SearchCursor(junkTable, [expectedNames[1]])])
         self.assertEqual(len(resultFieldValueSet),1,"_calculateFieldValue returned bad field values: {0}".format(str(resultFieldValueSet)))
 
+    def test__getRasterMinMax(self):
+        '''
+        test internal method _getRasterMinMax
+        '''
+        runToolMessage = ".....VisibilityUtilityTestCase.test__getRasterMinMax"
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        resultMin, resultMax = VisibilityUtilities._getRasterMinMax(self.inputSurface)
+        expectedMin = int(-41)
+        self.assertEqual(expectedMin, resultMin, "Expected minimum of {0}, but got {1}".format(expectedMin, resultMin))
+        expectedMax = int(1785)
+        self.assertEqual(expectedMax, resultMax, "Expected maximum of {0}, but got {1}".format(expectedMax, resultMax))
+    
+    def test___clipRasterToArea(self):
+        '''
+        '''
+        pass
+    
+    def test__getUniqueValuesFromField(self):
+        '''
+        '''
+        pass
 
     # Test external methods
 
