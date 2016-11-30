@@ -45,7 +45,10 @@ def getVisibilityTestSuites():
     visibilityUtilitiesTests = ['test__getFieldNameList',
                                 'test__addDoubleField',
                                 'test__calculateFieldValue',
-                                'test__getRasterMinMax']
+                                'test__getRasterMinMax',
+                                'test__getUniqueValuesFromField001',
+                                'test__getUniqueValuesFromField002',
+                                'test__clipRasterToArea']
     findLocalPeaksDesktopTests = ['test_find_local_peaks_desktop']
     findLocalPeaksProTests = ['test_find_local_peaks_pro']
     lowestPointsDesktopTests = ['test_lowest_points_desktop']

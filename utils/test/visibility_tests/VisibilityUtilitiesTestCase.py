@@ -65,6 +65,7 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         
         self.inputArea = os.path.join(Configuration.militaryInputDataGDB, "AreaofInterest")
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
+        self.inputSigActsTable = os.path.join(Configuration.militaryInputDataGDB, "SigActs")
         
         Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
             
@@ -169,15 +170,45 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         expectedMax = int(1785)
         self.assertEqual(expectedMax, resultMax, "Expected maximum of {0}, but got {1}".format(expectedMax, resultMax))
     
-    def test___clipRasterToArea(self):
+    def test__clipRasterToArea(self):
         '''
+        Compare result of _clipRasterToArea result to known, good comparison dataset
         '''
-        pass
-    
-    def test__getUniqueValuesFromField(self):
+        runToolMessage = ".....VisibilityUtilityTestCase.test__clipRasterToArea"
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        expectedOutput = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputclipRasterToArea")
+        resultClippedRaster = os.path.join(Configuration.militaryScratchGDB, "resultClippedRaster")
+        resultClippedRaster = VisibilityUtilities._clipRasterToArea(self.inputSurface, self.inputArea, resultClippedRaster)
+        deleteIntermediateData.append(resultClippedRaster)
+        result = arcpy.RasterCompare_management(expectedOutput, resultClippedRaster, "RASTER_DATASET").getOutput(1)
+        self.assertEqual(result, "true", "Raster Compare failed: \n %s" % arcpy.GetMessages())
+
+    def test__getUniqueValuesFromField001(self):
         '''
+        Test __getUniqueValuesFromField with SigActs table's AttackScal field.
         '''
-        pass
+        runToolMessage = ".....VisibilityUtilityTestCase.test__getUniqueValuesFromField001"
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        expectedAttackScal = ["Macro", "Micro"]
+        resultAttackScal = VisibilityUtilities._getUniqueValuesFromField(self.inputSigActsTable, "AttackScal")
+        self.assertEqual(len(expectedAttackScal),
+                         len(resultAttackScal),
+                         "Expected {0} unique values, but got {1}.".format(expectedAttackScal, resultAttackScal))
+        
+    def test__getUniqueValuesFromField002(self):
+        '''
+        Test __getUniqueValuesFromField with SigActs table's NoAttacks field.
+        '''
+        runToolMessage = ".....VisibilityUtilityTestCase.test__getUniqueValuesFromField002"
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        expectedNoAttacks = [0, 1, 2, 3]
+        resultNoAttacks = VisibilityUtilities._getUniqueValuesFromField(self.inputSigActsTable, "NoAttacks")
+        self.assertEqual(len(expectedNoAttacks),
+                         len(resultNoAttacks),
+                         "Expected {0} unique values, but got {1}.".format(expectedNoAttacks, resultNoAttacks))
 
     # Test external methods
 

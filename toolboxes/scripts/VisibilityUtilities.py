@@ -28,7 +28,7 @@
  ==================================================
  history:
  11/28/2016 - mf - Original coding
- 11/29/2016 - mf - Added Find Localk Peaks tool
+ 11/29/2016 - mf - Added Find Local Peaks tool
  ==================================================
 '''
 
@@ -248,7 +248,7 @@ def _getRasterMinMax(inputRaster):
         print(pymsg + "\n")
         print(msgs) 
 
-def _clipRasterToArea(inputSurface, inputArea):
+def _clipRasterToArea(inputSurface, inputArea, outputClip):
     '''
     returns a raster subset that is clipped from inputSurface using inputArea.
     '''
@@ -259,14 +259,11 @@ def _clipRasterToArea(inputSurface, inputArea):
         else:
             raise Exception("Spatial Analyst license is not available.")
         from arcpy import sa
-        
         arcpy.AddMessage("Clipping {0} to area {1}...".format(os.path.basename(inputSurface),
                                                               os.path.basename(inputArea)))
         saClipSurface = sa.ExtractByMask(inputSurface, inputArea)
-        clipSurface = os.path.join(scratch, "clipSurface")
-        saClipSurface.save(clipSurface)
-
-        return clipSurface
+        saClipSurface.save(outputClip)
+        return outputClip
     
     except arcpy.ExecuteError:
         # Get the tool error messages
@@ -326,8 +323,7 @@ def _getUniqueValuesFromField(inputTable, inputField):
 
         # Print Python error messages for use in Python / Python Window
         print(pymsg + "\n")
-        print(msgs)  
-    
+        print(msgs)
 
 #TODO: _isValidLLOS()
 #TODO: _getImageFileName()
@@ -504,7 +500,8 @@ def findLocalPeaks(inputAreaFeature,
         if arcpy.env.scratchWorkspace:
             scratch = arcpy.env.scratchWorkspace
         else:
-            scratch = "in_memory"
+            scratch = r"%scratchGDB%"
+            
         
         #Get SR of the surface and set as default output
         surfaceDescribe = arcpy.Describe(inputSurfaceRaster)
@@ -515,13 +512,17 @@ def findLocalPeaks(inputAreaFeature,
             
         #Make a copy of the input Area in the SR of the surface
         tempAreaFeatures = os.path.join(scratch, "tempAreaFeatures")
-        deleteme.append(tempAreaFeatures)
         arcpy.Project_management(inputAreaFeature,
                                  tempAreaFeatures,
                                  srSurface)
+        deleteme.append(tempAreaFeatures)
+        
+        #TODO: Compare extents of area and surface, if area not inside, raise Exception
         
         #Clipping surface to area
-        clipSurface = _clipRasterToArea(inputSurfaceRaster, tempAreaFeatures)
+        clipSurface = os.path.join(scratch, "clipSurface")
+        clipSurface = _clipRasterToArea(inputSurfaceRaster, tempAreaFeatures, clipSurface)
+        deleteme.append(clipSurface)
         arcpy.AddMessage("Inverting clipped surface...")
         minStatValue, maxStatValue = _getRasterMinMax(clipSurface)
         invertedMapAlgebra = (((arcpy.Raster(clipSurface) - minStatValue) * -1) + maxStatValue)
@@ -557,8 +558,8 @@ def findLocalPeaks(inputAreaFeature,
                                                 selectExpression)
         arcpy.CopyFeatures_management("sortedPoints", outputPeakFeatures)
         peakCount = arcpy.GetCount_management(outputPeakFeatures).getOutput(0)
-        peakList = uniqueElevationList[:int(inputNumberOfPeaks) - 1]
-        arcpy.AddMessage("Found {0} peaks of with elevations {1}".format(int(peakCount), peakList))
+        peakList = uniqueElevationList[:int(inputNumberOfPeaks)]
+        arcpy.AddMessage("Found {0} peaks of with elevations {1}".format(peakCount, peakList))
                 
         # Add 'Elevation' field
         elevField = "Elevation"
@@ -572,7 +573,7 @@ def findLocalPeaks(inputAreaFeature,
                                         "PYTHON_9.3")
         # Remove unnecessary fields
         arcpy.DeleteField_management(outputPeakFeatures, [valueField, "grid_code", "pointid"])
-        
+
         return outputPeakFeatures
     
     except arcpy.ExecuteError:
