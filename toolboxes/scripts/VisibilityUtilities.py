@@ -520,6 +520,8 @@ def findLocalPeaks(inputAreaFeature,
                                  tempAreaFeatures,
                                  srSurface)
         
+        #TODO: Compare extents of area and surface, if area not inside, raise Exception
+        
         #Clipping surface to area
         clipSurface = _clipRasterToArea(inputSurfaceRaster, tempAreaFeatures)
         arcpy.AddMessage("Inverting clipped surface...")
@@ -557,8 +559,8 @@ def findLocalPeaks(inputAreaFeature,
                                                 selectExpression)
         arcpy.CopyFeatures_management("sortedPoints", outputPeakFeatures)
         peakCount = arcpy.GetCount_management(outputPeakFeatures).getOutput(0)
-        peakList = uniqueElevationList[:int(inputNumberOfPeaks) - 1]
-        arcpy.AddMessage("Found {0} peaks of with elevations {1}".format(int(peakCount), peakList))
+        peakList = uniqueElevationList[:int(inputNumberOfPeaks)]
+        arcpy.AddMessage("Found {0} peaks of with elevations {1}".format(peakCount, peakList))
                 
         # Add 'Elevation' field
         elevField = "Elevation"

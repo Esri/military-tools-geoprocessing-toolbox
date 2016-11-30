@@ -172,12 +172,17 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
     def test___clipRasterToArea(self):
         '''
         '''
-        pass
+        runToolMessage = ".....VisibilityUtilityTestCase.test__clipRasterToArea"
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        
     
     def test__getUniqueValuesFromField(self):
         '''
         '''
-        pass
+        runToolMessage = ".....VisibilityUtilityTestCase.test__getUniqueValuesFromField"
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
 
     # Test external methods
 
