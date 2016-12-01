@@ -792,7 +792,8 @@ def radialLineOfSight():
         else:
             raise Exception("Spatial Analyst license is not available.")
         from arcpy import sa
-        
+        env.overwriteOutput = True
+        #Set scratch as temp workspace
         if arcpy.env.scratchWorkspace:
             scratch = arcpy.env.scratchWorkspace
         else:
