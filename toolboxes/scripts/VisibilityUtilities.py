@@ -259,6 +259,7 @@ def _clipRasterToArea(inputSurface, inputArea, outputClip):
         else:
             raise Exception("Spatial Analyst license is not available.")
         from arcpy import sa
+        env.overwriteOutput = True
         arcpy.AddMessage("Clipping {0} to area {1}...".format(os.path.basename(inputSurface),
                                                               os.path.basename(inputArea)))
         saClipSurface = sa.ExtractByMask(inputSurface, inputArea)
@@ -325,7 +326,6 @@ def _getUniqueValuesFromField(inputTable, inputField):
         print(pymsg + "\n")
         print(msgs)
 
-
 #TODO: _isValidLLOS()
 #TODO: _getImageFileName()
 #TODO: _MakePofileGraph()
@@ -356,6 +356,7 @@ def hi_lowPointByArea(inputAreaFeature,
             raise Exception("Spatial Analyst license is not available.")
         from arcpy import sa
         
+        env.overwriteOutput = True
         if arcpy.env.scratchWorkspace:
             scratch = arcpy.env.scratchWorkspace
         else:
@@ -437,12 +438,13 @@ def hi_lowPointByArea(inputAreaFeature,
         print(msgs)
         
     finally:
-        if debug == False and len(deleteme) > 0:
+        if len(deleteme) > 0:
             # cleanup intermediate datasets
             if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
             for i in deleteme:
-                if debug == True: arcpy.AddMessage("Removing: " + str(i))
-                arcpy.Delete_management(i)
+                if arcpy.Exists(i):
+                    if debug == True: arcpy.AddMessage("Removing: " + str(i))
+                    arcpy.Delete_management(i)
             if debug == True: arcpy.AddMessage("Done")
 
 def addLLOSFields(inputObserverTable,
@@ -463,6 +465,7 @@ def addLLOSFields(inputObserverTable,
     '''
     try:
         # Add field to Observer table
+        env.overwriteOutput = True
         arcpy.AddMessage("Adding Observer fields...")
         outputObserverTable = _addDoubleField(inputObserverTable,
                                       llosFields)
@@ -503,12 +506,13 @@ def addLLOSFields(inputObserverTable,
         print(msgs)
         
     finally:
-        if debug == False and len(deleteme) > 0:
+        if len(deleteme) > 0:
             # cleanup intermediate datasets
             if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
             for i in deleteme:
-                if debug == True: arcpy.AddMessage("Removing: " + str(i))
-                arcpy.Delete_management(i)
+                if arcpy.Exists(i):
+                    if debug == True: arcpy.AddMessage("Removing: " + str(i))
+                    arcpy.Delete_management(i)
             if debug == True: arcpy.AddMessage("Done")
 
 def addRLOSObserverFields(inputFeatures,
@@ -535,6 +539,7 @@ def addRLOSObserverFields(inputFeatures,
     
     '''
     try:
+        env.overwriteOutput = True
         if not inputOFFSETA: inputOFFSETA = 2.0
         if not inputOFFSETB: inputOFFSETB = 0.0
         if not inputRADIUS1: inputRADIUS1 = 0.0
@@ -581,12 +586,13 @@ def addRLOSObserverFields(inputFeatures,
         print(msgs)
         
     finally:
-        if debug == False and len(deleteme) > 0:
+        if len(deleteme) > 0:
             # cleanup intermediate datasets
             if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
             for i in deleteme:
-                if debug == True: arcpy.AddMessage("Removing: " + str(i))
-                arcpy.Delete_management(i)
+                if arcpy.Exists(i):
+                    if debug == True: arcpy.AddMessage("Removing: " + str(i))
+                    arcpy.Delete_management(i)
             if debug == True: arcpy.AddMessage("Done")
 
 def findLocalPeaks(inputAreaFeature,
@@ -611,6 +617,7 @@ def findLocalPeaks(inputAreaFeature,
             raise Exception("Spatial Analyst license is not available.")
         from arcpy import sa
         
+        env.overwriteOutput = True
         if arcpy.env.scratchWorkspace:
             scratch = arcpy.env.scratchWorkspace
         else:
@@ -690,6 +697,109 @@ def findLocalPeaks(inputAreaFeature,
 
         return outputPeakFeatures
     
+    except arcpy.ExecuteError:
+        # Get the tool error messages
+        msgs = arcpy.GetMessages()
+        arcpy.AddError(msgs)
+        print(msgs)
+
+    except:
+        # Get the traceback object
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+
+        # Return python error messages for use in script tool or Python Window
+        arcpy.AddError(pymsg)
+        arcpy.AddError(msgs)
+
+        # Print Python error messages for use in Python / Python Window
+        print(pymsg + "\n")
+        print(msgs)
+        
+    finally:
+        if len(deleteme) > 0:
+            # cleanup intermediate datasets
+            if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
+            for i in deleteme:
+                if arcpy.Exists(i):
+                    if debug == True: arcpy.AddMessage("Removing: " + str(i))
+                    arcpy.Delete_management(i)
+            if debug == True: arcpy.AddMessage("Done")
+
+def linearLineOfSight():
+    '''
+    '''
+    global scratch
+    try:
+        #Need Spatial Analyst to run this tool
+        if arcpy.CheckExtension("Spatial") == "Available":
+            arcpy.CheckOutExtension("Spatial")
+        else:
+            raise Exception("Spatial Analyst license is not available.")
+        from arcpy import sa
+        
+        if arcpy.env.scratchWorkspace:
+            scratch = arcpy.env.scratchWorkspace
+        else:
+            scratch = r"%scratchGDB%"
+
+
+        return
+    except arcpy.ExecuteError:
+        # Get the tool error messages
+        msgs = arcpy.GetMessages()
+        arcpy.AddError(msgs)
+        print(msgs)
+
+    except:
+        # Get the traceback object
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+
+        # Return python error messages for use in script tool or Python Window
+        arcpy.AddError(pymsg)
+        arcpy.AddError(msgs)
+
+        # Print Python error messages for use in Python / Python Window
+        print(pymsg + "\n")
+        print(msgs)
+        
+    finally:
+        if debug == False and len(deleteme) > 0:
+            # cleanup intermediate datasets
+            if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
+            for i in deleteme:
+                if debug == True: arcpy.AddMessage("Removing: " + str(i))
+                arcpy.Delete_management(i)
+            if debug == True: arcpy.AddMessage("Done")
+            
+def radialLineOfSight():
+    '''
+    '''
+    global scratch
+    try:
+        #Need Spatial Analyst to run this tool
+        if arcpy.CheckExtension("Spatial") == "Available":
+            arcpy.CheckOutExtension("Spatial")
+        else:
+            raise Exception("Spatial Analyst license is not available.")
+        from arcpy import sa
+        
+        if arcpy.env.scratchWorkspace:
+            scratch = arcpy.env.scratchWorkspace
+        else:
+            scratch = r"%scratchGDB%"
+
+
+        return
     except arcpy.ExecuteError:
         # Get the tool error messages
         msgs = arcpy.GetMessages()
