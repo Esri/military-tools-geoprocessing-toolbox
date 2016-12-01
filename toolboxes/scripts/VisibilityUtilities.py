@@ -58,7 +58,6 @@ acceptableDistanceUnits = ['METERS', 'KILOMETERS',
                            'FEET', 'US_SURVEY_FEET']
 scratch = None
 # FUNCTIONS ========================================
-
 def _getFieldNameList(targetTable):
     '''
     Returns a list of field names from targetTable
@@ -224,6 +223,7 @@ def _getRasterMinMax(inputRaster):
     try:
         min = float(arcpy.GetRasterProperties_management(inputRaster, "MINIMUM").getOutput(0))
         max = float(arcpy.GetRasterProperties_management(inputRaster, "MAXIMUM").getOutput(0))
+        if debug: arcpy.AddMessage("_getRasterMinMax min={0}, max={1}".format(min, max))
         return [min, max]
     except arcpy.ExecuteError:
         # Get the tool error messages
@@ -325,12 +325,126 @@ def _getUniqueValuesFromField(inputTable, inputField):
         print(pymsg + "\n")
         print(msgs)
 
+
 #TODO: _isValidLLOS()
 #TODO: _getImageFileName()
 #TODO: _MakePofileGraph()
 #TODO: _enableAttachments()
 
 ''' TOOL METHODS '''
+
+def hi_lowPointByArea(inputAreaFeature,
+                      inputSurfaceRaster,
+                      hi_low_Switch,
+                      outputPointFeature):
+    '''
+    Finds the highest or lowest point by pixel value in a given inputAreaFeature of inputSurfaceRaster
+    inputAreaFeature - input polygon feature
+    inputSurfaceRaster - input raster of elevation
+    hi_low_Switch - MAXIMUM for highest,
+                    or MINIMUM for lowest
+    outputPointFeature - point feature class containing results
+    
+    returns point feature class
+    '''
+    global scratch
+    try:
+        #Need Spatial Analyst to run this tool
+        if arcpy.CheckExtension("Spatial") == "Available":
+            arcpy.CheckOutExtension("Spatial")
+        else:
+            raise Exception("Spatial Analyst license is not available.")
+        from arcpy import sa
+        
+        if arcpy.env.scratchWorkspace:
+            scratch = arcpy.env.scratchWorkspace
+        else:
+            scratch = r"%scratchGDB%"
+        
+        #Get SR of the surface and set as default output
+        surfaceDescribe = arcpy.Describe(inputSurfaceRaster)
+        srSurface = surfaceDescribe.spatialReference
+        #surfaceCellSize = max(surfaceDescribe.meanCellHeight, surfaceDescribe.meanCellWidth)
+        arcpy.env.outputCoordinateSystem = srSurface
+        arcpy.AddMessage("Using {0} for analysis.".format(srSurface.name))
+        
+        #TODO: Warn user if clipping large area of small cells, and processing will take time
+            
+        #Make a copy of the input Area in the SR of the surface
+        tempAreaFeatures = os.path.join(scratch, "tempAreaFeatures")
+        arcpy.Project_management(inputAreaFeature,
+                                 tempAreaFeatures,
+                                 srSurface)
+        deleteme.append(tempAreaFeatures)
+        
+        #TODO: Compare extents of area and surface, if area not inside, raise Exception
+        
+        #Clipping surface to area
+        clipSurface = os.path.join(scratch, "clipSurface")
+        clipSurface = _clipRasterToArea(inputSurfaceRaster, tempAreaFeatures, clipSurface)
+        deleteme.append(clipSurface)
+        
+        #Get stats for clipped surface
+        filterStatValue = None
+        minStatValue, maxStatValue = _getRasterMinMax(clipSurface)
+        if hi_low_Switch == "MAXIMUM":
+            filterStatValue = maxStatValue
+        else:
+            filterStatValue = minStatValue
+        
+
+        #Filter the cells from clipped raster
+        arcpy.AddMessage("Finding cells with {0} value of {1}...".format(hi_low_Switch, filterStatValue))
+        expressionSetNull = r"VALUE <> {0}".format(filterStatValue)
+        setNull = os.path.join(scratch, "setNull")
+        resultSetNull = sa.SetNull(clipSurface, clipSurface, expressionSetNull)
+        resultSetNull.save(setNull)
+        deleteme.append(setNull)
+        
+        #Converting to points
+        arcpy.RasterToPoint_conversion(setNull, outputPointFeature, "VALUE")
+        #Add 'Elevation' field, and remove 'Grid_code'
+        addFieldName = "Elevation"
+        dropFieldName = "grid_code"
+        outputPointFeature = _addDoubleField(outputPointFeature, {addFieldName:[0,addFieldName]})
+        expressionCalcField = r"!{0}!".format(dropFieldName)
+        arcpy.CalculateField_management(outputPointFeature, addFieldName, expressionCalcField, "PYTHON_9.3")
+        arcpy.DeleteField_management(outputPointFeature, [dropFieldName, "pointid"])
+
+        return outputPointFeature
+    
+    except arcpy.ExecuteError:
+        # Get the tool error messages
+        msgs = arcpy.GetMessages()
+        arcpy.AddError(msgs)
+        print(msgs)
+
+    except:
+        # Get the traceback object
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+
+        # Return python error messages for use in script tool or Python Window
+        arcpy.AddError(pymsg)
+        arcpy.AddError(msgs)
+
+        # Print Python error messages for use in Python / Python Window
+        print(pymsg + "\n")
+        print(msgs)
+        
+    finally:
+        if debug == False and len(deleteme) > 0:
+            # cleanup intermediate datasets
+            if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
+            for i in deleteme:
+                if debug == True: arcpy.AddMessage("Removing: " + str(i))
+                arcpy.Delete_management(i)
+            if debug == True: arcpy.AddMessage("Done")
+
 def addLLOSFields(inputObserverTable,
                   inputObserverDefault,
                   inputTargetTable,
@@ -607,108 +721,3 @@ def findLocalPeaks(inputAreaFeature,
                 if debug == True: arcpy.AddMessage("Removing: " + str(i))
                 arcpy.Delete_management(i)
             if debug == True: arcpy.AddMessage("Done")
-
-def highestPoints():
-    '''
-    '''
-    global scratch
-    try:
-        #Need Spatial Analyst to run this tool
-        if arcpy.CheckExtension("Spatial") == "Available":
-            arcpy.CheckOutExtension("Spatial")
-        else:
-            raise Exception("Spatial Analyst license is not available.")
-        from arcpy import sa
-        
-        if arcpy.env.scratchWorkspace:
-            scratch = arcpy.env.scratchWorkspace
-        else:
-            scratch = r"%scratchGDB%"
-
-
-        return
-    except arcpy.ExecuteError:
-        # Get the tool error messages
-        msgs = arcpy.GetMessages()
-        arcpy.AddError(msgs)
-        print(msgs)
-
-    except:
-        # Get the traceback object
-        tb = sys.exc_info()[2]
-        tbinfo = traceback.format_tb(tb)[0]
-
-        # Concatenate information together concerning the error into a message string
-        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
-        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
-
-        # Return python error messages for use in script tool or Python Window
-        arcpy.AddError(pymsg)
-        arcpy.AddError(msgs)
-
-        # Print Python error messages for use in Python / Python Window
-        print(pymsg + "\n")
-        print(msgs)
-        
-    finally:
-        if debug == False and len(deleteme) > 0:
-            # cleanup intermediate datasets
-            if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
-            for i in deleteme:
-                if debug == True: arcpy.AddMessage("Removing: " + str(i))
-                arcpy.Delete_management(i)
-            if debug == True: arcpy.AddMessage("Done")
-
-def lowestPoints():
-    '''
-    '''
-    global scratch
-    try:
-        #Need Spatial Analyst to run this tool
-        if arcpy.CheckExtension("Spatial") == "Available":
-            arcpy.CheckOutExtension("Spatial")
-        else:
-            raise Exception("Spatial Analyst license is not available.")
-        from arcpy import sa
-        
-        if arcpy.env.scratchWorkspace:
-            scratch = arcpy.env.scratchWorkspace
-        else:
-            scratch = r"%scratchGDB%"
-
-
-        return
-    except arcpy.ExecuteError:
-        # Get the tool error messages
-        msgs = arcpy.GetMessages()
-        arcpy.AddError(msgs)
-        print(msgs)
-
-    except:
-        # Get the traceback object
-        tb = sys.exc_info()[2]
-        tbinfo = traceback.format_tb(tb)[0]
-
-        # Concatenate information together concerning the error into a message string
-        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
-        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
-
-        # Return python error messages for use in script tool or Python Window
-        arcpy.AddError(pymsg)
-        arcpy.AddError(msgs)
-
-        # Print Python error messages for use in Python / Python Window
-        print(pymsg + "\n")
-        print(msgs)
-        
-    finally:
-        if debug == False and len(deleteme) > 0:
-            # cleanup intermediate datasets
-            if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
-            for i in deleteme:
-                if debug == True: arcpy.AddMessage("Removing: " + str(i))
-                arcpy.Delete_management(i)
-            if debug == True: arcpy.AddMessage("Done")
-
-
-def 

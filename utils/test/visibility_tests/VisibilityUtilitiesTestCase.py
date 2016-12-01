@@ -212,7 +212,61 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
 
     # Test external methods
 
+    def test_hi_lowPointByArea_lowest():
+        '''
+        test hi_lowPointByArea for MINIMUM (lowest) setting.
+        '''
+        runToolMessage = ".....VisibilityUtilityTestCase.test_hi_lowPointByArea_lowest"
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        hi_low_Switch = "MINIMUM"
+        resultPoints = os.path.join(Configuration.militaryScratchGDB, "lowestPoints")
+        resultPoints = VisibilityUtilities.hi_lowPointByArea(self.inputArea,
+                                                             self.inputSurface,
+                                                             hi_low_Switch,
+                                                             resultPoints)
+        deleteIntermediateData.append(resultPoints)
+        expectedLowest = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputLowestPt")
+        compareResults = arcpy.FeatureCompare_management(resultPoints, expectedLowest,"OBJECTID").getOutput(1)
+        self.assertEqual(compareResults, "true", "Feature Compare failed: \n %s" % arcpy.GetMessages())
+
+    def test_hi_lowPointByArea_highest():
+        '''
+        test hi_lowPointByArea for MAXIMUM (highest) setting.
+        '''
+        runToolMessage = ".....VisibilityUtilityTestCase.test_hi_lowPointByArea_highest"
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        hi_low_Switch = "MAXIMUM"
+        resultPoints = os.path.join(Configuration.militaryScratchGDB, "highestPoints")
+        resultPoints = VisibilityUtilities.hi_lowPointByArea(self.inputArea,
+                                                             self.inputSurface,
+                                                             hi_low_Switch,
+                                                             resultPoints)
+        deleteIntermediateData.append(resultPoints)
+        expectedHighest = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputHighestPt")
+        compareResults = arcpy.FeatureCompare_management(resultPoints, expectedHighest,"OBJECTID").getOutput(1)
+        self.assertEqual(compareResults, "true", "Feature Compare failed: \n %s" % arcpy.GetMessages())
+
     # Test tool methods
+    
+    def test_findLocalPeaks():
+        '''
+        test_findLocalPeaks with input 10 peaks to find
+        '''
+        runToolMessage = ".....VisibilityUtilityTestCase.test_findLocalPeaks"
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        resultPoints = os.path.join(Configuration.militaryScratchGDB, "findLocalPeaks")
+        numPoints = 10
+        resultPoints = VisibilityUtilities.findLocalPeaks(self.inputArea,
+                                                          numPoints,
+                                                          self.inputSurface,
+                                                          resultPoints)
+        deleteIntermediateData.append(resultPoints)
+        expectedLocalPeaks = os.path.join(Configuration.militaryResultGDB, "ExpectedOutputFindLocalPeaks")
+        compareResults = arcpy.FeatureCompare_management(resultPoints, expectedLocalPeaks, "OBJECTID").getOutput(1)
+        self.assertEqual(compareResults, "true", "Feature Compare failed: \n %s" % arcpy.GetMessages())
     
     # def test_addLLOSFields001(self):
     #     '''
