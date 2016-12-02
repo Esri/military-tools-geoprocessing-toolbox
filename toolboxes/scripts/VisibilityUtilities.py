@@ -35,6 +35,7 @@
 # IMPORTS ==========================================
 import os
 import sys
+import re
 import traceback
 import arcpy
 from arcpy import env
@@ -104,9 +105,9 @@ def _addDoubleField(targetTable, fieldsToAdd):
                 arcpy.AddWarning("Field {0} is already in {1}. Skipping this field name.".format(currentField, targetTable))
             else:
                 fName = currentField
-                #fDefault = float(fieldsToAdd[currentField][0])
+                fDefault = float(fieldsToAdd[currentField][0])
                 fAlias = fieldsToAdd[currentField][1]
-                if debug: arcpy.AddMessage("Adding field [{0}] with alias [{1}]".format(fName,fAlias))
+                if debug: arcpy.AddMessage("Adding field {0} with alias {1}".format(fName,fAlias))
                 arcpy.AddField_management(targetTable,
                                           fName,
                                           "DOUBLE",
@@ -325,6 +326,93 @@ def _getUniqueValuesFromField(inputTable, inputField):
         # Print Python error messages for use in Python / Python Window
         print(pymsg + "\n")
         print(msgs)
+
+def _getCentroid(inputFeatures):
+    '''
+    Gets the centroid of inputFeatures using Minimum Bounding Geometry's Rectange By Width option
+    '''
+    try:
+        centroidPoint = None
+        observerMBG = os.path.join(scratch, "observerMBG")
+        arcpy.MinimumBoundingGeometry_management(inputFeatures,
+                                                 observerMBG,
+                                                 "RECTANGLE_BY_WIDTH")
+        deleteme.append(observerMBG)
+        with arcpy.da.SearchCursor(observerMBG, ["SHAPE@"]) as cursor:
+            for row in cursor:
+                plyCentroid = row[0].trueCentroid
+                centroidPoint = arcpy.PointGeometry(plyCentroid)
+                
+        return centroidPoint
+    except arcpy.ExecuteError:
+        # Get the tool error messages
+        msgs = arcpy.GetMessages()
+        arcpy.AddError(msgs)
+        print(msgs)
+
+    except:
+        # Get the traceback object
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+
+        # Return python error messages for use in script tool or Python Window
+        arcpy.AddError(pymsg)
+        arcpy.AddError(msgs)
+
+        # Print Python error messages for use in Python / Python Window
+        print(pymsg + "\n")
+        print(msgs)
+
+def _getLocalWAZED(inputPoint):
+    '''
+    return a localized World Azimuthal Equidistant based on an input point
+    '''
+    try:
+        if not inputPoint.spatialReference.type == "Geographic":
+            raise Exception("Input Point must be Geographic.")
+        newSR = arcpy.SpatialReference()
+        arcpy.AddMessage("inputPoint.spatialReference: {0}".format(inputPoint.spatialReference.name))
+        pntGeom = inputPoint.projectAs(srWGS84)
+        arcpy.AddMessage("pntGeom.spatialReference: {0}".format(pntGeom.spatialReference.name))
+        pnt = pntGeom.firstPoint
+        strAZED = srWAZED.exportToString()
+        arcpy.AddMessage("Using Central Meridian: {0}, and Latitude of Origin: {1}.".format(pnt.X, pnt.Y))
+        strAZED = re.sub('PARAMETER\[\'Central_Meridian\'\,.+?]',
+               'PARAMETER\[\'Central_Meridian\',{0}]'.format(str(pnt.X)),
+               strAZED)
+        strAZED = re.sub('PARAMETER\[\'Latitude_Of_Origin\'\,.+?]',
+               'PARAMETER\[\'Latitude_Of_Origin\',{0}]'.format(str(pnt.Y)),
+               strAZED)
+        newSR.loadFromString(strAZED)
+
+        return newSR
+    except arcpy.ExecuteError:
+        # Get the tool error messages
+        msgs = arcpy.GetMessages()
+        arcpy.AddError(msgs)
+        print(msgs)
+
+    except:
+        # Get the traceback object
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+
+        # Return python error messages for use in script tool or Python Window
+        arcpy.AddError(pymsg)
+        arcpy.AddError(msgs)
+
+        # Print Python error messages for use in Python / Python Window
+        print(pymsg + "\n")
+        print(msgs)
+   
 
 #TODO: _isValidLLOS()
 #TODO: _getImageFileName()
@@ -781,8 +869,23 @@ def linearLineOfSight():
                 arcpy.Delete_management(i)
             if debug == True: arcpy.AddMessage("Done")
             
-def radialLineOfSight():
+def radialLineOfSight(inputObserverFeatures,
+                      inputObserverHeight,
+                      inputRadiusOfObserver,
+                      inputSurface,
+                      outputVisibility,
+                      inputForceVisibility,
+                      inputSpatialReference):
     '''
+    Builds a viewshed from one or more observer point features and an input surface.
+    
+    inputObserverFeatures - one or more observer features
+    inputObserverHeight - If OFFSETA is not present in inputObserverFeatures use this value
+    inputRadiusOfObserver - If RADIUS2 is not present in inputObserverFeatures use this value
+    inputSurface - Surface to consider for visibility analysis
+    outputVisibility - polygon features showing areas visible and not-visible to observers
+    inputForceVisibility - Force visiblity to edge of the surface (use a local, spherical horizon)
+    inputSpatial Reference - spatial reference of outputVisibility features
     '''
     global scratch
     try:
@@ -798,9 +901,155 @@ def radialLineOfSight():
             scratch = arcpy.env.scratchWorkspace
         else:
             scratch = r"%scratchGDB%"
+            
 
+        #get original spatial reference of inputs
+        srObservers = arcpy.Describe(inputObserverFeatures).spatialReference
+        srSurface = arcpy.Describe(inputSurface).spatialReference
+        
+        #Check observer fields for RADIUS2 and OFFSETA
+        hasRADIUS2 = True
+        hasOFFSETA = True
+        observerFieldList = _getFieldNameList(inputObserverFeatures)
+        if not "RADIUS2" in observerFieldList:
+            arcpy.AddMessage("RADIUS2 field not in {0}. Using Radius Of Observer {1}".format(os.path.basename(inputObserverFeatures), inputRadiusOfObserver))
+            hasRADIUS2 = False
+        else:
+            inputRadiusOfObserver = _getUniqueValuesFromField(inputObserverFeatures,
+                                                              "RADIUS2")[:1]
+            arcpy.AddMessage("RADIUS2 field in {0}. Using maximum radius of {1}".format(os.path.basename(inputObserverFeatures),inputRadiusOfObserver))
+        if not "OFFSETA" in observerFieldList:
+            arcpy.AddMessage("OFFSETA field not in {0}. Using Observer Height Above Surface {1}".format(os.path.basename(inputObserverFeatures), inputObserverHeight))
+            hasOFFSETA = False
+        
+        
+        # if RADIUS2_to_infinity is True:
+        #     ''' if going to infinity what we really need is the distance to the horizon
+        #     based on height/elevation'''
+        #     arcpy.AddMessage("Finding horizon distance ...")
+        #     result = arcpy.GetCellValue_management(input_surface,
+        #                                            str(mbgCenterX) + " " +
+        #                                            str(mbgCenterY))
+        #     centroid_elev = result.getOutput(0)
+        #     R2 = float(centroid_elev) + float(maxOffset)
+        #     # length, in meters, of semimajor axis of WGS_1984 spheroid.
+        #     R = 6378137.0
+        #     horizonDistance = math.sqrt(math.pow((R + R2), 2) - math.pow(R, 2))
+        #     arcpy.AddMessage(str(horizonDistance) + " meters.")
+        #     horizonExtent = (str(mbgCenterX - horizonDistance) + " " +
+        #                      str(mbgCenterY - horizonDistance) + " " +
+        #                      str(mbgCenterX + horizonDistance) + " " +
+        #                      str(mbgCenterY + horizonDistance))
+        #     # since we are doing infinity we can drop the RADIUS2 field
+        #     arcpy.AddMessage("Analysis to edge of surface, dropping RADIUS2 field ...")
+        #     arcpy.DeleteField_management(observers, "RADIUS2")
+        
+        
+        #get number of observers:
+        numberOfObservers = int(arcpy.GetCount_management(inputObserverFeatures).getOutput(0))
+        
+        #get centroid of observers in Lat/Lon
+        arcpy.AddMessage("Getting centroid of input observer points...")
+        centroidPoint = _getCentroid(inputObserverFeatures)
+        ddCentroidPoint = centroidPoint.projectAs(srWGS84)
+        
+        #make localized WAZED
+        arcpy.AddMessage("Using localized World Azimuthal Equidistant for analysis...")
+        srLocalWAZED = _getLocalWAZED(ddCentroidPoint)
+        arcpy.env.outputCoordinateSystem = srLocalWAZED
+        
+        #project Observers to temp dataset in local WAZED
+        tempObservers = os.path.join(scratch, "tempObservers")
+        arcpy.Project_management(inputObserverFeatures, tempObservers, srLocalWAZED)
+        deleteme.append(tempObservers)
+        
+        #If not hasRADIUS2: add RADIUS2
+        if not hasRADIUS2:
+            tempObservers = _addDoubleField(tempObservers, {"RADIUS2":[inputRadiusOfObserver, "RADIUS2"]})
+            tempObservers = _calculateFieldValue(tempObservers, "RADIUS2", inputRadiusOfObserver)
+        #If not hasOFFSETA: add OFFSETA
+        if not hasOFFSETA:
+            tempObservers = _addDoubleField(tempObservers, {"OFFSETA":[inputObserverHeight, "OFFSETA"]})
+            tempObservers = _calculateFieldValue(tempObservers, "OFFSETA", inputObserverHeight)
+        
+        #Buffer observers
+        bufferObservers = os.path.join(scratch, "bufferObservers")
+        distanceUnits = "METERS"
+        bufferDistance = "{0} {1}".format(inputRadiusOfObserver, distanceUnits)
+        arcpy.AddMessage("Buffering observers to {0}".format(bufferDistance))
+        arcpy.Buffer_analysis(tempObservers,
+                              bufferObservers,
+                              bufferDistance,
+                              "FULL",
+                              "ROUND",
+                              "ALL",
+                              None,
+                              "GEODESIC")
+        deleteme.append(bufferObservers)
 
-        return
+        arcpy.AddMessage("Projecting observers to match surface...")
+        observersSurfaceSR = os.path.join(scratch, "observersSurfaceSR")
+        arcpy.Project_management(tempObservers,
+                                 observersSurfaceSR,
+                                 srSurface,
+                                 None,
+                                 srLocalWAZED,
+                                 "PRESERVE_SHAPE")
+        deleteme.append(observersSurfaceSR)
+        arcpy.AddMessage("Projecting buffer to match surface...")
+        bufferSurfaceSR = os.path.join(scratch, "bufferSurfaceSR")
+        arcpy.Project_management(bufferObservers,
+                                 bufferSurfaceSR,
+                                 srSurface,
+                                 None,
+                                 srLocalWAZED,
+                                 "PRESERVE_SHAPE")
+        deleteme.append(bufferSurfaceSR)
+
+        arcpy.AddMessage("Viewshed of observers to surface...")
+        tempViewshed = os.path.join(scratch, "tempViewshed")
+        tempAGL = os.path.join(scratch, "tempAGL")
+        arcpy.env.mask = bufferSurfaceSR
+        saViewshed = sa.Viewshed(inputSurface,
+                                 observersSurfaceSR,
+                                 1.0,
+                                 "CURVED_EARTH",
+                                 0.13,
+                                 tempAGL)
+        saViewshed.save(tempViewshed)
+        deleteme.append(tempViewshed)
+        deleteme.append(tempAGL)
+
+        arcpy.AddMessage("Converting viewshed to polygon features...")
+        viewshedPolys = os.path.join(scratch, "viewshedPolys")
+        conversionField = "Gridcode"
+        simplifyShape = "SIMPLIFY"
+        arcpy.RasterToPolygon_conversion(tempViewshed,
+                                         viewshedPolys,
+                                         simplifyShape,
+                                         conversionField)
+        deleteme.append(viewshedPolys)
+
+        arcpy.AddMessage("Clipping polygons to max buffer...")
+        clippedPolys = os.path.join(scatch, "clippedPolys")
+        arcpy.Intersect_analysis([viewshedPolys, bufferSurfaceSR], clippedPolys, "NO_FID")
+        deleteme.append(clippedPolys)
+
+        arcpy.AddMessage("Projecting to output spatial reference...")
+        arcpy.Project_management(clippedPolys, outputVisibility, inputSpatialReference)
+        
+        arcpy.AddField_management(outputVisibility,
+                                  "VISIBILITY",
+                                  "LONG")
+        arcpy.CalculateField_management(outputVisibility,
+                                        "VISIBILITY",
+                                        '!{0}!'.format(conversionField),
+                                        "PYTHON_9.3")
+        dropFields = [conversionField, ]
+        arcpy.DeleteField_management(outputVisibility, dropFields)
+
+        return outputVisibility
+    
     except arcpy.ExecuteError:
         # Get the tool error messages
         msgs = arcpy.GetMessages()

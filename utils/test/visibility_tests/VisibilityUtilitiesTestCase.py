@@ -211,6 +211,34 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
                          len(resultNoAttacks),
                          "Expected {0} unique values, but got {1}.".format(expectedNoAttacks, resultNoAttacks))
 
+    def test__getCentroid_FromPoints(self):
+        '''
+        '''
+        runToolMessage = ".....VisibilityUtilityTestCase.test__getCentroid"
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        # make a featureclass of points
+        pntArray = arcpy.Array(arcpy.Point(0,0),
+                               arcpy.Point(0,2),
+                               arcpy.Point(2,0),
+                               arcpy.Point(2,2))
+        fc = arcpy.CreateFeatureclass_managment("in_memory", "fc",
+                                                "POINT", None,
+                                                "DISABLED", "DISABLED",
+                                                srWGS84)[0]
+        with arcpy.da.InsertCursor(fc, ["SHAPE@"]) as cursor:
+            for pnt in pntArray:
+                cursor.insertCursor([arcpy.PointGeometry(pnt)])
+        resultPoint = VisibilityUtilities._getCentroid(fc)
+        
+        
+    def test__getLocalWAZED(self):
+        '''
+        '''
+        runToolMessage = ".....VisibilityUtilityTestCase.test__getLocalWAZED"
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+
     # Test external methods
 
     def test_hi_lowPointByArea_lowest(self):
