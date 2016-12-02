@@ -329,21 +329,23 @@ def _getUniqueValuesFromField(inputTable, inputField):
 
 def _getCentroid(inputFeatures):
     '''
-    Gets the centroid of inputFeatures using Minimum Bounding Geometry's Rectange By Width option
+    Gets the centroid of Featureclass using Minimum Bounding Geometry's Rectange By Width option
+    returns a PointGeometry
     '''
     try:
-        centroidPoint = None
-        observerMBG = os.path.join(scratch, "observerMBG")
-        arcpy.MinimumBoundingGeometry_management(inputFeatures,
-                                                 observerMBG,
-                                                 "RECTANGLE_BY_WIDTH")
+        featureSR = arcpy.Describe(inputFeatures).spatialReference
+        #centroidPoint = None
+        observerMBG = os.path.join("in_memory", "observerMBG")
+        result = arcpy.MinimumBoundingGeometry_management(inputFeatures,
+                                                          observerMBG,
+                                                          "RECTANGLE_BY_WIDTH")
         deleteme.append(observerMBG)
         with arcpy.da.SearchCursor(observerMBG, ["SHAPE@"]) as cursor:
             for row in cursor:
-                plyCentroid = row[0].trueCentroid
-                centroidPoint = arcpy.PointGeometry(plyCentroid)
-                
+                plyCentroid = row[0].centroid
+                centroidPoint = arcpy.PointGeometry(plyCentroid, featureSR)
         return centroidPoint
+    
     except arcpy.ExecuteError:
         # Get the tool error messages
         msgs = arcpy.GetMessages()
@@ -369,15 +371,18 @@ def _getCentroid(inputFeatures):
 
 def _getLocalWAZED(inputPoint):
     '''
-    return a localized World Azimuthal Equidistant based on an input point
+    return a localized World Azimuthal Equidistant
+    Spatial Reference based on inputPoint as PointGeometry
     '''
     try:
-        if not inputPoint.spatialReference.type == "Geographic":
-            raise Exception("Input Point must be Geographic.")
+        arcpy.AddMessage(inputPoint)
+        # if not inputPoint.spatialReference.type == "Geographic":
+        #     arcpy.AddWarning("Input point must be Geographic. Projecting to GCS_WGS_1984...")
+        #     inputPoint = inputPoint.projectAs(srWGS1984)
         newSR = arcpy.SpatialReference()
-        arcpy.AddMessage("inputPoint.spatialReference: {0}".format(inputPoint.spatialReference.name))
+        #arcpy.AddMessage("inputPoint.spatialReference: {0}".format(inputPoint.spatialReference.name))
         pntGeom = inputPoint.projectAs(srWGS84)
-        arcpy.AddMessage("pntGeom.spatialReference: {0}".format(pntGeom.spatialReference.name))
+        #arcpy.AddMessage("pntGeom.spatialReference: {0}".format(pntGeom.spatialReference.name))
         pnt = pntGeom.firstPoint
         strAZED = srWAZED.exportToString()
         arcpy.AddMessage("Using Central Meridian: {0}, and Latitude of Origin: {1}.".format(pnt.X, pnt.Y))
@@ -1022,22 +1027,23 @@ def radialLineOfSight(inputObserverFeatures,
 
         arcpy.AddMessage("Converting viewshed to polygon features...")
         viewshedPolys = os.path.join(scratch, "viewshedPolys")
+        rasterValueField = "Value"
         conversionField = "Gridcode"
         simplifyShape = "SIMPLIFY"
         arcpy.RasterToPolygon_conversion(tempViewshed,
                                          viewshedPolys,
                                          simplifyShape,
-                                         conversionField)
+                                         rasterValueField)
         deleteme.append(viewshedPolys)
 
         arcpy.AddMessage("Clipping polygons to max buffer...")
-        clippedPolys = os.path.join(scatch, "clippedPolys")
+        clippedPolys = os.path.join(scratch, "clippedPolys")
         arcpy.Intersect_analysis([viewshedPolys, bufferSurfaceSR], clippedPolys, "NO_FID")
         deleteme.append(clippedPolys)
 
         arcpy.AddMessage("Projecting to output spatial reference...")
         arcpy.Project_management(clippedPolys, outputVisibility, inputSpatialReference)
-        
+        arcpy.AddMessage("outputVisibility fields: {0}".format(_getFieldNameList(outputVisibility)))
         arcpy.AddField_management(outputVisibility,
                                   "VISIBILITY",
                                   "LONG")
@@ -1045,7 +1051,7 @@ def radialLineOfSight(inputObserverFeatures,
                                         "VISIBILITY",
                                         '!{0}!'.format(conversionField),
                                         "PYTHON_9.3")
-        dropFields = [conversionField, ]
+        dropFields = [conversionField, 'Id']
         arcpy.DeleteField_management(outputVisibility, dropFields)
 
         return outputVisibility

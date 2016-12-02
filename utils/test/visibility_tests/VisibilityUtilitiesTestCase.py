@@ -47,7 +47,7 @@ debug = True # extra messaging during development
 
 class VisibilityUtilitiesTestCase(unittest.TestCase):
     '''
-    '''
+    '''     
 
     def setUp(self):
         runToolMessage = ".....VisibilityUtilityTestCase.setup"
@@ -62,7 +62,8 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
             arcpy.CheckOutExtension("3D")
         else:
             raise Exception("3D license is not available.")
-        
+        self.srWGS84 = arcpy.SpatialReference(4326) # GCS_WGS_1984
+        self.srWAZED = arcpy.SpatialReference(54032) # World Azimuthal Equidistant    
         self.inputArea = os.path.join(Configuration.militaryInputDataGDB, "AreaofInterest")
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
         self.inputSigActsTable = os.path.join(Configuration.militaryInputDataGDB, "SigActs")
@@ -213,24 +214,44 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
 
     def test__getCentroid_FromPoints(self):
         '''
+        Testing _getCentroid from point feature class with 4 points.
         '''
         runToolMessage = ".....VisibilityUtilityTestCase.test__getCentroid"
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         # make a featureclass of points
-        pntArray = arcpy.Array(arcpy.Point(0,0),
+        pntArray = arcpy.Array([arcpy.Point(0,0),
                                arcpy.Point(0,2),
                                arcpy.Point(2,0),
-                               arcpy.Point(2,2))
-        fc = arcpy.CreateFeatureclass_managment("in_memory", "fc",
-                                                "POINT", None,
-                                                "DISABLED", "DISABLED",
-                                                srWGS84)[0]
+                               arcpy.Point(2,2)])
+        fc = arcpy.CreateFeatureclass_management("in_memory", "fc",
+                                                 "POINT", None,
+                                                 "DISABLED", "DISABLED",
+                                                 self.srWGS84)[0]
         with arcpy.da.InsertCursor(fc, ["SHAPE@"]) as cursor:
             for pnt in pntArray:
-                cursor.insertCursor([arcpy.PointGeometry(pnt)])
-        resultPoint = VisibilityUtilities._getCentroid(fc)
+                cursor.insertRow([arcpy.PointGeometry(pnt)])
+        resultPoint = VisibilityUtilities._getCentroid(fc).firstPoint
         
+        # determine centroid of X and Y coordinate sets
+        pX, pY, count = 0, 0, 0
+        for p in pntArray:
+            pX += p.X
+            pY += p.Y
+            count += 1
+        cX = float(pX)/float(count)
+        cY = float(pY)/float(count)
+        comparePoint = arcpy.Point(cX, cY)
+        
+        arcpy.AddMessage("comparePoint.X: {0}".format(comparePoint.X))
+        arcpy.AddMessage(comparePoint.X)
+        arcpy.AddMessage("resultPoint.X: {0}".format(resultPoint.X))
+        arcpy.AddMessage(resultPoint.X)
+        arcpy.AddMessage("comparePoint.X is resultPoint.X: {0}".format(comparePoint.X is resultPoint.X))
+        arcpy.AddMessage("comparePoint.X == resultPoint.X: {0}".format(comparePoint.X == resultPoint.X))
+        
+        self.assertEqual(comparePoint.X, resultPoint.X, "Unexpected centroid X. Expected {0}, but got {1}".format(comparePoint.X, resultPoint.X))
+        self.assertEqual(comparePoint.Y, resultPoint.Y, "Unexpected centroid Y. Expected {0}, but got {1}".format(comparePoint.Y, resultPoint.Y))
         
     def test__getLocalWAZED(self):
         '''
@@ -238,6 +259,15 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         runToolMessage = ".....VisibilityUtilityTestCase.test__getLocalWAZED"
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
+        testInputPoint = arcpy.PointGeometry(arcpy.Point(-11.13, 14.87), self.srWGS84)
+        resultSR = VisibilityUtilities._getLocalWAZED(testInputPoint)
+        # arcpy.AddMessage("======================")
+        # arcpy.AddMessage(resultSR.exportToString())
+        # arcpy.AddMessage("======================")
+        # arcpy.AddMessage(self.srWAZED.exportToString())
+        # arcpy.AddMessage("======================")
+        self.assertIs(resultSR, self.srWAZED, "Compare Spatial References with is failed.")
+                
 
     # Test external methods
 
@@ -296,6 +326,8 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         expectedLocalPeaks = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputFindLocalPeaks")
         compareResults = arcpy.FeatureCompare_management(resultPoints, expectedLocalPeaks, "OBJECTID").getOutput(1)
         self.assertEqual(compareResults, "true", "Feature Compare failed: \n %s" % arcpy.GetMessages())
+
+    
     
     # def test_addLLOSFields001(self):
     #     '''
