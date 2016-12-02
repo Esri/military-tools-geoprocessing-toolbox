@@ -268,6 +268,9 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         # arcpy.AddMessage("======================")
         self.assertIs(resultSR, self.srWAZED, "Compare Spatial References with is failed.")
                 
+    def test__prepPointFromSurface(self):
+        '''
+        '''
 
     # Test external methods
 

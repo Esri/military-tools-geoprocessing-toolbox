@@ -375,14 +375,8 @@ def _getLocalWAZED(inputPoint):
     Spatial Reference based on inputPoint as PointGeometry
     '''
     try:
-        arcpy.AddMessage(inputPoint)
-        # if not inputPoint.spatialReference.type == "Geographic":
-        #     arcpy.AddWarning("Input point must be Geographic. Projecting to GCS_WGS_1984...")
-        #     inputPoint = inputPoint.projectAs(srWGS1984)
         newSR = arcpy.SpatialReference()
-        #arcpy.AddMessage("inputPoint.spatialReference: {0}".format(inputPoint.spatialReference.name))
         pntGeom = inputPoint.projectAs(srWGS84)
-        #arcpy.AddMessage("pntGeom.spatialReference: {0}".format(pntGeom.spatialReference.name))
         pnt = pntGeom.firstPoint
         strAZED = srWAZED.exportToString()
         arcpy.AddMessage("Using Central Meridian: {0}, and Latitude of Origin: {1}.".format(pnt.X, pnt.Y))
@@ -417,7 +411,55 @@ def _getLocalWAZED(inputPoint):
         # Print Python error messages for use in Python / Python Window
         print(pymsg + "\n")
         print(msgs)
-   
+
+def _prepPointFromSurface(inputPoints, inputSurface, outputPoints, offsetFieldName):
+    '''
+    Adds attributes and SPOT and makes 3D Points
+    '''
+    try:
+        if debug: arcpy.AddMessage("Adding surface info for {0}".format(inputPoints))
+        zFieldName = "Z"
+        spotFieldName = "SPOT"
+        # get Z from surface for points
+        arcpy.AddSurfaceInformation_3d(inputPoints,
+                                       inputSurface,
+                                       zFieldName,
+                                       "BILINEAR")
+        inputPoints = _addDoubleField(inputPoints,
+                                      spotFieldName)
+        # calculate SPOT = Z + OFFSET
+        arcpy.CalculateField_management(inputPoints,
+                                        spotFieldName,
+                                        "!{0}! + !{1}!".format(zFieldName, offsetFieldName))
+        
+        # Make 3D point from SPOT
+        arcpy.FeatureTo3DByAttribute(inputPoints,
+                                     outputPoints,
+                                     spotFieldName)
+        
+        return outputPoints
+    except arcpy.ExecuteError:
+        # Get the tool error messages
+        msgs = arcpy.GetMessages()
+        arcpy.AddError(msgs)
+        print(msgs)
+
+    except:
+        # Get the traceback object
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+
+        # Return python error messages for use in script tool or Python Window
+        arcpy.AddError(pymsg)
+        arcpy.AddError(msgs)
+
+        # Print Python error messages for use in Python / Python Window
+        print(pymsg + "\n")
+        print(msgs) 
 
 #TODO: _isValidLLOS()
 #TODO: _getImageFileName()
@@ -823,8 +865,18 @@ def findLocalPeaks(inputAreaFeature,
                     arcpy.Delete_management(i)
             if debug == True: arcpy.AddMessage("Done")
 
-def linearLineOfSight():
+def linearLineOfSight(inputObserverFeatures,
+                      inputObserverHeight,
+                      inputTargetFeatures,
+                      inputTargetHeight,
+                      inputSurface,
+                      outputLineOfSight,
+                      outputSightLines,
+                      outputObservers,
+                      outputTargets,
+                      inputObstructionFeatures):
     '''
+    
     '''
     global scratch
     try:
@@ -834,14 +886,147 @@ def linearLineOfSight():
         else:
             raise Exception("Spatial Analyst license is not available.")
         from arcpy import sa
+        if arcpy.CheckoutExtension("3D") == "Available":
+            arcpy.CheckOutExtension("3D")
+        else:
+            raise Exception("3D Analyst license is not available.")
         
         if arcpy.env.scratchWorkspace:
             scratch = arcpy.env.scratchWorkspace
         else:
             scratch = r"%scratchGDB%"
+        
+        #get spatial reference of surface
+        srSurface = arcpy.Describe(inputSurface).spatialReference
+        offsetFieldName = "OFFSET"
+        #Check if Observers have "OFFSET" field
+        hasObsOffset, hasTgtOffset = True, True
+        inputObsFields = _getFieldNameList(inputObserverFeatures)
+        if not offsetFieldName in inputObsFields:
+            arcpy.AddMessage("OFFSET field not in Observers. Using Observer Height Above Surface value of {0}".format(inputObserverHeight))
+            hasObsOffset = False
+        #Check if Targets have "OFFSET" field
+        inputTgtFields = _getFieldNameList(inputTargetFeatures)
+        if not offsetFieldName in inputTgtFields:
+            arcpy.AddMessage("OFFSET field not in Targetss. Using Target Height Above Surface value of {0}".format(inputTargetHeight))
+            hasTgtOffset = False
+        
+        #Project Observers and add fields if needed
+        arcpy.AddMessage("Projecting Observers and Targets to Input Surface spatial reference {0}".format(srSurface.name))
+        prjObservers = os.path.join(scratch, "prjObservers")
+        arcpy.Project_management(inputObserverFeatures,
+                                 prjObservers,
+                                 srSurface)
+        deleteme.append(prjObservers)
+        if not hasObsOffset:
+            prjObservers = _addDoubleField(prjObservers,
+                                           {offsetFieldName:[inputObserverHeight, "Offset above surface"]})
+            prjObservers = _calculateFieldValue(prjObservers,
+                                                offsetFieldName,
+                                                inputObserverHeight)
+        #Project targets and add fields
+        prjTargets = os.path.join(scratch, "prjTargets")
+        arcpy.Project_management(inputTargetFeatures,
+                                 prjTargets,
+                                 srSurface)
+        deleteme.append(prjTargets)
+        if not hasTgtOffset:
+            prjTargets = _addDoubleField(prjTargets,
+                                         {offsetFieldName:[inputTargetHeight, "Offset above surface"]})
+            prjTargets = _calculateFieldValue(prjTargets,
+                                              offsetFieldName,
+                                              inputTargetHeight)
 
+        #Get elevation of Observers and Targets over surface
+        dddObservers = os.path.join(scratch, "dddObservers")
+        arcpy.AddMessage("Building 3D observer points...")
+        dddObservers = _prepPointFromSurface(prjObservers,
+                                             inputSurface,
+                                             dddObservers,
+                                             offsetFieldName)
+        deleteme.append(dddObservers)
+        dddTargets = os.path.join(scratch,"dddTargets")
+        arcpy.AddMessage("Building 3D target points...")
+        dddTargets = _prepPointFromSurface(prjTargets,
+                                           inputSurface,
+                                           dddTargets,
+                                           offsetFieldName)
+        deleteme.append(dddTargets)
+        
+        
+        #Construct Sight Lines
+        arcpy.AddMessage("Constructing Sight Lines between observers and targets...")
+        dddSightLines = os.path.join(scratch, "dddSightLines")
+        arcpy.ConstructSightLines_3d(dddObservers,
+                                     dddTargets,
+                                     dddSightLines,
+                                     Shape.Z,
+                                     Shape.Z,
+                                     None,
+                                     None,
+                                     "OUTPUT_THE_DIRECTION")
+        deleteme.append(dddSightLines)
+        
+        #TODO: use Intervisibility_3d to determine obstructions from other data types?
+        
+        #Build MBR, set as mask
+        arcpy.AddMessage("Building minimum bounding rectangle of sight lines for analysis mask...")
+        mbrSightLines = os.path.join(scratch, "mbrSightLines")
+        arcpy.MinimumBoundingGeometry_management(dddSightLines,
+                                                 mbrSightLines,
+                                                 "RECTANGLE_BY_WIDTH")
+        
+        #Line Of Sight
+        arcpy.AddMessage("Building Line Of Sight...")
+        arcpy.env.mask = mbrSightLines
+        llosObstructionPoints = os.path.join(scratch, "llosObstructionPoints")
+        llosResults = os.path.join(scratch, "llosResults")
+        arcpy.LineOfSight_3d(inputSurface,
+                             dddSightLines,
+                             outputLineOfSight,
+                             llosObstructionPoints,
+                             "CURVATURE",
+                             "REFRACTION",
+                             None,
+                             None,
+                             inputObstructionFeatures)
+        deleteme.append(llosObstructionPoints)
+        deleteme.append(llosResults)
+        
+        arcpy.AddMessage("Joining Sight Lines attributes to Line Of Sight results...")
+        arcpy.JoinFields_management(llosResults,
+                                    "SourceOID",
+                                    dddSightLines,
+                                    "OID",
+                                    ["OID_OBSERV",
+                                     "OID_TARGET",
+                                     "DIST_ALONG",
+                                     "AZIMUTH"])
+        arcpy.JoinFields_management(dddSightLines,
+                                    "OID",
+                                    llosResults,
+                                    "SourceOID",
+                                    ["TarIsVis"])
+        
+        #TODO: Get target visibility for each target, add to Observers and Targets and Sight Lines
+        #SourceOID - ObjectID from dddSightLines for each Line Of Sight
+        #VisCode - visiblity along the line 1=visible, 2=not_visible
+        #TarIsVis - Is target visible to observer? 1=visible, 0=not_visible
+        
+        #TODO: Get target visiblity count stats on targets
+        
+        #TODO: Build profile graphs for each Line Of Sight
 
-        return
+        #drop fields
+        #arcpy.DeleteFields_management(outputLineOfSight, [])
+        #arcpy.DeleteFields_management(outputSightLines, [])
+        #arcpy.DeleteFields_management(outputObservers, [])
+        #arcpy.DeleteFields_management(outputTargets, [])
+
+        return [outputLineOfSight,
+                outputSightLines,
+                outputObservers,
+                outputTargets]
     except arcpy.ExecuteError:
         # Get the tool error messages
         msgs = arcpy.GetMessages()
@@ -917,38 +1102,15 @@ def radialLineOfSight(inputObserverFeatures,
         hasOFFSETA = True
         observerFieldList = _getFieldNameList(inputObserverFeatures)
         if not "RADIUS2" in observerFieldList:
-            arcpy.AddMessage("RADIUS2 field not in {0}. Using Radius Of Observer {1}".format(os.path.basename(inputObserverFeatures), inputRadiusOfObserver))
+            arcpy.AddMessage("RADIUS2 field not in Input Observer Features. Using Radius Of Observer {0}".format(inputRadiusOfObserver))
             hasRADIUS2 = False
         else:
             inputRadiusOfObserver = _getUniqueValuesFromField(inputObserverFeatures,
                                                               "RADIUS2")[:1]
-            arcpy.AddMessage("RADIUS2 field in {0}. Using maximum radius of {1}".format(os.path.basename(inputObserverFeatures),inputRadiusOfObserver))
+            arcpy.AddMessage("RADIUS2 field in Input Observer Features. Using maximum radius of {0}".format(inputRadiusOfObserver))
         if not "OFFSETA" in observerFieldList:
-            arcpy.AddMessage("OFFSETA field not in {0}. Using Observer Height Above Surface {1}".format(os.path.basename(inputObserverFeatures), inputObserverHeight))
+            arcpy.AddMessage("OFFSETA field not in Input Observer Features. Using Observer Height Above Surface {0}".format(inputObserverHeight))
             hasOFFSETA = False
-        
-        
-        # if RADIUS2_to_infinity is True:
-        #     ''' if going to infinity what we really need is the distance to the horizon
-        #     based on height/elevation'''
-        #     arcpy.AddMessage("Finding horizon distance ...")
-        #     result = arcpy.GetCellValue_management(input_surface,
-        #                                            str(mbgCenterX) + " " +
-        #                                            str(mbgCenterY))
-        #     centroid_elev = result.getOutput(0)
-        #     R2 = float(centroid_elev) + float(maxOffset)
-        #     # length, in meters, of semimajor axis of WGS_1984 spheroid.
-        #     R = 6378137.0
-        #     horizonDistance = math.sqrt(math.pow((R + R2), 2) - math.pow(R, 2))
-        #     arcpy.AddMessage(str(horizonDistance) + " meters.")
-        #     horizonExtent = (str(mbgCenterX - horizonDistance) + " " +
-        #                      str(mbgCenterY - horizonDistance) + " " +
-        #                      str(mbgCenterX + horizonDistance) + " " +
-        #                      str(mbgCenterY + horizonDistance))
-        #     # since we are doing infinity we can drop the RADIUS2 field
-        #     arcpy.AddMessage("Analysis to edge of surface, dropping RADIUS2 field ...")
-        #     arcpy.DeleteField_management(observers, "RADIUS2")
-        
         
         #get number of observers:
         numberOfObservers = int(arcpy.GetCount_management(inputObserverFeatures).getOutput(0))
@@ -976,6 +1138,30 @@ def radialLineOfSight(inputObserverFeatures,
         if not hasOFFSETA:
             tempObservers = _addDoubleField(tempObservers, {"OFFSETA":[inputObserverHeight, "OFFSETA"]})
             tempObservers = _calculateFieldValue(tempObservers, "OFFSETA", inputObserverHeight)
+        
+        if inputForceVisibility:
+            '''
+            if going to infinity what we really need is the distance to the horizon
+            based on height/elevation
+            '''
+            arcpy.AddWarning("Force Visibility To Infinity is not implemented at this time.")
+            # arcpy.AddMessage("Finding horizon distance ...")
+            # result = arcpy.GetCellValue_management(input_surface,
+            #                                        str(ddCentroidPoint.firstPoint.X) + " " +
+            #                                        str(ddCentroidPoint.firstPoint.Y))
+            # centroid_elev = result.getOutput(0)
+            # R2 = float(centroid_elev) + float(maxOffset)
+            # # length, in meters, of semimajor axis of WGS_1984 spheroid.
+            # R = 6378137.0
+            # horizonDistance = math.sqrt(math.pow((R + R2), 2) - math.pow(R, 2))
+            # arcpy.AddMessage(str(horizonDistance) + " meters.")
+            # horizonExtent = (str(mbgCenterX - horizonDistance) + " " +
+            #                  str(mbgCenterY - horizonDistance) + " " +
+            #                  str(mbgCenterX + horizonDistance) + " " +
+            #                  str(mbgCenterY + horizonDistance))
+            # # since we are doing infinity we can drop the RADIUS2 field
+            # arcpy.AddMessage("Analysis to edge of surface, dropping RADIUS2 field ...")
+            # arcpy.DeleteField_management(observers, "RADIUS2")
         
         #Buffer observers
         bufferObservers = os.path.join(scratch, "bufferObservers")
@@ -1011,7 +1197,7 @@ def radialLineOfSight(inputObserverFeatures,
                                  "PRESERVE_SHAPE")
         deleteme.append(bufferSurfaceSR)
 
-        arcpy.AddMessage("Viewshed of observers to surface...")
+        arcpy.AddMessage("Building viewshed of observers to surface...")
         tempViewshed = os.path.join(scratch, "tempViewshed")
         tempAGL = os.path.join(scratch, "tempAGL")
         arcpy.env.mask = bufferSurfaceSR
@@ -1043,7 +1229,6 @@ def radialLineOfSight(inputObserverFeatures,
 
         arcpy.AddMessage("Projecting to output spatial reference...")
         arcpy.Project_management(clippedPolys, outputVisibility, inputSpatialReference)
-        arcpy.AddMessage("outputVisibility fields: {0}".format(_getFieldNameList(outputVisibility)))
         arcpy.AddField_management(outputVisibility,
                                   "VISIBILITY",
                                   "LONG")
