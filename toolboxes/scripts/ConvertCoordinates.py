@@ -78,7 +78,7 @@ def addUniqueID(dataset, fieldName):
 def addNotation(notationType, fieldsToAdd, joinFieldName, outputTable, scratchTable):
     ''' '''
     try:
-        arcpy.AddMessage("Converting & appending %s ..." % notationType)
+        arcpy.AddMessage("Converting & appending {0} with fields {1} ...".format(notationType, fieldsToAdd))
         arcpy.ConvertCoordinateNotation_management(outputTable,
                                                    scratchTable,
                                                    inputXField,
@@ -90,6 +90,7 @@ def addNotation(notationType, fieldsToAdd, joinFieldName, outputTable, scratchTa
         arcpy.JoinField_management(outputTable, joinFieldName,
                                    scratchTable, joinFieldName,
                                    fieldsToAdd)
+            
         return True
     except arcpy.ExecuteError:
         error = True
@@ -151,8 +152,8 @@ def convertCoordinates(inputTable,
         # {"format":"field_name(s)", ...}
         notationsToAdd = {"DD":"DDLat; DDLon",
                           "DDM":"DDMLat; DDMLon",
-                          "DMS":"DMS",
-                          "UTM":"UTM",
+                          "DMS":"DMSLat; DMSLon",
+                          "UTM_BANDS":"UTM_BANDS",
                           "MGRS":"MGRS",
                           "USNG":"USNG",
                           "GARS":"GARS",
@@ -161,7 +162,7 @@ def convertCoordinates(inputTable,
         for notationFormat in notationsToAdd:
             if not addNotation(notationFormat, notationsToAdd[notationFormat],
                                joinFieldName, outputTable, scratchTable):
-                raise
+                raise Exception("Failed to convert notation {0}.".format(notationFormat))
     
         # cleanup
         arcpy.AddMessage("Removing scratch datasets...")
