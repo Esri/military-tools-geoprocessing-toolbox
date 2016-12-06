@@ -1223,6 +1223,16 @@ def linearLineOfSight(inputObserverFeatures,
                                     ["TarIsVis",
                                      "OID_OBSERV",
                                      "OID_TARGET"])
+        arcpy.JoinField_management(outputLineOfSight,
+                                   "OID_OBSERVE",
+                                   dddObservers,
+                                   arcpy.Describe(dddObservers).oidFieldName,
+                                   ["ObsSPOT"])
+        arcpy.JoinField_management(outputLineOfSight,
+                                   "OID_TARGET",
+                                   dddTargets,
+                                   arcpy.Describe(dddTargets).oidFieldName,
+                                   ["TgtSPOT"])
 
         #TODO: Get target visibility for each target, add to Observers and Targets and Sight Lines
         #SourceOID - ObjectID from dddSightLines for each Line Of Sight
