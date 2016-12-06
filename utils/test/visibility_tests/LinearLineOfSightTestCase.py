@@ -80,17 +80,22 @@ class LinearLineOfSightTestCase(unittest.TestCase):
         arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
-        arcpy.LinearLineOfSight_mt(self.observers, 2.0,
-                                   self.targets, 0.0,
+        
+        arcpy.LinearLineOfSight_mt(self.observers,
+                                   2.0,
+                                   self.targets,
+                                   0.0,
                                    self.inputSurface,
                                    self.outputLOS,
                                    self.outputSightLines,
                                    self.outputObservers,
                                    self.outputTargets)
+        
         self.assertTrue(arcpy.Exists(self.outputLOS), "Output LOS does not exist or was not created")
         self.assertTrue(arcpy.Exists(self.outputSightLines), "Output Sight Lines to not exist or were not created")
         self.assertTrue(arcpy.Exists(self.outputObservers), "Output Observers do not exist or were not created")
         self.assertTrue(arcpy.Exists(self.outputTargets), "Output Targets do not exist or were not created")
+        
         featureCount = int(arcpy.GetCount_management(self.outputLOS).getOutput(0))
         expectedFeatures = int(32)
         self.assertEqual(featureCount, expectedFeatures, "Expected %s features but got %s" % (str(expectedFeatures), str(featureCount)))
@@ -116,8 +121,10 @@ class LinearLineOfSightTestCase(unittest.TestCase):
         arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
-        arcpy.LinearLineOfSight_mt(self.observers, 2.0,
-                                   self.targets, 0.0,
+        arcpy.LinearLineOfSight_mt(self.observers,
+                                   2.0,
+                                   self.targets,
+                                   0.0,
                                    self.inputSurface,
                                    self.outputLOS,
                                    self.outputSightLines,

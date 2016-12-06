@@ -37,7 +37,7 @@ from arcpy import env
 import unittest
 import UnitTestUtilities
 import Configuration
-import VisibilityUtilities
+from . import VisibilityUtilities
 
 # LOCALS ===========================================
 deleteIntermediateData = [] # intermediate datasets to be deleted
@@ -266,7 +266,7 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         # arcpy.AddMessage("======================")
         # arcpy.AddMessage(self.srWAZED.exportToString())
         # arcpy.AddMessage("======================")
-        self.assertIs(resultSR, self.srWAZED, "Compare Spatial References with is failed.")
+        self.assertIs(resultSR, self.srWAZED, "Compare expected Spatial Reference {0} with result {1} failed.".format(self.srWAZED, resultSR))
                 
     def test__prepPointFromSurface(self):
         '''
@@ -320,7 +320,7 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         resultPoints = os.path.join(Configuration.militaryScratchGDB, "findLocalPeaks")
-        numPoints = 10
+        numPoints = 16
         resultPoints = VisibilityUtilities.findLocalPeaks(self.inputArea,
                                                           numPoints,
                                                           self.inputSurface,

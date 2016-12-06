@@ -76,9 +76,9 @@ def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
         env.overwriteOutput = True
         #Create output Poly FC
         sr = arcpy.Describe(inputPolylines).spatialReference
-        if debug:
-            arcpy.AddMessage("Spatial reference is " + str(sr.name))
-            arcpy.AddMessage("Creating output feature class...")
+        # if debug:
+        #     arcpy.AddMessage("Spatial reference is " + str(sr.name))
+        #     arcpy.AddMessage("Creating output feature class...")
         outpolygonsFC = arcpy.CreateFeatureclass_management(os.path.dirname(outputPolygons),
                                                             os.path.basename(outputPolygons),
                                                             "POLYGON",
@@ -109,8 +109,8 @@ def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
             if inputIDFieldName:
                 inID = row[1]
     
-            if debug:
-                arcpy.AddMessage("Building points from lines.")
+            # if debug:
+            #     arcpy.AddMessage("Building points from lines.")
             #Build array of points for the line
             polyArray = arcpy.Array()
             partnum = 0
@@ -119,8 +119,8 @@ def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
                     polyArray.add(arcpy.Point(pnt.X, pnt.Y))
                 partnum += 1
     
-            if debug:
-                arcpy.AddMessage("Creating polygon from points.")
+            # if debug:
+            #     arcpy.AddMessage("Creating polygon from points.")
             #convert the array to a polygon, and insert the features
             outPoly = arcpy.Polygon(polyArray)
             if inputIDFieldName:
@@ -390,7 +390,7 @@ def tableTo2PointLine(inputTable,
         env.overwriteOutput = True
         
         deleteme = []
-        scratch = 'in_memory'
+        scratch = '%scratchGDB%'
         
         joinFieldName = "JoinID"
         startXFieldName = "startX"
@@ -556,7 +556,7 @@ def tableToEllipse(inputTable,
     '''
     try:
         deleteme = []
-        scratch = 'in_memory'
+        scratch = '%scratchGDB%'
         joinFieldName = "JoinID"
         
         if env.scratchWorkspace:
@@ -705,7 +705,7 @@ def tableToLineOfBearing(inputTable,
     try:
         deleteme = []
         joinFieldName = "JoinID"
-        scratch = 'in_memory'
+        scratch = '%scratchGDB%'
         if env.scratchWorkspace:
             scratch = env.scratchWorkspace
             
@@ -819,7 +819,7 @@ def tableToPoint(inputTable,
     try:
         
         deleteme = []
-        scratch = 'in_memory'
+        scratch = '%scratchGDB%'
         if env.scratchWorkspace:
             scratch = env.scratchWorkspace
             
@@ -906,7 +906,7 @@ def tableToPolygon(inputTable,
     '''
     try:
         deleteme = []
-        scratch = 'in_memory'
+        scratch = '%scratchGDB%'
         if env.scratchWorkspace:
             scratch = env.scratchWorkspace
             
@@ -1008,7 +1008,7 @@ def tableToPolyline(inputTable,
     try:
         deleteme = []
         joinFieldName = "JoinID"
-        scratch = 'in_memory'
+        scratch = '%scratchGDB%'
         if env.scratchWorkspace:
             scratch = env.scratchWorkspace
             
