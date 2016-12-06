@@ -552,7 +552,7 @@ def makeProfileGraph(inputFeatures):
                             segment = [visibilityCode,partD,partZ]
                             #if debug == True: arcpy.AddMessage("\nsegment: " + str(segment) + "\n")
                         partNum += 1
-                        if debug == True: arcpy.AddMessage("Adding segment to segment list ...")
+                        #if debug == True: arcpy.AddMessage("Adding segment to segment list ...")
                         segmentList.append(segment)
                     line += 1
             #del rows
@@ -613,7 +613,7 @@ def makeProfileGraph(inputFeatures):
                 
                 # save the graph to a PNG file in the scratch folder
                 graphPath = os.path.join(scratchFolder,r"profile" + str(llosID) + r".png")
-                if debug == True: arcpy.AddMessage("graphPath: " + str(graphPath))
+                #if debug == True: arcpy.AddMessage("graphPath: " + str(graphPath))
                 pylab.savefig(graphPath, dpi=900)
                 pylab.cla() # clear the graph???
                 
@@ -1224,7 +1224,7 @@ def linearLineOfSight(inputObserverFeatures,
                                      "OID_OBSERV",
                                      "OID_TARGET"])
         arcpy.JoinField_management(outputLineOfSight,
-                                   "OID_OBSERVE",
+                                   "OID_OBSERV",
                                    dddObservers,
                                    arcpy.Describe(dddObservers).oidFieldName,
                                    ["ObsSPOT"])
