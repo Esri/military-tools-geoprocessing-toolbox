@@ -1,11 +1,14 @@
-=================================================  
+﻿=================================================  
  Data credits for: military-tools-geoprocessing-toolbox
  Data credit file created on: 04/18/2016  
+ Data credit file updated on: 12/062016
+  -added single field data csv test data
 =================================================  
 Data included in this download: 
 
 All data in this download is fictional data except for the data that has been downloaded from USGS, which is found in the source folder. In the text below refers to the URL where the data restrictions can be found for the elevation datasets. 
 
+CSV: Esri, Inc.
 Source Folder: 
 Data restrictions can be found in the following URL:
 https://lta.cr.usgs.gov/sites/default/files/Data%20Citation_1.pdf
