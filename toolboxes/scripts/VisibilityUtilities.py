@@ -471,9 +471,11 @@ def makeProfileGraph(inputFeatures):
     
     scratchFolder = arcpy.env.scratchFolder
     srInput = arcpy.Describe(inputFeatures).spatialReference
+    addProfileGraphToSurfaceLine = True
 
     try:
-        rawLOS = {} 
+        rawLOS = {}
+        profileGraphName = "profile"
         # Current: {<SourceOID> : [<TarIsVis>, [<observerD=0.0>,<observerZ>],
         #                                      [<targetD>,<targetZ>],
         #                                      [<segmentList>]]]}
@@ -491,15 +493,15 @@ def makeProfileGraph(inputFeatures):
                     sightLineIDs.append(thisID)
         #del rows
         #if debug == True: arcpy.AddMessage("sightLineIDs list: " + str(sightLineIDs))
-        arcpy.AddMessage("Found " + str(len(sightLineIDs)) + " unique sight line IDs ...")
+        arcpy.AddMessage("Found {0} unique sight line IDs ...".format(len(sightLineIDs)))
         
-        arcpy.AddField_management(inputFeatures,"pngname","TEXT")
+        arcpy.AddField_management(inputFeatures,profileGraphName,"TEXT")
         expression = '"profile" + str(!SourceOID!)'
-        arcpy.CalculateField_management(inputFeatures,"pngname",expression, "PYTHON")
+        arcpy.CalculateField_management(inputFeatures,profileGraphName,expression, "PYTHON")
         
         # get visible and non-visible lines for each LLOS
         for currentID in sightLineIDs:
-            whereclause = (""""SourceOID" = %s""" % currentID)
+            whereclause = ('"SourceOID" = {0}'.format(currentID))
             tarIsViz = None
             cursorFields = ["OID@","SHAPE@", "SourceOID", "TarIsVis","VisCode","ObsSPOT","TgtSPOT","OID_OBSERV","OID_TARGET"]
             with arcpy.da.SearchCursor(inputFeatures, cursorFields,whereclause) as rows:
@@ -509,7 +511,6 @@ def makeProfileGraph(inputFeatures):
                 line = 0
                 segmentList = []
                 for row in rows:
-                    
                     oid = row[0]
                     geometry = row[1]
                     sourceOID = row[2]
@@ -520,13 +521,11 @@ def makeProfileGraph(inputFeatures):
                     tgtZ = row[6]
                     obsID = row[7]
                     tgtID = row[8]
-                    
                     partNum = 0
                     point = 0
                     partCount = geometry.partCount
                     #if debug == True: arcpy.AddMessage("OID: " + str(oid))
                     # go through parts in the line
-                    
                     for part in geometry:
                         #if debug == True: arcpy.AddMessage("Line: " + str(line) + " Part: " + str(partNum) + " PointCount: " + str(len(part)))
                         segment = []
@@ -557,7 +556,6 @@ def makeProfileGraph(inputFeatures):
                     line += 1
             #del rows
             rawLOS[currentID] = [targetIsViz,[obsD,obsZ,obsID],[tgtD,tgtZ,tgtID],segmentList]
-            
         #if debug == True: arcpy.AddMessage("rawLOS: " + str(rawLOS))
         
         # build a graph for each LLOS
@@ -587,32 +585,35 @@ def makeProfileGraph(inputFeatures):
                 # plot the visible profile
                 for segment in segmentList:
                     if segment[0] == 1 and len(segment[1]) != 0: # for visible segments - plot in green
-                        pylab.plot(segment[1],segment[2],'g',linewidth=1)
+                        segmentVizColor = 'g'
                     if segment[0] == 2 and len(segment[1]) != 0: # for non-visible segments - plot in red
-                        pylab.plot(segment[1],segment[2],'r',linewidth=1)
-                
+                        segmentVizColor = 'r'
+                    pylab.plot(segment[1], segment[2], segmentVizColor, linewidth=1)
+                    
                 # plot observer
-                pylab.plot(obsD, obsZ, 'bo')
+                blueFilledCircle = 'bo'
+                greenFilledCircle = 'go'
+                redFilledCircle = 'ro'
+                pylab.plot(obsD, obsZ, blueFilledCircle)
                 # plot target
                 if targetVisibility == 1:
-                    targetSymbol = 'go'
+                    targetSymbol = greenFilledCircle
                 else:
-                    targetSymbol = 'ro'
+                    targetSymbol = redFilledCircle
                 pylab.plot(tgtD, tgtZ, targetSymbol)
                 
-                    
                 # titles & labels
                 if (targetVisibility == 1):
-                    pylab.title("Target " + str(tgtID) + " is VISIBLE to observer " + str(obsID))
+                    targetVisibilityMsg = "VISIBLE"
                 else:
-                    pylab.title("Target " + str(tgtID) + " is NOT VISIBLE to observer " + str(obsID))
-                    
+                    targetVisibilityMsg = "NOT VISIBLE"
+                pylab.title("Target {0} is {1} to observer {2}".format(tgtID, targetVisibilityMsg, obsID))
                 pylab.ylabel("Elevation above sea level")
                 pylab.xlabel("Distance to target ({0})".format(srInput.linearUnitName))
                 pylab.grid(True)
                 
                 # save the graph to a PNG file in the scratch folder
-                graphPath = os.path.join(scratchFolder,r"profile" + str(llosID) + r".png")
+                graphPath = os.path.join(scratchFolder, "profile{0}.png".format(llosID))
                 #if debug == True: arcpy.AddMessage("graphPath: " + str(graphPath))
                 pylab.savefig(graphPath, dpi=900)
                 pylab.cla() # clear the graph???
@@ -627,7 +628,7 @@ def makeProfileGraph(inputFeatures):
         matchTable = os.path.join(scratch,"matchTable")
         deleteme.append(matchTable)
         arcpy.AddMessage("Building match table ...")
-        arcpy.GenerateAttachmentMatchTable_management(inputFeatures,scratchFolder,matchTable,"pngname","*.png","ABSOLUTE")
+        arcpy.GenerateAttachmentMatchTable_management(inputFeatures,scratchFolder,matchTable,profileGraphName,"*.png","ABSOLUTE")
         
         arcpy.AddMessage("Attaching profile graphs to sightlines ...")
         inOIDField = arcpy.Describe(inputFeatures).OIDFieldName
@@ -1208,6 +1209,7 @@ def linearLineOfSight(inputObserverFeatures,
 
 
         arcpy.AddMessage("Joining attribute results...")
+        #join sightline attributes to surfaceline
         arcpy.JoinField_management(outputLineOfSight,
                                     "SourceOID",
                                     dddSightLines,
@@ -1216,6 +1218,7 @@ def linearLineOfSight(inputObserverFeatures,
                                      "OID_TARGET",
                                      "DIST_ALONG",
                                      "AZIMUTH"])
+        #join surfaceline attributes to sightline
         arcpy.JoinField_management(dddSightLines,
                                     "OID",
                                     outputLineOfSight,
@@ -1223,21 +1226,20 @@ def linearLineOfSight(inputObserverFeatures,
                                     ["TarIsVis",
                                      "OID_OBSERV",
                                      "OID_TARGET"])
+        #join observer spot field to surface line
         arcpy.JoinField_management(outputLineOfSight,
                                    "OID_OBSERV",
                                    dddObservers,
                                    arcpy.Describe(dddObservers).oidFieldName,
                                    ["ObsSPOT"])
+        #join target spot field to surface line
         arcpy.JoinField_management(outputLineOfSight,
                                    "OID_TARGET",
                                    dddTargets,
                                    arcpy.Describe(dddTargets).oidFieldName,
                                    ["TgtSPOT"])
 
-        #TODO: Get target visibility for each target, add to Observers and Targets and Sight Lines
-        #SourceOID - ObjectID from dddSightLines for each Line Of Sight
-        #VisCode - visibility along the line 1=visible, 2=not_visible
-        #TarIsVis - Is target visible to observer? 1=visible, 0=not_visible
+        #Get target visibility for each target, add to Observers and Targets and Sight Lines
         arcpy.AddMessage("Attributing output Observer features...")
         llosStartVertex = os.path.join(scratch, "llosStartVertex")
         arcpy.FeatureVerticesToPoints_management(dddSightLines,
@@ -1249,7 +1251,7 @@ def linearLineOfSight(inputObserverFeatures,
                                 outputObservers,
                                 "ALL")
 
-        #TODO: Get target visibility count stats on targets
+        #Get target visibility count stats on targets
         arcpy.AddMessage("Calculating frequency on Target features...")
         llosEndVertex = os.path.join(scratch, "llosEndVertex")
         arcpy.FeatureVerticesToPoints_management(dddSightLines,
@@ -1261,7 +1263,6 @@ def linearLineOfSight(inputObserverFeatures,
                                 "ALL")
         deleteme.append(llosEndVertex)
         arcpy.MakeFeatureLayer_management(outputTargets, "targetLayer")
-        #arcpy.AddMessage("targetLayer Fields: {0}".format(_getFieldNameList(outputTargets)))
         arcpy.SelectLayerByAttribute_management("targetLayer",
                                                 "NEW_SELECTION",
                                                 '''"TarIsVis" = 1''')
@@ -1282,19 +1283,28 @@ def linearLineOfSight(inputObserverFeatures,
         #copy outputs
         arcpy.CopyFeatures_management(dddSightLines,
                                       outputSightLines)
-        # arcpy.CopyFeatures_management(dddObservers,
-        #                               outputObservers)
 
-        #TODO: Build profile graphs for each Line Of Sight
-        arcpy.AddMessage("Building profile graph...")
-        makeProfileGraph(outputLineOfSight)
+        # Build profile graphs for each Line Of Sight
+        if addProfileGraphToSurfaceLine:
+            arcpy.AddMessage("Building profile graph...")
+            makeProfileGraph(outputLineOfSight)
 
         #drop fields
         #arcpy.DeleteField_management(outputLineOfSight, [])
-        #arcpy.DeleteField_management(outputSightLines, [])
-        arcpy.DeleteField_management(outputObservers, ["Height"])
-        arcpy.DeleteField_management(outputTargets, ["Height"])
-
+        arcpy.DeleteField_management(outputSightLines, ["OID_OBSERV_1",
+                                                        "OID_TARGET_1"])
+        arcpy.DeleteField_management(outputObservers, ["Height",
+                                                       "FID_llosStartVertex",
+                                                       "OID_OBSERV_1",
+                                                       "OID_TARGET_1",
+                                                       "ORIG_FID",
+                                                       "FID_dddObservers"])
+        arcpy.DeleteField_management(outputTargets, ["Height",
+                                                     "ORIG_FID",
+                                                     "OID_OBSERV_1",
+                                                     "OID_TARGET_1",
+                                                     "FID_llosEndVertex",
+                                                     "FID_dddTargets"])
 
         return [outputLineOfSight,
                 outputSightLines,

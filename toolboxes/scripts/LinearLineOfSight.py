@@ -53,9 +53,6 @@ deleteme = [] # intermediate datasets to be deleted
 debug = True # extra messaging during development
 
 # FUNCTIONS ========================================
-
-
-
 def main():
     try:
         # get/set environment
