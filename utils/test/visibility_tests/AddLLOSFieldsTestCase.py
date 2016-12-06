@@ -74,7 +74,7 @@ class AddLLOSFieldsTestCase(unittest.TestCase):
         Configuration.Logger.info(runToolMessage)
         #self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist, %s" % self.inputObservers)
         #self.assertTrue(arcpy.Exists(self.inputTargets), "Input dataset does not exist, %s" % self.inputTargets)
-        arcpy.AddLLOSFields_mt(self.inputObservers, 2, self.inputTargets, 0)
+        arcpy.AddLinearLineOfSightFields_mt(self.inputObservers, 2, self.inputTargets, 0)
         
         fieldList = arcpy.ListFields(self.inputObservers, "height")
         fieldCount = len(fieldList)
@@ -91,7 +91,7 @@ class AddLLOSFieldsTestCase(unittest.TestCase):
         Configuration.Logger.info(runToolMessage)
         #self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist, %s" % self.inputObservers)
         #self.assertTrue(arcpy.Exists(self.inputTargets), "Input dataset does not exist, %s" % self.inputTargets)
-        arcpy.AddLLOSFields_mt(self.inputObservers, 2, self.inputTargets, 0)
+        arcpy.AddLinearLineOfSightFields_mt(self.inputObservers, 2, self.inputTargets, 0)
         
         fieldList = arcpy.ListFields(self.inputObservers, "height")
         fieldCount = len(fieldList)
