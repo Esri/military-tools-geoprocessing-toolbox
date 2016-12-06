@@ -471,7 +471,7 @@ def makeProfileGraph(inputFeatures):
     
     scratchFolder = arcpy.env.scratchFolder
     srInput = arcpy.Describe(inputFeatures).spatialReference
-    addProfileGraphToSurfaceLine = True
+
 
     try:
         rawLOS = {}
@@ -1088,6 +1088,7 @@ def linearLineOfSight(inputObserverFeatures,
     
     '''
     global scratch
+    addProfileGraphToSurfaceLine = True
     try:
         #Need Spatial Analyst to run this tool
         if arcpy.CheckExtension("Spatial") == "Available":
