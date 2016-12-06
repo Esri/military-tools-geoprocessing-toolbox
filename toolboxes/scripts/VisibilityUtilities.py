@@ -421,7 +421,7 @@ def _prepPointFromSurface(inputPoints, inputSurface, outputPoints, offsetFieldNa
     Adds attributes and SPOT and makes 3D Points
     '''
     try:
-        if debug: arcpy.AddMessage("Adding surface info for {0}".format(inputPoints))
+        if debug: arcpy.AddMessage("Adding surface info for {0}".format(os.path.basename(inputPoints)))
         zFieldName = "Z"
         # get Z from surface for points
         arcpy.AddSurfaceInformation_3d(inputPoints,
@@ -502,60 +502,60 @@ def makeProfileGraph(inputFeatures):
             whereclause = (""""SourceOID" = %s""" % currentID)
             tarIsViz = None
             cursorFields = ["OID@","SHAPE@", "SourceOID", "TarIsVis","VisCode","ObsSPOT","TgtSPOT","OID_OBSERV","OID_TARGET"]
-            rows = arcpy.da.SearchCursor(inputFeatures, cursorFields,whereclause)
-            startX = None
-            startY = None
-            tgtD = 0.0
-            line = 0
-            segmentList = []
-            for row in rows:
-                
-                oid = row[0]
-                geometry = row[1]
-                sourceOID = row[2]
-                targetIsViz = row[3]
-                visibilityCode = row[4]
-                obsD = 0.0
-                obsZ = row[5]
-                tgtZ = row[6]
-                obsID = row[7]
-                tgtID = row[8]
-                
-                partNum = 0
-                point = 0
-                partCount = geometry.partCount
-                #if debug == True: arcpy.AddMessage("OID: " + str(oid))
-                # go through parts in the line
-                
-                for part in geometry:
-                    #if debug == True: arcpy.AddMessage("Line: " + str(line) + " Part: " + str(partNum) + " PointCount: " + str(len(part)))
-                    segment = []
-                    partD = []
-                    partZ = []
-                    for pnt in part:
-                        if (line == 0) and (partNum == 0) and (point == 0): # if it is the very first point in the LLOS
-                            startX = pnt.X
-                            startY = pnt.Y
-                            #if debug == True: arcpy.AddMessage("startX,startY: " + str(startX) + "," + str(startY))
-                            distFromStart = 0
-                            partD.append(0.0)
-                            partZ.append(pnt.Z)
-    
-                        else: # for all other points in the LLOS
-                            distFromStart = math.sqrt((pnt.X - startX)**2 + (pnt.Y - startY)**2)
-                            if distFromStart > tgtD:
-                                tgtD = distFromStart
-                            partD.append(distFromStart)
-                            partZ.append(pnt.Z)
-                        point += 1
-                        #if debug == True: arcpy.AddMessage("Adding parts to segment ...")
-                        segment = [visibilityCode,partD,partZ]
-                        #if debug == True: arcpy.AddMessage("\nsegment: " + str(segment) + "\n")
-                    partNum += 1
-                    if debug == True: arcpy.AddMessage("Adding segment to segment list ...")
-                    segmentList.append(segment)
-                line += 1
-            del rows
+            with arcpy.da.SearchCursor(inputFeatures, cursorFields,whereclause) as rows:
+                startX = None
+                startY = None
+                tgtD = 0.0
+                line = 0
+                segmentList = []
+                for row in rows:
+                    
+                    oid = row[0]
+                    geometry = row[1]
+                    sourceOID = row[2]
+                    targetIsViz = row[3]
+                    visibilityCode = row[4]
+                    obsD = 0.0
+                    obsZ = row[5]
+                    tgtZ = row[6]
+                    obsID = row[7]
+                    tgtID = row[8]
+                    
+                    partNum = 0
+                    point = 0
+                    partCount = geometry.partCount
+                    #if debug == True: arcpy.AddMessage("OID: " + str(oid))
+                    # go through parts in the line
+                    
+                    for part in geometry:
+                        #if debug == True: arcpy.AddMessage("Line: " + str(line) + " Part: " + str(partNum) + " PointCount: " + str(len(part)))
+                        segment = []
+                        partD = []
+                        partZ = []
+                        for pnt in part:
+                            if (line == 0) and (partNum == 0) and (point == 0): # if it is the very first point in the LLOS
+                                startX = pnt.X
+                                startY = pnt.Y
+                                #if debug == True: arcpy.AddMessage("startX,startY: " + str(startX) + "," + str(startY))
+                                distFromStart = 0
+                                partD.append(0.0)
+                                partZ.append(pnt.Z)
+        
+                            else: # for all other points in the LLOS
+                                distFromStart = math.sqrt((pnt.X - startX)**2 + (pnt.Y - startY)**2)
+                                if distFromStart > tgtD:
+                                    tgtD = distFromStart
+                                partD.append(distFromStart)
+                                partZ.append(pnt.Z)
+                            point += 1
+                            #if debug == True: arcpy.AddMessage("Adding parts to segment ...")
+                            segment = [visibilityCode,partD,partZ]
+                            #if debug == True: arcpy.AddMessage("\nsegment: " + str(segment) + "\n")
+                        partNum += 1
+                        if debug == True: arcpy.AddMessage("Adding segment to segment list ...")
+                        segmentList.append(segment)
+                    line += 1
+            #del rows
             rawLOS[currentID] = [targetIsViz,[obsD,obsZ,obsID],[tgtD,tgtZ,tgtID],segmentList]
             
         #if debug == True: arcpy.AddMessage("rawLOS: " + str(rawLOS))
@@ -1234,8 +1234,8 @@ def linearLineOfSight(inputObserverFeatures,
                                                  llosStartVertex,
                                                  "START")
         deleteme.append(llosStartVertex)
-        arcpy.Identity_analysis(dddObservers,
-                                llosStartVertex,
+        arcpy.Identity_analysis(llosStartVertex,
+                                dddObservers,
                                 outputObservers,
                                 "ALL")
 
@@ -1245,8 +1245,8 @@ def linearLineOfSight(inputObserverFeatures,
         arcpy.FeatureVerticesToPoints_management(dddSightLines,
                                                  llosEndVertex,
                                                  "END")
-        arcpy.Identity_analysis(dddTargets,
-                                llosEndVertex,
+        arcpy.Identity_analysis(llosEndVertex,
+                                dddTargets,
                                 outputTargets,
                                 "ALL")
         deleteme.append(llosEndVertex)
@@ -1277,13 +1277,13 @@ def linearLineOfSight(inputObserverFeatures,
 
         #TODO: Build profile graphs for each Line Of Sight
         arcpy.AddMessage("Building profile graph...")
-        import LLOSProfileGraphAttachments
+        makeProfileGraph(outputLineOfSight)
 
         #drop fields
-        #arcpy.DeleteFields_management(outputLineOfSight, [])
-        #arcpy.DeleteFields_management(outputSightLines, [])
-        #arcpy.DeleteFields_management(outputObservers, [])
-        #arcpy.DeleteFields_management(outputTargets, [])
+        #arcpy.DeleteField_management(outputLineOfSight, [])
+        #arcpy.DeleteField_management(outputSightLines, [])
+        arcpy.DeleteField_management(outputObservers, ["Height"])
+        arcpy.DeleteField_management(outputTargets, ["Height"])
 
 
         return [outputLineOfSight,
@@ -1315,15 +1315,15 @@ def linearLineOfSight(inputObserverFeatures,
         print(pymsg + "\n")
         print(msgs)
         
-    finally:
-        if debug == False and len(deleteme) > 0:
-            # cleanup intermediate datasets
-            if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
-            for i in deleteme:
-                if debug == True: arcpy.AddMessage("Removing: " + str(i))
-                arcpy.Delete_management(i)
-            if debug == True: arcpy.AddMessage("Done")
-            
+    # finally:
+    #     if debug == False and len(deleteme) > 0:
+    #         # cleanup intermediate datasets
+    #         if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
+    #         for i in deleteme:
+    #             if debug == True: arcpy.AddMessage("Removing: " + str(i))
+    #             arcpy.Delete_management(i)
+    #         if debug == True: arcpy.AddMessage("Done")
+    #         
 def radialLineOfSight(inputObserverFeatures,
                       inputObserverHeight,
                       inputRadiusOfObserver,
