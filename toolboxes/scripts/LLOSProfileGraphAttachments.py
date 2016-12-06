@@ -23,7 +23,8 @@ import os, sys, traceback
 import pylab
 import arcpy
 
-inputFeatures = arcpy.GetParameterAsText(0)
+#inputFeatures = arcpy.GetParameterAsText(0)
+inputFeatures = sys.argv[1]
 
 debug = False
 deleteme = []
@@ -42,12 +43,13 @@ try:
         
     # Unique sight lines
     sightLineIDs = []
-    rows = arcpy.da.SearchCursor(inputFeatures,["SourceOID","OID@"])
-    for row in rows:
-        thisID = row[0]
-        if thisID not in sightLineIDs:
-            sightLineIDs.append(thisID)
-    del rows
+    #with arcpy.da.SearchCursor(inputFeatures,["SourceOID","{0}@".format(arcpy.Describe(inputFeatures).oidFieldName)]) as rows:
+    with arcpy.da.SearchCursor(inputFeatures,["SourceOID"]) as rows:
+        for row in rows:
+            thisID = row[0]
+            if thisID not in sightLineIDs:
+                sightLineIDs.append(thisID)
+    #del rows
     if debug == True: arcpy.AddMessage("sightLineIDs list: " + str(sightLineIDs))
     arcpy.AddMessage("Found " + str(len(sightLineIDs)) + " unique sight line IDs ...")
     

@@ -29,6 +29,8 @@
  history:
  11/28/2016 - mf - Original coding
  11/29/2016 - mf - Added Find Local Peaks tool
+ 12/2/2016 - mf - Added additional tools
+ 12/6/2016 - mf - LLOS and profile graph
  ==================================================
 '''
 
@@ -39,6 +41,8 @@ import re
 import traceback
 import arcpy
 from arcpy import env
+import pylab
+import math
 
 # LOCALS ===========================================
 deleteme = [] # intermediate datasets to be deleted
@@ -412,28 +416,28 @@ def _getLocalWAZED(inputPoint):
         print(pymsg + "\n")
         print(msgs)
 
-def _prepPointFromSurface(inputPoints, inputSurface, outputPoints, offsetFieldName):
+def _prepPointFromSurface(inputPoints, inputSurface, outputPoints, offsetFieldName, spotFieldName):
     '''
     Adds attributes and SPOT and makes 3D Points
     '''
     try:
         if debug: arcpy.AddMessage("Adding surface info for {0}".format(inputPoints))
         zFieldName = "Z"
-        spotFieldName = "SPOT"
         # get Z from surface for points
         arcpy.AddSurfaceInformation_3d(inputPoints,
                                        inputSurface,
                                        zFieldName,
                                        "BILINEAR")
         inputPoints = _addDoubleField(inputPoints,
-                                      spotFieldName)
+                                      {spotFieldName:[0.0, spotFieldName]})
         # calculate SPOT = Z + OFFSET
         arcpy.CalculateField_management(inputPoints,
                                         spotFieldName,
-                                        "!{0}! + !{1}!".format(zFieldName, offsetFieldName))
+                                        "!{0}! + !{1}!".format(zFieldName, offsetFieldName),
+                                        "PYTHON_9.3")
         
         # Make 3D point from SPOT
-        arcpy.FeatureTo3DByAttribute(inputPoints,
+        arcpy.FeatureTo3DByAttribute_3d(inputPoints,
                                      outputPoints,
                                      spotFieldName)
         
@@ -461,10 +465,214 @@ def _prepPointFromSurface(inputPoints, inputSurface, outputPoints, offsetFieldNa
         print(pymsg + "\n")
         print(msgs) 
 
-#TODO: _isValidLLOS()
-#TODO: _getImageFileName()
-#TODO: _MakePofileGraph()
-#TODO: _enableAttachments()
+def makeProfileGraph(inputFeatures):
+    '''
+    '''
+    
+    scratchFolder = arcpy.env.scratchFolder
+    srInput = arcpy.Describe(inputFeatures).spatialReference
+
+    try:
+        rawLOS = {} 
+        # Current: {<SourceOID> : [<TarIsVis>, [<observerD=0.0>,<observerZ>],
+        #                                      [<targetD>,<targetZ>],
+        #                                      [<segmentList>]]]}
+        #
+        #             where
+        #           [<segment>] is [<visibilityCode>,[d0,...,dN],[z0,...,zN]]
+            
+        # Unique sight lines
+        sightLineIDs = []
+        #with arcpy.da.SearchCursor(inputFeatures,["SourceOID","{0}@".format(arcpy.Describe(inputFeatures).oidFieldName)]) as rows:
+        with arcpy.da.SearchCursor(inputFeatures,["SourceOID"]) as rows:
+            for row in rows:
+                thisID = row[0]
+                if thisID not in sightLineIDs:
+                    sightLineIDs.append(thisID)
+        #del rows
+        #if debug == True: arcpy.AddMessage("sightLineIDs list: " + str(sightLineIDs))
+        arcpy.AddMessage("Found " + str(len(sightLineIDs)) + " unique sight line IDs ...")
+        
+        arcpy.AddField_management(inputFeatures,"pngname","TEXT")
+        expression = '"profile" + str(!SourceOID!)'
+        arcpy.CalculateField_management(inputFeatures,"pngname",expression, "PYTHON")
+        
+        # get visible and non-visible lines for each LLOS
+        for currentID in sightLineIDs:
+            whereclause = (""""SourceOID" = %s""" % currentID)
+            tarIsViz = None
+            cursorFields = ["OID@","SHAPE@", "SourceOID", "TarIsVis","VisCode","ObsSPOT","TgtSPOT","OID_OBSERV","OID_TARGET"]
+            rows = arcpy.da.SearchCursor(inputFeatures, cursorFields,whereclause)
+            startX = None
+            startY = None
+            tgtD = 0.0
+            line = 0
+            segmentList = []
+            for row in rows:
+                
+                oid = row[0]
+                geometry = row[1]
+                sourceOID = row[2]
+                targetIsViz = row[3]
+                visibilityCode = row[4]
+                obsD = 0.0
+                obsZ = row[5]
+                tgtZ = row[6]
+                obsID = row[7]
+                tgtID = row[8]
+                
+                partNum = 0
+                point = 0
+                partCount = geometry.partCount
+                #if debug == True: arcpy.AddMessage("OID: " + str(oid))
+                # go through parts in the line
+                
+                for part in geometry:
+                    #if debug == True: arcpy.AddMessage("Line: " + str(line) + " Part: " + str(partNum) + " PointCount: " + str(len(part)))
+                    segment = []
+                    partD = []
+                    partZ = []
+                    for pnt in part:
+                        if (line == 0) and (partNum == 0) and (point == 0): # if it is the very first point in the LLOS
+                            startX = pnt.X
+                            startY = pnt.Y
+                            #if debug == True: arcpy.AddMessage("startX,startY: " + str(startX) + "," + str(startY))
+                            distFromStart = 0
+                            partD.append(0.0)
+                            partZ.append(pnt.Z)
+    
+                        else: # for all other points in the LLOS
+                            distFromStart = math.sqrt((pnt.X - startX)**2 + (pnt.Y - startY)**2)
+                            if distFromStart > tgtD:
+                                tgtD = distFromStart
+                            partD.append(distFromStart)
+                            partZ.append(pnt.Z)
+                        point += 1
+                        #if debug == True: arcpy.AddMessage("Adding parts to segment ...")
+                        segment = [visibilityCode,partD,partZ]
+                        #if debug == True: arcpy.AddMessage("\nsegment: " + str(segment) + "\n")
+                    partNum += 1
+                    if debug == True: arcpy.AddMessage("Adding segment to segment list ...")
+                    segmentList.append(segment)
+                line += 1
+            del rows
+            rawLOS[currentID] = [targetIsViz,[obsD,obsZ,obsID],[tgtD,tgtZ,tgtID],segmentList]
+            
+        #if debug == True: arcpy.AddMessage("rawLOS: " + str(rawLOS))
+        
+        # build a graph for each LLOS
+        graphLocationDict = {}
+        arcpy.AddMessage("Building graphs for lines ...")
+        #for llosID in rawLOS.keys(): #UPDATE
+        for llosID in list(rawLOS.keys()):
+                
+                graphInputList = rawLOS[llosID] # get the values for the current llos
+        # Current: {<SourceOID> : [<TarIsVis>, [<observerD=0.0>,<observerZ>],
+        #                                      [<segmentList0>,...,<segmentListN>]]}
+                
+                targetVisibility = graphInputList[0]
+                observer = graphInputList[1]
+                obsD = observer[0]
+                obsZ = observer[1]
+                obsID = observer[2]
+                target = graphInputList[2]
+                tgtD = target[0]
+                tgtZ = target[1]
+                tgtID = target[2]
+                segmentList = graphInputList[3]
+                arcpy.AddMessage("Building graph from observer " + str(obsID) + " to target " + str(tgtID) + " ..." )
+                # plot the line of sight
+                pylab.plot([obsD,tgtD],[obsZ,tgtZ],'k--',linewidth=1)
+                
+                # plot the visible profile
+                for segment in segmentList:
+                    if segment[0] == 1 and len(segment[1]) != 0: # for visible segments - plot in green
+                        pylab.plot(segment[1],segment[2],'g',linewidth=1)
+                    if segment[0] == 2 and len(segment[1]) != 0: # for non-visible segments - plot in red
+                        pylab.plot(segment[1],segment[2],'r',linewidth=1)
+                
+                # plot observer
+                pylab.plot(obsD, obsZ, 'bo')
+                # plot target
+                if targetVisibility == 1:
+                    targetSymbol = 'go'
+                else:
+                    targetSymbol = 'ro'
+                pylab.plot(tgtD, tgtZ, targetSymbol)
+                
+                    
+                # titles & labels
+                if (targetVisibility == 1):
+                    pylab.title("Target " + str(tgtID) + " is VISIBLE to observer " + str(obsID))
+                else:
+                    pylab.title("Target " + str(tgtID) + " is NOT VISIBLE to observer " + str(obsID))
+                    
+                pylab.ylabel("Elevation above sea level")
+                pylab.xlabel("Distance to target ({0})".format(srInput.linearUnitName))
+                pylab.grid(True)
+                
+                # save the graph to a PNG file in the scratch folder
+                graphPath = os.path.join(scratchFolder,r"profile" + str(llosID) + r".png")
+                if debug == True: arcpy.AddMessage("graphPath: " + str(graphPath))
+                pylab.savefig(graphPath, dpi=900)
+                pylab.cla() # clear the graph???
+                
+                graphLocationDict[llosID] = graphPath
+                deleteme.append(graphPath)
+            
+        # TODO: start an update cursor
+        arcpy.AddMessage("Enabling attachments ...")
+        arcpy.EnableAttachments_management(inputFeatures)
+        
+        matchTable = os.path.join(scratch,"matchTable")
+        deleteme.append(matchTable)
+        arcpy.AddMessage("Building match table ...")
+        arcpy.GenerateAttachmentMatchTable_management(inputFeatures,scratchFolder,matchTable,"pngname","*.png","ABSOLUTE")
+        
+        arcpy.AddMessage("Attaching profile graphs to sightlines ...")
+        inOIDField = arcpy.Describe(inputFeatures).OIDFieldName
+        arcpy.AddAttachments_management(inputFeatures,inOIDField,matchTable,"MatchID","Filename")
+        
+            
+        # cleanup
+        # arcpy.AddMessage("Removing scratch data ...")
+        # for ds in deleteme:
+        #     if arcpy.Exists(ds):
+        #         arcpy.Delete_management(ds)
+        #         if debug == True: arcpy.AddMessage(str(ds))
+                
+                
+        # output
+        arcpy.SetParameter(1,inputFeatures)
+    
+    
+    except arcpy.ExecuteError:
+        error = True
+        # Get the tool error messages 
+        msgs = arcpy.GetMessages() 
+        arcpy.AddError(msgs) 
+        #print msgs #UPDATE
+        print(msgs)
+    
+    except:
+        # Get the traceback object
+        error = True
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+    
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+    
+        # Return python error messages for use in script tool or Python Window
+        arcpy.AddError(pymsg)
+        arcpy.AddError(msgs)
+    
+        # Print Python error messages for use in Python / Python Window
+        #print pymsg + "\n" #UPDATE
+        print(pymsg + "\n")
+        #print msgs #UPDATE
+        print(msgs)
 
 ''' TOOL METHODS '''
 
@@ -886,7 +1094,7 @@ def linearLineOfSight(inputObserverFeatures,
         else:
             raise Exception("Spatial Analyst license is not available.")
         from arcpy import sa
-        if arcpy.CheckoutExtension("3D") == "Available":
+        if arcpy.CheckExtension("3D") == "Available":
             arcpy.CheckOutExtension("3D")
         else:
             raise Exception("3D Analyst license is not available.")
@@ -908,7 +1116,7 @@ def linearLineOfSight(inputObserverFeatures,
         #Check if Targets have "OFFSET" field
         inputTgtFields = _getFieldNameList(inputTargetFeatures)
         if not offsetFieldName in inputTgtFields:
-            arcpy.AddMessage("OFFSET field not in Targetss. Using Target Height Above Surface value of {0}".format(inputTargetHeight))
+            arcpy.AddMessage("OFFSET field not in Targets. Using Target Height Above Surface value of {0}".format(inputTargetHeight))
             hasTgtOffset = False
         
         #Project Observers and add fields if needed
@@ -938,19 +1146,23 @@ def linearLineOfSight(inputObserverFeatures,
                                               inputTargetHeight)
 
         #Get elevation of Observers and Targets over surface
+        obsSpotFieldName = "ObsSPOT"
         dddObservers = os.path.join(scratch, "dddObservers")
         arcpy.AddMessage("Building 3D observer points...")
         dddObservers = _prepPointFromSurface(prjObservers,
                                              inputSurface,
                                              dddObservers,
-                                             offsetFieldName)
+                                             offsetFieldName,
+                                             obsSpotFieldName)
         deleteme.append(dddObservers)
+        tgtSpotFieldName = "TgtSPOT"
         dddTargets = os.path.join(scratch,"dddTargets")
         arcpy.AddMessage("Building 3D target points...")
         dddTargets = _prepPointFromSurface(prjTargets,
                                            inputSurface,
                                            dddTargets,
-                                           offsetFieldName)
+                                           offsetFieldName,
+                                           tgtSpotFieldName)
         deleteme.append(dddTargets)
         
         
@@ -960,41 +1172,43 @@ def linearLineOfSight(inputObserverFeatures,
         arcpy.ConstructSightLines_3d(dddObservers,
                                      dddTargets,
                                      dddSightLines,
-                                     Shape.Z,
-                                     Shape.Z,
+                                     obsSpotFieldName,
+                                     tgtSpotFieldName,
                                      None,
                                      None,
                                      "OUTPUT_THE_DIRECTION")
         deleteme.append(dddSightLines)
-        
+
         #TODO: use Intervisibility_3d to determine obstructions from other data types?
-        
+
         #Build MBR, set as mask
         arcpy.AddMessage("Building minimum bounding rectangle of sight lines for analysis mask...")
         mbrSightLines = os.path.join(scratch, "mbrSightLines")
         arcpy.MinimumBoundingGeometry_management(dddSightLines,
                                                  mbrSightLines,
                                                  "RECTANGLE_BY_WIDTH")
-        
+
+
         #Line Of Sight
         arcpy.AddMessage("Building Line Of Sight...")
-        arcpy.env.mask = mbrSightLines
+        #arcpy.env.mask = mbrSightLines
         llosObstructionPoints = os.path.join(scratch, "llosObstructionPoints")
-        llosResults = os.path.join(scratch, "llosResults")
+        #llosResults = os.path.join(scratch, "llosResults")
         arcpy.LineOfSight_3d(inputSurface,
                              dddSightLines,
                              outputLineOfSight,
                              llosObstructionPoints,
-                             "CURVATURE",
-                             "REFRACTION",
+                             "#",
+                             "#",
                              None,
                              None,
                              inputObstructionFeatures)
         deleteme.append(llosObstructionPoints)
-        deleteme.append(llosResults)
-        
-        arcpy.AddMessage("Joining Sight Lines attributes to Line Of Sight results...")
-        arcpy.JoinFields_management(llosResults,
+        #deleteme.append(llosResults)
+
+
+        arcpy.AddMessage("Joining attribute results...")
+        arcpy.JoinField_management(outputLineOfSight,
                                     "SourceOID",
                                     dddSightLines,
                                     "OID",
@@ -1002,20 +1216,68 @@ def linearLineOfSight(inputObserverFeatures,
                                      "OID_TARGET",
                                      "DIST_ALONG",
                                      "AZIMUTH"])
-        arcpy.JoinFields_management(dddSightLines,
+        arcpy.JoinField_management(dddSightLines,
                                     "OID",
-                                    llosResults,
+                                    outputLineOfSight,
                                     "SourceOID",
-                                    ["TarIsVis"])
-        
+                                    ["TarIsVis",
+                                     "OID_OBSERV",
+                                     "OID_TARGET"])
+
         #TODO: Get target visibility for each target, add to Observers and Targets and Sight Lines
         #SourceOID - ObjectID from dddSightLines for each Line Of Sight
-        #VisCode - visiblity along the line 1=visible, 2=not_visible
+        #VisCode - visibility along the line 1=visible, 2=not_visible
         #TarIsVis - Is target visible to observer? 1=visible, 0=not_visible
-        
-        #TODO: Get target visiblity count stats on targets
-        
+        arcpy.AddMessage("Attributing output Observer features...")
+        llosStartVertex = os.path.join(scratch, "llosStartVertex")
+        arcpy.FeatureVerticesToPoints_management(dddSightLines,
+                                                 llosStartVertex,
+                                                 "START")
+        deleteme.append(llosStartVertex)
+        arcpy.Identity_analysis(dddObservers,
+                                llosStartVertex,
+                                outputObservers,
+                                "ALL")
+
+        #TODO: Get target visibility count stats on targets
+        arcpy.AddMessage("Calculating frequency on Target features...")
+        llosEndVertex = os.path.join(scratch, "llosEndVertex")
+        arcpy.FeatureVerticesToPoints_management(dddSightLines,
+                                                 llosEndVertex,
+                                                 "END")
+        arcpy.Identity_analysis(dddTargets,
+                                llosEndVertex,
+                                outputTargets,
+                                "ALL")
+        deleteme.append(llosEndVertex)
+        arcpy.MakeFeatureLayer_management(outputTargets, "targetLayer")
+        #arcpy.AddMessage("targetLayer Fields: {0}".format(_getFieldNameList(outputTargets)))
+        arcpy.SelectLayerByAttribute_management("targetLayer",
+                                                "NEW_SELECTION",
+                                                '''"TarIsVis" = 1''')
+        targetStats = os.path.join(scratch, "targetStats")
+        statsFields = [["TarIsVis",  "COUNT"]]
+        caseField = "OID_TARGET"
+        arcpy.Statistics_analysis("targetLayer",
+                                targetStats,
+                                statsFields,
+                                caseField)
+        deleteme.append(targetStats)
+        arcpy.JoinField_management(outputTargets,
+                        caseField,
+                        targetStats,
+                        caseField,
+                        ["FREQUENCY", "COUNT_TarIsVis"])
+
+        #copy outputs
+        arcpy.CopyFeatures_management(dddSightLines,
+                                      outputSightLines)
+        # arcpy.CopyFeatures_management(dddObservers,
+        #                               outputObservers)
+
         #TODO: Build profile graphs for each Line Of Sight
+        arcpy.AddMessage("Building profile graph...")
+        import LLOSProfileGraphAttachments
 
         #drop fields
         #arcpy.DeleteFields_management(outputLineOfSight, [])
@@ -1023,10 +1285,13 @@ def linearLineOfSight(inputObserverFeatures,
         #arcpy.DeleteFields_management(outputObservers, [])
         #arcpy.DeleteFields_management(outputTargets, [])
 
+
         return [outputLineOfSight,
                 outputSightLines,
                 outputObservers,
                 outputTargets]
+
+
     except arcpy.ExecuteError:
         # Get the tool error messages
         msgs = arcpy.GetMessages()

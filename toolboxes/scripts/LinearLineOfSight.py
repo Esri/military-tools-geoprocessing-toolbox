@@ -36,16 +36,16 @@ import arcpy
 from arcpy import env
 import VisibilityUtilities
 
-inputObserverFeatures = arcpy.GetParameterAsText() # 0 - Observers
-inputObserverHeight = arcpy.GetParameterAsText() # 1 - Observer Height Above Surface
-inputTargetFeatures = arcpy.GetParameterAsText() # 2 - Targets
-inputTargetHeight = arcpy.GetParameterAsText() # 3 - Target Height Above Surface
-inputSurface = arcpy.GetParameterAsText() # 4 - Input Elevation Surface
-outputLineOfSight = arcpy.GetParameterAsText() # 5 - Output Line Of Sight Features
-outputSightLines = arcpy.GetParameterAsText() # 6 - Output Sight Lines
-outputObservers = arcpy.GetParameterAsText() # 7 - Output Observers
-outputTargets = arcpy.GetParameterAsText() # 8 - Output Targets
-inputObstructionFeatures = arcpy.GetParameterAsText() # 9 - Input Obstruction Features - optional
+inputObserverFeatures = arcpy.GetParameterAsText(0) # 0 - Observers
+inputObserverHeight = arcpy.GetParameterAsText(1) # 1 - Observer Height Above Surface
+inputTargetFeatures = arcpy.GetParameterAsText(2) # 2 - Targets
+inputTargetHeight = arcpy.GetParameterAsText(3) # 3 - Target Height Above Surface
+inputSurface = arcpy.GetParameterAsText(4) # 4 - Input Elevation Surface
+outputLineOfSight = arcpy.GetParameterAsText(5) # 5 - Output Line Of Sight Features
+outputSightLines = arcpy.GetParameterAsText(6) # 6 - Output Sight Lines
+outputObservers = arcpy.GetParameterAsText(7) # 7 - Output Observers
+outputTargets = arcpy.GetParameterAsText(8) # 8 - Output Targets
+inputObstructionFeatures = arcpy.GetParameterAsText(9) # 9 - Input Obstruction Features - optional
 
 
 # LOCALS ===========================================
