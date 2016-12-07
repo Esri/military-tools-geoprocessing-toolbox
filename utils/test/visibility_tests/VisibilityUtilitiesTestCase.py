@@ -37,7 +37,7 @@ from arcpy import env
 import unittest
 import UnitTestUtilities
 import Configuration
-import VisibilityUtilities
+from . import VisibilityUtilities
 
 # LOCALS ===========================================
 deleteIntermediateData = [] # intermediate datasets to be deleted
@@ -47,7 +47,7 @@ debug = True # extra messaging during development
 
 class VisibilityUtilitiesTestCase(unittest.TestCase):
     '''
-    '''
+    '''     
 
     def setUp(self):
         runToolMessage = ".....VisibilityUtilityTestCase.setup"
@@ -62,7 +62,8 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
             arcpy.CheckOutExtension("3D")
         else:
             raise Exception("3D license is not available.")
-        
+        self.srWGS84 = arcpy.SpatialReference(4326) # GCS_WGS_1984
+        self.srWAZED = arcpy.SpatialReference(54032) # World Azimuthal Equidistant    
         self.inputArea = os.path.join(Configuration.militaryInputDataGDB, "AreaofInterest")
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
         self.inputSigActsTable = os.path.join(Configuration.militaryInputDataGDB, "SigActs")
@@ -74,10 +75,11 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         arcpy.AddMessage(runToolMessage)
         arcpy.CheckInExtension("Spatial")
         arcpy.CheckInExtension("3D")
-        for i in deleteIntermediateData:
-            if arcpy.Exists(i):
-                if debug: arcpy.AddMessage("Removing intermediate: {0}".format(i))
-                arcpy.Delete_management(i)
+        if len(deleteIntermediateData) > 0:
+            for i in deleteIntermediateData:
+                if arcpy.Exists(i):
+                    if debug: arcpy.AddMessage("Removing intermediate: {0}".format(i))
+                    arcpy.Delete_management(i)
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
 
     # Test internal methods
@@ -210,9 +212,125 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
                          len(resultNoAttacks),
                          "Expected {0} unique values, but got {1}.".format(expectedNoAttacks, resultNoAttacks))
 
+    def test__getCentroid_FromPoints(self):
+        '''
+        Testing _getCentroid from point feature class with 4 points.
+        '''
+        runToolMessage = ".....VisibilityUtilityTestCase.test__getCentroid"
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        # make a featureclass of points
+        pntArray = arcpy.Array([arcpy.Point(0,0),
+                               arcpy.Point(0,2),
+                               arcpy.Point(2,0),
+                               arcpy.Point(2,2)])
+        fc = arcpy.CreateFeatureclass_management("in_memory", "fc",
+                                                 "POINT", None,
+                                                 "DISABLED", "DISABLED",
+                                                 self.srWGS84)[0]
+        with arcpy.da.InsertCursor(fc, ["SHAPE@"]) as cursor:
+            for pnt in pntArray:
+                cursor.insertRow([arcpy.PointGeometry(pnt)])
+        resultPoint = VisibilityUtilities._getCentroid(fc).firstPoint
+        
+        # determine centroid of X and Y coordinate sets
+        pX, pY, count = 0, 0, 0
+        for p in pntArray:
+            pX += p.X
+            pY += p.Y
+            count += 1
+        cX = float(pX)/float(count)
+        cY = float(pY)/float(count)
+        comparePoint = arcpy.Point(cX, cY)
+        
+        arcpy.AddMessage("comparePoint.X: {0}".format(comparePoint.X))
+        arcpy.AddMessage(comparePoint.X)
+        arcpy.AddMessage("resultPoint.X: {0}".format(resultPoint.X))
+        arcpy.AddMessage(resultPoint.X)
+        arcpy.AddMessage("comparePoint.X is resultPoint.X: {0}".format(comparePoint.X is resultPoint.X))
+        arcpy.AddMessage("comparePoint.X == resultPoint.X: {0}".format(comparePoint.X == resultPoint.X))
+        
+        self.assertEqual(comparePoint.X, resultPoint.X, "Unexpected centroid X. Expected {0}, but got {1}".format(comparePoint.X, resultPoint.X))
+        self.assertEqual(comparePoint.Y, resultPoint.Y, "Unexpected centroid Y. Expected {0}, but got {1}".format(comparePoint.Y, resultPoint.Y))
+        
+    def test__getLocalWAZED(self):
+        '''
+        '''
+        runToolMessage = ".....VisibilityUtilityTestCase.test__getLocalWAZED"
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        testInputPoint = arcpy.PointGeometry(arcpy.Point(-11.13, 14.87), self.srWGS84)
+        resultSR = VisibilityUtilities._getLocalWAZED(testInputPoint)
+        # arcpy.AddMessage("======================")
+        # arcpy.AddMessage(resultSR.exportToString())
+        # arcpy.AddMessage("======================")
+        # arcpy.AddMessage(self.srWAZED.exportToString())
+        # arcpy.AddMessage("======================")
+        self.assertIs(resultSR, self.srWAZED, "Compare expected Spatial Reference {0} with result {1} failed.".format(self.srWAZED, resultSR))
+                
+    def test__prepPointFromSurface(self):
+        '''
+        '''
+
     # Test external methods
 
+    def test_hi_lowPointByArea_lowest(self):
+        '''
+        test hi_lowPointByArea for MINIMUM (lowest) setting.
+        '''
+        runToolMessage = ".....VisibilityUtilityTestCase.test_hi_lowPointByArea_lowest"
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        hi_low_Switch = "MINIMUM"
+        resultPoints = os.path.join(Configuration.militaryScratchGDB, "lowestPoints")
+        VisibilityUtilities.hi_lowPointByArea(self.inputArea,
+                                              self.inputSurface,
+                                              hi_low_Switch,
+                                              resultPoints)
+        deleteIntermediateData.append(resultPoints)
+        expectedLowest = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputLowestPt")
+        compareResults = arcpy.FeatureCompare_management(resultPoints, expectedLowest, "OBJECTID").getOutput(1)
+        self.assertEqual(compareResults, "true", "Feature Compare failed: \n %s" % arcpy.GetMessages())
+
+    def test_hi_lowPointByArea_highest(self):
+        '''
+        test hi_lowPointByArea for MAXIMUM (highest) setting.
+        '''
+        runToolMessage = ".....VisibilityUtilityTestCase.test_hi_lowPointByArea_highest"
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        hi_low_Switch = "MAXIMUM"
+        resultPoints = os.path.join(Configuration.militaryScratchGDB, "highestPoints")
+        resultPoints = VisibilityUtilities.hi_lowPointByArea(self.inputArea,
+                                                             self.inputSurface,
+                                                             hi_low_Switch,
+                                                             resultPoints)
+        deleteIntermediateData.append(resultPoints)
+        expectedHighest = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputHighestPt")
+        compareResults = arcpy.FeatureCompare_management(resultPoints, expectedHighest,"OBJECTID").getOutput(1)
+        self.assertEqual(compareResults, "true", "Feature Compare failed: \n %s" % arcpy.GetMessages())
+
     # Test tool methods
+    
+    def test_findLocalPeaks(self):
+        '''
+        test_findLocalPeaks with input 10 peaks to find
+        '''
+        runToolMessage = ".....VisibilityUtilityTestCase.test_findLocalPeaks"
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        resultPoints = os.path.join(Configuration.militaryScratchGDB, "findLocalPeaks")
+        numPoints = 16
+        resultPoints = VisibilityUtilities.findLocalPeaks(self.inputArea,
+                                                          numPoints,
+                                                          self.inputSurface,
+                                                          resultPoints)
+        deleteIntermediateData.append(resultPoints)
+        expectedLocalPeaks = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputFindLocalPeaks")
+        compareResults = arcpy.FeatureCompare_management(resultPoints, expectedLocalPeaks, "OBJECTID").getOutput(1)
+        self.assertEqual(compareResults, "true", "Feature Compare failed: \n %s" % arcpy.GetMessages())
+
+    
     
     # def test_addLLOSFields001(self):
     #     '''

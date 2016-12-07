@@ -71,7 +71,7 @@ class AddRLOSObserverFieldsTestCase(unittest.TestCase):
         Configuration.Logger.info(runToolMessage)
         #self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist: %s" % self.inputObservers)
         
-        arcpy.AddRLOSObserverFields_mt(self.inputObservers, 2.0, 0.0, 0.0, 1000.0, 0.0, 360.0, 90.0, -90.0)
+        arcpy.AddRadialLineOfSightObserverFields_mt(self.inputObservers, 2.0, 0.0, 0.0, 1000.0, 0.0, 360.0, 90.0, -90.0)
         
         fieldList = arcpy.ListFields(self.inputObservers, "RADIUS1")
         fieldCount = len(fieldList)
@@ -126,7 +126,7 @@ class AddRLOSObserverFieldsTestCase(unittest.TestCase):
         Configuration.Logger.info(runToolMessage)
         #self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist: %s" % self.inputObservers)
         
-        arcpy.AddRLOSObserverFields_mt(self.inputObservers, 2.0, 0.0, 0.0, 1000.0, 0.0, 360.0, 90.0, -90.0)
+        arcpy.AddRadialLineOfSightObserverFields_mt(self.inputObservers, 2.0, 0.0, 0.0, 1000.0, 0.0, 360.0, 90.0, -90.0)
         
         fieldList = arcpy.ListFields(self.inputObservers, "RADIUS1")
         fieldCount = len(fieldList)
