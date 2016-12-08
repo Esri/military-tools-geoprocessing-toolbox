@@ -59,7 +59,9 @@ formatsCoordinateNotation = ["DD_1", "DD_2",
                              "UTM", "MGRS",
                              "USNG"]
 formatsLineTypes = ["GEODESIC", "GREAT_CIRCLE", "RHUMB_LINE", "NORMAL_SECTION"]
-joinExcludeFields = ['OBJECTID', 'OID', 'ObjectID', 'SHAPE', 'Shape']
+joinExcludeFields = ['OBJECTID', 'OID', 'ObjectID',
+                     'SHAPE', 'Shape', 'Shape_Length', 'Shape_Area',
+                     'JoinID']
     
 def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
     '''
@@ -247,8 +249,10 @@ def _tableFieldNames(inputTable, excludeList):
     '''
     try:
         fieldNames = []
+        #if debug: arcpy.AddMessage("Excluding fields: {0}".format(excludeList))
         for f in arcpy.ListFields(inputTable):
-            if not f in excludeList:
+            if not f.name in excludeList:
+                #arcpy.AddMessage("Adding {0}.".format(f.name))
                 fieldNames.append(f.name)
         return fieldNames
     
@@ -361,6 +365,7 @@ def tableTo2PointLine(inputTable,
         copyRows = os.path.join(scratch, "copyRows")
         arcpy.CopyRows_management(inputTable, copyRows)
         originalTableFieldNames = _tableFieldNames(inputTable, joinExcludeFields)
+        arcpy.AddMessage("originalTableFieldNames: {0}".format(originalTableFieldNames))
         addUniqueRowID(copyRows, joinFieldName)
         
         #Convert Start Point
@@ -520,8 +525,9 @@ def tableToEllipse(inputTable,
             
         copyRows = os.path.join(scratch, "copyRows")
         arcpy.CopyRows_management(inputTable, copyRows)
+        deleteme.append(copyRows)
         originalTableFieldNames = _tableFieldNames(inputTable, joinExcludeFields)
-        
+        arcpy.AddMessage("originalTableFieldNames: {0}".format(originalTableFieldNames))
         addUniqueRowID(copyRows, joinFieldName)
         
         copyCCN = os.path.join(scratch, "copyCCN")
@@ -532,7 +538,8 @@ def tableToEllipse(inputTable,
                                                    inputCoordinateFormat,
                                                    "DD_NUMERIC",
                                                    joinFieldName,
-                                                   inputSpatialReference) 
+                                                   inputSpatialReference)
+        deleteme.append(copyCCN)
     
         #Table To Ellipse
         copyEllipse = os.path.join(scratch, "copyEllipse")
@@ -546,6 +553,7 @@ def tableToEllipse(inputTable,
                                         inputAzimuthUnits,
                                         joinFieldName,
                                         inputSpatialReference)
+        deleteme.append(copyEllipse)
         
         #Polyline To Polygon
         polylineToPolygon(copyEllipse, joinFieldName, outputEllipseFeatures)
@@ -700,7 +708,7 @@ def tableToLineOfBearing(inputTable,
         arcpy.JoinField_management(outputLineFeatures, joinFieldName,
                                    copyRows, joinFieldName,
                                    originalTableFieldNames)
-        
+        arcpy.AddMessage("originalTableFieldNames: {0}".format(originalTableFieldNames))
         arcpy.DeleteField_management(outputLineFeatures,
                                      [joinFieldName])
         

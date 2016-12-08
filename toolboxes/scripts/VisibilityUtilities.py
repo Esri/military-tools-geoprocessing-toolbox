@@ -61,9 +61,11 @@ rlosFields = {"OFFSETA":[2.0, "Observer offset above surface"],
 acceptableDistanceUnits = ['METERS', 'KILOMETERS',
                            'MILES', 'NAUTICAL_MILES',
                            'FEET', 'US_SURVEY_FEET']
+joinExcludeFields = ['OBJECTID', 'OID', 'ObjectID',
+                     'SHAPE', 'Shape', 'Shape_Length', 'Shape_Area']
 scratch = None
 # FUNCTIONS ========================================
-def _getFieldNameList(targetTable):
+def _getFieldNameList(targetTable, excludeList=None):
     '''
     Returns a list of field names from targetTable
     '''
@@ -73,7 +75,8 @@ def _getFieldNameList(targetTable):
             raise Exception("Source table {0} does not exist or is null.".format(targetTable))
         fields = arcpy.ListFields(targetTable)
         for field in fields:
-            nameList.append(field.name)
+            if not field.name in excludeList:
+                nameList.append(field.name)
         return nameList
     except arcpy.ExecuteError:
         # Get the tool error messages
@@ -103,7 +106,7 @@ def _addDoubleField(targetTable, fieldsToAdd):
     Adds a list of fields to a targetTable
     '''
     try:
-        existingFields = _getFieldNameList(targetTable)
+        existingFields = _getFieldNameList(targetTable, joinExcludeFields)
         for currentField in list(fieldsToAdd.keys()):
             if currentField in existingFields:
                 arcpy.AddWarning("Field {0} is already in {1}. Skipping this field name.".format(currentField, targetTable))
@@ -148,7 +151,7 @@ def _calculateDefaultFieldValues(targetTable, fieldsToAdd):
     Calculates default field values from built-in list
     '''
     try:
-        existingFields = _getFieldNameList(targetTable)
+        existingFields = _getFieldNameList(targetTable, joinExcludeFields)
         for currentField in fieldsToAdd:
             if not currentField in existingFields:
                 arcpy.AddWarning("Cannot calculate default for {0}. Field does not exist in {1}".format(currentField, targetTable))
@@ -189,7 +192,7 @@ def _calculateFieldValue(targetTable, fieldName, fieldValue):
     Calculates field value from argument
     '''
     try:
-        existingFields = _getFieldNameList(targetTable)
+        existingFields = _getFieldNameList(targetTable, joinExcludeFields)
         if not fieldName in existingFields:
             raise Exception("Field {0} is not in {1}".format(fieldName, targetTable))
         else:
