@@ -59,6 +59,7 @@ formatsCoordinateNotation = ["DD_1", "DD_2",
                              "UTM", "MGRS",
                              "USNG"]
 formatsLineTypes = ["GEODESIC", "GREAT_CIRCLE", "RHUMB_LINE", "NORMAL_SECTION"]
+joinExcludeFields = ['OBJECTID', 'OID', 'ObjectID', 'SHAPE', 'Shape']
     
 def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
     '''
@@ -235,16 +236,20 @@ def _formatLon(sLon):
        sLon = float(sLon[:-1])
     return sLon
 
-def _tableFieldNames(inputTable):
+def _tableFieldNames(inputTable, excludeList):
     '''
     Uses arcpy.ListFields to get a list of field NAMES
+    
+    inputTable - input table to get field names from
+    excludeList - list of field names that will NOT be included in the returned list
     
     returns list of strings
     '''
     try:
         fieldNames = []
         for f in arcpy.ListFields(inputTable):
-            fieldNames.append(f.name)
+            if not f in excludeList:
+                fieldNames.append(f.name)
         return fieldNames
     
     except arcpy.ExecuteError:
@@ -275,56 +280,6 @@ def _tableFieldNames(inputTable):
         #print msgs #UPDATE
         print(msgs)
     
-def _tableFieldsForJoin(inputTable, additionalExcludeFields):
-    '''
-    returns a list of fields in a table, except OBJECTID, OID, SHAPE, and
-    user added
-    inputTable - source table from which we get the original list
-    additionalExcludeFields - list of additional field names to exclude
-    '''
-    try:
-        fieldList = []
-        excludeList = ["OBJECTID", "OID", "SHAPE"]
-        fieldNames = _tableFieldNames(inputTable)
-        
-        if additionalExcludeFields:
-            excludeList = set(excludeList + list(additionalExcludeFields))
-        else:
-            excludeList = set(excludeList)
-            
-        fields = set(fieldNames)
-        fieldList = list(fields - excludeList)
-        
-        return fieldList
-    
-    except arcpy.ExecuteError:
-        error = True
-        # Get the tool error messages 
-        msgs = arcpy.GetMessages() 
-        arcpy.AddError(msgs) 
-        #print msgs #UPDATE
-        print(msgs)
-    
-    except:
-        # Get the traceback object
-        error = True
-        tb = sys.exc_info()[2]
-        tbinfo = traceback.format_tb(tb)[0]
-    
-        # Concatenate information together concerning the error into a message string
-        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
-        msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
-    
-        # Return python error messages for use in script tool or Python Window
-        arcpy.AddError(pymsg)
-        arcpy.AddError(msgs)
-    
-        # Print Python error messages for use in Python / Python Window
-        #print pymsg + "\n" #UPDATE
-        print(pymsg + "\n")
-        #print msgs #UPDATE
-        print(msgs)
-
 def _checkSpatialRef(inputSpatialReference):
     '''
     if None make it WGS_84, if it is an object, make it a string
@@ -405,8 +360,7 @@ def tableTo2PointLine(inputTable,
             
         copyRows = os.path.join(scratch, "copyRows")
         arcpy.CopyRows_management(inputTable, copyRows)
-        originalTableFieldNames = _tableFieldNames(inputTable)
-        
+        originalTableFieldNames = _tableFieldNames(inputTable, joinExcludeFields)
         addUniqueRowID(copyRows, joinFieldName)
         
         #Convert Start Point
@@ -566,7 +520,8 @@ def tableToEllipse(inputTable,
             
         copyRows = os.path.join(scratch, "copyRows")
         arcpy.CopyRows_management(inputTable, copyRows)
-        originalTableFieldNames = _tableFieldNames(inputTable)
+        originalTableFieldNames = _tableFieldNames(inputTable, joinExcludeFields)
+        
         addUniqueRowID(copyRows, joinFieldName)
         
         copyCCN = os.path.join(scratch, "copyCCN")
@@ -713,7 +668,7 @@ def tableToLineOfBearing(inputTable,
             
         copyRows = os.path.join(scratch, "copyRows")
         arcpy.CopyRows_management(inputTable, copyRows)
-        originalTableFieldNames = _tableFieldNames(inputTable)
+        originalTableFieldNames = _tableFieldNames(inputTable, joinExcludeFields)
         addUniqueRowID(copyRows, joinFieldName)
         
         arcpy.AddMessage("Formatting start point...")
