@@ -23,14 +23,14 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 
 ## Requirements
 
-Tools for ArcMap are in the **Military Tools 10.3.tbx** toolbox and have the following requirements:
+Tools for ArcMap are in the **Military_Tools_dsk.tbx** toolbox and have the following requirements:
 
 * **ArcGIS 10.3.1 for Desktop**
 * **ArcGIS 10.4 for Desktop**
 * **ArcGIS 10.4.1 for Desktop**
 
 
-Tools for ArcGIS Pro are in the **Military_Tools.tbx** toolbox and have the following requirements: 
+Tools for ArcGIS Pro are in the **Military_Tools_pro.tbx** toolbox and have the following requirements: 
 
 * **ArcGIS Pro 1.2**
 * **ArcGIS Pro 1.3**
