@@ -34,6 +34,7 @@ limitations under the License.
  11/15/2016 - MF - Original writeup
  11/16/2016 - MF - Added Table To Line Of Bearing
  11/21/2016 - MF - Added other script tools
+ 12/08/2016 - MF - Fix for JoinID failing in Pro with OBJECTID (#181, #182, #183)
  ==================================================
 '''
 
@@ -251,8 +252,11 @@ def _tableFieldNames(inputTable, excludeList):
         fieldNames = []
         #if debug: arcpy.AddMessage("Excluding fields: {0}".format(excludeList))
         for f in arcpy.ListFields(inputTable):
-            if not f.name in excludeList:
-                #arcpy.AddMessage("Adding {0}.".format(f.name))
+            if not excludeList:
+                if not f.name in excludeList:
+                    #arcpy.AddMessage("Adding {0}.".format(f.name))
+                    fieldNames.append(f.name)
+            else:
                 fieldNames.append(f.name)
         return fieldNames
     
@@ -365,7 +369,6 @@ def tableTo2PointLine(inputTable,
         copyRows = os.path.join(scratch, "copyRows")
         arcpy.CopyRows_management(inputTable, copyRows)
         originalTableFieldNames = _tableFieldNames(inputTable, joinExcludeFields)
-        arcpy.AddMessage("originalTableFieldNames: {0}".format(originalTableFieldNames))
         addUniqueRowID(copyRows, joinFieldName)
         
         #Convert Start Point
@@ -527,7 +530,6 @@ def tableToEllipse(inputTable,
         arcpy.CopyRows_management(inputTable, copyRows)
         deleteme.append(copyRows)
         originalTableFieldNames = _tableFieldNames(inputTable, joinExcludeFields)
-        arcpy.AddMessage("originalTableFieldNames: {0}".format(originalTableFieldNames))
         addUniqueRowID(copyRows, joinFieldName)
         
         copyCCN = os.path.join(scratch, "copyCCN")
@@ -708,7 +710,6 @@ def tableToLineOfBearing(inputTable,
         arcpy.JoinField_management(outputLineFeatures, joinFieldName,
                                    copyRows, joinFieldName,
                                    originalTableFieldNames)
-        arcpy.AddMessage("originalTableFieldNames: {0}".format(originalTableFieldNames))
         arcpy.DeleteField_management(outputLineFeatures,
                                      [joinFieldName])
         

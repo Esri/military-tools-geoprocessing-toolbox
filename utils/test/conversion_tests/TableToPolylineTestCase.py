@@ -50,16 +50,14 @@ class TableToPolylineTestCase(unittest.TestCase):
     
     def setUp(self):
         if Configuration.DEBUG == True: print("     TableToPolylineTestCase.setUp")    
-        
         UnitTestUtilities.checkArcPy()
         if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
-
         csvPath = os.path.join(Configuration.militaryDataPath, "CSV")
         self.inputTable = os.path.join(csvPath, "TabletoPolyline.csv")
+        self.inputSingleTable = os.path.join(csvPath, "TableToPolyline_single.csv")
         self.outputPolylines = os.path.join(Configuration.militaryScratchGDB, "outputPolylines")
         self.BaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToPolyline")
-        
         UnitTestUtilities.checkFilePaths([Configuration.militaryDataPath, self.inputTable, Configuration.militaryScratchGDB, Configuration.militaryResultsGDB, Configuration.military_ProToolboxPath, Configuration.military_DesktopToolboxPath])
         
     def tearDown(self):
@@ -82,7 +80,86 @@ class TableToPolylineTestCase(unittest.TestCase):
         identical = compareFeatures.getOutput(1)
         self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
         return  
-
+    def test_table_to_polyline_desktop_MGRS(self):
+        '''Test Table To Polyline for ArcGIS Desktop_MGRS'''
+        runToolMessage = ".....TableToPolylineTestCase.test_table_to_polyline_desktop_MGRS"
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToPolyline_mt(self.inputSingleTable, "MGRS", "MGRS", None, self.outputPolylines)
+        self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
+        polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
+        expectedFeatures = int(1)
+        self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPolylines, "Shape_Length")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return 
+    def test_table_to_polyline_desktop_GARS(self):
+        '''Test Table To Polyline for ArcGIS Desktop_GARS'''
+        runToolMessage = ".....TableToPolylineTestCase.test_table_to_polyline_desktop_GARS"
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToPolyline_mt(self.inputSingleTable, "GARS", "GARS", None, self.outputPolylines)
+        self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
+        polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
+        expectedFeatures = int(1)
+        self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPolylines, "Shape_Length")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return 
+    def test_table_to_polyline_desktop_GEOREF(self):
+        '''Test Table To Polyline for ArcGIS Desktop_GEOREF'''
+        runToolMessage = ".....TableToPolylineTestCase.test_table_to_polyline_desktop_GEOREF"
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToPolyline_mt(self.inputSingleTable, "GEOREF", "GEOREF", None, self.outputPolylines)
+        self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
+        polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
+        expectedFeatures = int(1)
+        self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPolylines, "Shape_Length")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return 
+    def test_table_to_polyline_desktop_USNG(self):
+        '''Test Table To Polyline for ArcGIS Desktop_USNG'''
+        runToolMessage = ".....TableToPolylineTestCase.test_table_to_polyline_desktop_USNG"
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToPolyline_mt(self.inputSingleTable, "USNG", "USNG", None, self.outputPolylines)
+        self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
+        polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
+        expectedFeatures = int(1)
+        self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPolylines, "Shape_Length")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return 
+    def test_table_to_polyline_desktop_UTM_BANDS(self):
+        '''Test Table To Polyline for ArcGIS Desktop_UTM_BANDS'''
+        runToolMessage = ".....TableToPolylineTestCase.test_table_to_polyline_desktop_UTM_BANDS"
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToPolyline_mt(self.inputSingleTable, "UTM_BANDS", "UTM", None, self.outputPolylines)
+        self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
+        polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
+        expectedFeatures = int(1)
+        self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPolylines, "Shape_Length")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return 
         
     def test_table_to_polyline_pro(self):
         '''Test Table To Polyline for ArcGIS Pro'''
@@ -100,4 +177,83 @@ class TableToPolylineTestCase(unittest.TestCase):
         identical = compareFeatures.getOutput(1)
         self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
         return
-        
+    def test_table_to_polyline_pro_MGRS(self):
+        '''Test Table To Polyline for ArcGIS Pro_MGRS'''
+        runToolMessage = ".....TableToPolylineTestCase.test_table_to_polyline_pro_MGRS"
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToPolyline_mt(self.inputSingleTable, "MGRS", "MGRS", None, self.outputPolylines)
+        self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
+        polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
+        expectedFeatures = int(1)
+        self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPolylines, "Shape_Length")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return
+    def test_table_to_polyline_pro_GARS(self):
+        '''Test Table To Polyline for ArcGIS Pro_GARS'''
+        runToolMessage = ".....TableToPolylineTestCase.test_table_to_polyline_pro_GARS"
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToPolyline_mt(self.inputSingleTable, "GARS", "GARS", None, self.outputPolylines)
+        self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
+        polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
+        expectedFeatures = int(1)
+        self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPolylines, "Shape_Length")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return
+    def test_table_to_polyline_pro_GEOREF(self):
+        '''Test Table To Polyline for ArcGIS Pro_GEOREF'''
+        runToolMessage = ".....TableToPolylineTestCase.test_table_to_polyline_pro_GEOREF"
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToPolyline_mt(self.inputSingleTable, "GEOREF", "GEOREF", None, self.outputPolylines)
+        self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
+        polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
+        expectedFeatures = int(1)
+        self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPolylines, "Shape_Length")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return
+    def test_table_to_polyline_pro_USNG(self):
+        '''Test Table To Polyline for ArcGIS Pro_USNG'''
+        runToolMessage = ".....TableToPolylineTestCase.test_table_to_polyline_pro_USNG"
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToPolyline_mt(self.inputSingleTable, "USNG", "USNG", None, self.outputPolylines)
+        self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
+        polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
+        expectedFeatures = int(1)
+        self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPolylines, "Shape_Length")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return
+    def test_table_to_polyline_pro_UTM_BANDS(self):
+        '''Test Table To Polyline for ArcGIS Pro_UTM_BANDS'''
+        runToolMessage = ".....TableToPolylineTestCase.test_table_to_polyline_pro_UTM_BANDS"
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToPolyline_mt(self.inputSingleTable, "UTM_BANDS", "UTM", None, self.outputPolylines)
+        self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
+        polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
+        expectedFeatures = int(1)
+        self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputPolylines, "Shape_Length")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return

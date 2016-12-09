@@ -65,7 +65,7 @@ joinExcludeFields = ['OBJECTID', 'OID', 'ObjectID',
                      'SHAPE', 'Shape', 'Shape_Length', 'Shape_Area']
 scratch = None
 # FUNCTIONS ========================================
-def _getFieldNameList(targetTable, excludeList=None):
+def _getFieldNameList(targetTable, excludeList):
     '''
     Returns a list of field names from targetTable
     '''
@@ -75,7 +75,10 @@ def _getFieldNameList(targetTable, excludeList=None):
             raise Exception("Source table {0} does not exist or is null.".format(targetTable))
         fields = arcpy.ListFields(targetTable)
         for field in fields:
-            if not field.name in excludeList:
+            if not excludeList or not excludeList == []:
+                if not field.name in excludeList:
+                    nameList.append(field.name)
+            else:
                 nameList.append(field.name)
         return nameList
     except arcpy.ExecuteError:
@@ -1114,12 +1117,12 @@ def linearLineOfSight(inputObserverFeatures,
         offsetFieldName = "OFFSET"
         #Check if Observers have "OFFSET" field
         hasObsOffset, hasTgtOffset = True, True
-        inputObsFields = _getFieldNameList(inputObserverFeatures)
+        inputObsFields = _getFieldNameList(inputObserverFeatures, [])
         if not offsetFieldName in inputObsFields:
             arcpy.AddMessage("OFFSET field not in Observers. Using Observer Height Above Surface value of {0}".format(inputObserverHeight))
             hasObsOffset = False
         #Check if Targets have "OFFSET" field
-        inputTgtFields = _getFieldNameList(inputTargetFeatures)
+        inputTgtFields = _getFieldNameList(inputTargetFeatures, [])
         if not offsetFieldName in inputTgtFields:
             arcpy.AddMessage("OFFSET field not in Targets. Using Target Height Above Surface value of {0}".format(inputTargetHeight))
             hasTgtOffset = False
@@ -1339,15 +1342,15 @@ def linearLineOfSight(inputObserverFeatures,
         print(pymsg + "\n")
         print(msgs)
         
-    # finally:
-    #     if debug == False and len(deleteme) > 0:
-    #         # cleanup intermediate datasets
-    #         if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
-    #         for i in deleteme:
-    #             if debug == True: arcpy.AddMessage("Removing: " + str(i))
-    #             arcpy.Delete_management(i)
-    #         if debug == True: arcpy.AddMessage("Done")
-    #         
+    finally:
+        if debug == False and len(deleteme) > 0:
+            # cleanup intermediate datasets
+            if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
+            for i in deleteme:
+                if debug == True: arcpy.AddMessage("Removing: " + str(i))
+                arcpy.Delete_management(i)
+            if debug == True: arcpy.AddMessage("Done")
+            
 def radialLineOfSight(inputObserverFeatures,
                       inputObserverHeight,
                       inputRadiusOfObserver,
@@ -1389,7 +1392,7 @@ def radialLineOfSight(inputObserverFeatures,
         #Check observer fields for RADIUS2 and OFFSETA
         hasRADIUS2 = True
         hasOFFSETA = True
-        observerFieldList = _getFieldNameList(inputObserverFeatures)
+        observerFieldList = _getFieldNameList(inputObserverFeatures, [])
         if not "RADIUS2" in observerFieldList:
             arcpy.AddMessage("RADIUS2 field not in Input Observer Features. Using Radius Of Observer {0}".format(inputRadiusOfObserver))
             hasRADIUS2 = False
