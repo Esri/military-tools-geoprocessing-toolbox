@@ -56,7 +56,8 @@ class TableToLineOfBearingTestCase(unittest.TestCase):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
         
         csvFolder = os.path.join(Configuration.militaryDataPath, "CSV")
-        self.inputTable = os.path.join(csvFolder, "TabletoLineofBearing.csv")
+        self.inputTable = os.path.join(csvFolder, "TabletoLineOfBearing.csv")
+        self.inputSingleTable = os.path.join(csvFolder, "TableToLineOfBearing_single.csv")
         self.outputLineOfBearing = os.path.join(Configuration.militaryScratchGDB, "outputLines")
         self.BaseFC = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputTableToLOB")
         
@@ -82,7 +83,87 @@ class TableToLineOfBearingTestCase(unittest.TestCase):
         identical = compareFeatures.getOutput(1)
         self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
         return
-        
+    def test_table_to_lineofbearing_desktop_GARS(self):
+        '''Test Table To Line Of Bearing for ArcGIS Desktop_GARS'''
+        runToolMessage = ".....TableToLineOfBearingTestCase.test_table_to_lineofbearing_desktop_GARS"
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToLineOfBearing_mt(self.inputSingleTable, "GARS", "GARS", None, "DEGREES", "Orientation", "METERS", "Distance", self.outputLineOfBearing, "GEODESIC", None)
+        self.assertTrue(arcpy.Exists(self.outputLineOfBearing), "Output features do not exist or were not created")
+        featureCount = int(arcpy.GetCount_management(self.outputLineOfBearing).getOutput(0))
+        expectedFeatures = int(23)
+        self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputLineOfBearing, "OID")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return
+    def test_table_to_lineofbearing_desktop_GEOREF(self):
+        '''Test Table To Line Of Bearing for ArcGIS Desktop_GEOREF'''
+        runToolMessage = ".....TableToLineOfBearingTestCase.test_table_to_lineofbearing_desktop_GEOREF"
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToLineOfBearing_mt(self.inputSingleTable, "GEOREF", "GEOREF", None, "DEGREES", "Orientation", "METERS", "Distance", self.outputLineOfBearing, "GEODESIC", None)
+        self.assertTrue(arcpy.Exists(self.outputLineOfBearing), "Output features do not exist or were not created")
+        featureCount = int(arcpy.GetCount_management(self.outputLineOfBearing).getOutput(0))
+        expectedFeatures = int(23)
+        self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputLineOfBearing, "OID")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return
+    def test_table_to_lineofbearing_desktop_USNG(self):
+        '''Test Table To Line Of Bearing for ArcGIS Desktop_USNG'''
+        runToolMessage = ".....TableToLineOfBearingTestCase.test_table_to_lineofbearing_desktop_USNG"
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToLineOfBearing_mt(self.inputSingleTable, "USNG", "USNG", None, "DEGREES", "Orientation", "METERS", "Distance", self.outputLineOfBearing, "GEODESIC", None)
+        self.assertTrue(arcpy.Exists(self.outputLineOfBearing), "Output features do not exist or were not created")
+        featureCount = int(arcpy.GetCount_management(self.outputLineOfBearing).getOutput(0))
+        expectedFeatures = int(23)
+        self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputLineOfBearing, "OID")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return
+    def test_table_to_lineofbearing_desktop_MGRS(self):
+        '''Test Table To Line Of Bearing for ArcGIS Desktop_MGRS'''
+        runToolMessage = ".....TableToLineOfBearingTestCase.test_table_to_lineofbearing_desktop_MGRS"
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToLineOfBearing_mt(self.inputSingleTable, "MGRS", "MGRS", None, "DEGREES", "Orientation", "METERS", "Distance", self.outputLineOfBearing, "GEODESIC", None)
+        self.assertTrue(arcpy.Exists(self.outputLineOfBearing), "Output features do not exist or were not created")
+        featureCount = int(arcpy.GetCount_management(self.outputLineOfBearing).getOutput(0))
+        expectedFeatures = int(23)
+        self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputLineOfBearing, "OID")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return
+    def test_table_to_lineofbearing_desktop_UTM_BANDS(self):
+        '''Test Table To Line Of Bearing for ArcGIS Desktop_UTM_BANDS'''
+        runToolMessage = ".....TableToLineOfBearingTestCase.test_table_to_lineofbearing_desktop_UTM_BANDS"
+        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToLineOfBearing_mt(self.inputSingleTable, "UTM_BANDS", "UTM", None, "DEGREES", "Orientation", "METERS", "Distance", self.outputLineOfBearing, "GEODESIC", None)
+        self.assertTrue(arcpy.Exists(self.outputLineOfBearing), "Output features do not exist or were not created")
+        featureCount = int(arcpy.GetCount_management(self.outputLineOfBearing).getOutput(0))
+        expectedFeatures = int(23)
+        self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputLineOfBearing, "OID")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return
+
     def test_table_to_lineofbearing_pro(self):
         '''Test Table To Line Of Bearing for ArcGIS Pro'''
         runToolMessage = ".....TableToLineOfBearingTestCase.test_table_to_lineofbearing_pro"
@@ -99,3 +180,84 @@ class TableToLineOfBearingTestCase(unittest.TestCase):
         identical = compareFeatures.getOutput(1)
         self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
         return
+    def test_table_to_lineofbearing_pro_MGRS(self):
+        '''Test Table To Line Of Bearing for ArcGIS Pro_MGRS'''
+        runToolMessage = ".....TableToLineOfBearingTestCase.test_table_to_lineofbearing_pro_MGRS"
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToLineOfBearing_mt(self.inputSingleTable, "MGRS", "MGRS", None, "DEGREES", "Orientation", "METERS", "Distance", self.outputLineOfBearing, "GEODESIC", None)
+        self.assertTrue(arcpy.Exists(self.outputLineOfBearing), "Output features do not exist or were not created")
+        featureCount = int(arcpy.GetCount_management(self.outputLineOfBearing).getOutput(0))
+        expectedFeatures = int(23)
+        self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputLineOfBearing, "OID")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return
+    def test_table_to_lineofbearing_pro_GARS(self):
+        '''Test Table To Line Of Bearing for ArcGIS Pro_GARS'''
+        runToolMessage = ".....TableToLineOfBearingTestCase.test_table_to_lineofbearing_pro_GARS"
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToLineOfBearing_mt(self.inputSingleTable, "GARS", "GARS", None, "DEGREES", "Orientation", "METERS", "Distance", self.outputLineOfBearing, "GEODESIC", None)
+        self.assertTrue(arcpy.Exists(self.outputLineOfBearing), "Output features do not exist or were not created")
+        featureCount = int(arcpy.GetCount_management(self.outputLineOfBearing).getOutput(0))
+        expectedFeatures = int(23)
+        self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputLineOfBearing, "OID")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return
+    def test_table_to_lineofbearing_pro_GEOREF(self):
+        '''Test Table To Line Of Bearing for ArcGIS Pro_GEOREF'''
+        runToolMessage = ".....TableToLineOfBearingTestCase.test_table_to_lineofbearing_pro_GEOREF"
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToLineOfBearing_mt(self.inputSingleTable, "GEOREF", "GEOREF", None, "DEGREES", "Orientation", "METERS", "Distance", self.outputLineOfBearing, "GEODESIC", None)
+        self.assertTrue(arcpy.Exists(self.outputLineOfBearing), "Output features do not exist or were not created")
+        featureCount = int(arcpy.GetCount_management(self.outputLineOfBearing).getOutput(0))
+        expectedFeatures = int(23)
+        self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputLineOfBearing, "OID")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return
+    def test_table_to_lineofbearing_pro_USNG(self):
+        '''Test Table To Line Of Bearing for ArcGIS Pro_USNG'''
+        runToolMessage = ".....TableToLineOfBearingTestCase.test_table_to_lineofbearing_pro_USNG"
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToLineOfBearing_mt(self.inputSingleTable, "USNG", "USNG", None, "DEGREES", "Orientation", "METERS", "Distance", self.outputLineOfBearing, "GEODESIC", None)
+        self.assertTrue(arcpy.Exists(self.outputLineOfBearing), "Output features do not exist or were not created")
+        featureCount = int(arcpy.GetCount_management(self.outputLineOfBearing).getOutput(0))
+        expectedFeatures = int(23)
+        self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputLineOfBearing, "OID")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return
+    def test_table_to_lineofbearing_pro_UTM_BANDS(self):
+        '''Test Table To Line Of Bearing for ArcGIS Pro_UTM_BANDS'''
+        runToolMessage = ".....TableToLineOfBearingTestCase.test_table_to_lineofbearing_pro_UTM_BANDS"
+        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+        arcpy.TableToLineOfBearing_mt(self.inputSingleTable, "UTM_BANDS", "UTM", None, "DEGREES", "Orientation", "METERS", "Distance", self.outputLineOfBearing, "GEODESIC", None)
+        self.assertTrue(arcpy.Exists(self.outputLineOfBearing), "Output features do not exist or were not created")
+        featureCount = int(arcpy.GetCount_management(self.outputLineOfBearing).getOutput(0))
+        expectedFeatures = int(23)
+        self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
+        compareFeatures = arcpy.FeatureCompare_management(self.BaseFC, self.outputLineOfBearing, "OID")
+        # identical = 'true' means that there are no differences between the base and the output feature class
+        identical = compareFeatures.getOutput(1)
+        self.assertEqual(identical, "true", "Feature compare failed: \n %s" % arcpy.GetMessages())
+        return
+

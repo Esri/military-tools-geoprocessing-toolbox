@@ -100,7 +100,7 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         arcpy.AddField_management(junkTable, expectedNames[1], "DOUBLE")
         arcpy.AddField_management(junkTable, expectedNames[2], "TEXT")
         
-        resultNames = VisibilityUtilities._getFieldNameList(junkTable)
+        resultNames = VisibilityUtilities._getFieldNameList(junkTable, [])
         self.assertEqual(expectedNames, resultNames, "Did not get expected field names. Got {0} instead.".format(str(resultNames)))
 
     def test__addDoubleField(self):

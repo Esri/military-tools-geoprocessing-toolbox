@@ -31,6 +31,7 @@ This test suite collects all of the tests in the Conversion toolset within the M
 ==================================================
 history:
 5/10/2016 - JH - initial creation
+12/09/2016 - MF - added single field tests
 ==================================================
 '''
 
@@ -45,18 +46,78 @@ def getConversionTestSuites():
     
     convertCoordinatesDesktopTests = ['test_convert_coordinates_desktop']
     convertCoordinatesProTests = ['test_convert_coordinates_pro']
-    tableToTwoPointDesktopTests = ['test_table_to_twopointline_desktop']
-    tableToTwoPointProTests = ['test_table_to_twopointline_pro']
-    tableToEllipseDesktopTests = ['test_table_to_ellipse_desktop']
-    tableToEllipseProTests = ['test_table_to_ellipse_pro']
-    tableToLineOfBearingDesktopTests = ['test_table_to_lineofbearing_desktop']
-    tableToLineOfBearingProTests = ['test_table_to_lineofbearing_pro']
-    tableToPointDesktopTests = ['test_table_to_point_desktop']
-    tableToPointProTests = ['test_table_to_point_pro']
-    tableToPolygonDesktopTests = ['test_table_to_polygon_desktop']
-    tableToPolygonProTests = ['test_table_to_polygon_pro']
-    tableToPolylineDesktopTests = ['test_table_to_polyline_desktop']
-    tableToPolylineProTests = ['test_table_to_polyline_pro']
+    tableToTwoPointDesktopTests = ['test_table_to_twopointline_desktop',
+                               'test_table_to_twopointline_desktop_GARS',
+                               'test_table_to_twopointline_desktop_USNG',
+                               'test_table_to_twopointline_desktop_MGRS',
+                               'test_table_to_twopointline_desktop_GEOREF',
+                               'test_table_to_twopointline_desktop_UTM_BANDS']
+    tableToTwoPointProTests = ['test_table_to_twopointline_pro',
+                               'test_table_to_twopointline_pro_GARS',
+                               'test_table_to_twopointline_pro_USNG',
+                               'test_table_to_twopointline_pro_MGRS',
+                               'test_table_to_twopointline_pro_GEOREF',
+                               'test_table_to_twopointline_pro_UTM_BANDS']
+    tableToEllipseDesktopTests = ['test_table_to_ellipse_desktop',
+                                  'test_table_to_ellipse_desktop_GARS',
+                                  'test_table_to_ellipse_desktop_GEOREF',
+                                  'test_table_to_ellipse_desktop_USNG',
+                                  'test_table_to_ellipse_desktop_MGRS',
+                                  'test_table_to_ellipse_desktop_UTM_BANDS']
+    tableToEllipseProTests = ['test_table_to_ellipse_pro',
+                              'test_table_to_ellipse_pro_GARS',
+                              'test_table_to_ellipse_pro_GEOREF',
+                              'test_table_to_ellipse_pro_USNG',
+                              'test_table_to_ellipse_pro_MGRS',
+                              'test_table_to_ellipse_pro_UTM_BANDS']
+    tableToLineOfBearingDesktopTests = ['test_table_to_lineofbearing_desktop',
+                                        'test_table_to_lineofbearing_desktop_MGRS',
+                                        'test_table_to_lineofbearing_desktop_GARS',
+                                        'test_table_to_lineofbearing_desktop_GEOREF',
+                                        'test_table_to_lineofbearing_desktop_USNG',
+                                        'test_table_to_lineofbearing_desktop_UTM_BANDS']
+    tableToLineOfBearingProTests = ['test_table_to_lineofbearing_pro',
+                                    'test_table_to_lineofbearing_pro_MGRS',
+                                    'test_table_to_lineofbearing_pro_GARS',
+                                    'test_table_to_lineofbearing_pro_GEOREF',
+                                    'test_table_to_lineofbearing_pro_USNG',
+                                    'test_table_to_lineofbearing_pro_UTM_BANDS']
+    tableToPointDesktopTests = ['test_table_to_point_desktop',
+                                'test_table_to_point_desktop_MGRS',
+                                'test_table_to_point_desktop_GARS',
+                                'test_table_to_point_desktop_GEOREF',
+                                'test_table_to_point_desktop_USNG',
+                                'test_table_to_point_desktop_UTM_BANDS']
+    tableToPointProTests = ['test_table_to_point_pro',
+                            'test_table_to_point_pro_MGRS',
+                            'test_table_to_point_pro_GARS',
+                            'test_table_to_point_pro_GEOREF',
+                            'test_table_to_point_pro_USNG',
+                            'test_table_to_point_pro_UTM_BANDS']
+    tableToPolygonDesktopTests = ['test_table_to_polygon_desktop',
+                                  'test_table_to_polygon_desktop_MGRS',
+                                  'test_table_to_polygon_desktop_GARS',
+                                  'test_table_to_polygon_desktop_GEOREF',
+                                  'test_table_to_polygon_desktop_USNG',
+                                  'test_table_to_polygon_desktop_UTM_BANDS']
+    tableToPolygonProTests = ['test_table_to_polygon_pro',
+                              'test_table_to_polygon_pro_MGRS',
+                              'test_table_to_polygon_pro_GARS',
+                              'test_table_to_polygon_pro_GEOREF',
+                              'test_table_to_polygon_pro_USNG',
+                              'test_table_to_polygon_pro_UTM_BANDS']
+    tableToPolylineDesktopTests = ['test_table_to_polyline_desktop',
+                                   'test_table_to_polyline_desktop_MGRS',
+                                   'test_table_to_polyline_desktop_GARS',
+                                   'test_table_to_polyline_desktop_GEOREF',
+                                   'test_table_to_polyline_desktop_USNG',
+                                   'test_table_to_polyline_desktop_UTM_BANDS']
+    tableToPolylineProTests = ['test_table_to_polyline_pro',
+                               'test_table_to_polyline_pro_MGRS',
+                               'test_table_to_polyline_pro_GARS',
+                               'test_table_to_polyline_pro_GEOREF',
+                               'test_table_to_polyline_pro_USNG',
+                               'test_table_to_polyline_pro_UTM_BANDS']
     
     if Configuration.DEBUG == True:
         print("   ConversionTestSuite.getConversionTestSuites")
