@@ -1415,7 +1415,8 @@ def radialLineOfSight(inputObserverFeatures,
         #make localized WAZED
         arcpy.AddMessage("Using localized World Azimuthal Equidistant for analysis...")
         srLocalWAZED = _getLocalWAZED(ddCentroidPoint)
-        arcpy.env.outputCoordinateSystem = srLocalWAZED
+        arcpy.AddMessage("arcpy.env.outputCoordinateSystem (srLocalWAZED): {0}".format(srLocalWAZED))
+        #arcpy.env.outputCoordinateSystem = srLocalWAZED
         
         #project Observers to temp dataset in local WAZED
         tempObservers = os.path.join(scratch, "tempObservers")
