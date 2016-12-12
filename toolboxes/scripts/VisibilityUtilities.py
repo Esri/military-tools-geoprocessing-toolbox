@@ -31,6 +31,7 @@
  11/29/2016 - mf - Added Find Local Peaks tool
  12/2/2016 - mf - Added additional tools
  12/6/2016 - mf - LLOS and profile graph
+ 12/12/2016 - mf - fix #189 - extra escape char in local srWAZED
  ==================================================
 '''
 
