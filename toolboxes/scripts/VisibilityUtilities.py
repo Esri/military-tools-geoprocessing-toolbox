@@ -31,6 +31,7 @@
  11/29/2016 - mf - Added Find Local Peaks tool
  12/2/2016 - mf - Added additional tools
  12/6/2016 - mf - LLOS and profile graph
+ 12/12/2016 - mf - fix #189 - extra escape char in local srWAZED
  ==================================================
 '''
 
@@ -64,6 +65,7 @@ acceptableDistanceUnits = ['METERS', 'KILOMETERS',
 joinExcludeFields = ['OBJECTID', 'OID', 'ObjectID',
                      'SHAPE', 'Shape', 'Shape_Length', 'Shape_Area']
 scratch = None
+
 # FUNCTIONS ========================================
 def _getFieldNameList(targetTable, excludeList):
     '''
@@ -391,10 +393,10 @@ def _getLocalWAZED(inputPoint):
         strAZED = srWAZED.exportToString()
         arcpy.AddMessage("Using Central Meridian: {0}, and Latitude of Origin: {1}.".format(pnt.X, pnt.Y))
         strAZED = re.sub('PARAMETER\[\'Central_Meridian\'\,.+?]',
-               'PARAMETER\[\'Central_Meridian\',{0}]'.format(str(pnt.X)),
+               'PARAMETER[\'Central_Meridian\',{0}]'.format(str(pnt.X)),
                strAZED)
         strAZED = re.sub('PARAMETER\[\'Latitude_Of_Origin\'\,.+?]',
-               'PARAMETER\[\'Latitude_Of_Origin\',{0}]'.format(str(pnt.Y)),
+               'PARAMETER[\'Latitude_Of_Origin\',{0}]'.format(str(pnt.Y)),
                strAZED)
         newSR.loadFromString(strAZED)
 
@@ -1382,8 +1384,7 @@ def radialLineOfSight(inputObserverFeatures,
         if arcpy.env.scratchWorkspace:
             scratch = arcpy.env.scratchWorkspace
         else:
-            scratch = r"%scratchGDB%"
-            
+            scratch = r"%scratchGDB%" 
 
         #get original spatial reference of inputs
         srObservers = arcpy.Describe(inputObserverFeatures).spatialReference
