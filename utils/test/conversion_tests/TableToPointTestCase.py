@@ -52,8 +52,8 @@ class TableToPointTestCase(unittest.TestCase):
         if Configuration.DEBUG == True: print("     TableToPointTestCase.setUp")
 
         UnitTestUtilities.checkArcPy()
-        if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
-            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
+        if not arcpy.Exists(Configuration.militaryScratchGDB):
+            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
         csvFolder = os.path.join(Configuration.militaryDataPath, "CSV")
         self.inputTable = os.path.join(csvFolder, "TableToPoint.csv")
         self.inputSingleTable = os.path.join(csvFolder, "TableToPoint_single.csv")

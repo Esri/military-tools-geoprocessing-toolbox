@@ -50,7 +50,8 @@ class AddRLOSObserverFieldsTestCase(unittest.TestCase):
         if Configuration.DEBUG == True: print(".....AddRLOSObserverFieldsTestCase.setUp")
 
         UnitTestUtilities.checkArcPy()
-        Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
+        if not arcpy.Exists(Configuration.militaryScratchGDB):
+            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
 
         originalObservers = os.path.join(Configuration.militaryInputDataGDB, "RLOS_Observers")
         self.inputObservers = os.path.join(Configuration.militaryScratchGDB, "RLOS_Observers")

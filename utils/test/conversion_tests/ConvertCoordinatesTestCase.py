@@ -49,15 +49,15 @@ class ConvertCoordinatesTestCase(unittest.TestCase):
         if Configuration.DEBUG == True: print(".....ConvertCoordinatesTestCase.setUp")    
         
         UnitTestUtilities.checkArcPy()
-        if not Configuration.militaryScratchGDB:
-            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
+        if not arcpy.Exists(Configuration.militaryScratchGDB):
+            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
 
         self.inputTable = os.path.join(Configuration.militaryInputDataGDB, "SigActs")
         self.outputConvert = os.path.join(Configuration.militaryScratchGDB, "outputConvert")
         
     def tearDown(self):
         if Configuration.DEBUG == True: print(".....ConvertCoordinatesTestCase.tearDown")
-        UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+        #UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
     
     def test_convert_coordinates_desktop(self):
         '''Test Convert Coordinates in ArcGIS Desktop'''

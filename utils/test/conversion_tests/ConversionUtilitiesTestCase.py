@@ -46,6 +46,8 @@ class ConversionUtilitiesTestCase(unittest.TestCase):
     def setUp(self):
         if Configuration.DEBUG == True: print(".....ConversionUtilitiesTestCase.setUp")
         #TODO: inputPolylines
+        if not arcpy.Exists(Configuration.militaryScratchGDB):
+            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
         
         
     def tearDown(self):

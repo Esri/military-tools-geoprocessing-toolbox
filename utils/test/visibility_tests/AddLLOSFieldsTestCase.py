@@ -48,7 +48,8 @@ class AddLLOSFieldsTestCase(unittest.TestCase):
         if Configuration.DEBUG == True: print(".....AddLLOSFieldsTestCase.setUp")
 
         UnitTestUtilities.checkArcPy()
-        Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
+        if not arcpy.Exists(Configuration.militaryScratchGDB):
+            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
 
         originalObservers = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Observers")
         originalTargets = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Targets")
