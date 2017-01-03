@@ -68,7 +68,8 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
         self.inputSigActsTable = os.path.join(Configuration.militaryInputDataGDB, "SigActs")
         
-        Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
+        if not arcpy.Exists(Configuration.militaryScratchGDB):
+            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
             
     def tearDown(self):
         runToolMessage = ".....VisibilityUtilityTestCase.teardown"

@@ -45,8 +45,8 @@ class TableToPolygonTestCase(unittest.TestCase):
     def setUp(self):
         if Configuration.DEBUG == True: print("     TableToPolygonTestCase.setUp")    
         UnitTestUtilities.checkArcPy()
-        if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
-            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
+        if not arcpy.Exists(Configuration.militaryScratchGDB):
+            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
         csvFolder = os.path.join(Configuration.militaryDataPath, "CSV")
         self.inputTable = os.path.join(csvFolder, "TableToPolygon.csv")
         self.inputSingleTable = os.path.join(csvFolder, "TableToPolygon_single.csv")

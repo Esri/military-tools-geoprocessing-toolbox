@@ -49,7 +49,8 @@ class HighestPointsTestCase(unittest.TestCase):
         if Configuration.DEBUG == True: print(".....HighestPointsTestCase.setUp")
 
         UnitTestUtilities.checkArcPy()
-        Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
+        if not arcpy.Exists(Configuration.militaryScratchGDB):
+            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
 
         self.inputArea = os.path.join(Configuration.militaryInputDataGDB, "AreaofInterest")
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")

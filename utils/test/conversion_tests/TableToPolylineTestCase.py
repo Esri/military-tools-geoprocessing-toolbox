@@ -51,8 +51,8 @@ class TableToPolylineTestCase(unittest.TestCase):
     def setUp(self):
         if Configuration.DEBUG == True: print("     TableToPolylineTestCase.setUp")    
         UnitTestUtilities.checkArcPy()
-        if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
-            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
+        if not arcpy.Exists(Configuration.militaryScratchGDB):
+            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
         csvPath = os.path.join(Configuration.militaryDataPath, "CSV")
         self.inputTable = os.path.join(csvPath, "TabletoPolyline.csv")
         self.inputSingleTable = os.path.join(csvPath, "TableToPolyline_single.csv")

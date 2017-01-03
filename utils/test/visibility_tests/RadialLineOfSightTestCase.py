@@ -49,7 +49,8 @@ class RadialLineOfSightTestCase(unittest.TestCase):
         if Configuration.DEBUG == True: print("     RadialLineOfSightTestCase.setUp")
 
         UnitTestUtilities.checkArcPy()
-        Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
+        if not arcpy.Exists(Configuration.militaryScratchGDB):
+            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
 
         self.observers = os.path.join(Configuration.militaryInputDataGDB, "RLOS_Observers")
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")

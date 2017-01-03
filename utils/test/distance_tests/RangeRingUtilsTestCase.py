@@ -49,8 +49,8 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         ''' setup for tests'''
         if Configuration.DEBUG == True: print(".....RangeRingsUtilsTestCase.setUp")
         UnitTestUtilities.checkArcPy()
-        if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
-            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
+        if not arcpy.Exists(Configuration.militaryScratchGDB):
+            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
 
         #create a temp point feature class
         ptCoords = [[0.0, 0.0], [10.0, 10.0], [3.0, 3.0], [5.5, 1.5]]

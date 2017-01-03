@@ -47,8 +47,8 @@ class TableToTwoPointLineTestCase(unittest.TestCase):
         if Configuration.DEBUG == True: print("     TableToTwoPointLineTestCase.setUp")    
         
         UnitTestUtilities.checkArcPy()
-        if(Configuration.militaryScratchGDB == None) or (not arcpy.Exists(Configuration.militaryScratchGDB)):
-            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.militaryDataPath)
+        if not arcpy.Exists(Configuration.militaryScratchGDB):
+            Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
         
         csvFolder = os.path.join(Configuration.militaryDataPath, "CSV")
         self.inputTable = os.path.join(csvFolder, "TableTo2PointLine.csv")

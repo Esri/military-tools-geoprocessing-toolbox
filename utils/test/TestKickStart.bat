@@ -30,6 +30,7 @@ rem  history:
 rem  5/9/2016: JH - initial creation
 rem  6/1/2016: MF - Add RangeRingUtils.py copy for testing
 rem  6/3/2016: MF - work on exit codes
+rem  12/22/2016: MF - change back to single execution for Jenkins builds
 rem ==================================================
 
 REM === TEST SETUP ===================================
@@ -51,34 +52,34 @@ REM === SINGLE VERSION ==================================
 REM If you only have ONE version of Python installed
 REM uncomment the following lines
 REM =====================================================
-REM python TestRunner.py
-REM IF %ERRORLEVEL% NEQ 0 (
-REM    ECHO 'One or more tests failed'
-REM )
+python TestRunner.py
+IF %ERRORLEVEL% NEQ 0 (
+   ECHO 'One or more tests failed'
+)
 REM === SINGLE VERSION ==================================
 
 
-REM === MULTIPLE VERSIONS ===============================
-REM If you have BOTH versions of Python installed use
-REM these lines
-REM =====================================================
-ECHO Python 3.4 Tests ===============================
-REM py -3.4 TestRunner.py %LOG%
-REM The location of python.exe will depend upon your installation
-REM of ArcGIS Pro. Modify the following line as necessary:
-REM "C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\python.exe" TestRunner.py %LOG%
-py -3.4 TestRunner.py %LOG%
-REM check if ArcGIS Pro/Python 3.4 tests failed
-IF %ERRORLEVEL% NEQ 0 (
-   ECHO 'One or more tests failed'
-)
-ECHO Python 2.7 Tests ===============================
-py -2.7 TestRunner.py %LOG%
-REM check if Desktop for ArcGIS/Python 2.7 tests failed
-IF %ERRORLEVEL% NEQ 0 (
-   ECHO 'One or more tests failed'
-)
-REM === MULTIPLE VERSIONS ===============================
+rem REM === MULTIPLE VERSIONS ===============================
+rem REM If you have BOTH versions of Python installed use
+rem REM these lines
+rem REM =====================================================
+rem ECHO Python 3.4 Tests ===============================
+rem REM py -3.4 TestRunner.py %LOG%
+rem REM The location of python.exe will depend upon your installation
+rem REM of ArcGIS Pro. Modify the following line as necessary:
+rem REM "C:\Program Files\ArcGIS\Pro\bin\Python\envs\arcgispro-py3\python.exe" TestRunner.py %LOG%
+rem py -3.4 TestRunner.py %LOG%
+rem REM check if ArcGIS Pro/Python 3.4 tests failed
+rem IF %ERRORLEVEL% NEQ 0 (
+rem    ECHO 'One or more tests failed'
+rem )
+rem ECHO Python 2.7 Tests ===============================
+rem py -2.7 TestRunner.py %LOG%
+rem REM check if Desktop for ArcGIS/Python 2.7 tests failed
+rem IF %ERRORLEVEL% NEQ 0 (
+rem    ECHO 'One or more tests failed'
+rem )
+rem REM === MULTIPLE VERSIONS ===============================
 
 
 REM === CLEANUP =========================================
