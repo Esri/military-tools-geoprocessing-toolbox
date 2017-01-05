@@ -44,7 +44,7 @@ militaryScratchGDB = None
 ''' Toolboxes paths '''
 militaryToolboxesPath = os.path.normpath(os.path.join(currentPath, r"../../toolboxes/"))
 military_ProToolboxPath = os.path.normpath(os.path.join(militaryToolboxesPath, "Military_Tools_pro.tbx"))
-military_DesktopToolboxPath = os.path.normpath(os.path.join(militaryToolboxesPath, "Military_Tools_dsk.tbx"))
+military_DesktopToolboxPath = os.path.normpath(os.path.join(militaryToolboxesPath, "Military_Tools_arcmap.tbx"))
 
 ''' Conversion Path'''
 conversionPath = os.path.normpath(os.path.join(currentPath, r"conversion_tests"))

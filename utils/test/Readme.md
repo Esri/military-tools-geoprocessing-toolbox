@@ -15,22 +15,27 @@ The unittests in this section of the repository are designed to test the geoproc
 
 ##Requirements
 ###For ArcGIS Pro
-Tools for ArcGIS Pro are in the **Military_Tools.tbx** toolbox and have the following requirements:
-* ArcGIS Pro 1.1+
-* Python 3.4.1 for ArcGIS Pro
+Tools for ArcGIS Pro are in the **Military_Tools_pro.tbx** toolbox and have the following requirements:
+* ArcGIS Pro 1.1 to ArcGIS Pro 1.3
+	* Python 3.4.1 for ArcGIS Pro
+* ArcGIs Pro 1.3.1+
 
 ###For ArcGIS Desktop
-Tools for ArcMap are in the **Military_Tools_10.3.tbx** toolbox and have the following requirements:
+Tools for ArcMap are in the **Military_Tools_arcmap.tbx** toolbox and have the following requirements:
 * ArcGIS for Desktop 10.3.1+
 * Python 2.7+
 
 ##Running the tests
 The goal is to run the test suites for all of the tools against different versions of operating systems and versions of Python/ArcGIS.
 
-1. Check your Python versions. You need to have at least ONE of two required versions listed above.
-2. Modify [**TestKickStart.bat** ](./TestKickStart.bat)to run tests for the versions you have installed.
+1. Check your ArcGIS versions. You need to have at least ONE of two required versions listed above.
+2. Modify the correct **.bat**.
+	1.  [**ArcMapTestKickStart.bat** ](./ArcMapTestKickStart.bat)to run tests for **ArcMap**, or 
+	2.  [**ArcGISProTestKickStart.bat**](./ArcGISProTestKickStart.bat) for **ArcGIS Pro**.
 3. Open a command prompt in *.\military-tools-geoprocessing-toolbox\utils\test*.
-4. Run **TestKickStart.bat**
+4. Run the appropriate **.bat**
+	1. 	[**ArcMapTestKickStart.bat** ](./ArcMapTestKickStart.bat)to run tests for **ArcMap**, or 
+	2.  [**ArcGISProTestKickStart.bat**](./ArcGISProTestKickStart.bat) for **ArcGIS Pro**.
 5. Check the dialog for results and check the log file created by the tests.
 
 ##Log files
@@ -50,9 +55,9 @@ where:
 
 For example:
 
-    MTGT_2015-November-05_08-31-22_seq0.log
+    MTGT_2016-November-05_08-31-22_seq0.log
 
-This log file was created November 5th, 2015 at 8:31:22 AM and was the first log file created at that time.
+This log file was created November 5th, 2016 at 8:31:22 AM and was the first log file created at that time.
 
 ##Reporting errors as Issues
 Any errors or problems need to be reported. If they go unmentioned, then they go unfixed. All issues should be logged in the military-tools-geoprocessing-repository [Issues](https://github.com/Esri/military-tools-geoprocessing-toolbox/issues).
@@ -125,7 +130,6 @@ that the tool tests are answering.
 * Correct number of rings were created?
 * Correct number of radials were created?
 
-
 **Find Local Peaks**
 * Is the expected number of output features produced? (there might be several output points produced especially near water)
 * Is the elevation field (name?) added to the output?
@@ -133,8 +137,6 @@ that the tool tests are answering.
 **Highest Points**
 * is the expected number of output features produced? (there might be more than one point with the same highest elevation)
 * Is the elevation field (name?) added to the output?
-
-
 
 **Lowest Points**
 * Is the correct number of points produced?
