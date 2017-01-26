@@ -1,81 +1,10 @@
-![Image of repository-template](MilitaryAnalystGraphic.png)
+# military-tools-geoprocessing-toolbox
+is a collection of models, scripts, and tools for use in ArcGIS for Desktop and ArcGIS Pro. This toolbox is one component that is a part of the Military Tools Product. 
 
-# MilitaryAnalyst-Geoprocessing-Toolbox
-is a collection of models, scripts, and tools for use in ArcGIS for Desktop and ArcGIS Pro. This toolbox is one component that is a part of the Military Analyst Product. 
-
-## Features
-
-This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to import geometry from tables, determine ranges, and basic visibility analysis.
-
-### Contents
-* [toolboxes]
-	* Military Analyst Tools.tbx
-		* Conversion
-			* Convert Coordinates
-			* Table To 2-Point Line
-			* Table To Ellipse
-			* Table To Line Of Bearing
-			* Table To Point
-			* Table To Polygon
-			* Table To Polyline
-		* Geodesy and Range
-			* Range Rings
-		* Source Scripts
-			* Add Unique Row ID
-			* Polyline To Polygon
-			* sourceCC
-			* sourceRLOSscript
-			* sourceRR
-		* Terrain
-			* Find Local Peaks
-			* Highest Points
-			* Lowest Point
-		* Visibility
-			* Linear Line Of Sight
-			* Radial Line Of Sight
-	* [scripts]
-		* AddUniqueRowID.py
-		* ConvertCoordinates.py
-		* PolylineToPolygon.py
-		* RangeRings.py
-		* RLOS.py
-	* [layers]
-		* Highest Point Output.lyr
-		* Linear Line of Sight Output.lyr
-		* Lowest Point Output.lyr
-		* Radial Line Of Sight Output.lyr
-		* RangeRadials.lyr
-		* RangeRings.lyr
-* [testdata]
-	* [MATestData.gdb]
-		* ElevationSurface		
-		* ellipsewizard - preliminary test data - DO NOT DISTRIBUTE
-		* linewizard- preliminary test data - DO NOT DISTRIBUTE
-		* lobwizard- preliminary test data - DO NOT DISTRIBUTE
-		* pointwizard- preliminary test data - DO NOT DISTRIBUTE
-		* sampleRangePoints- preliminary test data - DO NOT DISTRIBUTE
-		* SigActs- preliminary test data - DO NOT DISTRIBUTE
-	* [Source]
-		* [SRTM30M]
-			* 36.dt2
-		* [SRTM90M]
-			* [dted]
-				* [w121]
-					* n35.dt1
-					* n36.dt1
-				* [w122]
-					* n35.dt1
-					* n36.dt1
-				* [w123]
-					* n36.dt1
-	* ellipsewizard.csv - preliminary test data - DO NOT DISTRIBUTE
-	* linewizard.csv - preliminary test data - DO NOT DISTRIBUTE
-	* lobwizard.csv - preliminary test data - DO NOT DISTRIBUTE
-	* pointwizard.csv - preliminary test data - DO NOT DISTRIBUTE
-	* SigActs.csv - preliminary test data - DO NOT DISTRIBUTE
+![screenshot of tools](m-t-g-t_screenshot_600x400.png)
 
 ## Sections
-
+* [Features](#features)
 * [Requirements](#requirements)
 * [Instructions](#instructions)
 * [Issues](#issues)
@@ -84,72 +13,96 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 * [Resources](#resources)
 * [Licensing](#licensing)
 
+## Features
+
+This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to import geometry from tables, determine ranges, and provide basic visibility analysis capabilities.
+
+### Contents
+
+* [Repository contents list](./Contents.md)
+
 ## Requirements
 
-* ArcGIS Desktop 10.3.1
+Tools for ArcMap are in the **Military_Tools_arcmap.tbx** toolbox and have the following requirements:
+
+* **ArcGIS 10.3.1 for Desktop**
+* **ArcGIS 10.4 for Desktop**
+* **ArcGIS 10.4.1 for Desktop**
+
+
+Tools for ArcGIS Pro are in the **Military_Tools_pro.tbx** toolbox and have the following requirements: 
+
+* **ArcGIS Pro 1.2**
+* **ArcGIS Pro 1.3**
+* **ArcGIS Pro 1.4**
+
+Additionally there are additional extensions needed for certain tools:
+
+* Requires **ArcGIS Spatial Analyst**:
+	* Find Local Peaks
+	* Highest Points
+	* Lowest Points
+	* Radial Line Of Sight
+
+* Requires **ArcGIS Spatial Analyst** *and* **ArcGIS 3D Analyst**:
+	* Linear Line Of Sight
 
 ## Instructions
 
 * [New to Github? Get started here.](http://htmlpreview.github.com/?https://github.com/Esri/esri.github.com/blob/master/help/esri-getting-to-know-github.html)
-
-### Testing the tools
-In this case testing is to take the tools from the repository and report success and failure (log issues) without modifying the tools, or modifying the source code.
-
-1. Click the **Download Zip** button.
-2. Extract the ZIP tools to a working folder
-3. Use the included [testdata] to manually test each tool
-4. Log [issues](https://github.com/ArcGIS/MilitaryAnalyst-Geoprocessing-Toolbox/issues) for any problems found (if they haven't been logged already)
-
-### Building the tools
-Building the tools means modifying existing tools or adding new tools. In this case you should be familiar with GitHub and creating geoprocessing tools.
-
-1. Create a new branch from "master" branch:
-	* Include your initials in the branch name, eg. *"mf-new-viz-tool"*
-2. Clone it to your local machine
-3. Make your changes locally
-4. Commit your changes and Sync with your remote
-5. Create a Pull Request to have your updates merged to "master"
+* [Intstructions on running the tests for this repository](./utils/test/Readme.md)
+* [Want to help update the tools in this repository?](https://github.com/esri/contributing)
 
 ## Issues
 
-Find a bug or want to request a new feature?  Please let us know by submitting an [issue](https://github.com/ArcGIS/MilitaryAnalyst-Geoprocessing-Toolbox/issues).
+Find a bug or want to request a new feature?  Please let us know by submitting an [issue](https://github.com/Esri/military-tools-geoprocessing-toolbox/issues).
 Please note that issues might be copied or transferred to other repositories as needed.
 
-1. Use a concise, one-line title
-2. The Description should include:
-	* A *detailed* description of what the problem or question is, what was expected, what differed.
-	* A *numbered* list of steps to reproduce the problem (don't assume the person fixing the issue will know how to reproduce the problem)
-	* Screenshots are helpful
-	* blocks of script/code (if necessary)
-4. Add labels:
-	* Add the gray label **"-1 - Add To Backlog"**
-	* Add one label from the red/pink **"B"** category (eg. "B - Bug")
-	* Add one label from the green **"F"** category (eg. "F - Geodesy")
-	* Add one label from the purple **"V"** category (eg. "V - 10.3.1")
-
-## Contact
-
-The primary Point of Contact (POC) for Issues/Contributions to this Repository is:
-
-* [Matt Funk](https://github.com/mfunk)
-
-Secondary POC:
-
-* [Lyle Wright](https://github.com/topowright)
+1. Click **New issue**
+2. Fill out the issue template with as much detail as possible. Add screenshots as needed.
+3. Click **Submit new issue**
 
 ## Contributing
 
-Esri welcomes contributions from anyone and everyone. Please see our [guidelines for contributing](https://github.com/esri/contributing).
+Esri welcomes contributions from anyone and everyone.
+
+Repository specific instructions:
+
+* Make a new branch from *dev* branch
+* Clone the repository to your local machine
+* Make changes on your local machine
+* Synchronize changes with your branch often
+* When you would like to share your changes:
+	* Pull the recent updates from *dev*
+	* create a **New Pull Request** against the *dev* branch
+
+Please see Esri general [guidelines for contributing](https://github.com/esri/contributing).
+
+### Repository Points of Contact
+
+Repository Owner: [Matt Funk](https://github.com/mfunk)
+
+* Merge Pull Requests
+* Creates Releases and Tags
+* Manages Milestones
+* Manages and Assigns Issues
+
+Secondary Contact: [Lyle Wright](https://github.com/topowright)
+
+* Backup when the Owner is away
 
 ## Resources
 
-* [Solution's Guide to Creating Geoprocessing Tools](https://github.com/ArcGIS/Solutions-Resources/blob/master/Python/Style/SolutionsGuideToCreatingGeoprocessingTools.md)
+* [ArcGIS 10.3 Help](http://resources.arcgis.com/en/help/)
+* [ArcGIS Blog](http://blogs.esri.com/esri/arcgis/)
+* ![Twitter](https://g.twimg.com/twitter-bird-16x16.png)[@EsriDefense](http://twitter.com/EsriDefense)
+* [ArcGIS Solutions Website](http://solutions.arcgis.com/military/)
 
 ### Related repositories
 * [solutions-geoprocessing-toolbox](https://github.com/Esri/solutions-geoprocessing-toolbox)
 * [solutions-webappbuilder-widgets](https://github.com/Esri/solutions-webappbuilder-widgets)
-* [coordinate-tool-addin-dotnet](https://github.com/Esri/coordinate-tool-addin-dotnet)
-* [geodesy-and-range-addin-dotnet](https://github.com/ArcGIS/geodesy-and-range-addin-dotnet)
+* [coordinate-conversion-addin-dotnet](https://github.com/Esri/coordinate-conversion-addin-dotnet)
+* [distance-direction-addin-dotnet](https://github.com/Esri/distance-direction-addin-dotnet)
 
 ## Licensing
 
@@ -170,5 +123,5 @@ limitations under the License.
 A copy of the license is available in the repository's
 [license.txt](license.txt) file.
 
-[](Esri Tags: ArcGISSolutions Military Defense {TODO-ADD-OTHERS} )
+[](Esri Tags: ArcGISSolutions Military Defense)
 [](Esri Language: Python)

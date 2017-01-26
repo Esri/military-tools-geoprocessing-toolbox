@@ -1,0 +1,26 @@
+﻿=================================================  
+ Data credits for: military-tools-geoprocessing-toolbox
+ Data credit file created on: 04/18/2016  
+ Data credit file updated on: 12/062016
+  -added single field data csv test data
+=================================================  
+Data included in this download: 
+
+All data in this download is fictional data except for the data that has been downloaded from USGS, which is found in the source folder. In the text below refers to the URL where the data restrictions can be found for the elevation datasets. 
+
+CSV: Esri, Inc.
+Source Folder: 
+Data restrictions can be found in the following URL:
+https://lta.cr.usgs.gov/sites/default/files/Data%20Citation_1.pdf
+  *SRTM30M
+  *SRTM90M 
+
+MilitaryToolsTestData.gdb
+	* Elevation Surface (This data is referencing the Source Folder)
+	* sampleRangePoints
+	* SigActs
+
+=================================================
+ Access and Use Constraints:
+
+The information used for the exercises is based on standard Esri Commercial off-the-Shelf (COTS) technologies and commercial data. Any scenario data is notional.  The locations of these events are approximate. The threat assigned to these events are notional. Use of military imagery does not imply or constitute endorsement, sponsorship, or affiliation of Esri, its products, or services by the U.S. Department of Defense.
