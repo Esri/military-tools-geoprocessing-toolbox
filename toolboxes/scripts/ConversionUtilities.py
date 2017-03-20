@@ -107,42 +107,34 @@ def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
         #Open Insert cursor on polygons
         outRows = arcpy.da.InsertCursor(outpolygonsFC, inFields)
     
-        arcPoint = arcpy.Point()
         polyArray = arcpy.Array()
 
         rowCount = 0
 
         for row in inRows:
 
-            featShape = row[0]
             rowCount += 1
 
-            # Provide feedback, since this section of the method seems to take a while
-            if debug and not (rowCount % 25):
+            # Provide feedback, since this method may take a while for large datasets
+            if debug and not (rowCount % 100):
                 arcpy.AddMessage('Processing Row: ' + str(rowCount))
 
             if inputIDFieldName:
                 inID = row[1]
-    
-            polyArray.removeAll()
 
             # Polyline will only have one part
+            featShape = row[0]
             polyline = featShape.getPart(0)
-            for point in polyline:
-                arcPoint.X = point.X
-                arcPoint.Y = point.Y
-                polyArray.add(arcPoint)
 
-            #############################################
-            # This section of code takes longer than expected ~ about one second
+            polyArray.removeAll()
+            polyArray.append(polyline)
+
             outPoly = arcpy.Polygon(polyArray, sr)
 
             if inputIDFieldName:
                 outRows.insertRow([outPoly, inID])
             else:
                 outRows.insertRow([outPoly])
-            #
-            #############################################
 
         if debug:
             arcpy.AddMessage("Done converting polylines to polygons ...")
