@@ -606,10 +606,9 @@ def tableToEllipse(inputTable,
             # cleanup intermediate datasets
             if debug : arcpy.AddMessage("Removing intermediate datasets...")
             for i in deleteme:
-                if debug : 
-                    arcpy.AddMessage("Removing Temp Dataset: " + str(i))
-                    # Comment this line to skipping delete:
-                    arcpy.Delete_management(i)
+                if debug : arcpy.AddMessage("Removing Temp Dataset: " + str(i))
+                # Comment this next line to skip delete:
+                arcpy.Delete_management(i)
         if debug : arcpy.AddMessage("Done")
 
 def tableToLineOfBearing(inputTable,
