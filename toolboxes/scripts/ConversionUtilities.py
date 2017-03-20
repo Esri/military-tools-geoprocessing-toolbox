@@ -61,9 +61,8 @@ formatsCoordinateNotation = ["DD_1", "DD_2",
                              "USNG"]
 formatsLineTypes = ["GEODESIC", "GREAT_CIRCLE", "RHUMB_LINE", "NORMAL_SECTION"]
 joinExcludeFields = ['OBJECTID', 'OID', 'ObjectID',
-                     'SHAPE', 'Shape', 'Shape_Length', 'Shape_Area',
-                     'JoinID']
-    
+                     'SHAPE', 'Shape', 'Shape_Length', 'Shape_Area', 'JoinID']
+
 def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
     '''
     Converts polyline to polygon features. All closed features will
@@ -90,48 +89,64 @@ def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
                                                             "#",
                                                             "#",
                                                             sr)
-    
         
         inFields = ["SHAPE@"]
         if inputIDFieldName:
             #Add ID field
             if debug:
                 arcpy.AddMessage("Adding ID field: %s ..." % str(inputIDFieldName))
-            arcpy.AddField_management(outpolygonsFC,inputIDFieldName,"TEXT")
+            arcpy.AddField_management(outpolygonsFC,inputIDFieldName, "LONG")
             inFields = ["SHAPE@", inputIDFieldName]
-            
+
         if debug:
-            arcpy.AddMessage("Opening cursors ...")
+            arcpy.AddMessage("Converting Polylines to Polygons...")
+
         #Open Search cursor on polyline
         inRows = arcpy.da.SearchCursor(inputPolylines, inFields)
     
         #Open Insert cursor on polygons
-        outRows = arcpy.da.InsertCursor(outpolygonsFC,inFields)
+        outRows = arcpy.da.InsertCursor(outpolygonsFC, inFields)
     
+        arcPoint = arcpy.Point()
+        polyArray = arcpy.Array()
+
+        rowCount = 0
+
         for row in inRows:
-            feat = row[0]
+
+            featShape = row[0]
+            rowCount += 1
+
+            # Provide feedback, since this section of the method seems to take a while
+            if debug and not (rowCount % 25):
+                arcpy.AddMessage('Processing Row: ' + str(rowCount))
+
             if inputIDFieldName:
                 inID = row[1]
     
-            # if debug:
-            #     arcpy.AddMessage("Building points from lines.")
-            #Build array of points for the line
-            polyArray = arcpy.Array()
-            partnum = 0
-            for part in feat:
-                for pnt in feat.getPart(partnum):
-                    polyArray.add(arcpy.Point(pnt.X, pnt.Y))
-                partnum += 1
-    
-            # if debug:
-            #     arcpy.AddMessage("Creating polygon from points.")
-            #convert the array to a polygon, and insert the features
-            outPoly = arcpy.Polygon(polyArray)
+            polyArray.removeAll()
+
+            # Polyline will only have one part
+            polyline = featShape.getPart(0)
+            for point in polyline:
+                arcPoint.X = point.X
+                arcPoint.Y = point.Y
+                polyArray.add(arcPoint)
+
+            #############################################
+            # This section of code takes longer than expected ~ about one second
+            outPoly = arcpy.Polygon(polyArray, sr)
+
             if inputIDFieldName:
                 outRows.insertRow([outPoly, inID])
             else:
                 outRows.insertRow([outPoly])
-    
+            #
+            #############################################
+
+        if debug:
+            arcpy.AddMessage("Done converting polylines to polygons ...")
+                
         #close cursors
         del outRows
         del inRows
@@ -568,7 +583,7 @@ def tableToEllipse(inputTable,
         
         arcpy.DeleteField_management(outputEllipseFeatures,
                                      [joinFieldName])
-    
+
         return outputEllipseFeatures
     
     except arcpy.ExecuteError:
@@ -595,13 +610,15 @@ def tableToEllipse(inputTable,
         print(msgs)
         
     finally:
-        if debug == False and len(deleteme) > 0:
+        if len(deleteme) > 0:
             # cleanup intermediate datasets
-            if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
+            if debug : arcpy.AddMessage("Removing intermediate datasets...")
             for i in deleteme:
-                if debug == True: arcpy.AddMessage("Removing: " + str(i))
-                arcpy.Delete_management(i)
-            if debug == True: arcpy.AddMessage("Done")
+                if debug : 
+                    arcpy.AddMessage("Removing Temp Dataset: " + str(i))
+                    # Comment this line to skipping delete:
+                    arcpy.Delete_management(i)
+        if debug : arcpy.AddMessage("Done")
 
 def tableToLineOfBearing(inputTable,
                          inputCoordinateFormat,
