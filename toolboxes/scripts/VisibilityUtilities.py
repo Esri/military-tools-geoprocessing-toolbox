@@ -504,7 +504,7 @@ def makeProfileGraph(inputFeatures):
         arcpy.AddMessage("Found {0} unique sight line IDs ...".format(len(sightLineIDs)))
         
         arcpy.AddField_management(inputFeatures,profileGraphName,"TEXT")
-        expression = '"profile" + str(!SourceOID!)'
+        expression = '"profile" + str(!SourceOID!) + ".png"'
         arcpy.CalculateField_management(inputFeatures,profileGraphName,expression, "PYTHON")
         
         # get visible and non-visible lines for each LLOS
@@ -572,9 +572,10 @@ def makeProfileGraph(inputFeatures):
         #for llosID in rawLOS.keys(): #UPDATE
         for llosID in list(rawLOS.keys()):
                 
-                graphInputList = rawLOS[llosID] # get the values for the current llos
-        # Current: {<SourceOID> : [<TarIsVis>, [<observerD=0.0>,<observerZ>],
-        #                                      [<segmentList0>,...,<segmentListN>]]}
+                graphInputList = rawLOS[llosID]
+                # get the values for the current llos
+                # Current: {<SourceOID> : [<TarIsVis>, [<observerD=0.0>,<observerZ>],
+                #                                      [<segmentList0>,...,<segmentListN>]]}
                 
                 targetVisibility = graphInputList[0]
                 observer = graphInputList[1]
