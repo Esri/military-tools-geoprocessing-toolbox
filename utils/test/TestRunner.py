@@ -40,6 +40,33 @@ import arcpy
 import Configuration
 import UnitTestUtilities
 
+#################################################
+# WORKAROUND: for Python 3 choking on reading some non-binary files
+# For example in ArcPy when loading a toolbox when run from command line
+# Get error like: detect_encoding...tokenize.py...find_cookie...raise SyntaxError(msg)  
+# ...SyntaxError: invalid or missing encoding declaration for '...XXXX.tbx' 
+# Workaround borrowed/used from:
+# https://github.com/habnabit/passacre/commit/2ea05ba94eab2d26951ae7b4b51abf53132b20f0
+
+# Code will work with Python 2, but only do workaround for Python 3
+# Can be removed if this error get fixed
+if sys.version_info >= (3,0):
+    import tokenize 
+
+    try: 
+        _detect_encoding = tokenize.detect_encoding 
+    except AttributeError: 
+        pass 
+    else: 
+        def detect_encoding(readline): 
+            try: 
+                return _detect_encoding(readline) 
+            except SyntaxError: 
+                return 'latin-1', [] 
+ 
+        tokenize.detect_encoding = detect_encoding 
+## END WORKAROUND
+#################################################
 
 logFileFromBAT = None
 if len(sys.argv) > 1:

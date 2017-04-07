@@ -54,6 +54,8 @@ class ConvertCoordinatesTestCase(unittest.TestCase):
 
         self.inputTable = os.path.join(Configuration.militaryInputDataGDB, "SigActs")
         self.outputConvert = os.path.join(Configuration.militaryScratchGDB, "outputConvert")
+
+        arcpy.env.overwriteOutput = True
         
     def tearDown(self):
         if Configuration.DEBUG == True: print(".....ConvertCoordinatesTestCase.tearDown")
@@ -80,6 +82,7 @@ class ConvertCoordinatesTestCase(unittest.TestCase):
     def test_convert_coordinates_pro(self):
         '''Test Convert Coordinates in ArcGIS Pro'''
         runToolMessage = ".....ConvertCoordinatesTestCase.test_convert_coordinates_pro"
+
         arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)

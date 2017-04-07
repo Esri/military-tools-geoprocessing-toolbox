@@ -19,6 +19,8 @@ log/
 
 # Python
 *.py[cod]
+*.sln
+*.pyproj
 # Packages
 *.egg
 *.egg-info
