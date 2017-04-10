@@ -34,13 +34,6 @@ rem  12/22/2016: MF - change back to single execution for Jenkins builds
 rem  1/5/2017: MF - separate into Pro and Desktop test BAT
 rem ==================================================
 
-REM === TEST SETUP ===================================
-ECHO Copying RangeRingUtils.py ...
-COPY ..\..\toolboxes\scripts\RangeRingUtils.py .\distance_tests\RangeRingUtils.py
-ECHO Copying VisibilityUtilities.py
-COPY ..\..\toolboxes\scripts\VisibilityUtilities.py .\visibility_tests\VisibilityUtilities.py
-REM === TEST SETUP ===================================
-
 REM === LOG SETUP ====================================
 REM usage: set LOG=<defaultLogFileName.log>
 REM name is optional; if not specified, name will be specified for you
@@ -53,12 +46,5 @@ REM check if Desktop for ArcGIS/Python 2.7 tests failed
 IF %ERRORLEVEL% NEQ 0 (
    ECHO 'One or more tests failed'
 )
-
-REM === TEST CLEANUP =========================================
-ECHO Removing RangeRingUtils.py ...
-DEL ".\distance_tests\RangeRingUtils.py"
-ECHO Removing VisibilityUtilities.py ...
-DEL ".\visibility_tests\VisibilityUtilities.py"
-REM === TEST CLEANUP =========================================
 
 pause
