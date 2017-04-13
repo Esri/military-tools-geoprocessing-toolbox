@@ -37,7 +37,10 @@ from arcpy import env
 import unittest
 import UnitTestUtilities
 import Configuration
-from . import VisibilityUtilities
+
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), \
+    r"../../../toolboxes/scripts")))
+import VisibilityUtilities
 
 # LOCALS ===========================================
 deleteIntermediateData = [] # intermediate datasets to be deleted
@@ -126,7 +129,7 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         resultFields = []
         for f in arcpy.ListFields(junkTable):
             resultFields.append(f.name)
-        expectedFields = list(["ObjectID"] + newFields.keys())
+        expectedFields = list(["ObjectID"] + list(newFields.keys()))
         self.assertEqual(expectedFields,
                          resultFields,
                          "Expected fields {0} were not added. Got {1} instead.".format(expectedFields, resultFields))
@@ -148,7 +151,7 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         arcpy.AddField_management(junkTable, expectedNames[1], "TEXT")
         deleteIntermediateData.append(junkTable)
         with arcpy.da.InsertCursor(junkTable, [expectedNames[0]]) as iCursor:
-            for i in xrange(0,4):
+            for i in range(0,4):
                 iCursor.insertRow([float(i)])
         del iCursor
         testValue = "'valueT2'"
