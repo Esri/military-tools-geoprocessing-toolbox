@@ -64,7 +64,9 @@ def getVisibilityTestSuites():
     linearLineOfSightProTests = ['test_linear_line_of_sight_pro']
     radialLineOfSightDesktopTests = ['test_radial_line_of_sight_desktop']
     radialLineOfSightProTests = ['test_radial_line_of_sight_pro']
-    radialLineOfSightAndRangeTests = ['test_toolboxMain', 'test_surfaceContainsPoint']
+    radialLineOfSightAndRangeTests = ['test_toolboxMain', \
+                                      'test_surfaceContainsPoint', \
+                                      'test_surfaceContainsPointWgs84']
     addLLOSFieldsProTests = ['test_add_llos_fields_pro']
     addLLOSFieldsDesktopTests = ['test_add_llos_fields_desktop']
     addRLOSObserverDesktopTests = ['test_add_rlos_observer_fields_desktop']
@@ -93,10 +95,10 @@ def getVisibilityTestSuites():
         addFindLocalPeaksTests(findLocalPeaksProTests)
         addHighestPointsTests(highestPointsProTests)
         addLowestPointsTests(lowestPointsProTests)
-        addLinearLineOfSightTests(linearLineOfSightProTests)
-        addRadialLineOfSightTests(radialLineOfSightProTests)
         addAddLLOSFieldsTests(addLLOSFieldsProTests)
         addAddRLOSObserverFieldsTests(addRLOSObserverProTests)
+        addLinearLineOfSightTests(linearLineOfSightProTests)
+        addRadialLineOfSightTests(radialLineOfSightProTests)
         addRadialLineOfSightAndRangeTests(radialLineOfSightAndRangeTests)
 
     return TestSuite

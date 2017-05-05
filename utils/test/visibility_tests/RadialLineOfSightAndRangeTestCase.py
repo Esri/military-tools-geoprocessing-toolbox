@@ -79,19 +79,35 @@ class RadialLineOfSightAndRangeTestCase(unittest.TestCase):
         '''
         Check if elevation dataset contains the specified point
         '''
-        runToolMessage = ".....RadialLineOfSightAndRange.test_surfaceContainsPoints"
+        runToolMessage = ".....RadialLineOfSightAndRange.test_surfaceContainsPoint"
+        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.info(runToolMessage)
+
+        observers = os.path.join(Configuration.militaryInputDataGDB, "RLOS_Observers")
+
+        elevationSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
+
+        pointsIn = RadialLineOfSightAndRange.surfaceContainsPoints(observers, elevationSurface)
+
+        self.assertTrue(pointsIn, 'Points not within Surface as Expected')
+
+    def test_surfaceContainsPointWgs84(self): 
+        '''
+        Check if elevation dataset contains the specified point not in same SR as surface
+        '''
+        runToolMessage = ".....RadialLineOfSightAndRange.test_surfaceContainsPointWgs84"
         arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
 
         # List of coordinates
-        coordinates = [[-120.5, 36.5], [-120.2, 36.1]]
+        coordinates = [[-121.5, 36.5], [-121.2, 36.1]]
 
-        # Create an in_memory feature class to initially contain the coordinate pairs
-        feature_class = arcpy.CreateFeatureclass_management(
+        # Create an in_memory feature class to contain the coordinate pairs
+        observerFeatureClass = arcpy.CreateFeatureclass_management(
             "in_memory", "tempfc", "POINT", spatial_reference=arcpy.SpatialReference(4326))[0]
 
         # Open an insert cursor
-        with arcpy.da.InsertCursor(feature_class, ["SHAPE@"]) as cursor:
+        with arcpy.da.InsertCursor(observerFeatureClass, ["SHAPE@"]) as cursor:
             # Iterate through list of coordinates and add to cursor
             for (x, y) in coordinates:
                 point = arcpy.Point(x, y)
@@ -99,14 +115,8 @@ class RadialLineOfSightAndRangeTestCase(unittest.TestCase):
                     arcpy.SpatialReference(4326))
                 cursor.insertRow([pointGeo])
 
-        # Create a FeatureSet object and load in_memory feature class
-        feature_set = arcpy.FeatureSet()
-        feature_set.load(feature_class)
-        Point_Input = r"in_memory\tempPoints"
-        arcpy.CopyFeatures_management(feature_set, Point_Input)
-
         elevationSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
 
-        pointsIn = RadialLineOfSightAndRange.surfaceContainsPoints(Point_Input, elevationSurface)
+        arePointsIn = RadialLineOfSightAndRange.surfaceContainsPoints(observerFeatureClass, elevationSurface)
 
-        self.assertTrue(pointsIn, 'Points not within Surface as Expected')
+        self.assertTrue(arePointsIn, 'Points not within Surface as Expected')

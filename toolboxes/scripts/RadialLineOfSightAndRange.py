@@ -98,14 +98,17 @@ def drawWedge(cx, cy, r1, r2, startBearing, endBearing):
 
     return polygon
 
-def surfaceContainsPoints(pointFeatures, surfRaster):
+def surfaceContainsPoints(pointFeatures, surfaceRaster):
     '''
     Check if points fall within surface extent, return True or False
+
+    Note: projects both surface extent and pointFeatures to WGS84 so both will 
+    have same Spatial Reference and within checks will work 
     '''
-    surfDesc = arcpy.Describe(surfRaster)
+    surfaceDesc = arcpy.Describe(surfaceRaster)
     pointsDesc = arcpy.Describe(pointFeatures)
 
-    surfaceSR = surfDesc.spatialReference
+    surfaceSR = surfaceDesc.spatialReference
     pointsSR = pointsDesc.spatialReference
 
     # Warn if not the same Spatial Reference
@@ -114,7 +117,7 @@ def surfaceContainsPoints(pointFeatures, surfRaster):
             + pointsSR.Name + ' != ' + surfaceSR.Name + ' -or- ' \
             + str(pointsSR.FactoryCode) + ' != ' + str(surfaceSR.FactoryCode))
 
-    surfaceExtent = surfDesc.extent
+    surfaceExtent = surfaceDesc.extent
 
     srWGS84 = arcpy.SpatialReference(4326) # GCS_WGS_1984
     projSurfaceExtent = surfaceExtent.projectAs(srWGS84) 
