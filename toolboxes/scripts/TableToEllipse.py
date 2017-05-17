@@ -101,7 +101,7 @@ def main():
         print(msgs)
 
     finally:
-        if debug == False and len(deleteme) > 0:
+        if len(deleteme) > 0:
             # cleanup intermediate datasets
             if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
             for i in deleteme:

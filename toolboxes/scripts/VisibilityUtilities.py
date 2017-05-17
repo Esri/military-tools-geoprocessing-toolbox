@@ -822,6 +822,7 @@ def addLLOSFields(inputObserverTable,
         arcpy.AddMessage("Adding Observer fields...")
         outputObserverTable = _addDoubleField(inputObserverTable,
                                       llosFields)
+        arcpy.AddMessage("Calculating Observer values...")                              
         outputObserverTable = _calculateFieldValue(outputObserverTable,
                                                    "OFFSET",
                                                    float(inputObserverDefault))
@@ -829,6 +830,7 @@ def addLLOSFields(inputObserverTable,
         arcpy.AddMessage("Adding Target fields...")
         outputTargetTable = _addDoubleField(inputTargetTable,
                                             llosFields)
+        arcpy.AddMessage("Calculating Target values...")                                    
         outputObserverTable = _calculateFieldValue(outputTargetTable,
                                                    "OFFSET",
                                                    float(inputTargetDefault))
@@ -904,6 +906,7 @@ def addRLOSObserverFields(inputFeatures,
         
         _addDoubleField(inputFeatures, rlosFields)
         
+        arcpy.AddMessage("Updating Observer values...")        
         _calculateFieldValue(inputFeatures, "OFFSETA", inputOFFSETA)
         _calculateFieldValue(inputFeatures, "OFFSETB", inputOFFSETB)
         _calculateFieldValue(inputFeatures, "RADIUS1", inputRADIUS1)
@@ -1346,7 +1349,7 @@ def linearLineOfSight(inputObserverFeatures,
         print(msgs)
         
     finally:
-        if debug == False and len(deleteme) > 0:
+        if len(deleteme) > 0:
             # cleanup intermediate datasets
             if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
             for i in deleteme:
@@ -1400,7 +1403,7 @@ def radialLineOfSight(inputObserverFeatures,
             hasRADIUS2 = False
         else:
             inputRadiusOfObserver = _getUniqueValuesFromField(inputObserverFeatures,
-                                                              "RADIUS2")[:1]
+                                                              "RADIUS2")[:1][0]
             arcpy.AddMessage("RADIUS2 field in Input Observer Features. Using maximum radius of {0}".format(inputRadiusOfObserver))
         if not "OFFSETA" in observerFieldList:
             arcpy.AddMessage("OFFSETA field not in Input Observer Features. Using Observer Height Above Surface {0}".format(inputObserverHeight))
@@ -1559,7 +1562,7 @@ def radialLineOfSight(inputObserverFeatures,
         print(msgs)
         
     finally:
-        if debug == False and len(deleteme) > 0:
+        if len(deleteme) > 0:
             # cleanup intermediate datasets
             if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
             for i in deleteme:

@@ -460,7 +460,7 @@ def tableTo2PointLine(inputTable,
         print(msgs)
 
     finally:
-        if debug == False and len(deleteme) > 0:
+        if len(deleteme) > 0:
             # cleanup intermediate datasets
             if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
             for i in deleteme:
@@ -747,7 +747,7 @@ def tableToLineOfBearing(inputTable,
         print(msgs)
         
     finally:
-        if debug == False and len(deleteme) > 0:
+        if len(deleteme) > 0:
             # cleanup intermediate datasets
             if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
             for i in deleteme:
@@ -831,7 +831,7 @@ def tableToPoint(inputTable,
         print(msgs)
         
     finally:
-        if debug == False and len(deleteme) > 0:
+        if len(deleteme) > 0:
             # cleanup intermediate datasets
             if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
             for i in deleteme:
@@ -932,7 +932,7 @@ def tableToPolygon(inputTable,
         print(msgs)
         
     finally:
-        if debug == False and len(deleteme) > 0:
+        if len(deleteme) > 0:
             # cleanup intermediate datasets
             if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
             for i in deleteme:
@@ -1032,7 +1032,7 @@ def tableToPolyline(inputTable,
         print(msgs)
         
     finally:
-        if debug == False and len(deleteme) > 0:
+        if len(deleteme) > 0:
             # cleanup intermediate datasets
             if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
             for i in deleteme:
