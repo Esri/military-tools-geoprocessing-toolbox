@@ -1012,53 +1012,67 @@ def findLocalPeaks(inputAreaFeature,
         saSink.save(invertedSinks)
         deleteme.append(invertedSinks)
         
-        #raster to point (Grid_code)
-        pointSinks = os.path.join(scratch, "pointSinks")
-        arcpy.RasterToPoint_conversion(invertedSinks, pointSinks)
-        deleteme.append(pointSinks)
-        
-        #extract values to points
-        arcpy.AddMessage("Extracting elevation values from {0}...".format(inputSurfaceRaster))
-        sinkValues = os.path.join(scratch, "sinkValues")
-        sa.ExtractValuesToPoints(pointSinks, inputSurfaceRaster, sinkValues, "NONE", "VALUE_ONLY")
-        deleteme.append(sinkValues)
-        
-        # select X highest values.
-        valueField = "RASTERVALU"
-        uniqueElevationList = _getUniqueValuesFromField(sinkValues, valueField)
-        cutoffValue = uniqueElevationList[int(inputNumberOfPeaks) - 1]
-        arcpy.AddMessage("Using cutoff value of {0} to find {1} highest peak elevations...".format(cutoffValue, inputNumberOfPeaks))
-        arcpy.MakeFeatureLayer_management(sinkValues, "sortedPoints")
-        selectExpression = r'{0} >= {1}'.format(valueField, cutoffValue)
-        arcpy.SelectLayerByAttribute_management("sortedPoints",
-                                                "NEW_SELECTION",
-                                                selectExpression)
-        arcpy.CopyFeatures_management("sortedPoints", outputPeakFeatures)
-        peakCount = arcpy.GetCount_management(outputPeakFeatures).getOutput(0)
-        peakList = uniqueElevationList[:int(inputNumberOfPeaks)]
-        arcpy.AddMessage("Found {0} peaks of with elevations {1}".format(peakCount, peakList))
+        #check the number of sink values
+        numberSinkValues = arcpy.GetCount_management(invertedSinks)        
+        if int(numberSinkValues.getOutput(0)) == 0:
+            # No sink holes found in input area raise error
+            raise Exception("The input area contains no unique peaks")
+        else:
+            #raster to point (Grid_code)
+            pointSinks = os.path.join(scratch, "pointSinks")
+            arcpy.RasterToPoint_conversion(invertedSinks, pointSinks)
+            deleteme.append(pointSinks)
+            
+            #extract values to points
+            arcpy.AddMessage("Extracting elevation values from {0}...".format(inputSurfaceRaster))
+            sinkValues = os.path.join(scratch, "sinkValues")
+            sa.ExtractValuesToPoints(pointSinks, inputSurfaceRaster, sinkValues, "NONE", "VALUE_ONLY")
+            deleteme.append(sinkValues)
+            
+            # select X highest values.
+            valueField = "RASTERVALU"
+            uniqueElevationList = _getUniqueValuesFromField(sinkValues, valueField)
+            
+            if(len(uniqueElevationList) >  int(inputNumberOfPeaks)):
+                cutoffValue = uniqueElevationList[int(inputNumberOfPeaks) - 1]
+            else:
+                cutoffValue = uniqueElevationList[len(uniqueElevationList) - 1]
+                arcpy.AddMessage("The input area does not contain {0} unique high values, using the {1} highest values...".format(inputNumberOfPeaks, len(uniqueElevationList)))
+                inputNumberOfPeaks = len(uniqueElevationList)
                 
-        # Add 'Elevation' field
-        elevField = "Elevation"
-        arcpy.AddField_management(outputPeakFeatures,
-                                  elevField,
-                                  "DOUBLE")
-        calculateFieldExpression = r"!{0}!".format(valueField)
-        arcpy.CalculateField_management(outputPeakFeatures,
-                                        elevField,
-                                        calculateFieldExpression,
-                                        "PYTHON_9.3")
-        # Remove unnecessary fields
-        arcpy.DeleteField_management(outputPeakFeatures, [valueField, "grid_code", "pointid"])
+            arcpy.AddMessage("Using cutoff value of {0} to find peak elevations...".format(cutoffValue))
+            
+            arcpy.MakeFeatureLayer_management(sinkValues, "sortedPoints")
+            selectExpression = r'{0} >= {1}'.format(valueField, cutoffValue)
+            arcpy.SelectLayerByAttribute_management("sortedPoints",
+                                                    "NEW_SELECTION",
+                                                    selectExpression)
+            arcpy.CopyFeatures_management("sortedPoints", outputPeakFeatures)
+            peakCount = arcpy.GetCount_management(outputPeakFeatures).getOutput(0)
+            peakList = uniqueElevationList[:int(inputNumberOfPeaks)]
+            arcpy.AddMessage("Found {0} peaks of with elevations {1}".format(peakCount, peakList))
+                    
+            # Add 'Elevation' field
+            elevField = "Elevation"
+            arcpy.AddField_management(outputPeakFeatures,
+                                      elevField,
+                                      "DOUBLE")
+            calculateFieldExpression = r"!{0}!".format(valueField)
+            arcpy.CalculateField_management(outputPeakFeatures,
+                                            elevField,
+                                            calculateFieldExpression,
+                                            "PYTHON_9.3")
+            # Remove unnecessary fields
+            arcpy.DeleteField_management(outputPeakFeatures, [valueField, "grid_code", "pointid"])
 
-        return outputPeakFeatures
+            return outputPeakFeatures
     
     except arcpy.ExecuteError:
         # Get the tool error messages
         msgs = arcpy.GetMessages()
         arcpy.AddError(msgs)
         print(msgs)
-
+        
     except:
         # Get the traceback object
         tb = sys.exc_info()[2]
