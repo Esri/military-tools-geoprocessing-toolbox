@@ -1011,43 +1011,77 @@ def findLocalPeaks(inputAreaFeature,
         invertedSinks = os.path.join(scratch, "invertedSinks")
         saSink.save(invertedSinks)
         deleteme.append(invertedSinks)
+                
+        #check the number of sink values before proceeding as no sinks will cause an error
+        result = arcpy.GetCount_management(invertedSinks)
+        numberSinkValues = int(result.getOutput(0))
         
-        #check the number of sink values
-        numberSinkValues = arcpy.GetCount_management(invertedSinks)        
-        if int(numberSinkValues.getOutput(0)) == 0:
+        arcpy.AddMessage("{0} sinks found".format(numberSinkValues))
+        
+        if numberSinkValues == 0:
             # No sink holes found in input area raise error
             raise Exception("The input area contains no unique peaks")
         else:
-            #raster to point (Grid_code)
+            #convert the sink values to a polygon feature class,
+            #This prevents adjacent cells of the same pixel value being seen as separate sink areas 
+            arcpy.AddMessage("Converting sink values to polygon features...")
+            sinkPolys = os.path.join(scratch, "sinkPolys")
+            rasterValueField = "Value"
+            conversionField = "Gridcode"
+            simplifyShape = "NO_SIMPLIFY"
+            arcpy.RasterToPolygon_conversion(invertedSinks,
+                                             sinkPolys,
+                                             simplifyShape,
+                                             rasterValueField)
+            deleteme.append(sinkPolys)
+        
+            #convert the polygon fc to a point fc to get central point of each feature
             pointSinks = os.path.join(scratch, "pointSinks")
-            arcpy.RasterToPoint_conversion(invertedSinks, pointSinks)
+            arcpy.FeatureToPoint_management(sinkPolys, pointSinks)
             deleteme.append(pointSinks)
             
             #extract values to points
             arcpy.AddMessage("Extracting elevation values from {0}...".format(inputSurfaceRaster))
-            sinkValues = os.path.join(scratch, "sinkValues")
+            sinkValues = os.path.join(scratch, "sinkValues")            
             sa.ExtractValuesToPoints(pointSinks, inputSurfaceRaster, sinkValues, "NONE", "VALUE_ONLY")
             deleteme.append(sinkValues)
             
-            # select X highest values.
-            valueField = "RASTERVALU"
-            uniqueElevationList = _getUniqueValuesFromField(sinkValues, valueField)
+            #check the number of sink values is greater the the number of peaks inputted by the users
+            if(numberSinkValues <  int(inputNumberOfPeaks)):
+                arcpy.AddMessage("The input area does not contain {0} unique peaks, returning top {1} peaks...".format(inputNumberOfPeaks, numberSinkValues))
+                inputNumberOfPeaks = numberSinkValues
             
-            if(len(uniqueElevationList) >  int(inputNumberOfPeaks)):
-                cutoffValue = uniqueElevationList[int(inputNumberOfPeaks) - 1]
-            else:
-                cutoffValue = uniqueElevationList[len(uniqueElevationList) - 1]
-                arcpy.AddMessage("The input area does not contain {0} unique high values, using the {1} highest values...".format(inputNumberOfPeaks, len(uniqueElevationList)))
-                inputNumberOfPeaks = len(uniqueElevationList)
-                
-            arcpy.AddMessage("Using cutoff value of {0} to find peak elevations...".format(cutoffValue))
+            #we need to store the object ids of the top (x) number of peaks
+            highestPoint_IDs = []
+            
+            #File geodatabase do not allow us to use a SQL prefix of TOP so we will have to do it through a search cursor
+            with arcpy.da.SearchCursor(sinkValues, ['RASTERVALU','OID@'] ,sql_clause=(None, 'ORDER BY RASTERVALU DESC')) as cursor:
+                counter = 1
+                for row in cursor:
+                  if counter <= int(inputNumberOfPeaks):
+                    highestPoint_IDs.append(row[1])
+                    counter = counter + 1
+            del row
+            del cursor
             
             arcpy.MakeFeatureLayer_management(sinkValues, "sortedPoints")
-            selectExpression = r'{0} >= {1}'.format(valueField, cutoffValue)
+            
+            #we need to define a different query if the value number of peaks to find is only 1
+            if len(highestPoint_IDs) == 1:
+                selectExpression = r'"OBJECTID" = {0}'.format(highestPoint_IDs[0])
+            else:
+                selectExpression = r'"OBJECTID" IN {0}'.format(tuple(highestPoint_IDs))
+            
             arcpy.SelectLayerByAttribute_management("sortedPoints",
                                                     "NEW_SELECTION",
                                                     selectExpression)
             arcpy.CopyFeatures_management("sortedPoints", outputPeakFeatures)
+            
+            
+            # select X highest values.
+            valueField = "RASTERVALU"
+            uniqueElevationList = _getUniqueValuesFromField(outputPeakFeatures, valueField)
+            
             peakCount = arcpy.GetCount_management(outputPeakFeatures).getOutput(0)
             peakList = uniqueElevationList[:int(inputNumberOfPeaks)]
             arcpy.AddMessage("Found {0} peaks of with elevations {1}".format(peakCount, peakList))
