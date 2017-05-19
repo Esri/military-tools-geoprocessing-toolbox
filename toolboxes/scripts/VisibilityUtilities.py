@@ -1541,12 +1541,19 @@ def radialLineOfSight(inputObserverFeatures,
                                  srLocalWAZED,
                                  "PRESERVE_SHAPE")
         deleteme.append(bufferSurfaceSR)
+        
+        arcpy.AddMessage("Clipping image to observer buffers...")
+        
+        surfaceExtract = os.path.join(scratch, "surfaceExtract")
+
+        arcpy.env.mask = bufferSurfaceSR       
+        arcpy.gp.ExtractByMask_sa(inputSurface, bufferSurfaceSR, surfaceExtract)
+        deleteme.append(surfaceExtract)
 
         arcpy.AddMessage("Building viewshed of observers to surface...")
         tempViewshed = os.path.join(scratch, "tempViewshed")
         tempAGL = os.path.join(scratch, "tempAGL")
-        arcpy.env.mask = bufferSurfaceSR
-        saViewshed = sa.Viewshed(inputSurface,
+        saViewshed = sa.Viewshed(surfaceExtract,
                                  observersSurfaceSR,
                                  1.0,
                                  "CURVED_EARTH",
