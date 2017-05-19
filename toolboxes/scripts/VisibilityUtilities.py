@@ -1402,9 +1402,7 @@ def radialLineOfSight(inputObserverFeatures,
         if arcpy.env.scratchWorkspace:
             scratch = arcpy.env.scratchWorkspace
         else:
-            scratch = r"%scratchGDB%"
-
-        scratchFolder = arcpy.env.scratchFolder    
+            scratch = r"%scratchGDB%" 
 
         #get original spatial reference of inputs
         srObservers = arcpy.Describe(inputObserverFeatures).spatialReference
@@ -1514,49 +1512,21 @@ def radialLineOfSight(inputObserverFeatures,
         tempViewshed = os.path.join(scratch, "tempViewshed")
         tempAGL = os.path.join(scratch, "tempAGL")
         arcpy.env.mask = bufferSurfaceSR
-        
-        obsRelationshipTable = os.path.join(scratchFolder, "observer_region_relationship_table.dbf")
-        
-        saViewshed = sa.Viewshed2(inputSurface, observersSurfaceSR, "", "OBSERVERS", "",obsRelationshipTable)
-        
-        saViewshed = sa.Visibility(inputSurface, observersSurfaceSR, "", "OBSERVERS", "ZERO", "1", "CURVED_EARTH", "0.13")
-                                 
+        saViewshed = sa.Viewshed(inputSurface,
+                                 observersSurfaceSR,
+                                 1.0,
+                                 "CURVED_EARTH",
+                                 0.13,
+                                 tempAGL)
         saViewshed.save(tempViewshed)
-        
-        deleteme.append(obsRelationshipTable)
         deleteme.append(tempViewshed)
         deleteme.append(tempAGL)
-        
-        arcpy.AddField_management(tempViewshed,'Gridcode',"SHORT")        
-        arcpy.AddField_management(tempViewshed,'NumbObservers',"SHORT")        
-        arcpy.AddField_management(tempViewshed,'ObserverIds',"TEXT")
-        
-        arcpy.AddMessage("Calculating the number of observers each surface pixel is visible by...")
-        
-        with arcpy.da.UpdateCursor(tempViewshed, ['Value','Gridcode','NumbObservers','ObserverIds']) as cursor:
-            for row in cursor:
-                expression = u'"Region" = {}'.format(row[0])
-                with arcpy.da.SearchCursor(obsRelationshipTable,['Region','Observer'],where_clause=expression) as cursor1:
-                    count = 0
-                    observerList = ''
-                    for row1 in cursor1:
-                        count = count + 1
-                        observerList = observerList + str(row1[1]) + ','
-                #remove last comma
-                observerList = observerList[:-1]
-                row[1] = count
-                row[2] = count
-                row[3] = observerList
-                # Update the cursor with the updated list
-                cursor.updateRow(row)
-        
-        del cursor, cursor1        
 
         arcpy.AddMessage("Converting viewshed to polygon features...")
         viewshedPolys = os.path.join(scratch, "viewshedPolys")
         rasterValueField = "Value"
         conversionField = "Gridcode"
-        simplifyShape = "NO_SIMPLIFY"
+        simplifyShape = "SIMPLIFY"
         arcpy.RasterToPolygon_conversion(tempViewshed,
                                          viewshedPolys,
                                          simplifyShape,
@@ -1570,27 +1540,13 @@ def radialLineOfSight(inputObserverFeatures,
 
         arcpy.AddMessage("Projecting to output spatial reference...")
         arcpy.Project_management(clippedPolys, outputVisibility, inputSpatialReference)
-        
-        arcpy.AddMessage("Adding and updating output fields...")
-        arcpy.AddField_management(outputVisibility,"VISIBILITY","LONG",'',
-                                          '',
-                                          '',
-                                          'Number of Observers Visible From')
-        arcpy.AddField_management(outputVisibility,"VISIBLEFROM","TEXT",'',
-                                          '',
-                                          '',
-                                          'Observer Ids')
-        with arcpy.da.UpdateCursor(outputVisibility, ['gridcode','VISIBILITY','VISIBLEFROM']) as cursor:
-            for row in cursor:
-                expression = u'"Value" = {}'.format(row[0])
-                with arcpy.da.SearchCursor(tempViewshed, ['NumbObservers', 'ObserverIds'],where_clause=expression) as cursor1:
-                    for row1 in cursor1:
-                        row[1] = row1[0]
-                        row[2] = row1[1]
-                # Update the cursor with the updated list
-                cursor.updateRow(row)
-        del cursor, cursor1
-        
+        arcpy.AddField_management(outputVisibility,
+                                  "VISIBILITY",
+                                  "LONG")
+        arcpy.CalculateField_management(outputVisibility,
+                                        "VISIBILITY",
+                                        '!{0}!'.format(conversionField),
+                                        "PYTHON_9.3")
         dropFields = [conversionField, 'Id']
         arcpy.DeleteField_management(outputVisibility, dropFields)
 
