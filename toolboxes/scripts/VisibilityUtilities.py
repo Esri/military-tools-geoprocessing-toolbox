@@ -79,9 +79,9 @@ def _getFieldNameList(targetTable, excludeList):
         for field in fields:
             if not excludeList or not excludeList == []:
                 if not field.name in excludeList:
-                    nameList.append(field.name)
+                    nameList.append(field.name.upper())
             else:
-                nameList.append(field.name)
+                nameList.append(field.name.upper())
         return nameList
     except arcpy.ExecuteError:
         # Get the tool error messages
@@ -1144,8 +1144,7 @@ def linearLineOfSight(inputObserverFeatures,
                       outputObservers,
                       outputTargets,
                       inputObstructionFeatures):
-    '''
-    
+    '''    
     '''
     global scratch
     addProfileGraphToSurfaceLine = True
@@ -1424,6 +1423,7 @@ def radialLineOfSight(inputObserverFeatures,
     inputSpatial Reference - spatial reference of outputVisibility features
     '''
     global scratch
+    
     try:
         #Need Spatial Analyst to run this tool
         if arcpy.CheckExtension("Spatial") == "Available":
