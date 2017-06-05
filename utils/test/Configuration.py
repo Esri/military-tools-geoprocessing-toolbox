@@ -39,7 +39,7 @@ logPath = os.path.normpath(os.path.join(currentPath, r"log")) # should go to .\m
 militaryDataPath = os.path.normpath(os.path.join(currentPath, r"../../testdata/"))
 militaryInputDataGDB = os.path.normpath(os.path.join(militaryDataPath, "MilitaryToolsTestData.gdb"))
 militaryResultsGDB = os.path.normpath(os.path.join(militaryDataPath, "Results.gdb"))
-militaryScratchGDB = None
+militaryScratchGDB = os.path.normpath(os.path.join(currentPath, "scratch.gdb"))
 
 ''' Toolboxes paths '''
 militaryToolboxesPath = os.path.normpath(os.path.join(currentPath, r"../../toolboxes/"))

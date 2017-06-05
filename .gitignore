@@ -7,6 +7,8 @@
 #data/
 #maps/
 
+*.sav
+
 scratch/
 arc.dir
 *.pyt.xml
@@ -17,6 +19,8 @@ log/
 
 # Python
 *.py[cod]
+*.sln
+*.pyproj
 # Packages
 *.egg
 *.egg-info

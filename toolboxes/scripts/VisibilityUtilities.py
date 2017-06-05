@@ -79,9 +79,9 @@ def _getFieldNameList(targetTable, excludeList):
         for field in fields:
             if not excludeList or not excludeList == []:
                 if not field.name in excludeList:
-                    nameList.append(field.name)
+                    nameList.append(field.name.upper())
             else:
-                nameList.append(field.name)
+                nameList.append(field.name.upper())
         return nameList
     except arcpy.ExecuteError:
         # Get the tool error messages
@@ -504,7 +504,7 @@ def makeProfileGraph(inputFeatures):
         arcpy.AddMessage("Found {0} unique sight line IDs ...".format(len(sightLineIDs)))
         
         arcpy.AddField_management(inputFeatures,profileGraphName,"TEXT")
-        expression = '"profile" + str(!SourceOID!)'
+        expression = '"profile" + str(!SourceOID!) + ".png"'
         arcpy.CalculateField_management(inputFeatures,profileGraphName,expression, "PYTHON")
         
         # get visible and non-visible lines for each LLOS
@@ -572,9 +572,10 @@ def makeProfileGraph(inputFeatures):
         #for llosID in rawLOS.keys(): #UPDATE
         for llosID in list(rawLOS.keys()):
                 
-                graphInputList = rawLOS[llosID] # get the values for the current llos
-        # Current: {<SourceOID> : [<TarIsVis>, [<observerD=0.0>,<observerZ>],
-        #                                      [<segmentList0>,...,<segmentListN>]]}
+                graphInputList = rawLOS[llosID]
+                # get the values for the current llos
+                # Current: {<SourceOID> : [<TarIsVis>, [<observerD=0.0>,<observerZ>],
+                #                                      [<segmentList0>,...,<segmentListN>]]}
                 
                 targetVisibility = graphInputList[0]
                 observer = graphInputList[1]
@@ -821,6 +822,7 @@ def addLLOSFields(inputObserverTable,
         arcpy.AddMessage("Adding Observer fields...")
         outputObserverTable = _addDoubleField(inputObserverTable,
                                       llosFields)
+        arcpy.AddMessage("Calculating Observer values...")                              
         outputObserverTable = _calculateFieldValue(outputObserverTable,
                                                    "OFFSET",
                                                    float(inputObserverDefault))
@@ -828,6 +830,7 @@ def addLLOSFields(inputObserverTable,
         arcpy.AddMessage("Adding Target fields...")
         outputTargetTable = _addDoubleField(inputTargetTable,
                                             llosFields)
+        arcpy.AddMessage("Calculating Target values...")                                    
         outputObserverTable = _calculateFieldValue(outputTargetTable,
                                                    "OFFSET",
                                                    float(inputTargetDefault))
@@ -903,6 +906,7 @@ def addRLOSObserverFields(inputFeatures,
         
         _addDoubleField(inputFeatures, rlosFields)
         
+        arcpy.AddMessage("Updating Observer values...")        
         _calculateFieldValue(inputFeatures, "OFFSETA", inputOFFSETA)
         _calculateFieldValue(inputFeatures, "OFFSETB", inputOFFSETB)
         _calculateFieldValue(inputFeatures, "RADIUS1", inputRADIUS1)
@@ -1007,54 +1011,102 @@ def findLocalPeaks(inputAreaFeature,
         invertedSinks = os.path.join(scratch, "invertedSinks")
         saSink.save(invertedSinks)
         deleteme.append(invertedSinks)
-        
-        #raster to point (Grid_code)
-        pointSinks = os.path.join(scratch, "pointSinks")
-        arcpy.RasterToPoint_conversion(invertedSinks, pointSinks)
-        deleteme.append(pointSinks)
-        
-        #extract values to points
-        arcpy.AddMessage("Extracting elevation values from {0}...".format(inputSurfaceRaster))
-        sinkValues = os.path.join(scratch, "sinkValues")
-        sa.ExtractValuesToPoints(pointSinks, inputSurfaceRaster, sinkValues, "NONE", "VALUE_ONLY")
-        deleteme.append(sinkValues)
-        
-        # select X highest values.
-        valueField = "RASTERVALU"
-        uniqueElevationList = _getUniqueValuesFromField(sinkValues, valueField)
-        cutoffValue = uniqueElevationList[int(inputNumberOfPeaks) - 1]
-        arcpy.AddMessage("Using cutoff value of {0} to find {1} highest peak elevations...".format(cutoffValue, inputNumberOfPeaks))
-        arcpy.MakeFeatureLayer_management(sinkValues, "sortedPoints")
-        selectExpression = r'{0} >= {1}'.format(valueField, cutoffValue)
-        arcpy.SelectLayerByAttribute_management("sortedPoints",
-                                                "NEW_SELECTION",
-                                                selectExpression)
-        arcpy.CopyFeatures_management("sortedPoints", outputPeakFeatures)
-        peakCount = arcpy.GetCount_management(outputPeakFeatures).getOutput(0)
-        peakList = uniqueElevationList[:int(inputNumberOfPeaks)]
-        arcpy.AddMessage("Found {0} peaks of with elevations {1}".format(peakCount, peakList))
                 
-        # Add 'Elevation' field
-        elevField = "Elevation"
-        arcpy.AddField_management(outputPeakFeatures,
-                                  elevField,
-                                  "DOUBLE")
-        calculateFieldExpression = r"!{0}!".format(valueField)
-        arcpy.CalculateField_management(outputPeakFeatures,
-                                        elevField,
-                                        calculateFieldExpression,
-                                        "PYTHON_9.3")
-        # Remove unnecessary fields
-        arcpy.DeleteField_management(outputPeakFeatures, [valueField, "grid_code", "pointid"])
+        #check the number of sink values before proceeding as no sinks will cause an error
+        result = arcpy.GetCount_management(invertedSinks)
+        numberSinkValues = int(result.getOutput(0))
+        
+        arcpy.AddMessage("{0} sinks found".format(numberSinkValues))
+        
+        if numberSinkValues == 0:
+            # No sink holes found in input area raise error
+            raise Exception("The input area contains no unique peaks")
+        else:
+            #convert the sink values to a polygon feature class,
+            #This prevents adjacent cells of the same pixel value being seen as separate sink areas 
+            arcpy.AddMessage("Converting sink values to polygon features...")
+            sinkPolys = os.path.join(scratch, "sinkPolys")
+            rasterValueField = "Value"
+            conversionField = "Gridcode"
+            simplifyShape = "NO_SIMPLIFY"
+            arcpy.RasterToPolygon_conversion(invertedSinks,
+                                             sinkPolys,
+                                             simplifyShape,
+                                             rasterValueField)
+            deleteme.append(sinkPolys)
+        
+            #convert the polygon fc to a point fc to get central point of each feature
+            pointSinks = os.path.join(scratch, "pointSinks")
+            arcpy.FeatureToPoint_management(sinkPolys, pointSinks)
+            deleteme.append(pointSinks)
+            
+            #extract values to points
+            arcpy.AddMessage("Extracting elevation values from {0}...".format(inputSurfaceRaster))
+            sinkValues = os.path.join(scratch, "sinkValues")            
+            sa.ExtractValuesToPoints(pointSinks, inputSurfaceRaster, sinkValues, "NONE", "VALUE_ONLY")
+            deleteme.append(sinkValues)
+            
+            #check the number of sink values is greater the the number of peaks inputted by the users
+            if(numberSinkValues <  int(inputNumberOfPeaks)):
+                arcpy.AddMessage("The input area does not contain {0} unique peaks, returning top {1} peaks...".format(inputNumberOfPeaks, numberSinkValues))
+                inputNumberOfPeaks = numberSinkValues
+            
+            #we need to store the object ids of the top (x) number of peaks
+            highestPoint_IDs = []
+            
+            #File geodatabase do not allow us to use a SQL prefix of TOP so we will have to do it through a search cursor
+            with arcpy.da.SearchCursor(sinkValues, ['RASTERVALU','OID@'] ,sql_clause=(None, 'ORDER BY RASTERVALU DESC')) as cursor:
+                counter = 1
+                for row in cursor:
+                  if counter <= int(inputNumberOfPeaks):
+                    highestPoint_IDs.append(row[1])
+                    counter = counter + 1
+            del row
+            del cursor
+            
+            arcpy.MakeFeatureLayer_management(sinkValues, "sortedPoints")
+            
+            #we need to define a different query if the value number of peaks to find is only 1
+            if len(highestPoint_IDs) == 1:
+                selectExpression = r'"OBJECTID" = {0}'.format(highestPoint_IDs[0])
+            else:
+                selectExpression = r'"OBJECTID" IN {0}'.format(tuple(highestPoint_IDs))
+            
+            arcpy.SelectLayerByAttribute_management("sortedPoints",
+                                                    "NEW_SELECTION",
+                                                    selectExpression)
+            arcpy.CopyFeatures_management("sortedPoints", outputPeakFeatures)
+            
+            
+            # select X highest values.
+            valueField = "RASTERVALU"
+            uniqueElevationList = _getUniqueValuesFromField(outputPeakFeatures, valueField)
+            
+            peakCount = arcpy.GetCount_management(outputPeakFeatures).getOutput(0)
+            peakList = uniqueElevationList[:int(inputNumberOfPeaks)]
+            arcpy.AddMessage("Found {0} peaks of with elevations {1}".format(peakCount, peakList))
+                    
+            # Add 'Elevation' field
+            elevField = "Elevation"
+            arcpy.AddField_management(outputPeakFeatures,
+                                      elevField,
+                                      "DOUBLE")
+            calculateFieldExpression = r"!{0}!".format(valueField)
+            arcpy.CalculateField_management(outputPeakFeatures,
+                                            elevField,
+                                            calculateFieldExpression,
+                                            "PYTHON_9.3")
+            # Remove unnecessary fields
+            arcpy.DeleteField_management(outputPeakFeatures, [valueField, "grid_code", "pointid"])
 
-        return outputPeakFeatures
+            return outputPeakFeatures
     
     except arcpy.ExecuteError:
         # Get the tool error messages
         msgs = arcpy.GetMessages()
         arcpy.AddError(msgs)
         print(msgs)
-
+        
     except:
         # Get the traceback object
         tb = sys.exc_info()[2]
@@ -1092,8 +1144,7 @@ def linearLineOfSight(inputObserverFeatures,
                       outputObservers,
                       outputTargets,
                       inputObstructionFeatures):
-    '''
-    
+    '''    
     '''
     global scratch
     addProfileGraphToSurfaceLine = True
@@ -1345,7 +1396,7 @@ def linearLineOfSight(inputObserverFeatures,
         print(msgs)
         
     finally:
-        if debug == False and len(deleteme) > 0:
+        if len(deleteme) > 0:
             # cleanup intermediate datasets
             if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
             for i in deleteme:
@@ -1372,6 +1423,7 @@ def radialLineOfSight(inputObserverFeatures,
     inputSpatial Reference - spatial reference of outputVisibility features
     '''
     global scratch
+    
     try:
         #Need Spatial Analyst to run this tool
         if arcpy.CheckExtension("Spatial") == "Available":
@@ -1399,7 +1451,7 @@ def radialLineOfSight(inputObserverFeatures,
             hasRADIUS2 = False
         else:
             inputRadiusOfObserver = _getUniqueValuesFromField(inputObserverFeatures,
-                                                              "RADIUS2")[:1]
+                                                              "RADIUS2")[:1][0]
             arcpy.AddMessage("RADIUS2 field in Input Observer Features. Using maximum radius of {0}".format(inputRadiusOfObserver))
         if not "OFFSETA" in observerFieldList:
             arcpy.AddMessage("OFFSETA field not in Input Observer Features. Using Observer Height Above Surface {0}".format(inputObserverHeight))
@@ -1489,12 +1541,18 @@ def radialLineOfSight(inputObserverFeatures,
                                  srLocalWAZED,
                                  "PRESERVE_SHAPE")
         deleteme.append(bufferSurfaceSR)
+        
+        arcpy.AddMessage("Clipping image to observer buffers...")
+        
+        clipSurface = os.path.join(scratch, "clipSurface")
+
+        clipSurface = _clipRasterToArea(inputSurface, bufferSurfaceSR, clipSurface)        
+        deleteme.append(clipSurface)
 
         arcpy.AddMessage("Building viewshed of observers to surface...")
         tempViewshed = os.path.join(scratch, "tempViewshed")
         tempAGL = os.path.join(scratch, "tempAGL")
-        arcpy.env.mask = bufferSurfaceSR
-        saViewshed = sa.Viewshed(inputSurface,
+        saViewshed = sa.Viewshed(clipSurface,
                                  observersSurfaceSR,
                                  1.0,
                                  "CURVED_EARTH",
@@ -1558,7 +1616,7 @@ def radialLineOfSight(inputObserverFeatures,
         print(msgs)
         
     finally:
-        if debug == False and len(deleteme) > 0:
+        if len(deleteme) > 0:
             # cleanup intermediate datasets
             if debug == True: arcpy.AddMessage("Removing intermediate datasets...")
             for i in deleteme:
