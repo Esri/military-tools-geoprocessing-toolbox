@@ -8,7 +8,7 @@ is a collection of models, scripts, and tools for use in ArcGIS for Desktop and 
 * [Requirements](#requirements)
 * [Instructions](#instructions)
 * [Issues](#issues)
-* [Contact](#contact)
+* [Contact](#repository-points-of-contact)
 * [Contributing](#contributing)
 * [Resources](#resources)
 * [Licensing](#licensing)
@@ -25,16 +25,11 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 
 Tools for ArcMap are in the **Military_Tools_arcmap.tbx** toolbox and have the following requirements:
 
-* **ArcGIS 10.3.1 for Desktop**
-* **ArcGIS 10.4 for Desktop**
-* **ArcGIS 10.4.1 for Desktop**
-
+* **ArcGIS 10.3.1+ for Desktop**
 
 Tools for ArcGIS Pro are in the **Military_Tools_pro.tbx** toolbox and have the following requirements: 
 
-* **ArcGIS Pro 1.2**
-* **ArcGIS Pro 1.3**
-* **ArcGIS Pro 1.4**
+* **ArcGIS Pro 2.0+**
 
 Additionally there are additional extensions needed for certain tools:
 
@@ -80,7 +75,7 @@ Please see Esri general [guidelines for contributing](https://github.com/esri/co
 
 ### Repository Points of Contact
 
-Repository Owner: [Matt Funk](https://github.com/mfunk)
+Repository Owner: [Kevin](https://github.com/kgonzago)
 
 * Merge Pull Requests
 * Creates Releases and Tags
@@ -93,6 +88,10 @@ Secondary Contact: [Lyle Wright](https://github.com/topowright)
 
 ## Resources
 
+* [ArcGIS for Defense Military Tools Toolbox](http://solutions.arcgis.com/defense/help/military-tools/arcmap/an-overview-of-the-military-tools-toolbox.htm)
+* [Military Tools for ArcGIS](https://esri.github.io/military-tools-desktop-addins/)
+* [Military Tools for ArcGIS Solutions Pages](http://solutions.arcgis.com/defense/help/military-tools/) 
+* [ArcGIS for Defense Downloads](http://appsforms.esri.com/products/download/#ArcGIS_for_Defense)
 * [ArcGIS 10.3 Help](http://resources.arcgis.com/en/help/)
 * [ArcGIS Blog](http://blogs.esri.com/esri/arcgis/)
 * ![Twitter](https://g.twimg.com/twitter-bird-16x16.png)[@EsriDefense](http://twitter.com/EsriDefense)
@@ -106,7 +105,7 @@ Secondary Contact: [Lyle Wright](https://github.com/topowright)
 
 ## Licensing
 
-Copyright 2016 Esri
+Copyright 2016-2017 Esri
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
