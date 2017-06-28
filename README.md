@@ -29,7 +29,7 @@ Tools for ArcMap are in the **Military_Tools_arcmap.tbx** toolbox and have the f
 
 Tools for ArcGIS Pro are in the **Military_Tools_pro.tbx** toolbox and have the following requirements: 
 
-* **ArcGIS Pro 2.0+**
+* **ArcGIS Pro 1.4+**
 
 Additionally there are additional extensions needed for certain tools:
 
