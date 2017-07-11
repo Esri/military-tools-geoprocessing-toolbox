@@ -29,11 +29,8 @@ Tools for ArcMap are in the **Military_Tools_arcmap.tbx** toolbox and have the f
 * **ArcGIS 10.4 for Desktop**
 * **ArcGIS 10.4.1 for Desktop**
 
-
 Tools for ArcGIS Pro are in the **Military_Tools_pro.tbx** toolbox and have the following requirements: 
 
-* **ArcGIS Pro 1.2**
-* **ArcGIS Pro 1.3**
 * **ArcGIS Pro 1.4**
 
 Additionally there are additional extensions needed for certain tools:
