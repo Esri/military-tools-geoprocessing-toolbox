@@ -36,37 +36,10 @@ import sys
 import datetime
 import logging
 import unittest
+
 import arcpy
 import Configuration
 import UnitTestUtilities
-
-#################################################
-# WORKAROUND: for Python 3 choking on reading some non-binary files
-# For example in ArcPy when loading a toolbox when run from command line
-# Get error like: detect_encoding...tokenize.py...find_cookie...raise SyntaxError(msg)  
-# ...SyntaxError: invalid or missing encoding declaration for '...XXXX.tbx' 
-# Workaround borrowed/used from:
-# https://github.com/habnabit/passacre/commit/2ea05ba94eab2d26951ae7b4b51abf53132b20f0
-
-# Code will work with Python 2, but only do workaround for Python 3
-# Can be removed if this error get fixed
-if sys.version_info >= (3,0):
-    import tokenize 
-
-    try: 
-        _detect_encoding = tokenize.detect_encoding 
-    except AttributeError: 
-        pass 
-    else: 
-        def detect_encoding(readline): 
-            try: 
-                return _detect_encoding(readline) 
-            except SyntaxError: 
-                return 'latin-1', [] 
- 
-        tokenize.detect_encoding = detect_encoding 
-## END WORKAROUND
-#################################################
 
 logFileFromBAT = None
 if len(sys.argv) > 1:
@@ -74,101 +47,119 @@ if len(sys.argv) > 1:
 
 def main():
     ''' main test logic '''
+    print("TestRunner.py - main")
+
     if Configuration.DEBUG == True:
-        print("TestRunner.py - main")
+        print("Debug messaging is ON")
+        logLevel = logging.DEBUG
     else:
         print("Debug messaging is OFF")
-    
-    #setup scratch workspace
-    Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
+        logLevel = logging.INFO
 
     # setup logger
-    logName = None
     if not logFileFromBAT == None:
-        logName = logFileFromBAT
-        Configuration.Logger = UnitTestUtilities.initializeLogger(logFileFromBAT)
+        Configuration.Logger = UnitTestUtilities.initializeLogger(logFileFromBAT, logLevel)
     else:
-        logName = UnitTestUtilities.getLoggerName()
-        Configuration.Logger = UnitTestUtilities.initializeLogger(logName)
-    print("Logging results to: " + str(logName))
+        Configuration.GetLogger(logLevel)
+
+    print("Logging results to: " + str(Configuration.LoggerFile))
     UnitTestUtilities.setUpLogFileHeader()
 
     result = runTestSuite()
+
     logTestResults(result)
-    print("END OF TEST =========================================\n")
-    
-    #remove scratch
-    UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
-    
-    if result.wasSuccessful():
-        #tests successful
-        sys.exit(0)
-    else:
-        # test errors or failures
-        sys.exit(1)
-    
-    return
+
+    return result.wasSuccessful()
 
 def logTestResults(result):
     ''' Write the log file '''
     resultHead = resultsHeader(result)
-    print(resultHead)
     Configuration.Logger.info(resultHead)
-    if len(result.errors) > 0:
-        rError = resultsErrors(result)
-        print(rError)
-        Configuration.Logger.error(rError)
-    if len(result.failures) > 0:
-        rFail = resultsFailures(result)
-        print(rFail)
-        Configuration.Logger.error(rFail)
-    Configuration.Logger.info("END OF TEST =========================================\n")
+
+    errorLogLines = getErrorResultsAsList(result)
+    for errorLogLine in errorLogLines :
+        # strip unicode chars so they don't mess up print/log file
+        line = errorLogLine.encode('ascii','ignore').decode('ascii')
+        Configuration.Logger.error(line)
+
+    endOfTestMsg = "END OF TEST ========================================="
+    Configuration.Logger.info(endOfTestMsg)
 
     return
 
 def resultsHeader(result):
+
+    if result is None:
+        return
+
     ''' Generic header for the results in the log file '''
-    msg = "RESULTS =================================================\n\n"
+    errorCount   = len(result.errors)
+    failureCount = len(result.failures)
+    skippedCount = len(result.skipped)
+    nonPassedCount = errorCount + failureCount + skippedCount
+
+    passedCount  = result.testsRun - nonPassedCount
+    # testsRun should be > 0 , but just in case
+    percentPassed = ((passedCount / result.testsRun) * 100.0) if (result.testsRun > 0) else 0.0
+
+    msg = "\nRESULTS =================================================\n"
     msg += "Number of tests run: " + str(result.testsRun) + "\n"
-    msg += "Number of errors: " + str(len(result.errors)) + "\n"
-    msg += "Number of failures: " + str(len(result.failures)) + "\n"
+    msg += "Number succeeded: " + str(passedCount) + "\n"
+    msg += "Number of errors: " + str(errorCount) + "\n"
+    msg += "Number of failures: " + str(failureCount) + "\n"
+    msg += "Number of tests skipped: " + str(skippedCount) + "\n"
+    msg += "Percent passing: %3.1f" % (percentPassed) + "\n"
+    msg += "=========================================================\n"
     return msg
 
-def resultsErrors(result):
-    ''' Error results formatting '''
-    msg = "ERRORS =================================================\n\n"
-    for i in result.errors:
-        for j in i:
-            msg += str(j)
-        msg += "\n..............................................................\n"
-    return msg
+def getErrorResultsAsList(result):
+    results = []
+    if len(result.errors) > 0:
+        results.append("ERRORS ==================================================")
+        for test in result.errors:
+            for error in test:
+                strError = str(error)
+                # For errors containing newlines, break these up so they are more readable
+                results += strError.strip().splitlines()
 
-def resultsFailures(result):
-    ''' Assert failures formatting '''
-    msg = "FAILURES ===============================================\n\n"
-    for i in result.failures:
-        for j in i:
-            msg += str(j)
-        msg += "\n..............................................................\n"
-    return msg
+    if len(result.failures) > 0:
+        results.append("FAILURES ================================================")
+        for test in result.failures:
+            for failure in test:
+                strFailure = str(failure)
+                results += strFailure.strip().splitlines()
+
+    return results
+
+def configCheck():
+    UnitTestUtilities.checkFilePaths([Configuration.militaryDataPath, \
+        Configuration.militaryInputDataGDB, Configuration.militaryResultsGDB, \
+        Configuration.military_ProToolboxPath, Configuration.military_DesktopToolboxPath])
 
 def runTestSuite():
     ''' collect all test suites before running them '''
-    if Configuration.DEBUG == True: print("TestRunner.py - runTestSuite")
+    Configuration.Logger.debug("TestRunner.py - runTestSuite")
+
     testSuite = unittest.TestSuite()
     result = unittest.TestResult()
 
-    #What are we working with?
-    Configuration.Platform = "DESKTOP"
-    if arcpy.GetInstallInfo()['ProductName'] == 'ArcGISPro':
-        Configuration.Platform = "PRO"
-    Configuration.Logger.info(Configuration.Platform + " =======================================")
+    #What Platform are we running on?
+    Configuration.GetPlatform()
+    Configuration.Logger.info('Running on Platform: ' + Configuration.Platform)
+
+    Configuration.Logger.info('Checking folder dependencies.')
+    configCheck()
+    Configuration.Logger.info('Dependent folders exist.')
 
     testSuite.addTests(addMilitarySuite())
 
-    print("running " + str(testSuite.countTestCases()) + " tests...")
+    Configuration.Logger.info("running " + str(testSuite.countTestCases()) + " tests...")
+
+    # Run all of the tests added above
     testSuite.run(result)
-    print("Test success: {0}".format(str(result.wasSuccessful())))
+
+    Configuration.Logger.info("Test success: {0}".format(str(result.wasSuccessful())))
+
     return result
 
 def addMilitarySuite():
@@ -178,19 +169,23 @@ def addMilitarySuite():
     testSuite = unittest.TestSuite()
     
     from conversion_tests import ConversionTestSuite
-    testSuite.addTests(ConversionTestSuite.getConversionTestSuites())
+    testSuite.addTests(ConversionTestSuite.getTestSuite())
     
-    from distance_tests import RangeRingTestSuite
-    testSuite.addTests(RangeRingTestSuite.getRangeRingTestSuite())
+    #from distance_tests import RangeRingTestSuite
+    #testSuite.addTests(RangeRingTestSuite.getTestSuite())
     
-    from visibility_tests import VisibilityTestSuite
-    testSuite.addTests(VisibilityTestSuite.getVisibilityTestSuites())
+    #from visibility_tests import VisibilityTestSuite
+    #testSuite.addTests(VisibilityTestSuite.getTestSuites())
     
     return testSuite
-
 
 # MAIN =============================================
 if __name__ == "__main__":
     if Configuration.DEBUG == True:
-        print("TestRunner.py")
-    main()
+        print("Starting TestRunner.py")
+
+    exitAsBoolean = main()
+
+    exitAsCode = 0 if exitAsBoolean else 1
+
+    sys.exit(exitAsCode)

@@ -8,6 +8,8 @@
 #maps/
 
 *.sav
+*-sav.*
+*Copy.*
 
 scratch/
 arc.dir

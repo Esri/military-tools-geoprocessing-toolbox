@@ -40,11 +40,15 @@ REM name is optional; if not specified, name will be specified for you
 set LOG=
 REM === LOG SETUP ====================================
 
+IF NOT DEFINED PYTHON_PATH SET PYTHON_PATH=C:\Python27\ArcGIS10.4
+
 ECHO Testing with ArcMap ===============================
-python TestRunner.py %LOG%
+
+%PYTHON_PATH%\python TestRunner.py %LOG%
+
 REM check if Desktop for ArcGIS/Python 2.7 tests failed
 IF %ERRORLEVEL% NEQ 0 (
    ECHO 'One or more tests failed'
 )
 
-pause
+REM pause
