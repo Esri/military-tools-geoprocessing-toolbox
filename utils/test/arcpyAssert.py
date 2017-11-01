@@ -73,7 +73,7 @@ class FeatureClassAssertMixin(object):
         :return:
         """
 
-        Configuration.Logger.debug("Comparing: " + str(first) + ', ' + str(second))
+        if Configuration.Logger is not None : Configuration.Logger.debug("Comparing: " + str(first) + ', ' + str(second))
 
         # Make a place to store the compare file
         compare_file = tempfile.mkstemp(".txt")
@@ -96,17 +96,29 @@ class FeatureClassAssertMixin(object):
             os.remove(compare_file[1])
             return
 
-
         # read the compare file and print it out
         Configuration.Logger.debug('Diff File: ' + compare_file[1])
         with open(compare_file[1], 'r') as f:
             for l in f.readlines():
                 diff_line = l.rstrip()
-                Configuration.Logger.debug(diff_line)
+                if Configuration.Logger is not None : Configuration.Logger.debug(diff_line)
         os.remove(compare_file[1])
 
-        Configuration.Logger.debug("Arcpy Messages: %s" % arcpy.GetMessages())
+        if Configuration.Logger is not None : Configuration.Logger.debug("Arcpy Messages: %s" % arcpy.GetMessages())
 
         # set the assertion message.
         msg = message if message is not None else "Feature class {} is not equal to {}".format(second, first)
         raise AssertionError(msg)
+
+    # A simpler version that works around problems comparing FeatureClass extents/grid size ("GeometryDef grid size differs")
+    def assertFeatureClassEqualSimple(self,
+                                      first,
+                                      second,
+                                      sort_field,
+                                      xy_tolerance = None):
+
+        self.assertFeatureClassEqual(first, second, \
+                                     sort_field, None, "ATTRIBUTES_ONLY")
+
+        self.assertFeatureClassEqual(self.baseFC, self.outputEllipses, \
+                                     sort_field, None, "GEOMETRY_ONLY", None, xy_tolerance)

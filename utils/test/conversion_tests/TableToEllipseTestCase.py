@@ -91,7 +91,7 @@ class TableToEllipseTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMi
         Configuration.Logger.info(".....TableToEllipseTestCase.test_table_to_ellipse")
 
         arcpy.TableToEllipse_mt(self.inputTable, "DD_2", "x", "y", "Major", "Minor", \
-            "KILOMETERS", self.outputEllipses)
+            "KILOMETERS", self.outputEllipses, "Orient", "DEGREES")
 
         self.assertTrue(arcpy.Exists(self.outputEllipses), "Output dataset does not exist.")
         ellipseCount = int(arcpy.GetCount_management(self.outputEllipses).getOutput(0))
@@ -99,9 +99,8 @@ class TableToEllipseTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMi
         self.assertEqual(ellipseCount, expectedFeatures, \
             "Expected %s features but got %s" % (str(expectedFeatures),str(ellipseCount)))
 
-        # TODO: Needs correct known good results featureclass
-        # self.assertFeatureClassEqual(self.baseFC, self.outputEllipses, \
-        #                             "OBJECTID")
+        self.assertFeatureClassEqualSimple(self.baseFC, self.outputEllipses, \
+                                     "OBJECTID", 0.0001)
 
         return
 
