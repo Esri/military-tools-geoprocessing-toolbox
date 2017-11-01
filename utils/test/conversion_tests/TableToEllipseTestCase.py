@@ -111,9 +111,7 @@ class TableToEllipseTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMi
         if arcpy.Exists(self.outputEllipses) :
             arcpy.Delete_management(self.outputEllipses)
 
-        runToolMessage = ".....TableToEllipseTestCase.test_table_to_ellipse_GARS"
-
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....TableToEllipseTestCase.test_table_to_ellipse_GARS")
 
         arcpy.TableToEllipse_mt(self.inputSingleTable, "GARS", "GARS", None, \
             "Major", "Minor", "KILOMETERS", self.outputEllipses)
@@ -136,8 +134,7 @@ class TableToEllipseTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMi
         if arcpy.Exists(self.outputEllipses) :
             arcpy.Delete_management(self.outputEllipses)
 
-        runToolMessage = ".....TableToEllipseTestCase.test_table_to_ellipse_GEOREF"
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....TableToEllipseTestCase.test_table_to_ellipse_GEOREF")
 
         arcpy.TableToEllipse_mt(self.inputSingleTable, "GEOREF", "GEOREF", None, \
             "Major", "Minor", "KILOMETERS", self.outputEllipses)
@@ -161,8 +158,7 @@ class TableToEllipseTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMi
         if arcpy.Exists(self.outputEllipses) :
             arcpy.Delete_management(self.outputEllipses)
     
-        runToolMessage = ".....TableToEllipseTestCase.test_table_to_ellipse_USNG"
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....TableToEllipseTestCase.test_table_to_ellipse_USNG")
 
         arcpy.TableToEllipse_mt(self.inputSingleTable, "USNG", "USNG", None, \
             "Major", "Minor", "KILOMETERS", self.outputEllipses)
@@ -186,8 +182,7 @@ class TableToEllipseTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMi
         if arcpy.Exists(self.outputEllipses) :
             arcpy.Delete_management(self.outputEllipses)
 
-        runToolMessage = ".....TableToEllipseTestCase.test_table_to_ellipse_USNG"
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....TableToEllipseTestCase.test_table_to_ellipse_USNG")
 
         arcpy.TableToEllipse_mt(self.inputSingleTable, "MGRS", "MGRS", None, \
             "Major", "Minor", "KILOMETERS", self.outputEllipses)
@@ -211,8 +206,7 @@ class TableToEllipseTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMi
         if arcpy.Exists(self.outputEllipses) :
             arcpy.Delete_management(self.outputEllipses)
 
-        runToolMessage = ".....TableToEllipseTestCase.test_table_to_ellipse_UTM_BANDS"
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....TableToEllipseTestCase.test_table_to_ellipse_UTM_BANDS")
 
         arcpy.TableToEllipse_mt(self.inputSingleTable, "UTM_BANDS", "UTM", None, \
             "Major", "Minor", "KILOMETERS", self.outputEllipses)

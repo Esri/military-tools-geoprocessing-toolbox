@@ -58,7 +58,7 @@ def getTestSuite():
     testSuite.addTest(loader.loadTestsFromTestCase(ConvertCoordinatesTestCase.ConvertCoordinatesTestCase))
     testSuite.addTest(loader.loadTestsFromTestCase(TableToTwoPointLineTestCase.TableToTwoPointLineTestCase))
     testSuite.addTest(loader.loadTestsFromTestCase(TableToEllipseTestCase.TableToEllipseTestCase))
-    #testSuite.addTest(loader.loadTestsFromTestCase(TableToLineOfBearingTestCase.TableToLineOfBearingTestCase))
+    testSuite.addTest(loader.loadTestsFromTestCase(TableToLineOfBearingTestCase.TableToLineOfBearingTestCase))
     #testSuite.addTest(loader.loadTestsFromTestCase(TableToPointTestCase.TableToPointTestCase))
     #testSuite.addTest(loader.loadTestsFromTestCase(TableToPolygonTestCase.TableToPolygonTestCase))
     #testSuite.addTest(loader.loadTestsFromTestCase(TableToPolylineTestCase.TableToPolylineTestCase))

@@ -118,7 +118,8 @@ class FeatureClassAssertMixin(object):
                                       xy_tolerance = None):
 
         self.assertFeatureClassEqual(first, second, \
-                                     sort_field, None, "ATTRIBUTES_ONLY")
+                                     sort_field, None, "ATTRIBUTES_ONLY", None, xy_tolerance,
+                                     None, None, None, ['Shape_Length'])
 
-        self.assertFeatureClassEqual(self.baseFC, self.outputEllipses, \
+        self.assertFeatureClassEqual(first, second, \
                                      sort_field, None, "GEOMETRY_ONLY", None, xy_tolerance)
