@@ -81,7 +81,7 @@ class TableToLineOfBearingTestCase(unittest.TestCase, arcpyAssert.FeatureClassAs
         arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
         
     def tearDown(self):
-        if Configuration.DEBUG == True: print("     TableToLineOfBearingTestCase.tearDown")
+        Configuration.Logger.debug("     TableToLineOfBearingTestCase.tearDown")
         # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
     
     def test_table_to_lineofbearing(self):

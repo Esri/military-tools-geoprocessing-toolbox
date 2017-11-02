@@ -78,7 +78,7 @@ class TableToEllipseTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMi
         arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
 
     def tearDown(self):
-        if Configuration.DEBUG == True: print("     TableToEllipseTestCase.tearDown")
+        Configuration.Logger.debug("     TableToEllipseTestCase.tearDown")
         # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
     
     def test_table_to_ellipse(self):

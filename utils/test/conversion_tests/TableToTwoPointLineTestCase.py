@@ -76,7 +76,7 @@ class TableToTwoPointLineTestCase(unittest.TestCase):
         arcpy.ImportToolbox(Configuration.toolboxUnderTest)       
         
     def tearDown(self):
-        if Configuration.DEBUG == True: print("     TableToTwoPointLineTestCase.tearDown")
+        Configuration.Logger.debug("     TableToTwoPointLineTestCase.tearDown")
         # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
     
     def test_table_to_twopointline(self):
