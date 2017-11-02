@@ -45,7 +45,7 @@ import UnitTestUtilities
 import Configuration
 import arcpyAssert
 
-class TableToPointTestCase(unittest.TestCase):
+class TableToPointTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMixin):
     ''' Test all tools and methods related to the Table To Point tool
     in the Military Tools toolbox'''
 
@@ -97,7 +97,7 @@ class TableToPointTestCase(unittest.TestCase):
 
         self.assertTrue(arcpy.Exists(self.outputPoints), "Output features do not exist or were not created")
         pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
-        expectedFeatures = int(288)
+        expectedFeatures = int(1000)
         self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
 
         self.assertFeatureClassEqualSimple(self.baseFC, self.outputPoints, \
@@ -118,7 +118,7 @@ class TableToPointTestCase(unittest.TestCase):
 
         self.assertTrue(arcpy.Exists(self.outputPoints), "Output features do not exist or were not created")
         pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
-        expectedFeatures = int(288)
+        expectedFeatures = int(1000)
         self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
 
         # TODO: Needs correct known good results featureclass
@@ -140,7 +140,7 @@ class TableToPointTestCase(unittest.TestCase):
 
         self.assertTrue(arcpy.Exists(self.outputPoints), "Output features do not exist or were not created")
         pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
-        expectedFeatures = int(288)
+        expectedFeatures = int(1000)
         self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
 
         # TODO: Needs correct known good results featureclass
@@ -162,7 +162,7 @@ class TableToPointTestCase(unittest.TestCase):
 
         self.assertTrue(arcpy.Exists(self.outputPoints), "Output features do not exist or were not created")
         pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
-        expectedFeatures = int(288)
+        expectedFeatures = int(1000)
         self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
 
         # TODO: Needs correct known good results featureclass
@@ -184,7 +184,7 @@ class TableToPointTestCase(unittest.TestCase):
 
         self.assertTrue(arcpy.Exists(self.outputPoints), "Output features do not exist or were not created")
         pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
-        expectedFeatures = int(288)
+        expectedFeatures = int(1000)
         self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
 
         # TODO: Needs correct known good results featureclass
@@ -206,7 +206,7 @@ class TableToPointTestCase(unittest.TestCase):
 
         self.assertTrue(arcpy.Exists(self.outputPoints), "Output features do not exist or were not created")
         pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
-        expectedFeatures = int(288)
+        expectedFeatures = int(1000)
         self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
 
         # TODO: Needs correct known good results featureclass
