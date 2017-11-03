@@ -50,13 +50,13 @@ class LinearLineOfSightTestCase(unittest.TestCase):
     ''' Test all tools and methods related to the Linear Line Of Sight tool
     in the Military Tools toolbox'''
 
-    self.observers = None
-    self.targets = None
-    self.inputSurface = None
-    self.outputLOS = None
-    self.outputSightLines = None
-    self.outputObservers = None
-    self.outputTargets = None
+    observers = None
+    targets = None
+    inputSurface = None
+    outputLOS = None
+    outputSightLines = None
+    outputObservers = None
+    outputTargets = None
 
     def setUp(self):
         ''' Initialization needed if running Test Case standalone '''
