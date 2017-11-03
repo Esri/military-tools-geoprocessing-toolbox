@@ -34,39 +34,20 @@ history:
 ==================================================
 '''
 
-import logging
 import unittest
+import logging
 import Configuration
+
 from . import RangeRingUtilsTestCase
 
-TestSuite = unittest.TestSuite()
+def getTestSuite():
 
-def getRangeRingTestSuite():
-    ''' Range Rings test suite '''
+    testSuite = unittest.TestSuite()
 
-    testCaseList = ['test_RingMaker_init',
-                    'test_RingMaker_sortList_empty',
-                    'test_RingMaker_sortList_isSorted',
-                    'test_RingMaker_addFieldsToTable',
-                    'test_RingMaker_makeTempTable',
-                    'test_RingMaker_makeRingsFromDistances',
-                    'test_RingMaker_saveRingsAsFeatures',
-                    'test_RingMaker_makeRadials',
-                    'test_RingMaker_saveRadialsAsFeatures',
-                    'test_rangeRingsFromMinMax',
-                    'test_rangeRingsFromList',
-                    'test_rangeRingsFromInterval']
+    ''' Add the Range Ring tests '''
+ 
+    loader = unittest.TestLoader()
 
-    if Configuration.Platform == "DESKTOP":
-        addRangeRingUtilsTests(testCaseList)
-    else:
-        addRangeRingUtilsTests(testCaseList)
-    
-    return TestSuite
+    testSuite.addTest(loader.loadTestsFromTestCase(RangeRingUtilsTestCase.RangeRingUtilsTestCase))
 
-def addRangeRingUtilsTests(inputTestList):
-    ''' add all of the tests from RangeRingTestCase.py '''
-    for test in inputTestList:
-        print("adding test: " + str(test))
-        TestSuite.addTest(RangeRingUtilsTestCase.RangeRingUtilsTestCase(test))
-
+    return testSuite

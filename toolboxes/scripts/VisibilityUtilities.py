@@ -650,11 +650,6 @@ def makeProfileGraph(inputFeatures):
         #     if arcpy.Exists(ds):
         #         arcpy.Delete_management(ds)
         #         if debug == True: arcpy.AddMessage(str(ds))
-                
-                
-        # output
-        arcpy.SetParameter(1,inputFeatures)
-    
     
     except arcpy.ExecuteError:
         error = True

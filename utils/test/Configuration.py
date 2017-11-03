@@ -1,5 +1,6 @@
+# coding: utf-8
 '''
-------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 Copyright 2016 Esri
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,16 +18,23 @@ Configuration.py
 Description: Common objects/methods used by test scripts
 Requirements: ArcGIS Desktop Standard
 
- ----------------------------------------------------------------------------
+----------------------------------------------------------------------------
 '''
 
+import logging
 import os
+import sys
 
-DEBUG = False # this guy is a flag for extra messaging while debugging tests
+DEBUG = True # this guy is a flag for extra messaging while debugging tests
 
-#NOTE: Logger and Platform are initialized in TestRunner's main()
+#NOTE: Logger and Platform are initialized in TestRunner's main() or Configuration.GetLogger/Platform
 Logger = None
+LoggerFile = None
+
 Platform = None
+
+PLATFORM_PRO = "PRO"
+PLATFORM_DESKTOP = "DESKTOP"
 
 ''' Testing paths '''
 currentPath = os.path.dirname(__file__) # should go to .\military-tools-geoprocessing-toolbox\utils\test
@@ -45,6 +53,7 @@ militaryScratchGDB = os.path.normpath(os.path.join(currentPath, "scratch.gdb"))
 militaryToolboxesPath = os.path.normpath(os.path.join(currentPath, r"../../toolboxes/"))
 military_ProToolboxPath = os.path.normpath(os.path.join(militaryToolboxesPath, "Military_Tools_pro.tbx"))
 military_DesktopToolboxPath = os.path.normpath(os.path.join(militaryToolboxesPath, "Military_Tools_arcmap.tbx"))
+toolboxUnderTest = None # Set to Pro or ArcMap toolbox at runtime
 
 ''' Conversion Path'''
 conversionPath = os.path.normpath(os.path.join(currentPath, r"conversion_tests"))
@@ -55,6 +64,75 @@ distancePath = os.path.normpath(os.path.join(currentPath, r"distance_tests"))
 ''' Visibility Path '''
 visibilityPath = os.path.normpath(os.path.join(currentPath, r"visibility_tests"))
 
+def checkTokenizeWorkaround() :
+    #################################################
+    # WORKAROUND: for Python 3 choking on reading some binary files (with nulls)
+    # For example in ArcPy when loading a toolbox when run from command line
+    # Get error like: detect_encoding...tokenize.py...find_cookie...raise SyntaxError(msg)
+    # ...SyntaxError: invalid or missing encoding declaration for '...XXXX.tbx'
+    # Workaround borrowed/used from:
+    # https://github.com/habnabit/passacre/commit/2ea05ba94eab2d26951ae7b4b51abf53132b20f0
 
+    # Code should work with Python 2, but only do workaround for Python 3
+    # Workaround needed in Versions 3.0 - 3.5.2
+    if sys.version_info >= (3, 0) and sys.version_info < (3, 5, 3):
+        import tokenize
 
+        try:
+            _detect_encoding = tokenize.detect_encoding
+        except AttributeError:
+            pass
+        else:
+            def detect_encoding(readline):
+                try:
+                    return _detect_encoding(readline)
+                except SyntaxError:
+                    return 'latin-1', []
 
+            tokenize.detect_encoding = detect_encoding
+    ## END WORKAROUND
+    #################################################
+
+def GetLogger(logLevel = logging.DEBUG) :
+
+    global Logger
+
+    if Logger is None:
+
+        import UnitTestUtilities
+
+        logName = UnitTestUtilities.getLoggerName()
+        Logger = UnitTestUtilities.initializeLogger(logName, logLevel)
+
+    return Logger
+
+def GetPlatform() :
+
+    global Platform, toolboxUnderTest
+
+    if Platform is None :
+
+        import arcpy
+
+        Platform = PLATFORM_DESKTOP
+        toolboxUnderTest = military_DesktopToolboxPath
+
+        installInfo = arcpy.GetInstallInfo()
+        if installInfo['ProductName'] == 'ArcGISPro':
+            Platform = PLATFORM_PRO
+            toolboxUnderTest = military_ProToolboxPath
+            checkTokenizeWorkaround()
+
+    return Platform
+
+def GetToolboxSuffix() :
+
+    platform = GetPlatform()
+
+    # default to ArcMap
+    suffix = "_arcmap.tbx"
+
+    if Platform == PLATFORM_PRO :
+        suffix = "_pro.tbx"
+
+    return suffix

@@ -34,9 +34,15 @@ history:
 ==================================================
 '''
 
-import unittest
-import arcpy
 import os
+import unittest
+
+import arcpy
+
+# Add parent folder to python path if running test case standalone
+import sys
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '..')))
+
 import UnitTestUtilities
 import Configuration
 
@@ -44,11 +50,21 @@ class LinearLineOfSightTestCase(unittest.TestCase):
     ''' Test all tools and methods related to the Linear Line Of Sight tool
     in the Military Tools toolbox'''
 
-    inputTable = None
-    outputPoints = None
+    observers = None
+    targets = None
+    inputSurface = None
+    outputLOS = None
+    outputSightLines = None
+    outputObservers = None
+    outputTargets = None
 
     def setUp(self):
-        if Configuration.DEBUG == True: print("     LinearLineOfSightTestCase.setUp")
+        ''' Initialization needed if running Test Case standalone '''
+        Configuration.GetLogger()
+        Configuration.GetPlatform()
+        ''' End standalone initialization '''
+            
+        Configuration.Logger.debug("     LinearLineOfSightTestCase.setUp")
 
         UnitTestUtilities.checkArcPy()
         if not arcpy.Exists(Configuration.militaryScratchGDB):
@@ -57,6 +73,10 @@ class LinearLineOfSightTestCase(unittest.TestCase):
         self.observers = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Observers")
         self.targets = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Targets")
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
+
+        UnitTestUtilities.checkGeoObjects([Configuration.toolboxUnderTest, \
+            self.observers, self.targets, self.inputSurface])
+
         self.outputLOS = os.path.join(Configuration.militaryScratchGDB, "outputLinearLineOfSight")
         self.outputSightLines = os.path.join(Configuration.militaryScratchGDB, "outputSightLines")
         self.outputObservers = os.path.join(Configuration.militaryScratchGDB, "outputObservers")
@@ -69,18 +89,18 @@ class LinearLineOfSightTestCase(unittest.TestCase):
             arcpy.CheckOutExtension("3D")
             arcpy.AddMessage("3D checked out")
 
-    def tearDown(self):
-        if Configuration.DEBUG == True: print("     LinearLineOfSightTestCase.tearDown")
-        arcpy.CheckInExtension("Spatial");
-        UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
 
-    def test_linear_line_of_sight_desktop(self):
+    def tearDown(self):
+        Configuration.Logger.debug("     LinearLineOfSightTestCase.tearDown")
+        arcpy.CheckInExtension("Spatial");
+        # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+
+    def test_linear_line_of_sight(self):
         ''' Test Linear Line Of Sight in ArcGIS Desktop'''
-        runToolMessage = ".....LinearLineOfSightTestCase.test_linear_line_of_sight_desktop"
+        Configuration.Logger.info(".....LinearLineOfSightTestCase.test_linear_line_of_sight")
+
         arcpy.env.overwriteOutput = True
-        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
         
         arcpy.LinearLineOfSight_mt(self.observers,
                                    2.0,
@@ -114,41 +134,6 @@ class LinearLineOfSightTestCase(unittest.TestCase):
                          "Expected {0} targets but got {1}".format(expectedTargetCount, actualTargetCount))
         #TODO: check attached profile graphs were created
         return
-
-    def test_linear_line_of_sight_pro(self):
-        ''' Test Linear Line Of Sight in ArcGIS Pro '''
-        runToolMessage = ".....LinearLineOfSightTestCase.test_linear_line_of_sight_pro"
-        arcpy.env.overwriteOutput = True
-        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
-        arcpy.LinearLineOfSight_mt(self.observers,
-                                   2.0,
-                                   self.targets,
-                                   0.0,
-                                   self.inputSurface,
-                                   self.outputLOS,
-                                   self.outputSightLines,
-                                   self.outputObservers,
-                                   self.outputTargets)
-        self.assertTrue(arcpy.Exists(self.outputLOS), "Output LOS does not exist or was not created")
-        self.assertTrue(arcpy.Exists(self.outputSightLines), "Output Sight Lines do not exist or were not created")
-        self.assertTrue(arcpy.Exists(self.outputObservers), "Output Observers do not exist or were not created")
-        self.assertTrue(arcpy.Exists(self.outputTargets), "Output Targets do not exist or were not created")
-        featureCount = int(arcpy.GetCount_management(self.outputLOS).getOutput(0))
-        expectedFeatures = int(32)
-        self.assertEqual(featureCount, expectedFeatures, "Expected %s features but got %s" % (str(expectedFeatures), str(featureCount)))
-        featureCountSightLines = int(arcpy.GetCount_management(self.outputSightLines).getOutput(0))
-        self.assertEqual(featureCountSightLines, int(16), "Expected 16 Sight Lines but got {0}".format(featureCountSightLines))
-        expectedObserverCount = int(arcpy.GetCount_management(self.observers).getOutput(0))
-        actualObserverCount = int(arcpy.GetCount_management(self.outputObservers).getOutput(0))
-        self.assertEqual(expectedObserverCount,
-                         actualObserverCount,
-                         "Expected {0} observers but got {1}".format(expectedObserverCount, actualObserverCount))
-        expectedTargetCount = int(arcpy.GetCount_management(self.targets).getOutput(0))
-        actualTargetCount = int(arcpy.GetCount_management(self.outputTargets).getOutput(0))
-        self.assertEqual(expectedTargetCount,
-                         actualTargetCount,
-                         "Expected {0} targets but got {1}".format(expectedTargetCount, actualTargetCount))
-        #TODO: check attached profile graphs were created
-        return
+        
+if __name__ == "__main__":
+    unittest.main()

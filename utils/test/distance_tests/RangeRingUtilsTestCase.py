@@ -30,12 +30,19 @@ history:
 ==================================================
 '''
 
+
 import os
-import sys
-import arcpy
 import unittest
+
+import arcpy
+
+# Add parent folder to python path if running test case standalone
+import sys
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '..')))
+
 import UnitTestUtilities
 import Configuration
+import arcpyAssert
     
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), \
     r"../../../toolboxes/scripts")))
@@ -51,7 +58,14 @@ class RangeRingUtilsTestCase(unittest.TestCase):
 
     def setUp(self):
         ''' setup for tests'''
-        if Configuration.DEBUG == True: print(".....RangeRingsUtilsTestCase.setUp")
+
+        ''' Initialization needed if running Test Case standalone '''
+        Configuration.GetLogger()
+        Configuration.GetPlatform()
+        ''' End standalone initialization '''
+
+        Configuration.Logger.debug(".....RangeRingsUtilsTestCase.setUp")
+
         UnitTestUtilities.checkArcPy()
         if not arcpy.Exists(Configuration.militaryScratchGDB):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
@@ -67,41 +81,46 @@ class RangeRingUtilsTestCase(unittest.TestCase):
                 cursor.insertRow([(x, y)])
         del cursor
         deleteIntermediateData.append(self.pointGeographic)
+
         return
 
     def tearDown(self):
         ''' cleanup after tests'''
-        if Configuration.DEBUG == True: print(".....RangeRingsUtilsTestCase.tearDown")
+        Configuration.Logger.debug(".....RangeRingsUtilsTestCase.tearDown")
         del self.pointGeographic
         for i in deleteIntermediateData:
             if arcpy.Exists(i):
                 arcpy.Delete_management(i)
-        UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+
+        # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+
         return
 
     def test_RingMaker_init(self):
         ''' test class'''
-        runToolMessage = ".....RangeRingsUtilsTestCase.test_RingMaker_init"
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+
+        Configuration.Logger.info(".....RangeRingsUtilsTestCase.test_RingMaker_init")
         
         ringDistanceList = [10.0, 20.0, 30.0, 40.0]
+
         rm = RangeRingUtils.RingMaker(self.pointGeographic,
                                       ringDistanceList,
                                       "METERS",
                                       srWAZED)
+
         self.assertEquals(rm.ringCount, len(ringDistanceList), "Incorrect ring count. Expected %s, but got %s" % (str(rm.ringCount), str(len(ringDistanceList))))
         expectedRingMin = float(10.0)
         self.assertEquals(rm.ringMin, expectedRingMin, "Incorrect min ring distance. Expected %s, but got %s" % (str(expectedRingMin), str(rm.ringMin)))
         expectedRingMax = float(40.0)
         self.assertEquals(rm.ringMax, expectedRingMax, "Incorrect max ring distance. Expected %s, but got %s" % (str(expectedRingMax), str(rm.ringMax)))
+ 
         return
 
     def test_RingMaker_sortList_empty(self):
         ''' test RingMaker's internal _sortList method if it handles an empty list'''
         runToolMessage = ".....RangeRingsUtilsTestCase.test_RingMaker_sortList_emtpy"
-        arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
+
         rr = RangeRingUtils.RingMaker(self.pointGeographic, [10.0, 20.0], "METERS", srWAZED)
         outList = rr._sortList([])
         self.assertIsNone(outList, "Expected empty sorted list, but got %s" % str(outList))
@@ -110,8 +129,8 @@ class RangeRingUtilsTestCase(unittest.TestCase):
     def test_RingMaker_sortList_isSorted(self):
         ''' test Ringmaker's internal _sortedList method if it sorts a list'''
         runToolMessage = "......RangeRingsUtilsTestCase.test_sortList_isSorted"
-        arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
+
         listToSort = [7, 5, 9, 3, 8, 1, 6, 2, 4, 0]
         rr = RangeRingUtils.RingMaker(self.pointGeographic, [10.0, 20.0], "METERS", srWAZED)
         outList = rr._sortList(listToSort)
@@ -121,7 +140,6 @@ class RangeRingUtilsTestCase(unittest.TestCase):
     def test_RingMaker_addFieldsToTable(self):
         ''' test RingMaker's internal _addFieldsToTable method'''
         runToolMessage = ".....RangeRingsUtilsTestCase.test_RingMaker_addFieldsToTable"
-        arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         
         fc = arcpy.CreateFeatureclass_management("in_memory", "fcTestFields", "POINT")[0]
@@ -139,7 +157,6 @@ class RangeRingUtilsTestCase(unittest.TestCase):
     def test_RingMaker_makeTempTable(self):
         ''' test RingMaker's internal method'''
         runToolMessage = ".....RangeRingsUtilsTestCase.test_RingMaker_makeTempTable"
-        arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         
         rm = RangeRingUtils.RingMaker(self.pointGeographic, [10.0, 20.0], "METERS", srWAZED)
@@ -151,7 +168,6 @@ class RangeRingUtilsTestCase(unittest.TestCase):
     def test_RingMaker_makeRingsFromDistances(self):
         ''' test RingMaker's internal method'''
         runToolMessage = ".....RangeRingsUtilsTestCase.test_RingMaker_makeRingsFromDistances"
-        arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         
         ringDistanceList = [10.0, 20.0, 30.0, 40.0]
@@ -165,7 +181,6 @@ class RangeRingUtilsTestCase(unittest.TestCase):
     def test_RingMaker_makeRadials(self):
         ''' test RingMaker's internal method'''
         runToolMessage = ".....RangeRingsUtilsTestCase.test_RingMaker_makeRadials"
-        arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         
         ringDistanceList = [10.0, 20.0, 30.0, 40.0]
@@ -181,7 +196,6 @@ class RangeRingUtilsTestCase(unittest.TestCase):
     def test_RingMaker_saveRingsAsFeatures(self):
         ''' test RingMaker's internal method'''
         runToolMessage = ".....RangeRingsUtilsTestCase.test_RingMaker_saveRingsAsFeatures"
-        arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         
         ringDistanceList = [10.0, 20.0, 30.0, 40.0]
@@ -198,7 +212,6 @@ class RangeRingUtilsTestCase(unittest.TestCase):
     def test_RingMaker_saveRadialsAsFeatures(self):
         ''' test saving raidal features to feature class'''
         runToolMessage = ".....RangeRingsUtilsTestCase.test_RingMaker_saveRadialsAsFeatures"
-        arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         
         ringDistanceList = [10.0, 20.0, 30.0, 40.0]
@@ -217,7 +230,6 @@ class RangeRingUtilsTestCase(unittest.TestCase):
     def test_rangeRingsFromMinMax(self):
         ''' testing the tool method '''
         runToolMessage = ".....RangeRingsUtilsTestCase.test_rangeRingsFromMinMax"
-        arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         
         numCenters = int(arcpy.GetCount_management(self.pointGeographic).getOutput(0))
@@ -248,7 +260,7 @@ class RangeRingUtilsTestCase(unittest.TestCase):
     def test_rangeRingsFromList(self):
         ''' testing rangeRingsFromList method'''
         runToolMessage = ".....RangeRingsUtilsTestCase.test_rangeRingsFromList"
-        arcpy.AddMessage(runToolMessage)
+
         Configuration.Logger.info(runToolMessage)
         
         numCenters = int(arcpy.GetCount_management(self.pointGeographic).getOutput(0))
@@ -279,7 +291,6 @@ class RangeRingUtilsTestCase(unittest.TestCase):
     def test_rangeRingsFromInterval(self):
         ''' testing rangeRingsFromInterval method'''
         runToolMessage = ".....RangeRingsUtilsTestCase.test_rangeRingsFromInterval"
-        arcpy.AddMessage(runToolMessage)
         Configuration.Logger.info(runToolMessage)
         
         numCenters = int(arcpy.GetCount_management(self.pointGeographic).getOutput(0))
@@ -308,3 +319,6 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         deleteIntermediateData.append(rings)
         deleteIntermediateData.append(radials)
         return
+
+if __name__ == "__main__":
+    unittest.main()

@@ -27,11 +27,14 @@
 
 # IMPORTS ==========================================
 import os
-import sys
-import traceback
 import unittest
 
 import arcpy
+
+# Add parent folder to python path if running test case standalone
+import sys
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '..')))
+
 import UnitTestUtilities
 import Configuration
 
@@ -42,13 +45,20 @@ import RadialLineOfSightAndRange
 class RadialLineOfSightAndRangeTestCase(unittest.TestCase):
 
     def setUp(self):
+        ''' Initialization needed if running Test Case standalone '''
+        Configuration.GetLogger()
+        Configuration.GetPlatform()
+        ''' End standalone initialization '''
+            
+        Configuration.Logger.debug('.....RadialLineOfSightAndRangeTestCase.setUp')
         arcpy.env.overwriteOutput = True 
+
+    def tearDown(self):
+        Configuration.Logger.debug(".....RadialLineOfSightAndRangeTestCase.tearDown")
         
     def test_toolboxMain(self):
 
-        runToolMessage = ".....RadialLineOfSightAndRange.test_toolboxMain"
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....RadialLineOfSightAndRange.test_toolboxMain")
 
         if arcpy.CheckExtension("3D") == "Available":
             arcpy.CheckOutExtension("3D")
@@ -79,9 +89,7 @@ class RadialLineOfSightAndRangeTestCase(unittest.TestCase):
         '''
         Check if elevation dataset contains the specified point
         '''
-        runToolMessage = ".....RadialLineOfSightAndRange.test_surfaceContainsPoint"
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....RadialLineOfSightAndRange.test_surfaceContainsPoint")
 
         observers = os.path.join(Configuration.militaryInputDataGDB, "RLOS_Observers")
 
@@ -95,9 +103,7 @@ class RadialLineOfSightAndRangeTestCase(unittest.TestCase):
         '''
         Check if elevation dataset contains the specified point not in same SR as surface
         '''
-        runToolMessage = ".....RadialLineOfSightAndRange.test_surfaceContainsPointWgs84"
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....RadialLineOfSightAndRange.test_surfaceContainsPointWgs84")
 
         # List of coordinates
         coordinates = [[-121.5, 36.5], [-121.2, 36.1]]
@@ -120,3 +126,6 @@ class RadialLineOfSightAndRangeTestCase(unittest.TestCase):
         arePointsIn = RadialLineOfSightAndRange.surfaceContainsPoints(observerFeatureClass, elevationSurface)
 
         self.assertTrue(arePointsIn, 'Points not within Surface as Expected')
+        
+if __name__ == "__main__":
+    unittest.main()
