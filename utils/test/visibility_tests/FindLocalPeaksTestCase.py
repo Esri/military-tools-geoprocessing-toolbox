@@ -32,9 +32,15 @@ history:
 ==================================================
 '''
 
-import unittest
-import arcpy
 import os
+import unittest
+
+import arcpy
+
+# Add parent folder to python path if running test case standalone
+import sys
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '..')))
+
 import UnitTestUtilities
 import Configuration
 
@@ -46,7 +52,12 @@ class FindLocalPeaksTestCase(unittest.TestCase):
     outputPoints = None
 
     def setUp(self):
-        if Configuration.DEBUG == True: print(".....FindLocalPeaksTestCase.setUp")
+        ''' Initialization needed if running Test Case standalone '''
+        Configuration.GetLogger()
+        Configuration.GetPlatform()
+        ''' End standalone initialization '''
+            
+        Configuration.Logger.debug(".....FindLocalPeaksTestCase.setUp")
 
         UnitTestUtilities.checkArcPy()
         if not arcpy.Exists(Configuration.militaryScratchGDB):
@@ -60,36 +71,25 @@ class FindLocalPeaksTestCase(unittest.TestCase):
             arcpy.CheckOutExtension("Spatial")
             arcpy.AddMessage("Spatial checked out")
 
+        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
+
     def tearDown(self):
         if Configuration.DEBUG == True: print(".....FindLocalPeaksTestCase.tearDown")
         arcpy.CheckInExtension("Spatial");
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
 
-    def test_find_local_peaks_desktop(self):
+    def test_find_local_peaks(self):
         ''' Test Find Local Peaks for ArcGIS Desktop '''
-        runToolMessage = ".....FindLocalPeaksTestCase.test_find_local_peaks_desktop"
-        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
+        Configuration.Logger.info(".....FindLocalPeaksTestCase.test_find_local_peaks")
+
         arcpy.env.overwriteOutput = True
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+
         arcpy.FindLocalPeaks_mt(self.inputArea, 10, self.inputSurface, self.outputPoints)
         self.assertTrue(arcpy.Exists(self.outputPoints), "Output dataset does not exist or was not created")
         pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
         expectedFeatures = int(10)
         self.assertEqual(pointCount, expectedFeatures, "Expected %s features but got %s" % (str(expectedFeatures),str(pointCount)))
         return
-
-
-    def test_find_local_peaks_pro(self):
-        ''' Test Find Local Peaks for ArcGIS Pro '''
-        runToolMessage = ".....FindLocalPeaksTestCase.test_find_local_peaks_pro"
-        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-        arcpy.env.overwriteOutput = True
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
-        arcpy.FindLocalPeaks_mt(self.inputArea, 10, self.inputSurface, self.outputPoints)
-        self.assertTrue(arcpy.Exists(self.outputPoints), "Output dataset does not exist or was not created")
-        pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
-        expectedFeatures = int(10)
-        self.assertEqual(pointCount, expectedFeatures, "Expected %s features but got %s" % (str(expectedFeatures),str(pointCount)))
-        return
+        
+if __name__ == "__main__":
+    unittest.main()

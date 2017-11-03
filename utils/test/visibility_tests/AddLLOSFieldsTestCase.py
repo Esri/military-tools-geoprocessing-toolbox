@@ -31,9 +31,15 @@ history:
 ==================================================
 '''
 
-import unittest
-import arcpy
 import os
+import unittest
+
+import arcpy
+
+# Add parent folder to python path if running test case standalone
+import sys
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '..')))
+
 import UnitTestUtilities
 import Configuration
 
@@ -45,7 +51,12 @@ class AddLLOSFieldsTestCase(unittest.TestCase):
     outputPoints = None
 
     def setUp(self):
-        if Configuration.DEBUG == True: print(".....AddLLOSFieldsTestCase.setUp")
+        ''' Initialization needed if running Test Case standalone '''
+        Configuration.GetLogger()
+        Configuration.GetPlatform()
+        ''' End standalone initialization '''
+            
+        Configuration.Logger.debug(".....AddLLOSFieldsTestCase.setUp")
 
         UnitTestUtilities.checkArcPy()
         if not arcpy.Exists(Configuration.militaryScratchGDB):
@@ -61,18 +72,19 @@ class AddLLOSFieldsTestCase(unittest.TestCase):
         arcpy.CopyFeatures_management(originalObservers, self.inputObservers)
         if Configuration.DEBUG: print("Copying %s to %s..." % (originalTargets, self.inputTargets))
         arcpy.CopyFeatures_management(originalTargets, self.inputTargets)
+
+        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
+
         return
 
     def tearDown(self):
-        if Configuration.DEBUG == True: print(".....AddLLOSFieldsTestCase.tearDown")
-        UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+        Configuration.Logger.debug(".....AddLLOSFieldsTestCase.tearDown")
+        # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
         return
 
-    def test_add_llos_fields_desktop(self):
-        runToolMessage = "...AddLLOSFieldsTestCase.test_add_llos_fields_desktop"
-        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+    def test_add_llos_fields(self):
+        Configuration.Logger.info("...AddLLOSFieldsTestCase.test_add_llos_fields")
+
         #self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist, %s" % self.inputObservers)
         #self.assertTrue(arcpy.Exists(self.inputTargets), "Input dataset does not exist, %s" % self.inputTargets)
         arcpy.AddLinearLineOfSightFields_mt(self.inputObservers, 2, self.inputTargets, 0)
@@ -85,20 +97,5 @@ class AddLLOSFieldsTestCase(unittest.TestCase):
         self.assertEqual(fieldCount, 1, "Expected a field count of 1 for Targets but got %s." % str(fieldCount))
         return
 
-    def test_add_llos_fields_pro(self):
-        runToolMessage = "...AddLLOSFieldsTestCase.test_add_llos_fields_pro"
-        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
-        #self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist, %s" % self.inputObservers)
-        #self.assertTrue(arcpy.Exists(self.inputTargets), "Input dataset does not exist, %s" % self.inputTargets)
-        arcpy.AddLinearLineOfSightFields_mt(self.inputObservers, 2, self.inputTargets, 0)
-        
-        fieldList = arcpy.ListFields(self.inputObservers, "height")
-        fieldCount = len(fieldList)
-        self.assertEqual(fieldCount, 1, "Expected a field count of 1 for Observers but got %s." % str(fieldCount))
-        fieldList = arcpy.ListFields(self.inputTargets, "height")
-        fieldCount = len(fieldList)
-        self.assertEqual(fieldCount, 1, "Expected a field count of 1 for Targets but got %s." % str(fieldCount))
-        return
-
+if __name__ == "__main__":
+    unittest.main()

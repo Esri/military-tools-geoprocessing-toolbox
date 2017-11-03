@@ -44,7 +44,7 @@ def getTestSuite():
 
     testSuite = unittest.TestSuite()
 
-    ''' Add the Conversion tests '''
+    ''' Add the Range Ring tests '''
  
     loader = unittest.TestLoader()
 

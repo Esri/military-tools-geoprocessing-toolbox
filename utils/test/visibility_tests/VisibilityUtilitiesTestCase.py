@@ -30,13 +30,17 @@
 
 # IMPORTS ==========================================
 import os
-import sys
-import traceback
-import arcpy
-from arcpy import env
 import unittest
+
+import arcpy
+
+# Add parent folder to python path if running test case standalone
+import sys
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '..')))
+
 import UnitTestUtilities
 import Configuration
+import arcpyAssert
 
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), \
     r"../../../toolboxes/scripts")))
@@ -48,14 +52,20 @@ debug = True # extra messaging during development
 
 # FUNCTIONS ========================================
 
-class VisibilityUtilitiesTestCase(unittest.TestCase):
+class VisibilityUtilitiesTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMixin):
     '''
     '''     
 
     def setUp(self):
-        runToolMessage = ".....VisibilityUtilityTestCase.setup"
-        arcpy.AddMessage(runToolMessage)
+        ''' Initialization needed if running Test Case standalone '''
+        Configuration.GetLogger()
+        Configuration.GetPlatform()
+        ''' End standalone initialization '''
+            
+        Configuration.Logger.debug(".....VisibilityUtilityTestCase.setup")
+
         UnitTestUtilities.checkArcPy()        
+
         if arcpy.CheckExtension("Spatial") == "Available":
             arcpy.CheckOutExtension("Spatial")
         else:
@@ -65,6 +75,7 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
             arcpy.CheckOutExtension("3D")
         else:
             raise Exception("3D license is not available.")
+
         self.srWGS84 = arcpy.SpatialReference(4326) # GCS_WGS_1984
         self.srWAZED = arcpy.SpatialReference(54032) # World Azimuthal Equidistant    
         self.inputArea = os.path.join(Configuration.militaryInputDataGDB, "AreaofInterest")
@@ -75,25 +86,24 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
             
     def tearDown(self):
-        runToolMessage = ".....VisibilityUtilityTestCase.teardown"
-        arcpy.AddMessage(runToolMessage)
+        Configuration.Logger.debug(".....VisibilityUtilityTestCase.teardown")
+
         arcpy.CheckInExtension("Spatial")
         arcpy.CheckInExtension("3D")
+
         if len(deleteIntermediateData) > 0:
             for i in deleteIntermediateData:
                 if arcpy.Exists(i):
                     if debug: arcpy.AddMessage("Removing intermediate: {0}".format(i))
                     arcpy.Delete_management(i)
-        UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+        # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
 
     # Test internal methods
-    def test__getFieldNameList(self):
+    def test_getFieldNameList(self):
         '''
         Testing internal method _getFieldNameList()
         '''
-        runToolMessage = ".....VisibilityUtilityTestCase.test__getFieldNameList"
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....VisibilityUtilityTestCase.test_getFieldNameList")
         
         expectedNames = ["ObjectID", "D1", "T2"]
         junkTable = os.path.join("in_memory","junkTable")
@@ -107,14 +117,12 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         resultNames = VisibilityUtilities._getFieldNameList(junkTable, [])
         self.assertEqual(expectedNames, resultNames, "Did not get expected field names. Got {0} instead.".format(str(resultNames)))
 
-    def test__addDoubleField(self):
+    def test_addDoubleField(self):
         '''
         Testing internal method _addDoubleField()
         '''
-        runToolMessage = ".....VisibilityUtilityTestCase.test__addDoubleField"
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
-        
+        Configuration.Logger.info(".....VisibilityUtilityTestCase.test_addDoubleField")
+
         newFields = {"A1":[0.0, "A1 field"],
                      "A2":[1.1, "A2 field"]}
         
@@ -134,13 +142,11 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
                          resultFields,
                          "Expected fields {0} were not added. Got {1} instead.".format(expectedFields, resultFields))
 
-    def test__calculateFieldValue(self):
+    def test_calculateFieldValue(self):
         '''
         Testing internal method _calculateFieldValue()
         '''
-        runToolMessage = ".....VisibilityUtilityTestCase.test__calculateFieldValue"
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....VisibilityUtilityTestCase.test_calculateFieldValue")
         
         expectedNames = ["D1", "T2"]
         junkTable = os.path.join("in_memory","junkTable")
@@ -163,26 +169,24 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         resultFieldValueSet = set([row[0] for row in arcpy.da.SearchCursor(junkTable, [expectedNames[1]])])
         self.assertEqual(len(resultFieldValueSet),1,"_calculateFieldValue returned bad field values: {0}".format(str(resultFieldValueSet)))
 
-    def test__getRasterMinMax(self):
+    def test_getRasterMinMax(self):
         '''
         test internal method _getRasterMinMax
         '''
-        runToolMessage = ".....VisibilityUtilityTestCase.test__getRasterMinMax"
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....VisibilityUtilityTestCase.test_getRasterMinMax")
+
         resultMin, resultMax = VisibilityUtilities._getRasterMinMax(self.inputSurface)
         expectedMin = int(-41)
         self.assertEqual(expectedMin, resultMin, "Expected minimum of {0}, but got {1}".format(expectedMin, resultMin))
         expectedMax = int(1785)
         self.assertEqual(expectedMax, resultMax, "Expected maximum of {0}, but got {1}".format(expectedMax, resultMax))
     
-    def test__clipRasterToArea(self):
+    def test_clipRasterToArea(self):
         '''
         Compare result of _clipRasterToArea result to known, good comparison dataset
         '''
-        runToolMessage = ".....VisibilityUtilityTestCase.test__clipRasterToArea"
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....VisibilityUtilityTestCase.test_clipRasterToArea")
+
         expectedOutput = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputclipRasterToArea")
         resultClippedRaster = os.path.join(Configuration.militaryScratchGDB, "resultClippedRaster")
         resultClippedRaster = VisibilityUtilities._clipRasterToArea(self.inputSurface, self.inputArea, resultClippedRaster)
@@ -190,39 +194,36 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         result = arcpy.RasterCompare_management(expectedOutput, resultClippedRaster, "RASTER_DATASET").getOutput(1)
         self.assertEqual(result, "true", "Raster Compare failed: \n %s" % arcpy.GetMessages())
 
-    def test__getUniqueValuesFromField001(self):
+    def test_getUniqueValuesFromField001(self):
         '''
-        Test __getUniqueValuesFromField with SigActs table's AttackScal field.
+        Test _getUniqueValuesFromField with SigActs table's AttackScal field.
         '''
-        runToolMessage = ".....VisibilityUtilityTestCase.test__getUniqueValuesFromField001"
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....VisibilityUtilityTestCase.test_getUniqueValuesFromField001")
+
         expectedAttackScal = ["Macro", "Micro"]
         resultAttackScal = VisibilityUtilities._getUniqueValuesFromField(self.inputSigActsTable, "AttackScal")
         self.assertEqual(len(expectedAttackScal),
                          len(resultAttackScal),
                          "Expected {0} unique values, but got {1}.".format(expectedAttackScal, resultAttackScal))
         
-    def test__getUniqueValuesFromField002(self):
+    def test_getUniqueValuesFromField002(self):
         '''
-        Test __getUniqueValuesFromField with SigActs table's NoAttacks field.
+        Test _getUniqueValuesFromField with SigActs table's NoAttacks field.
         '''
-        runToolMessage = ".....VisibilityUtilityTestCase.test__getUniqueValuesFromField002"
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....VisibilityUtilityTestCase.test_getUniqueValuesFromField002")
+
         expectedNoAttacks = [0, 1, 2, 3]
         resultNoAttacks = VisibilityUtilities._getUniqueValuesFromField(self.inputSigActsTable, "NoAttacks")
         self.assertEqual(len(expectedNoAttacks),
                          len(resultNoAttacks),
                          "Expected {0} unique values, but got {1}.".format(expectedNoAttacks, resultNoAttacks))
 
-    def test__getCentroid_FromPoints(self):
+    def test_getCentroid_FromPoints(self):
         '''
         Testing _getCentroid from point feature class with 4 points.
         '''
-        runToolMessage = ".....VisibilityUtilityTestCase.test__getCentroid"
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....VisibilityUtilityTestCase.test_getCentroid")
+
         # make a featureclass of points
         pntArray = arcpy.Array([arcpy.Point(0,0),
                                arcpy.Point(0,2),
@@ -257,12 +258,11 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         self.assertEqual(comparePoint.X, resultPoint.X, "Unexpected centroid X. Expected {0}, but got {1}".format(comparePoint.X, resultPoint.X))
         self.assertEqual(comparePoint.Y, resultPoint.Y, "Unexpected centroid Y. Expected {0}, but got {1}".format(comparePoint.Y, resultPoint.Y))
         
-    def test__getLocalWAZED(self):
+    def test_getLocalWAZED(self):
         '''
         '''
-        runToolMessage = ".....VisibilityUtilityTestCase.test__getLocalWAZED"
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....VisibilityUtilityTestCase.test_getLocalWAZED")
+
         testInputPoint = arcpy.PointGeometry(arcpy.Point(-11.13, 14.87), self.srWGS84)
         resultSR = VisibilityUtilities._getLocalWAZED(testInputPoint)
         # arcpy.AddMessage("======================")
@@ -272,7 +272,7 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         # arcpy.AddMessage("======================")
         self.assertIs(resultSR, self.srWAZED, "Compare expected Spatial Reference {0} with result {1} failed.".format(self.srWAZED, resultSR))
                 
-    def test__prepPointFromSurface(self):
+    def test_prepPointFromSurface(self):
         '''
         '''
 
@@ -282,9 +282,8 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         '''
         test hi_lowPointByArea for MINIMUM (lowest) setting.
         '''
-        runToolMessage = ".....VisibilityUtilityTestCase.test_hi_lowPointByArea_lowest"
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....VisibilityUtilityTestCase.test_hi_lowPointByArea_lowest")
+
         hi_low_Switch = "MINIMUM"
         resultPoints = os.path.join(Configuration.militaryScratchGDB, "lowestPoints")
         VisibilityUtilities.hi_lowPointByArea(self.inputArea,
@@ -300,9 +299,8 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         '''
         test hi_lowPointByArea for MAXIMUM (highest) setting.
         '''
-        runToolMessage = ".....VisibilityUtilityTestCase.test_hi_lowPointByArea_highest"
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....VisibilityUtilityTestCase.test_hi_lowPointByArea_highest")
+
         hi_low_Switch = "MAXIMUM"
         resultPoints = os.path.join(Configuration.militaryScratchGDB, "highestPoints")
         resultPoints = VisibilityUtilities.hi_lowPointByArea(self.inputArea,
@@ -320,9 +318,8 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         '''
         test_findLocalPeaks with input 10 peaks to find
         '''
-        runToolMessage = ".....VisibilityUtilityTestCase.test_findLocalPeaks"
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....VisibilityUtilityTestCase.test_findLocalPeaks")
+
         resultPoints = os.path.join(Configuration.militaryScratchGDB, "findLocalPeaks")
         numPoints = 16
         resultPoints = VisibilityUtilities.findLocalPeaks(self.inputArea,
@@ -333,8 +330,6 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
         expectedLocalPeaks = os.path.join(Configuration.militaryResultsGDB, "ExpectedOutputFindLocalPeaks")
         compareResults = arcpy.FeatureCompare_management(resultPoints, expectedLocalPeaks, "OBJECTID").getOutput(1)
         self.assertEqual(compareResults, "true", "Feature Compare failed: \n %s" % arcpy.GetMessages())
-
-    
     
     # def test_addLLOSFields001(self):
     #     '''
@@ -359,3 +354,6 @@ class VisibilityUtilitiesTestCase(unittest.TestCase):
     #     Test addRLOSObserverFields with default values
     #     '''
     #     pass
+
+if __name__ == "__main__":
+    unittest.main()   

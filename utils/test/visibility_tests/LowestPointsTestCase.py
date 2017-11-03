@@ -32,9 +32,15 @@ history:
 ==================================================
 '''
 
-import unittest
-import arcpy
 import os
+import unittest
+
+import arcpy
+
+# Add parent folder to python path if running test case standalone
+import sys
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '..')))
+
 import UnitTestUtilities
 import Configuration
 
@@ -46,7 +52,12 @@ class LowestPointsTestCase(unittest.TestCase):
     outputPoints = None
 
     def setUp(self):
-        if Configuration.DEBUG == True: print(".....LowestPointsTestCase.setUp")
+        ''' Initialization needed if running Test Case standalone '''
+        Configuration.GetLogger()
+        Configuration.GetPlatform()
+        ''' End standalone initialization '''
+            
+        Configuration.Logger.debug(".....LowestPointsTestCase.setUp")
 
         UnitTestUtilities.checkArcPy()
         if not arcpy.Exists(Configuration.militaryScratchGDB):
@@ -60,35 +71,25 @@ class LowestPointsTestCase(unittest.TestCase):
             arcpy.CheckOutExtension("Spatial")
             arcpy.AddMessage("Spatial checked out")
 
+        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
+
     def tearDown(self):
-        if Configuration.DEBUG == True: print(".....LowestPointsTestCase.tearDown")
+        Configuration.Logger.debug(".....LowestPointsTestCase.tearDown")
         arcpy.CheckInExtension("Spatial");
-        UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+        # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
 
-    def test_lowest_points_desktop(self):
+    def test_lowest_points(self):
         ''' Test Lowest Points tool in ArcGIS Desktop '''
-        runToolMessage = "...LowestPointsTestCase.test_lowest_points_desktop"
-        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-        arcpy.env.overwriteOutput = True
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
-        arcpy.LowestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)
-        self.assertTrue(arcpy.Exists(self.outputPoints), "Output dataset does not exist or was not created")
-        pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
-        expectedFeatures = int(6)
-        self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
-        return
+        Configuration.Logger.info("...LowestPointsTestCase.test_lowest_points")
 
-    def test_lowest_points_pro(self):
-        ''' Test Lowest Points tool in ArcGIS Pro '''
-        runToolMessage = "...LowestPointsTestCase.test_lowest_points_pro"
-        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
         arcpy.env.overwriteOutput = True
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+
         arcpy.LowestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)
         self.assertTrue(arcpy.Exists(self.outputPoints), "Output dataset does not exist or was not created")
         pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
         expectedFeatures = int(6)
         self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
         return
+        
+if __name__ == "__main__":
+    unittest.main()

@@ -171,11 +171,11 @@ def addMilitarySuite():
     from conversion_tests import ConversionTestSuite
     testSuite.addTests(ConversionTestSuite.getTestSuite())
     
-    #from distance_tests import RangeRingTestSuite
-    #testSuite.addTests(RangeRingTestSuite.getTestSuite())
+    from distance_tests import RangeRingTestSuite
+    testSuite.addTests(RangeRingTestSuite.getTestSuite())
     
-    #from visibility_tests import VisibilityTestSuite
-    #testSuite.addTests(VisibilityTestSuite.getTestSuites())
+    from visibility_tests import VisibilityTestSuite
+    testSuite.addTests(VisibilityTestSuite.getTestSuites())
     
     return testSuite
 

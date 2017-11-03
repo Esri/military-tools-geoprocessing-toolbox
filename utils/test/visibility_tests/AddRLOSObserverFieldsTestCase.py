@@ -33,9 +33,12 @@ history:
 ==================================================
 '''
 
-import unittest
 import arcpy
-import os
+
+# Add parent folder to python path if running test case standalone
+import sys
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '..')))
+
 import UnitTestUtilities
 import Configuration
 
@@ -47,7 +50,12 @@ class AddRLOSObserverFieldsTestCase(unittest.TestCase):
     outputPoints = None
 
     def setUp(self):
-        if Configuration.DEBUG == True: print(".....AddRLOSObserverFieldsTestCase.setUp")
+        ''' Initialization needed if running Test Case standalone '''
+        Configuration.GetLogger()
+        Configuration.GetPlatform()
+        ''' End standalone initialization '''
+            
+        Configuration.Logger.debug(".....AddRLOSObserverFieldsTestCase.setUp")
 
         UnitTestUtilities.checkArcPy()
         if not arcpy.Exists(Configuration.militaryScratchGDB):
@@ -58,18 +66,19 @@ class AddRLOSObserverFieldsTestCase(unittest.TestCase):
         if Configuration.DEBUG: print("Copying %s to %s..." % (originalObservers, self.inputObservers))
         arcpy.CopyFeatures_management(originalObservers, self.inputObservers)
         
+        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
+
         return
 
     def tearDown(self):
-        if Configuration.DEBUG == True: print(".....AddRLOSObserverFieldsTestCase.tearDown")
-        UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+        Configuration.Logger.debug(".....AddRLOSObserverFieldsTestCase.tearDown")
+        # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+
         return
 
-    def test_add_rlos_observer_fields_desktop(self):
-        runToolMessage = "...AddRLOSObserverFieldsTestCase.test_add_rlos_observer_fields_desktop"
-        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+    def test_add_rlos_observer_fields(self):
+        Configuration.Logger.info("...AddRLOSObserverFieldsTestCase.test_add_rlos_observer_fields")
+
         #self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist: %s" % self.inputObservers)
         
         arcpy.AddRadialLineOfSightObserverFields_mt(self.inputObservers, 2.0, 0.0, 0.0, 1000.0, 0.0, 360.0, 90.0, -90.0)
@@ -120,57 +129,5 @@ class AddRLOSObserverFieldsTestCase(unittest.TestCase):
             row = rows.next()
         return
 
-    def test_add_rlos_observer_fields_pro(self):
-        runToolMessage = "...AddRLOSObserverFieldsTestCase.test_add_rlos_observer_fields_pro"
-        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
-        #self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist: %s" % self.inputObservers)
-        
-        arcpy.AddRadialLineOfSightObserverFields_mt(self.inputObservers, 2.0, 0.0, 0.0, 1000.0, 0.0, 360.0, 90.0, -90.0)
-        
-        fieldList = arcpy.ListFields(self.inputObservers, "RADIUS1")
-        fieldCount = len(fieldList)
-        self.assertEqual(fieldCount, 1, "Expected a field count of 1 for RADIUS1 but got %s" % str(fieldCount))
-        fieldList = arcpy.ListFields(self.inputObservers, "RADIUS2")
-        fieldCount = len(fieldList)
-        self.assertEqual(fieldCount, 1, "Expected a field count of 1 for RADIUS2 but got %s" % str(fieldCount))
-        fieldList = arcpy.ListFields(self.inputObservers, "OFFSETA")
-        fieldCount = len(fieldList)
-        self.assertEqual(fieldCount, 1, "Expected a field count of 1 for OFFSETA but got %s" % str(fieldCount))
-        fieldList = arcpy.ListFields(self.inputObservers, "OFFSETB")
-        fieldCount = len(fieldList)
-        self.assertEqual(fieldCount, 1, "Expected a field count of 1 for OFFSETB but got %s" % str(fieldCount))
-        fieldList = arcpy.ListFields(self.inputObservers, "AZIMUTH1")
-        fieldCount = len(fieldList)
-        self.assertEqual(fieldCount, 1, "Expected a field count of 1 for AZIMUTH1 but got %s" % str(fieldCount))
-        fieldList = arcpy.ListFields(self.inputObservers, "AZIMUTH2")
-        fieldCount = len(fieldList)
-        self.assertEqual(fieldCount, 1, "Expected a field count of 1 for AZIMUTH2 but got %s" % str(fieldCount))
-        fieldList = arcpy.ListFields(self.inputObservers, "VERT1")
-        fieldCount = len(fieldList)
-        self.assertEqual(fieldCount, 1, "Expected a field count of 1 for VERT1 but got %s" % str(fieldCount))
-        fieldList = arcpy.ListFields(self.inputObservers, "VERT2")
-        fieldCount = len(fieldList)
-        self.assertEqual(fieldCount, 1, "Expected a field count of 1 for VERT2 but got %s" % str(fieldCount))
-        rows = arcpy.SearchCursor(self.inputObservers)
-        row = rows.next()
-        while row:
-            radius1 = row.RADIUS1
-            self.assertEqual(radius1, float(0), "Bad RADIUS1 value: %s" % str(radius1))
-            radius2 = row.RADIUS2
-            self.assertEqual(radius2, float(1000), "Bad RADIUS2 value: %s" % str(radius2))
-            offseta = row.OFFSETA
-            self.assertEqual(offseta, float(2), "Bad OFFSETA value: %s" % str(offseta))
-            offsetb = row.OFFSETB
-            self.assertEqual(offsetb, float(0), "Bad OFFSETB value: %s" % str(offsetb))
-            azimuth1 = row.AZIMUTH1
-            self.assertEqual(azimuth1, float(0), "Bad AZIMUTH1 value: %s" % str(azimuth1))
-            azimuth2 = row.AZIMUTH2
-            self.assertEqual(azimuth2, float(360), "Bad AZIMUTH2 value: %s" % str(azimuth2))
-            vert1 = row.VERT1
-            self.assertEqual(vert1, float(90), "Bad VERT1 value: %s" % str(vert1))
-            vert2 = row.VERT2
-            self.assertEqual(vert2, float(-90), "Bad VERT2 value: %s" % str(vert2))
-            row = rows.next()
-        return
+if __name__ == "__main__":
+    unittest.main()

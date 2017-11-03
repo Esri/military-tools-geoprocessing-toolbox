@@ -32,9 +32,15 @@ history:
 ==================================================
 '''
 
-import unittest
-import arcpy
 import os
+import unittest
+
+import arcpy
+
+# Add parent folder to python path if running test case standalone
+import sys
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '..')))
+
 import UnitTestUtilities
 import Configuration
 
@@ -46,7 +52,12 @@ class RadialLineOfSightTestCase(unittest.TestCase):
     outputPoints = None
 
     def setUp(self):
-        if Configuration.DEBUG == True: print("     RadialLineOfSightTestCase.setUp")
+        ''' Initialization needed if running Test Case standalone '''
+        Configuration.GetLogger()
+        Configuration.GetPlatform()
+        ''' End standalone initialization '''
+            
+        Configuration.Logger.debug("     RadialLineOfSightTestCase.setUp")
 
         UnitTestUtilities.checkArcPy()
         if not arcpy.Exists(Configuration.militaryScratchGDB):
@@ -60,33 +71,24 @@ class RadialLineOfSightTestCase(unittest.TestCase):
             arcpy.CheckOutExtension("Spatial")
             arcpy.AddMessage(".....Spatial checked out")
 
+        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
+
     def tearDown(self):
-        if Configuration.DEBUG == True: print("     RadialLineOfSightTestCase.tearDown")
+        Configuration.Logger.debug("     RadialLineOfSightTestCase.tearDown")
         arcpy.CheckInExtension("Spatial");
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
 
-    def test_radial_line_of_sight_desktop(self):
+    def test_radial_line_of_sight(self):
         ''' Test Radial Line Of Sight in ArcGIS Desktop'''
-        runToolMessage = ".....RadialLineOfSightTestCase.test_Radial_line_of_sight_desktop"
-        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+        Configuration.Logger.info(".....RadialLineOfSightTestCase.test_Radial_line_of_sight")
+
         arcpy.RadialLineOfSight_mt(self.observers, 2.0, 2000.0, self.inputSurface, self.outputRLOS)
+
         self.assertTrue(arcpy.Exists(self.outputRLOS), "Output dataset does not exist or was not created")
         featureCount = int(arcpy.GetCount_management(self.outputRLOS).getOutput(0))
         expectedFeatures = int(3501)
         self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
         return
 
-    def test_radial_line_of_sight_pro(self):
-        ''' Test Radial Line Of Sight in ArcGIS Pro'''
-        runToolMessage = ".....RadialLineOfSightTestCase.test_Radial_line_of_sight_pro"
-        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
-        arcpy.RadialLineOfSight_mt(self.observers, 2.0, 2000.0, self.inputSurface, self.outputRLOS)
-        self.assertTrue(arcpy.Exists(self.outputRLOS), "Output dataset does not exist or was not created")
-        featureCount = int(arcpy.GetCount_management(self.outputRLOS).getOutput(0))
-        expectedFeatures = int(3501)
-        self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
-        return
+if __name__ == "__main__":
+    unittest.main()
