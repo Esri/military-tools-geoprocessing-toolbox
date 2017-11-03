@@ -47,8 +47,8 @@ class AddLLOSFieldsTestCase(unittest.TestCase):
     ''' Test all tools and methods related to the Add LLOS Fields tool
     in the Military Tools toolbox'''
 
-    inputTable = None
-    outputPoints = None
+    inputObservers = None
+    inputTargets = None
 
     def setUp(self):
         ''' Initialization needed if running Test Case standalone '''
@@ -68,9 +68,11 @@ class AddLLOSFieldsTestCase(unittest.TestCase):
         self.inputObservers = os.path.join(Configuration.militaryScratchGDB, "LLOS_Observers")
         self.inputTargets = os.path.join(Configuration.militaryScratchGDB, "LLOS_Targets")
 
-        if Configuration.DEBUG: print("Copying %s to %s..." % (originalObservers, self.inputObservers))
+        arcpy.env.overwriteOutput = True
+
+        Configuration.Logger.debug("Copying %s to %s..." % (originalObservers, self.inputObservers))
         arcpy.CopyFeatures_management(originalObservers, self.inputObservers)
-        if Configuration.DEBUG: print("Copying %s to %s..." % (originalTargets, self.inputTargets))
+        Configuration.Logger.debug("Copying %s to %s..." % (originalTargets, self.inputTargets))
         arcpy.CopyFeatures_management(originalTargets, self.inputTargets)
 
         arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
@@ -85,8 +87,9 @@ class AddLLOSFieldsTestCase(unittest.TestCase):
     def test_add_llos_fields(self):
         Configuration.Logger.info("...AddLLOSFieldsTestCase.test_add_llos_fields")
 
-        #self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist, %s" % self.inputObservers)
-        #self.assertTrue(arcpy.Exists(self.inputTargets), "Input dataset does not exist, %s" % self.inputTargets)
+        self.assertTrue(arcpy.Exists(self.inputObservers), "Input dataset does not exist, %s" % self.inputObservers)
+        self.assertTrue(arcpy.Exists(self.inputTargets), "Input dataset does not exist, %s" % self.inputTargets)
+
         arcpy.AddLinearLineOfSightFields_mt(self.inputObservers, 2, self.inputTargets, 0)
         
         fieldList = arcpy.ListFields(self.inputObservers, "height")

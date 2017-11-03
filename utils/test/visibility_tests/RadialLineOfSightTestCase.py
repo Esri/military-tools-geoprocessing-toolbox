@@ -48,8 +48,9 @@ class RadialLineOfSightTestCase(unittest.TestCase):
     ''' Test all tools and methods related to the Radial Line Of Sight tool
     in the Military Tools toolbox'''
 
-    inputTable = None
-    outputPoints = None
+    observers = None
+    inputSurface = None
+    outputRLOS = None
 
     def setUp(self):
         ''' Initialization needed if running Test Case standalone '''
@@ -65,6 +66,10 @@ class RadialLineOfSightTestCase(unittest.TestCase):
 
         self.observers = os.path.join(Configuration.militaryInputDataGDB, "RLOS_Observers")
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
+
+        UnitTestUtilities.checkGeoObjects([Configuration.toolboxUnderTest, \
+            self.observers, self.inputSurface])
+
         self.outputRLOS = os.path.join(Configuration.militaryScratchGDB, "outputRadialLineOfSight")
 
         if arcpy.CheckExtension("Spatial") == "Available":

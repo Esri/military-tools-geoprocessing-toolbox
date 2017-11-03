@@ -48,7 +48,8 @@ class FindLocalPeaksTestCase(unittest.TestCase):
     ''' Test all tools and methods related to the Find Local Peaks tool
     in the Military Tools toolbox'''
 
-    inputTable = None
+    inputArea = None
+    inputSurface = None
     outputPoints = None
 
     def setUp(self):
@@ -65,6 +66,10 @@ class FindLocalPeaksTestCase(unittest.TestCase):
 
         self.inputArea = os.path.join(Configuration.militaryInputDataGDB, "AreaofInterest")
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
+
+        UnitTestUtilities.checkGeoObjects([Configuration.toolboxUnderTest, \
+            self.inputArea, self.inputSurface])
+
         self.outputPoints = os.path.join(Configuration.militaryScratchGDB, "outputFindLocalPeaks")
 
         if arcpy.CheckExtension("Spatial") == "Available":

@@ -33,6 +33,9 @@ history:
 ==================================================
 '''
 
+import os
+import unittest
+
 import arcpy
 
 # Add parent folder to python path if running test case standalone
@@ -46,8 +49,8 @@ class AddRLOSObserverFieldsTestCase(unittest.TestCase):
     ''' Test all tools and methods related to the Add RLOS Observer Fields tool
     in the Military Tools toolbox'''
 
-    inputTable = None
-    outputPoints = None
+    inputObservers = None
+    inputTargets = None
 
     def setUp(self):
         ''' Initialization needed if running Test Case standalone '''
@@ -61,9 +64,11 @@ class AddRLOSObserverFieldsTestCase(unittest.TestCase):
         if not arcpy.Exists(Configuration.militaryScratchGDB):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
 
+        arcpy.env.overwriteOutput = True
+
         originalObservers = os.path.join(Configuration.militaryInputDataGDB, "RLOS_Observers")
         self.inputObservers = os.path.join(Configuration.militaryScratchGDB, "RLOS_Observers")
-        if Configuration.DEBUG: print("Copying %s to %s..." % (originalObservers, self.inputObservers))
+        Configuration.Logger.debug("Copying %s to %s..." % (originalObservers, self.inputObservers))
         arcpy.CopyFeatures_management(originalObservers, self.inputObservers)
         
         arcpy.ImportToolbox(Configuration.toolboxUnderTest)  

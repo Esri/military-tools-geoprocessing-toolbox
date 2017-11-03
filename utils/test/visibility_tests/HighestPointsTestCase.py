@@ -48,7 +48,8 @@ class HighestPointsTestCase(unittest.TestCase):
     ''' Test all tools and methods related to the Highest Points tool
     in the Military Tools toolbox'''
 
-    inputTable = None
+    inputArea = None
+    inputSurface = None
     outputPoints = None
 
     def setUp(self):
@@ -65,6 +66,10 @@ class HighestPointsTestCase(unittest.TestCase):
 
         self.inputArea = os.path.join(Configuration.militaryInputDataGDB, "AreaofInterest")
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
+
+        UnitTestUtilities.checkGeoObjects([Configuration.toolboxUnderTest, \
+            self.inputArea, self.inputSurface])
+
         self.outputPoints = os.path.join(Configuration.militaryScratchGDB, "outputHighestPoints")
 
         if arcpy.CheckExtension("Spatial") == "Available":

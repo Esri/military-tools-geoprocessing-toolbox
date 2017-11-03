@@ -175,7 +175,7 @@ def addMilitarySuite():
     testSuite.addTests(RangeRingTestSuite.getTestSuite())
     
     from visibility_tests import VisibilityTestSuite
-    testSuite.addTests(VisibilityTestSuite.getTestSuites())
+    testSuite.addTests(VisibilityTestSuite.getTestSuite())
     
     return testSuite
 

@@ -50,8 +50,13 @@ class LinearLineOfSightTestCase(unittest.TestCase):
     ''' Test all tools and methods related to the Linear Line Of Sight tool
     in the Military Tools toolbox'''
 
-    inputTable = None
-    outputPoints = None
+    self.observers = None
+    self.targets = None
+    self.inputSurface = None
+    self.outputLOS = None
+    self.outputSightLines = None
+    self.outputObservers = None
+    self.outputTargets = None
 
     def setUp(self):
         ''' Initialization needed if running Test Case standalone '''
@@ -68,6 +73,10 @@ class LinearLineOfSightTestCase(unittest.TestCase):
         self.observers = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Observers")
         self.targets = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Targets")
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
+
+        UnitTestUtilities.checkGeoObjects([Configuration.toolboxUnderTest, \
+            self.observers, self.targets, self.inputSurface])
+
         self.outputLOS = os.path.join(Configuration.militaryScratchGDB, "outputLinearLineOfSight")
         self.outputSightLines = os.path.join(Configuration.militaryScratchGDB, "outputSightLines")
         self.outputObservers = os.path.join(Configuration.militaryScratchGDB, "outputObservers")
