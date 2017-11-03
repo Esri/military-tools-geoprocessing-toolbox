@@ -102,7 +102,7 @@ class TableToLineOfBearingTestCase(unittest.TestCase, arcpyAssert.FeatureClassAs
         self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
 
         self.assertFeatureClassEqualSimple(self.baseFC, self.outputLineOfBearing, \
-                                     "OID", 0.0001)
+                                     "OID", 0.0001, ['Shape_Length'])
 
         return
 

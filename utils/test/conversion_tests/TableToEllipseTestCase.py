@@ -100,7 +100,7 @@ class TableToEllipseTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMi
             "Expected %s features but got %s" % (str(expectedFeatures),str(ellipseCount)))
 
         self.assertFeatureClassEqualSimple(self.baseFC, self.outputEllipses, \
-                                     "OBJECTID", 0.0001)
+                                     "OBJECTID", 0.0001, ['Shape_Area', 'Shape_Length'])
 
         return
 

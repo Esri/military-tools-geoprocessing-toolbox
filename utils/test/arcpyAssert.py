@@ -104,7 +104,7 @@ class FeatureClassAssertMixin(object):
                 if Configuration.Logger is not None : Configuration.Logger.debug(diff_line)
         os.remove(compare_file[1])
 
-        if Configuration.Logger is not None : Configuration.Logger.debug("Arcpy Messages: %s" % arcpy.GetMessages())
+        # if Configuration.Logger is not None : Configuration.Logger.debug("Arcpy Messages: %s" % arcpy.GetMessages())
 
         # set the assertion message.
         msg = message if message is not None else "Feature class {} is not equal to {}".format(second, first)
