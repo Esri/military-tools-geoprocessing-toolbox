@@ -101,8 +101,11 @@ class TableToLineOfBearingTestCase(unittest.TestCase, arcpyAssert.FeatureClassAs
         expectedFeatures = int(23)
         self.assertEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
 
+        # Set tolerances for compare
+        attribute_tolerances = 'Shape_Length 0.0001;DDLat 0.00001;DDLon 0.00001' 
+        xy_tolerance = 0.0001
         self.assertFeatureClassEqualSimple(self.baseFC, self.outputLineOfBearing, \
-                                     "OID", 0.0001, ['Shape_Length'])
+                                     "OID", xy_tolerance, attribute_tolerances)
 
         return
 
