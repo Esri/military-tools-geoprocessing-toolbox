@@ -170,28 +170,31 @@ def addViewshedFields(observerPointsFC, innerRadiusInput, outerRadiusInput, \
     leftAzimuthInput, rightAzimuthInput, observerOffsetInput, targetOffsetInput):
 
     desc = arcpy.Describe(observerPointsFC)
+    fieldNames = [x.name for x in desc.Fields]
 
-    if "RADIUS1" not in desc.Fields : 
+    # arcpy.AddMessage('Current Fields: ' + str(fieldNames))
+    
+    if "RADIUS1" not in fieldNames : 
         arcpy.AddField_management(observerPointsFC, "RADIUS1", "SHORT")
     arcpy.CalculateField_management(observerPointsFC, "RADIUS1", innerRadiusInput, "PYTHON_9.3", "")
 
-    if "RADIUS2" not in desc.Fields : 
+    if "RADIUS2" not in fieldNames : 
         arcpy.AddField_management(observerPointsFC, "RADIUS2", "SHORT")
     arcpy.CalculateField_management(observerPointsFC, "RADIUS2", outerRadiusInput, "PYTHON_9.3", "")
 
-    if "AZIMUTH1" not in desc.Fields : 
+    if "AZIMUTH1" not in fieldNames : 
         arcpy.AddField_management(observerPointsFC, "AZIMUTH1", "SHORT")
     arcpy.CalculateField_management(observerPointsFC, "AZIMUTH1", leftAzimuthInput, "PYTHON_9.3", "")
 
-    if "AZIMUTH2" not in desc.Fields : 
+    if "AZIMUTH2" not in fieldNames : 
         arcpy.AddField_management(observerPointsFC, "AZIMUTH2", "SHORT")
     arcpy.CalculateField_management(observerPointsFC, "AZIMUTH2", rightAzimuthInput, "PYTHON_9.3", "")
 
-    if "OFFSETA" not in desc.Fields : 
+    if "OFFSETA" not in fieldNames : 
         arcpy.AddField_management(observerPointsFC, "OFFSETA", "SHORT")
     arcpy.CalculateField_management(observerPointsFC, "OFFSETA", observerOffsetInput, "PYTHON_9.3", "")
 
-    if "OFFSETB" not in desc.Fields : 
+    if "OFFSETB" not in fieldNames : 
         arcpy.AddField_management(observerPointsFC, "OFFSETB", "SHORT")
     arcpy.CalculateField_management(observerPointsFC, "OFFSETB", targetOffsetInput, "PYTHON_9.3", "")
 
@@ -260,10 +263,8 @@ def createViewshed(inputObserverPoints, elevationRaster, outerRadiusInput, \
 
     arcpy.env.extent = Extent
 
-    # TODO: investigate why this doesn't work in ArcGIS Pro (setting mask to in_memory or %scatchGDB%)
-    # This output is clipped to the wedge below, so not entirely necessary 
-    if arcpy.GetInstallInfo()['ProductName'] != 'ArcGISPro':
-        arcpy.env.mask = r"in_memory\OutBuffer"
+    # Set Raster Output Mask (to improve performance)
+    arcpy.env.mask = r"in_memory\OuterBuffer"
 
     arcpy.AddMessage("Clipping image to observer buffer...")
     arcpy.Clip_management(elevationRaster, Extent, r"in_memory\clip")
