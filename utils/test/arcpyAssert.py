@@ -116,11 +116,12 @@ class FeatureClassAssertMixin(object):
                                       second,
                                       sort_field,
                                       xy_tolerance = None,
-                                      omit_field = None):
+                                      attribute_tolerances=None,
+                                      omit_field=None):
 
         self.assertFeatureClassEqual(first, second, \
                                      sort_field, None, "ATTRIBUTES_ONLY", None, xy_tolerance,
-                                     None, None, None, omit_field)
+                                     None, None, attribute_tolerances, omit_field)
 
         self.assertFeatureClassEqual(first, second, \
                                      sort_field, None, "GEOMETRY_ONLY", None, xy_tolerance)

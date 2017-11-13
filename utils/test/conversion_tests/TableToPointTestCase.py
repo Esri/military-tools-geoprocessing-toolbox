@@ -100,8 +100,10 @@ class TableToPointTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMixi
         expectedFeatures = int(1000)
         self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
 
+        attribute_tolerances = 'DDLat 0.00001;DDLon 0.00001' 
+        xy_tolerance = 0.0001
         self.assertFeatureClassEqualSimple(self.baseFC, self.outputPoints, \
-                                     "OID", 0.0001)
+                                     "OID", xy_tolerance, attribute_tolerances)
 
         return
 
