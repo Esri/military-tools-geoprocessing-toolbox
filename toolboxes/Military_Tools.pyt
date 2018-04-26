@@ -26,6 +26,7 @@
 '''
 
 from scripts.GRGTools import *
+from scripts.DistanceAndDirectionTools import *
 
 class Toolbox(object):
     '''
@@ -40,4 +41,5 @@ class Toolbox(object):
 
         self.tools = [CreateGRGFromArea,
                       CreateGRGFromPoint,
-                      CreateReferenceSystemGRGFromArea]
+                      CreateReferenceSystemGRGFromArea,
+                      RangeRingsFromInterval]
