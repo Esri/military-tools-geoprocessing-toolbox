@@ -9,11 +9,11 @@
 
 *.sav
 *-sav.*
+*-sav
 *Copy.*
 
 scratch/
 arc.dir
-*.pyt.xml
 *.zip
 
 log/
