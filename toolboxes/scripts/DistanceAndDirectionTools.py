@@ -42,7 +42,7 @@ class RangeRingsFromInterval(object):
     def __init__(self):
         self.label = u'Range Rings From Interval'
         self.description = u'Create a concentric circle from a center, with a number of rings, and the distance between rings.'
-        self.category = "Distance and Direction Tools"        
+        self.category = "Distance and Direction"        
         self.canRunInBackground = False
         
     def getParameterInfo(self):
@@ -53,12 +53,13 @@ class RangeRingsFromInterval(object):
         param_1.parameterType = 'Required'
         param_1.direction = 'Input'
         
-        # param_1.datatype = u'Feature Set'
-        param_1.datatype = u'GPFeatureRecordSetLayer'
+        param_1.datatype = u'Feature Set'
+        # param_1.datatype = u'GPFeatureRecordSetLayer'
         
         input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                           "layers",
-                                          "RangeRingInputObservers.lyr")
+                                          "RelativeGRGInputPoint.lyr")
+                                          # "RangeRingInputObservers.lyrx")
         param_1.value = input_layer_file_path
 
         # Number_of_Rings
@@ -106,6 +107,8 @@ class RangeRingsFromInterval(object):
         param_6.direction = 'Output'
         param_6.datatype = u'Feature Class'
         param_6.value = u'%scratchGDB%\\Rings'
+        param_6.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                            "layers", "RangeRings.lyr")
 
         # Output_Radial_Features
         param_7 = arcpy.Parameter()
@@ -115,6 +118,8 @@ class RangeRingsFromInterval(object):
         param_7.direction = 'Output'
         param_7.datatype = u'Feature Class'
         param_7.value = u'%scratchGDB%\\Radials'
+        param_7.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                            "layers", "RangeRadials.lyr")
 
         # Spatial_Reference
         param_8 = arcpy.Parameter()
@@ -150,6 +155,10 @@ class RangeRingsFromInterval(object):
         outputRadialFeatures = parameters[6].value
         optionalSpatialReference = parameters[7].value
         optionalSpatialReferenceAsText = str(parameters[7].value)
+
+        # WORKAROUND (for Pro): clear layer selection (since last point is selected)
+        # So tool will work on all points entered 
+        arcpy.SelectLayerByAttribute_management(inputCenterFeatures, "CLEAR_SELECTION", None, None)
 
         if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
             optionalSpatialReference = None
