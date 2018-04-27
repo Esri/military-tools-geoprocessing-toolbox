@@ -43,4 +43,5 @@ class Toolbox(object):
                       CreateGRGFromPoint,
                       CreateReferenceSystemGRGFromArea,
                       RangeRingsFromInterval,
-                      RangeRingFromMinimumAndMaximum]
+                      RangeRingFromMinimumAndMaximum,
+                      RangeRingsFromMinAndMaxTable]

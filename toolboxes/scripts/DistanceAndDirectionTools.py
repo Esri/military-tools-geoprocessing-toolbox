@@ -26,6 +26,7 @@
 '''
 
 import os
+import sys
 import arcpy
 
 try:
@@ -158,8 +159,9 @@ class RangeRingsFromInterval(object):
             optionalSpatialReference = None
 
         # WORKAROUND (for Pro): clear layer selection (since last point is selected)
-        # So tool will work on all points entered 
-        arcpy.SelectLayerByAttribute_management(inputCenterFeatures, "CLEAR_SELECTION", None, None)
+        # So tool will work on all points entered
+        if sys.version_info >= (3, 0) :
+            arcpy.SelectLayerByAttribute_management(inputCenterFeatures, "CLEAR_SELECTION")
 
         # get/set environment
         arcpy.env.overwriteOutput = True
@@ -176,6 +178,9 @@ class RangeRingsFromInterval(object):
         # Set output
         return rr[0], rr[1]
 
+# ----------------------------------------------------------------------------------
+# Tool
+# ----------------------------------------------------------------------------------
 class RangeRingFromMinimumAndMaximum(object):
 
     def __init__(self):
@@ -297,13 +302,266 @@ class RangeRingFromMinimumAndMaximum(object):
             optionalSpatialReference = None
 
         # WORKAROUND (for Pro): clear layer selection (since last point is selected)
-        # So tool will work on all points entered 
-        arcpy.SelectLayerByAttribute_management(inputCenterFeatures, "CLEAR_SELECTION", None, None)
+        # So tool will work on all points entered
+        if sys.version_info >= (3, 0) :
+            arcpy.SelectLayerByAttribute_management(inputCenterFeatures, "CLEAR_SELECTION", None, None)
 
         rr = RangeRingUtils.rangeRingsFromMinMax(inputCenterFeatures,
                                                  inputMinimumRange,
                                                  inputMaximumRange,
                                                  inputDistanceUnits,
+                                                 inputNumberOfRadials,
+                                                 outputRingFeatures,
+                                                 outputRadialFeatures,
+                                                 optionalSpatialReference)
+
+        # Set output
+        return rr[0], rr[1]
+
+# ----------------------------------------------------------------------------------
+# Tool
+# ----------------------------------------------------------------------------------
+class RangeRingsFromMinAndMaxTable(object):
+    
+    class ToolValidator(object):
+        """Class for validating a tool's parameter values and controlling
+        the behavior of the tool's dialog."""
+    
+        def __init__(self, parameters):
+            """Setup arcpy and the list of tool parameters."""
+            self.params = parameters
+    
+        def initializeParameters(self):
+            """Refine the properties of a tool's parameters.  This method is
+            called when the tool is opened."""
+    
+            # Input Center Features (Feature Set) [0]
+            # Input Table (Table) [1]
+            # Selected Type (String) [2]
+            # Number of Radials (Long) [3]
+            # Output Ring Features (Feature Class) [4]
+            # Output Radial Features (Feature Class) [5]
+            # Spatial Reference (Spatial Reference) [6]
+            # Input Table Type Name Field (Field) [7]
+            # Input Table Minimum Range Field (Field) [8]
+            # Input Table Maximum Range Field (Field) [9]
+    
+            self.params[7].category = "Input Table Options"
+            self.params[8].category = "Input Table Options"
+            self.params[9].category = "Input Table Options"
+
+            inputParamsTable = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "tooldata", "Range Rings.gdb", "rrInputTable")
+            self.params[1].value = inputParamsTable
+            # Get list of type names from InputTable [1]
+            typeNames = self.updateTypes(str(self.params[1].value))
+            self.params[2].filter.list = typeNames
+            self.params[2].value = typeNames[0]
+
+            return
+    
+        def updateParameters(self):
+            """Modify the values and properties of parameters before internal
+            validation is performed.  This method is called whenever a parameter
+            has been changed."""
+    
+            if self.params[1].altered:
+                # Update list of type names from Input Table [1]
+                self.params[2].filter.list = self.updateTypes(str(self.params[1].value))
+    
+            return
+    
+        def updateMessages(self):
+            """Modify the messages created by internal validation for each tool
+             parameter.  This method is called after internal validation."""
+            return
+    
+        def updateTypes(self,inputTable):
+            # Make a list of 'name' field from the input table
+            Names = []
+            try:
+                tableRows = arcpy.da.SearchCursor(inputTable,["Name"])
+                for row in tableRows:
+                    name = str(row[0])
+                    Names.append(name)
+                del tableRows
+            except:
+                msg = r"ERROR LOADING INPUT TABLE!!"
+                Names.append(msg)
+                messages.AddErrorMessage(msg)
+            return Names
+
+    def __init__(self):
+        self.label = u'Range Rings From Minimum And Maximum Table'
+        self.description = u'Create a concentric circle from a center with two rings depicting a minimum range and a maximum range from a table.'
+        self.category = u'Distance and Direction'
+        self.canRunInBackground = False
+
+    def getParameterInfo(self):
+
+        # Input_Center_Features
+        param_1 = arcpy.Parameter()
+        param_1.name = u'Input_Center_Features'
+        param_1.displayName = u'Input Center Features'
+        param_1.parameterType = 'Required'
+        param_1.direction = 'Input'
+        param_1.datatype = u'Feature Set'
+        # Set the Feature Set schema
+        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "RangeRingInputObserversGDB.lyr")
+        param_1.value = input_layer_file_path
+
+        # Input_Table
+        param_2 = arcpy.Parameter()
+        param_2.name = u'Input_Table'
+        param_2.displayName = u'Input Table'
+        param_2.parameterType = 'Required'
+        param_2.direction = 'Input'
+        param_2.datatype = u'Table'
+        # military-tools-geoprocessing-toolbox\\toolboxes\\tooldata\\Range
+        # Rings.gdb\\rrInputTable'
+        param_2.value = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "tooldata", "Range Rings.gdb", "rrInputTable")
+
+        # Selected_Type
+        param_3 = arcpy.Parameter()
+        param_3.name = u'Selected_Type'
+        param_3.displayName = u'Selected Type'
+        param_3.parameterType = 'Required'
+        param_3.direction = 'Input'
+        param_3.datatype = u'String'
+        param_3.value = u'M4'
+        param_3.filter.list = [u'M4', u'M249']
+
+        # Number_Of_Radials
+        param_4 = arcpy.Parameter()
+        param_4.name = u'Number_Of_Radials'
+        param_4.displayName = u'Number Of Radials'
+        param_4.parameterType = 'Required'
+        param_4.direction = 'Input'
+        param_4.datatype = u'Long'
+        param_4.value = u'8'
+
+        # Output_Ring_Features
+        param_5 = arcpy.Parameter()
+        param_5.name = u'Output_Ring_Features'
+        param_5.displayName = u'Output Ring Features'
+        param_5.parameterType = 'Required'
+        param_5.direction = 'Output'
+        param_5.datatype = u'Feature Class'
+        param_5.value = u'%scratchGDB%\\Rings'
+        param_5.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                            "layers", "RangeRings.lyr")
+
+        # Output_Radial_Features
+        param_6 = arcpy.Parameter()
+        param_6.name = u'Output_Radial_Features'
+        param_6.displayName = u'Output Radial Features'
+        param_6.parameterType = 'Required'
+        param_6.direction = 'Output'
+        param_6.datatype = u'Feature Class'
+        param_6.value = u'%scratchGDB%\\Radials'
+        param_6.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                            "layers", "RangeRadials.lyr")
+
+        # Spatial_Reference
+        param_7 = arcpy.Parameter()
+        param_7.name = u'Spatial_Reference'
+        param_7.displayName = u'Spatial Reference'
+        param_7.parameterType = 'Optional'
+        param_7.direction = 'Input'
+        param_7.datatype = u'Spatial Reference'
+
+        # Input_Table_Type_Name_Field
+        param_8 = arcpy.Parameter()
+        param_8.name = u'Input_Table_Type_Name_Field'
+        param_8.displayName = u'Input Table Type Name Field'
+        param_8.parameterType = 'Optional'
+        param_8.direction = 'Input'
+        param_8.datatype = u'Field'
+        param_8.value = u'Name'
+        param_8.parameterDependencies = ["1"]
+
+        # Input_Table_Minimum_Range_Field
+        param_9 = arcpy.Parameter()
+        param_9.name = u'Input_Table_Minimum_Range_Field'
+        param_9.displayName = u'Input Table Minimum Range Field'
+        param_9.parameterType = 'Optional'
+        param_9.direction = 'Input'
+        param_9.datatype = u'Field'
+        param_9.value = u'Min'
+        param_9.parameterDependencies = ["1"]
+
+        # Input_Table_Maximum_Range_Field
+        param_10 = arcpy.Parameter()
+        param_10.name = u'Input_Table_Maximum_Range_Field'
+        param_10.displayName = u'Input Table Maximum Range Field'
+        param_10.parameterType = 'Optional'
+        param_10.direction = 'Input'
+        param_10.datatype = u'Field'
+        param_10.value = u'Max'
+        param_10.parameterDependencies = ["1"]
+
+        return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8, param_9, param_10]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateParameters()
+
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+
+    def execute(self, parameters, messages):
+
+        inputCenterFeatures = parameters[0].value
+
+        inputTable = parameters[1].value
+        inputSelectedType = parameters[2].value
+        inputNumberOfRadials = parameters[3].value
+        outputRingFeatures = parameters[4].value
+        outputRadialFeatures = parameters[5].value
+        optionalSpatialReference = parameters[6].value
+        optionalSpatialReferenceAsText = str(parameters[6].value)
+
+        if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == '':
+            optionalSpatialReference = None
+
+        # WORKAROUND (for Pro): clear layer selection (since last point is selected)
+        # So tool will work on all points entered
+        if sys.version_info >= (3, 0) :
+            arcpy.SelectLayerByAttribute_management(inputCenterFeatures, "CLEAR_SELECTION", None, None)
+
+        #Weapon Table Options
+        inputTypeNameField = str(parameters[7].value)
+        inputTypeMinRangeField = str(parameters[8].value)
+        inputTypeMaxRangeField = str(parameters[9].value)
+
+        if inputTypeNameField != "#" and inputTypeNameField != "" and \
+            inputTypeMinRangeField != "#" and inputTypeMinRangeField != "" and \
+            inputTypeMaxRangeField != "#" and inputTypeMaxRangeField != "" :
+            #get min and max range for selected weapon
+            cursorFields = [inputTypeNameField, inputTypeMinRangeField, inputTypeMaxRangeField]
+            with arcpy.da.SearchCursor(inputTable, cursorFields) as cursor:
+                for row in cursor:
+                    if str(inputSelectedType) == str(row[0]):
+                        inputMinimumRange = row[1]
+                        inputMaximumRange = row[2]
+
+        # get/set environment
+        arcpy.env.overwriteOutput = True
+
+        # Call tool method
+        rr = RangeRingUtils.rangeRingsFromMinMax(inputCenterFeatures,
+                                                 inputMinimumRange,
+                                                 inputMaximumRange,
+                                                 "METERS",
                                                  inputNumberOfRadials,
                                                  outputRingFeatures,
                                                  outputRadialFeatures,
