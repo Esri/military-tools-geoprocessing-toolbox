@@ -15,7 +15,7 @@
  ==================================================
 Conversion.py
  --------------------------------------------------
- requirements: ArcGIS 10.3.1+, ArcGIS Pro 2.0 Python 2.7 or Python 3.5+
+ requirements: ArcGIS 10.3.1+, ArcGIS Pro 2.0, Python 2.7, or Python 3.5+
  author: ArcGIS Solutions
  contact: support@esri.com
  company: Esri
