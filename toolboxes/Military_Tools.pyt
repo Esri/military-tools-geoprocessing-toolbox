@@ -35,11 +35,12 @@ class Toolbox(object):
 
     def __init__(self):
         ''' constructor '''
-        self.label = "Military Tools for ArcGIS"
+        self.label = u'Military Tools for ArcGIS'
         self.alias = "mt"
-        self.description = "A Geoprocessing Toolbox for ArcGIS for Desktop that contains collections of tools to import geometry from tables, determine ranges, and provide basic visibility analysis capabilities."
+        self.description = u'A Geoprocessing Toolbox for ArcGIS for Desktop that contains collections of tools to import geometry from tables, determine ranges, and provide basic visibility analysis capabilities.'
 
         self.tools = [CreateGRGFromArea,
                       CreateGRGFromPoint,
                       CreateReferenceSystemGRGFromArea,
-                      RangeRingsFromInterval]
+                      RangeRingsFromInterval,
+                      RangeRingFromMinimumAndMaximum]
