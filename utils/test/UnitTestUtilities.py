@@ -202,6 +202,7 @@ def handleArcPyError():
     print(msgs)
     Configuration.Logger.error(msgs)
 
+    # Raise exception so test will fail
     raise Exception('ArcPy Error')
 
 def handleGeneralError(exception = None):

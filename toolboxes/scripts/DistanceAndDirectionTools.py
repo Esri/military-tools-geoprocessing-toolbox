@@ -521,7 +521,6 @@ class RangeRingsFromMinAndMaxTable(object):
     def execute(self, parameters, messages):
 
         inputCenterFeatures = parameters[0].value
-
         inputTable = parameters[1].value
         inputSelectedType = parameters[2].value
         inputNumberOfRadials = parameters[3].value
@@ -539,9 +538,12 @@ class RangeRingsFromMinAndMaxTable(object):
             arcpy.SelectLayerByAttribute_management(inputCenterFeatures, "CLEAR_SELECTION", None, None)
 
         #Weapon Table Options
-        inputTypeNameField = str(parameters[7].value)
-        inputTypeMinRangeField = str(parameters[8].value)
-        inputTypeMaxRangeField = str(parameters[9].value)
+        if (len(parameters) > 7) :
+            inputTypeNameField = str(parameters[7].value)
+        if (len(parameters) > 8) :
+            inputTypeMinRangeField = str(parameters[8].value)
+        if (len(parameters) > 9) :
+            inputTypeMaxRangeField = str(parameters[9].value)
 
         if inputTypeNameField != "#" and inputTypeNameField != "" and \
             inputTypeMinRangeField != "#" and inputTypeMinRangeField != "" and \
