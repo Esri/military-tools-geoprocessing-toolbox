@@ -34,11 +34,10 @@ try:
 except ImportError:
     import RangeRingUtils
 
+# ----------------------------------------------------------------------------------
+# RangeRingsFromInterval Tool
+# ----------------------------------------------------------------------------------
 class RangeRingsFromInterval(object):
-
-    """
-    
-    """
     
     def __init__(self):
         self.label = u'Range Rings From Interval'
@@ -180,7 +179,7 @@ class RangeRingsFromInterval(object):
         return rr[0], rr[1]
 
 # ----------------------------------------------------------------------------------
-# Tool
+# RangeRingFromMinimumAndMaximum Tool
 # ----------------------------------------------------------------------------------
 class RangeRingFromMinimumAndMaximum(object):
 
@@ -321,7 +320,7 @@ class RangeRingFromMinimumAndMaximum(object):
         return rr[0], rr[1]
 
 # ----------------------------------------------------------------------------------
-# Tool
+# RangeRingsFromMinAndMaxTable Tool
 # ----------------------------------------------------------------------------------
 class RangeRingsFromMinAndMaxTable(object):
     
