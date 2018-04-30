@@ -72,7 +72,6 @@ class DistanceAndDirectionTestCase(unittest.TestCase):
 
     def tearDown(self):
         Configuration.Logger.debug("     DistanceAndDirectionTestCase.tearDown")
-        arcpy.CheckInExtension("Spatial");
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
 
     #=== TEST TOOL METHODS ==========================================
@@ -190,6 +189,51 @@ class DistanceAndDirectionTestCase(unittest.TestCase):
                                         rings,
                                         radials,
                                         self.srWAZED)
+        except :
+            UnitTestUtilities.handleArcPyError()
+
+        # 1: Check the expected return value
+        self.assertIsNotNone(toolOutput, "No output returned from tool")
+        outRings = toolOutput.getOutput(0)
+        outRadials = toolOutput.getOutput(1)
+
+        self.assertEqual(outRings, rings, "Unexpected return value from tool") 
+        self.assertEqual(outRadials, radials, "Unexpected return value from tool") 
+
+        # 2: Check the number of features created 
+        self.assertTrue(arcpy.Exists(outRings), "Ring features not created or do not exist")
+        self.assertEqual(int(arcpy.GetCount_management(outRings).getOutput(0)), 4 * numCenters, "Wrong number of expected ring features")
+
+        self.assertTrue(arcpy.Exists(outRadials), "Radial features not created or do not exist")
+        self.assertEqual(int(arcpy.GetCount_management(outRadials).getOutput(0)), numRadials * numCenters, "Wrong number of expected radial features")
+
+        return
+
+    def test_rangeRingsFromIntervalNoSR(self):
+        ''' testing rangeRingsFromInterval method'''
+
+        runToolMessage = ".....DistanceAndDirectionTestCase.test_rangeRingsFromIntervalNoSR"
+        Configuration.Logger.info(runToolMessage)
+        
+        numCenters = int(arcpy.GetCount_management(self.pointGeographic).getOutput(0))
+        distanceBetween = 200.0
+        distanceUnits = "METERS"
+        numRings = 4
+        numRadials = 8
+        rings = os.path.join(Configuration.militaryScratchGDB, "newRings")
+        radials = os.path.join(Configuration.militaryScratchGDB, "newRadials")
+
+        toolOutput = None
+
+        try :
+            toolOutput = arcpy.RangeRingsFromInterval_mt(self.pointGeographic,
+                                        numRings,
+                                        distanceBetween,
+                                        distanceUnits,
+                                        numRadials,
+                                        rings,
+                                        radials) 
+                                        # SR is not set
         except :
             UnitTestUtilities.handleArcPyError()
 

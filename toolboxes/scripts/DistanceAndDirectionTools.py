@@ -160,7 +160,8 @@ class RangeRingsFromInterval(object):
 
         # WORKAROUND (for Pro): clear layer selection (since last point is selected)
         # So tool will work on all points entered
-        if sys.version_info >= (3, 0) :
+        featureSetDescribe = arcpy.Describe(inputCenterFeatures)
+        if sys.version_info >= (3, 0) and (featureSetDescribe.dataType == "FeatureLayer"):
             arcpy.SelectLayerByAttribute_management(inputCenterFeatures, "CLEAR_SELECTION")
 
         # get/set environment
@@ -303,8 +304,9 @@ class RangeRingFromMinimumAndMaximum(object):
 
         # WORKAROUND (for Pro): clear layer selection (since last point is selected)
         # So tool will work on all points entered
-        if sys.version_info >= (3, 0) :
-            arcpy.SelectLayerByAttribute_management(inputCenterFeatures, "CLEAR_SELECTION", None, None)
+        featureSetDescribe = arcpy.Describe(inputCenterFeatures)
+        if sys.version_info >= (3, 0) and (featureSetDescribe.dataType == "FeatureLayer"):
+            arcpy.SelectLayerByAttribute_management(inputCenterFeatures, "CLEAR_SELECTION")
 
         rr = RangeRingUtils.rangeRingsFromMinMax(inputCenterFeatures,
                                                  inputMinimumRange,
@@ -534,8 +536,9 @@ class RangeRingsFromMinAndMaxTable(object):
 
         # WORKAROUND (for Pro): clear layer selection (since last point is selected)
         # So tool will work on all points entered
-        if sys.version_info >= (3, 0) :
-            arcpy.SelectLayerByAttribute_management(inputCenterFeatures, "CLEAR_SELECTION", None, None)
+        featureSetDescribe = arcpy.Describe(inputCenterFeatures)
+        if sys.version_info >= (3, 0) and (featureSetDescribe.dataType == "FeatureLayer"):
+            arcpy.SelectLayerByAttribute_management(inputCenterFeatures, "CLEAR_SELECTION")
 
         #Weapon Table Options
         if (len(parameters) > 7) :
