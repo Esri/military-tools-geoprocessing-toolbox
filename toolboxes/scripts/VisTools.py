@@ -594,6 +594,12 @@ class RadialLineOfSightAndRange(object):
         sectorWedge = parameters[8].valueAsText
         fullWedge   = parameters[9].valueAsText
 
+        # WORKAROUND (for Pro): clear layer selection (since last point is selected)
+        # So tool will work on all points entered
+        featureSetDescribe = arcpy.Describe(inputObserverPoints)
+        if sys.version_info >= (3, 0) and (featureSetDescribe.dataType == "FeatureLayer"):
+            arcpy.SelectLayerByAttribute_management(inputObserverPoints, "CLEAR_SELECTION")
+
         RadialLineOfSightAndRange.createViewshed(inputObserverPoints, elevationRaster, \
             outerRadiusInput, leftAzimuthInput, rightAzimuthInput, observerOffsetInput, \
             innerRadiusInput, viewshed, sectorWedge, fullWedge)
