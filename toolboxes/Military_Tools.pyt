@@ -28,6 +28,7 @@
 from scripts.ConversionTools import *
 from scripts.DistanceAndDirectionTools import *
 from scripts.GRGTools import *
+from scripts.VisTools import *
 
 class Toolbox(object):
     '''
@@ -41,9 +42,12 @@ class Toolbox(object):
         self.description = u'A Geoprocessing Toolbox for ArcGIS for Desktop that contains collections of tools to import geometry from tables, determine ranges, and provide basic visibility analysis capabilities.'
 
         self.tools = [CreateGRGFromArea,
-                      CreateGRGFromPoint,
-                      CreateReferenceSystemGRGFromArea,
-                      RangeRingsFromInterval,
-                      RangeRingFromMinimumAndMaximum,
-                      RangeRingsFromMinAndMaxTable,
-                      TableToPolygon]
+					CreateGRGFromPoint,
+					CreateReferenceSystemGRGFromArea,
+					AddLinearLineOfSightFields,
+					AddRadialLineOfSightObserverFields,
+					RadialLineOfSightAndRange,
+                    RangeRingsFromInterval,
+                    RangeRingFromMinimumAndMaximum,
+                    RangeRingsFromMinAndMaxTable,
+                    TableToPolygon]

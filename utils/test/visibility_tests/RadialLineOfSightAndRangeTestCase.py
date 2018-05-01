@@ -21,7 +21,7 @@
  company: Esri
  ==================================================
  description:
- Unit tests for Visibility tools
+ Unit tests for Visibility tools RadialLineOfSightAndRange
  ==================================================
 '''
 
@@ -58,7 +58,59 @@ class RadialLineOfSightAndRangeTestCase(unittest.TestCase):
         
     def test_toolboxMain(self):
 
-        Configuration.Logger.info(".....RadialLineOfSightAndRange.test_toolboxMain")
+# TODO: Remove this when all test case are ported to pyt toolbox 
+        Configuration.toolboxUnderTest = Configuration.military_ToolboxPath
+        Configuration.Platform = None # This will force this to be refetched 
+# END TODO
+        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
+
+        if arcpy.CheckExtension("3D") == "Available":
+            arcpy.CheckOutExtension("3D")
+        else:
+            raise Exception("3D license is not available.")
+
+        inputObserverPoints = os.path.join(Configuration.militaryInputDataGDB, "RLOS_Observers")
+        elevationRaster = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
+        outerRadiusInput    = '1000'
+        leftAzimuthInput    = '90'
+        rightAzimuthInput   = '180'
+        observerOffsetInput = '20'
+        innerRadiusInput    = '500'
+        viewshed    = r'in_memory\viewshed'
+        sectorWedge = r'in_memory\wedge'
+        fullWedge   = r'in_memory\fullwedge'
+
+        toolOutput = None
+
+        try : 
+            toolOutput = arcpy.RadialLineOfSightAndRange_mt(inputObserverPoints, elevationRaster, \
+                outerRadiusInput, leftAzimuthInput, rightAzimuthInput, observerOffsetInput, \
+                innerRadiusInput, viewshed, sectorWedge, fullWedge)
+        except :
+            UnitTestUtilities.handleArcPyError()
+
+        # 1: Check the expected return value
+        self.assertIsNotNone(toolOutput, "No output returned from tool")
+        viewshedOut = toolOutput.getOutput(0)
+        sectorWedgeOut = toolOutput.getOutput(1)
+        fullWedgeOut = toolOutput.getOutput(2)
+
+        self.assertEqual(viewshed, viewshedOut, "Unexpected return value from tool") 
+        self.assertEqual(sectorWedge, sectorWedgeOut, "Unexpected return value from tool") 
+        self.assertEqual(fullWedge, fullWedgeOut, "Unexpected return value from tool") 
+
+        # 2: Verify some output was created
+        viewshedFeaturesCount    = int(arcpy.GetCount_management(viewshedOut).getOutput(0))
+        sectorWedgeFeaturesCount = int(arcpy.GetCount_management(sectorWedgeOut).getOutput(0))
+        fullWedgeFeaturesCount   = int(arcpy.GetCount_management(fullWedgeOut).getOutput(0))
+
+        self.assertGreater(viewshedFeaturesCount, 0, "No output features created for " + str(viewshedFeaturesCount))
+        self.assertGreater(sectorWedgeFeaturesCount, 0, "No output features created for " + str(sectorWedgeFeaturesCount))
+        self.assertGreater(fullWedgeFeaturesCount, 0, "No output features created for " + str(fullWedgeFeaturesCount))
+
+    def test_createViewshed(self):
+
+        Configuration.Logger.info(".....RadialLineOfSightAndRange.test_createViewshed")
 
         if arcpy.CheckExtension("3D") == "Available":
             arcpy.CheckOutExtension("3D")
