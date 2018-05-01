@@ -25,8 +25,9 @@
  ==================================================
 '''
 
-from scripts.GRGTools import *
+from scripts.ConversionTools import *
 from scripts.DistanceAndDirectionTools import *
+from scripts.GRGTools import *
 
 class Toolbox(object):
     '''
@@ -44,4 +45,5 @@ class Toolbox(object):
                       CreateReferenceSystemGRGFromArea,
                       RangeRingsFromInterval,
                       RangeRingFromMinimumAndMaximum,
-                      RangeRingsFromMinAndMaxTable]
+                      RangeRingsFromMinAndMaxTable,
+                      TableToPolygon]
