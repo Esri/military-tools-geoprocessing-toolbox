@@ -564,7 +564,7 @@ class RadialLineOfSightAndRange(object):
         return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8, param_9, param_10]
 
     def isLicensed(self):
-        return True
+        return arcpy.CheckExtension("3D") == "Available"
 
     def updateParameters(self, parameters):
         validator = getattr(self, 'ToolValidator', None)
@@ -597,4 +597,7 @@ class RadialLineOfSightAndRange(object):
         RadialLineOfSightAndRange.createViewshed(inputObserverPoints, elevationRaster, \
             outerRadiusInput, leftAzimuthInput, rightAzimuthInput, observerOffsetInput, \
             innerRadiusInput, viewshed, sectorWedge, fullWedge)
+
+        return viewshed, sectorWedge, fullWedge
+
 
