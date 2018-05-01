@@ -39,6 +39,7 @@ import logging
 import Configuration
 
 from . import RangeRingUtilsTestCase
+from . import DistanceAndDirectionTestCase
 
 def getTestSuite():
 
@@ -48,6 +49,7 @@ def getTestSuite():
  
     loader = unittest.TestLoader()
 
+    testSuite.addTest(loader.loadTestsFromTestCase(DistanceAndDirectionTestCase.DistanceAndDirectionTestCase))
     testSuite.addTest(loader.loadTestsFromTestCase(RangeRingUtilsTestCase.RangeRingUtilsTestCase))
 
     return testSuite
