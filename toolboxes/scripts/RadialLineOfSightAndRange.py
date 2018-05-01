@@ -261,7 +261,7 @@ def createViewshed(inputObserverPoints, elevationRaster, outerRadiusInput, \
     yMax = desc.Extent.YMax
     Extent = str(xMin) + " " + str(yMin) + " " + str(xMax) + " " + str(yMax)
 
-    arcpy.env.extent = Extent
+    arcpy.env.extent = desc.Extent
 
     # Set Raster Output Mask (to improve performance)
     arcpy.env.mask = r"in_memory\OuterBuffer"
