@@ -144,15 +144,15 @@ class RangeRingsFromInterval(object):
              
     def execute(self, parameters, messages):
 
-        inputCenterFeatures = parameters[0].value
+        inputCenterFeatures = parameters[0].valueAsText
         inputNumberOfRings = parameters[1].value
         inputDistanceBetween = parameters[2].value
         inputDistanceUnits = parameters[3].value
         inputNumberOfRadials = parameters[4].value
-        outputRingFeatures = parameters[5].value
-        outputRadialFeatures = parameters[6].value
+        outputRingFeatures = parameters[5].valueAsText
+        outputRadialFeatures = parameters[6].valueAsText
         optionalSpatialReference = parameters[7].value
-        optionalSpatialReferenceAsText = str(parameters[7].value)
+        optionalSpatialReferenceAsText = parameters[7].valueAsText
 
         if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
             optionalSpatialReference = None
@@ -288,15 +288,15 @@ class RangeRingFromMinimumAndMaximum(object):
 
     def execute(self, parameters, messages):
 
-        inputCenterFeatures = parameters[0].value
+        inputCenterFeatures = parameters[0].valueAsText
         inputMinimumRange = parameters[1].value
         inputMaximumRange = parameters[2].value
         inputDistanceUnits = parameters[3].value
         inputNumberOfRadials = parameters[4].value
-        outputRingFeatures = parameters[5].value
-        outputRadialFeatures = parameters[6].value
+        outputRingFeatures = parameters[5].valueAsText
+        outputRadialFeatures = parameters[6].valueAsText
         optionalSpatialReference = parameters[7].value
-        optionalSpatialReferenceAsText = str(parameters[7].value)
+        optionalSpatialReferenceAsText = parameters[7].valueAsText
 
         if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
             optionalSpatialReference = None
@@ -346,10 +346,6 @@ class RangeRingsFromMinAndMaxTable(object):
             # Input Table Type Name Field (Field) [7]
             # Input Table Minimum Range Field (Field) [8]
             # Input Table Maximum Range Field (Field) [9]
-    
-            self.params[7].category = "Input Table Options"
-            self.params[8].category = "Input Table Options"
-            self.params[9].category = "Input Table Options"
 
             inputParamsTable = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                           "tooldata", "Range Rings.gdb", "rrInputTable")
@@ -482,7 +478,8 @@ class RangeRingsFromMinAndMaxTable(object):
         param_8.direction = 'Input'
         param_8.datatype = u'Field'
         param_8.value = u'Name'
-        param_8.parameterDependencies = ["1"]
+        param_8.parameterDependencies = ["Input_Table"]
+        param_8.category = "Input Table Options"
 
         # Input_Table_Minimum_Range_Field
         param_9 = arcpy.Parameter()
@@ -492,7 +489,8 @@ class RangeRingsFromMinAndMaxTable(object):
         param_9.direction = 'Input'
         param_9.datatype = u'Field'
         param_9.value = u'Min'
-        param_9.parameterDependencies = ["1"]
+        param_9.parameterDependencies = ["Input_Table"]
+        param_9.category = "Input Table Options"
 
         # Input_Table_Maximum_Range_Field
         param_10 = arcpy.Parameter()
@@ -502,7 +500,8 @@ class RangeRingsFromMinAndMaxTable(object):
         param_10.direction = 'Input'
         param_10.datatype = u'Field'
         param_10.value = u'Max'
-        param_10.parameterDependencies = ["1"]
+        param_10.parameterDependencies = ["Input_Table"]
+        param_10.category = "Input Table Options"
 
         return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8, param_9, param_10]
 
@@ -521,14 +520,14 @@ class RangeRingsFromMinAndMaxTable(object):
 
     def execute(self, parameters, messages):
 
-        inputCenterFeatures = parameters[0].value
-        inputTable = parameters[1].value
+        inputCenterFeatures = parameters[0].valueAsText
+        inputTable = parameters[1].valueAsText
         inputSelectedType = parameters[2].value
         inputNumberOfRadials = parameters[3].value
-        outputRingFeatures = parameters[4].value
-        outputRadialFeatures = parameters[5].value
+        outputRingFeatures = parameters[4].valueAsText
+        outputRadialFeatures = parameters[5].valueAsText
         optionalSpatialReference = parameters[6].value
-        optionalSpatialReferenceAsText = str(parameters[6].value)
+        optionalSpatialReferenceAsText = parameters[6].valueAsText
 
         if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == '':
             optionalSpatialReference = None
@@ -541,11 +540,11 @@ class RangeRingsFromMinAndMaxTable(object):
 
         #Weapon Table Options
         if (len(parameters) > 7) :
-            inputTypeNameField = str(parameters[7].value)
+            inputTypeNameField = parameters[7].valueAsText
         if (len(parameters) > 8) :
-            inputTypeMinRangeField = str(parameters[8].value)
+            inputTypeMinRangeField = parameters[8].valueAsText
         if (len(parameters) > 9) :
-            inputTypeMaxRangeField = str(parameters[9].value)
+            inputTypeMaxRangeField = parameters[9].valueAsText
 
         if inputTypeNameField != "#" and inputTypeNameField != "" and \
             inputTypeMinRangeField != "#" and inputTypeMinRangeField != "" and \
