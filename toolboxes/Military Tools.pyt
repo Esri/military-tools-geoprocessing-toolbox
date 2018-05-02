@@ -46,6 +46,8 @@ class Toolbox(object):
 					CreateReferenceSystemGRGFromArea,
 					AddLinearLineOfSightFields,
 					AddRadialLineOfSightObserverFields,
+					LinearLineOfSight,
+					RadialLineOfSight,
 					RadialLineOfSightAndRange,
                     RangeRingsFromInterval,
                     RangeRingFromMinimumAndMaximum,

@@ -760,3 +760,98 @@ class LinearLineOfSight(object):
 
         # Set output
         return llos[0],llos[1],llos[2],llos[3]
+
+class RadialLineOfSight(object):
+
+    def __init__(self):
+        self.label = u'Radial Line Of Sight'
+        self.description = u'Shows the areas visible (green) and not visible (red) to an observer at a specified distance and viewing angle.'
+        self.canRunInBackground = False
+        self.category = "Visibility"
+
+    def getParameterInfo(self):
+
+        # Input_Observer_Features
+        param_1 = arcpy.Parameter()
+        param_1.name = u'Input_Observer_Features'
+        param_1.displayName = u'Input Observer Features'
+        param_1.parameterType = 'Required'
+        param_1.direction = 'Input'
+        param_1.datatype = u'Feature Set'
+        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "LLOS_InputObserversGDB.lyr")
+        param_1.value = input_layer_file_path
+
+        # Observer_Height_Above_Surface
+        param_2 = arcpy.Parameter()
+        param_2.name = u'Observer_Height_Above_Surface'
+        param_2.displayName = u'Observer Height Above Surface'
+        param_2.parameterType = 'Required'
+        param_2.direction = 'Input'
+        param_2.datatype = u'Double'
+        param_2.value = u'2'
+
+        # Radius_Of_Observer
+        param_3 = arcpy.Parameter()
+        param_3.name = u'Radius_Of_Observer'
+        param_3.displayName = u'Radius Of Observer'
+        param_3.parameterType = 'Required'
+        param_3.direction = 'Input'
+        param_3.datatype = u'Double'
+        param_3.value = u'1000'
+
+        # Input_Surface
+        param_4 = arcpy.Parameter()
+        param_4.name = u'Input_Surface'
+        param_4.displayName = u'Input Surface'
+        param_4.parameterType = 'Required'
+        param_4.direction = 'Input'
+        param_4.datatype = u'Raster Layer'
+
+        # Output_Visibility
+        param_5 = arcpy.Parameter()
+        param_5.name = u'Output_Visibility'
+        param_5.displayName = u'Output Visibility'
+        param_5.parameterType = 'Required'
+        param_5.direction = 'Output'
+        param_5.datatype = u'Feature Class'
+        param_5.value = u'%scratchGDB%/outputRLOS'
+        param_5.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                            "layers", "Radial Line Of Sight Output.lyr")
+
+        # Force_Visibility_To_Infinity__Edge_Of_Surface_
+        param_6 = arcpy.Parameter()
+        param_6.name = u'Force_Visibility_To_Infinity__Edge_Of_Surface_'
+        param_6.displayName = u'Force Visibility To Infinity (Edge Of Surface)'
+        param_6.parameterType = 'Optional'
+        param_6.direction = 'Input'
+        param_6.datatype = u'Boolean'
+
+        # Spatial_Reference
+        param_7 = arcpy.Parameter()
+        param_7.name = u'Spatial_Reference'
+        param_7.displayName = u'Spatial Reference'
+        param_7.parameterType = 'Optional'
+        param_7.direction = 'Input'
+        param_7.datatype = u'Spatial Reference'
+        param_7.value = arcpy.SpatialReference(54032).exportToString() # World Azimuthal Equidistant
+
+        return [param_1, param_2, param_3, param_4, param_5, param_6, param_7]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateParameters()
+
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+
+    def execute(self, parameters, messages):
+
+        pass
