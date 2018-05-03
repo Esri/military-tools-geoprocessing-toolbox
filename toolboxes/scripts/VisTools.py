@@ -854,4 +854,27 @@ class RadialLineOfSight(object):
 
     def execute(self, parameters, messages):
 
-        pass
+        inputObserverFeatures = parameters[0].valueAsText # Input Observer Features
+        inputObserverHeight = parameters[1].value # Observer Height Above Surface
+        inputRadiusOfObserver = parameters[2].value # Radius Of Observer
+        inputSurface = parameters[3].valueAsText # Input Surface
+        outputVisibility = parameters[4].valueAsText # Output Visibility
+        inputForceVisibility = parameters[5].value # Force Visibility To Infinity (Edge of Surace)
+        inputSpatialReference = parameters[6].value # Spatial Reference
+        inputSpatialReferenceAsText = parameters[6].valueAsText
+
+        if inputSpatialReferenceAsText == "#" or inputSpatialReferenceAsText == '':
+            inputSpatialReference = arcpy.SpatialReference(54032) # World Azimuthal Equidistant
+
+        arcpy.env.overwriteOutput = True
+
+        outputVisibilityOut = VisibilityUtilities.radialLineOfSight(inputObserverFeatures,
+                                              inputObserverHeight,
+                                              inputRadiusOfObserver,
+                                              inputSurface,
+                                              outputVisibility,
+                                              inputForceVisibility,
+                                              inputSpatialReference)
+
+        # Set output
+        return outputVisibilityOut
