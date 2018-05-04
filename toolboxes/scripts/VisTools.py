@@ -878,3 +878,233 @@ class RadialLineOfSight(object):
 
         # Set output
         return outputVisibilityOut
+
+class FindLocalPeaks(object):
+    def __init__(self):
+        self.label = 'Find Local Peaks'
+        self.description = 'Finds the highest local maximums within the defined area. Peaks are found by inverting the surface and then finding the sinks in the surface. These points are then used to extract elevation values from the original surface, sorted based on elevation.'
+        self.category = "Visibility"
+        self.canRunInBackground = False
+
+    def getParameterInfo(self):
+        # Input_Area
+        param_1 = arcpy.Parameter()
+        param_1.name = 'Input_Area'
+        param_1.displayName = 'Input Area'
+        param_1.parameterType = 'Required'
+        param_1.direction = 'Input'
+        param_1.datatype = 'Feature Set'
+        # Set the Feature Set schema
+        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "InputArea_FeatureSetGDB.lyr")
+        param_1.value = input_layer_file_path
+
+        # Number_Of_Peaks
+        param_2 = arcpy.Parameter()
+        param_2.name = 'Number_Of_Peaks'
+        param_2.displayName = 'Number Of Peaks'
+        param_2.parameterType = 'Required'
+        param_2.direction = 'Input'
+        param_2.datatype = 'Long'
+        param_2.value = '10'
+
+        # Input_Surface
+        param_3 = arcpy.Parameter()
+        param_3.name = 'Input_Surface'
+        param_3.displayName = 'Input Surface'
+        param_3.parameterType = 'Required'
+        param_3.direction = 'Input'
+        param_3.datatype = 'Raster Layer'
+
+        # Output_Peak_Features
+        param_4 = arcpy.Parameter()
+        param_4.name = 'Output_Peak_Features'
+        param_4.displayName = 'Output Peak Features'
+        param_4.parameterType = 'Required'
+        param_4.direction = 'Output'
+        param_4.datatype = 'Feature Class'
+        output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "Highest Point Output.lyr")
+        param_4.symbology = output_layer_file_path								  
+
+        return [param_1, param_2, param_3, param_4]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        """Modify the values and properties of parameters before internal
+        validation is performed.  This method is called whenever a parameter
+        has been changed."""
+        # 0 - Input Area
+        # 1 - Number Of Peaks
+        # 2 - Input Surface
+        # 3 - Output Peak Features
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateParameters()
+        return
+
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+
+    def execute(self, parameters, messages):
+        try:
+            from . import VisibilityUtilities
+        except ImportError:
+            import VisibilityUtilities
+
+        input_area = parameters[0].valueAsText
+        number_of_peaks = parameters[1].valueAsText
+        input_surface = parameters[2].valueAsText
+        output_peak_features = parameters[3].valueAsText
+
+        out_findLocalPeaks = VisibilityUtilities.findLocalPeaks(input_area,
+                                                                    number_of_peaks,
+                                                                    input_surface,
+                                                                    output_peak_features)
+
+        return out_findLocalPeaks
+
+class HighestPoints(object):
+    def __init__(self):
+        self.label = 'Highest Points'
+        self.description = 'Finds the highest point (or points if several have the same elevation) of the input surface within a defined area.'
+        self.category = "Visibility"
+        self.canRunInBackground = False
+
+    def getParameterInfo(self):
+        # Input_Area
+        param_1 = arcpy.Parameter()
+        param_1.name = 'Input_Area'
+        param_1.displayName = 'Input Area'
+        param_1.parameterType = 'Required'
+        param_1.direction = 'Input'
+        param_1.datatype = 'Feature Set'
+        # Set the Feature Set schema
+        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "InputArea_FeatureSetGDB.lyr")
+        param_1.value = input_layer_file_path
+
+        # Input_Surface
+        param_2 = arcpy.Parameter()
+        param_2.name = 'Input_Surface'
+        param_2.displayName = 'Input Surface'
+        param_2.parameterType = 'Required'
+        param_2.direction = 'Input'
+        param_2.datatype = 'Raster Layer'
+
+        # Output_Highest_Point_Features
+        param_3 = arcpy.Parameter()
+        param_3.name = 'Output_Highest_Point_Features'
+        param_3.displayName = 'Output Highest Point Features'
+        param_3.parameterType = 'Required'
+        param_3.direction = 'Output'
+        param_3.datatype = 'Feature Class'
+        output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "Highest Point Output.lyr")
+        param_3.symbology = output_layer_file_path									  
+
+        return [param_1, param_2, param_3]
+
+    def isLicensed(self):
+        return True
+    def updateParameters(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateParameters()
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+    def execute(self, parameters, messages):
+        try:
+            from . import VisibilityUtilities
+        except ImportError:
+            import VisibilityUtilities
+
+        input_area = parameters[0].valueAsText
+        input_surface = parameters[1].valueAsText
+        output_highest_point_features = parameters[2].valueAsText
+        hi_low_Switch = 'MAXIMUM'
+
+        out_highest_points = VisibilityUtilities.hi_lowPointByArea(input_area,
+                                                                    input_surface,
+                                                                    hi_low_Switch,
+                                                                    output_highest_point_features)
+        return out_highest_points
+
+class LowestPoints(object):
+    def __init__(self):
+        self.label = 'Lowest Points'
+        self.description = 'Finds the lowest point (or points if several have the same elevation) of the input surface within a defined area.'
+        self.category = "Visibility"
+        self.canRunInBackground = False
+
+    def getParameterInfo(self):
+        # Input_Area
+        param_1 = arcpy.Parameter()
+        param_1.name = 'Input_Area'
+        param_1.displayName = 'Input Area'
+        param_1.parameterType = 'Required'
+        param_1.direction = 'Input'
+        param_1.datatype = 'Feature Set'
+        # Set the Feature Set schema
+        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "InputArea_FeatureSetGDB.lyr")
+        param_1.value = input_layer_file_path
+
+        # Input_Surface
+        param_2 = arcpy.Parameter()
+        param_2.name = 'Input_Surface'
+        param_2.displayName = 'Input Surface'
+        param_2.parameterType = 'Required'
+        param_2.direction = 'Input'
+        param_2.datatype = 'Raster Layer'
+
+        # Output_Lowest_Point_Features
+        param_3 = arcpy.Parameter()
+        param_3.name = 'Output_Lowest_Point_Features'
+        param_3.displayName = 'Output Lowest Point Features'
+        param_3.parameterType = 'Required'
+        param_3.direction = 'Output'
+        param_3.datatype = 'Feature Class'
+        output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "Lowest Point Output.lyr")
+        param_3.symbology = output_layer_file_path
+
+        return [param_1, param_2, param_3]
+    def isLicensed(self):
+        return True
+    def updateParameters(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateParameters()
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+    def execute(self, parameters, messages):
+        try:
+            from . import VisibilityUtilities
+        except ImportError:
+            import VisibilityUtilities
+
+        input_area = parameters[0].valueAsText
+        input_surface = parameters[1].valueAsText
+        output_lowest_point_features = parameters[2].valueAsText
+        hi_low_Switch = 'MINIMUM'
+
+        out_lowest_points = VisibilityUtilities.hi_lowPointByArea(input_area,
+                                                                    input_surface,
+                                                                    hi_low_Switch,
+                                                                    output_lowest_point_features)
+        return out_lowest_points		
