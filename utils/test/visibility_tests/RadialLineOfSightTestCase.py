@@ -72,16 +72,23 @@ class RadialLineOfSightTestCase(unittest.TestCase):
 
         self.outputRLOS = os.path.join(Configuration.militaryScratchGDB, "outputRadialLineOfSight")
 
-        if arcpy.CheckExtension("Spatial") == "Available":
-            arcpy.CheckOutExtension("Spatial")
-            arcpy.AddMessage(".....Spatial checked out")
+        # Note: Should not be necessary since tool does this:
+        #if arcpy.CheckExtension("Spatial") == "Available":
+        #    arcpy.CheckOutExtension("Spatial")
+        #    arcpy.AddMessage(".....Spatial checked out")
 
-        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
+# TODO: Remove this when all test case are ported to pyt toolbox 
+        Configuration.toolboxUnderTest = Configuration.military_ToolboxPath
+        Configuration.Platform = None # This will force this to be refetched 
+# END TODO
+
+        arcpy.ImportToolbox(Configuration.toolboxUnderTest)
 
     def tearDown(self):
         Configuration.Logger.debug("     RadialLineOfSightTestCase.tearDown")
-        arcpy.CheckInExtension("Spatial");
         UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+        # Note: Should not be necessary since tool does this:
+        # arcpy.CheckInExtension("Spatial");
 
     def test_radial_line_of_sight(self):
         ''' Test Radial Line Of Sight in ArcGIS Desktop'''
@@ -91,8 +98,32 @@ class RadialLineOfSightTestCase(unittest.TestCase):
         if arcpy.Exists(self.outputRLOS) :
             arcpy.Delete_management(self.outputRLOS)
 
-        arcpy.RadialLineOfSight_mt(self.observers, 2.0, 2000.0, self.inputSurface, self.outputRLOS)
+        inputObserverHeight = 2.0
+        inputRadiusOfObserver = 2000.0
 
+        toolOutput = None
+        try : 
+            toolOutput = arcpy.RadialLineOfSight_mt(self.observers, 
+                                                    inputObserverHeight, 
+                                                    inputRadiusOfObserver, 
+                                                    self.inputSurface, 
+                                                    self.outputRLOS)
+        except:
+            # WORKAROUND: To arpy exception with Pro: 
+            # "DeprecationWarning: Product and extension licensing is no longer handled with this method."
+            # when this tool is run in Pro from unit test driver
+            pass
+
+        # WORKAROUND: see about - toolOutput not being set because of exception on return
+        Configuration.GetPlatform()
+        if (Configuration.Platform != Configuration.PLATFORM_PRO):
+            # 1: Check the expected return value
+            self.assertIsNotNone(toolOutput, "No output returned from tool")
+
+            outputRLOSOut = toolOutput.getOutput(0)
+            self.assertEqual(self.outputRLOS, outputRLOSOut, "Unexpected return value from tool") 
+
+        # 2: Verify output was created
         self.assertTrue(arcpy.Exists(self.outputRLOS), "Output dataset does not exist or was not created")
         featureCount = int(arcpy.GetCount_management(self.outputRLOS).getOutput(0))
         expectedFeatures = int(500)

@@ -53,7 +53,7 @@ militaryScratchGDB = os.path.normpath(os.path.join(currentPath, "scratch.gdb"))
 militaryToolboxesPath = os.path.normpath(os.path.join(currentPath, r"../../toolboxes/"))
 military_ProToolboxPath = os.path.normpath(os.path.join(militaryToolboxesPath, "Military_Tools_pro.tbx"))
 military_DesktopToolboxPath = os.path.normpath(os.path.join(militaryToolboxesPath, "Military_Tools_arcmap.tbx"))
-military_ToolboxPath  = os.path.normpath(os.path.join(militaryToolboxesPath, "Military_Tools.pyt"))
+military_ToolboxPath  = os.path.normpath(os.path.join(militaryToolboxesPath, "Military Tools.pyt"))
 toolboxUnderTest = None # Set to Pro or ArcMap toolbox at runtime
 
 ''' Conversion Path'''

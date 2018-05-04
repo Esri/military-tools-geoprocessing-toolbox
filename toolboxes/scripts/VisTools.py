@@ -606,4 +606,505 @@ class RadialLineOfSightAndRange(object):
 
         return viewshed, sectorWedge, fullWedge
 
+class LinearLineOfSight(object):
+    
+    def __init__(self):
+        self.label = u'Linear Line Of Sight'
+        self.description = u'Creates line(s) of sight between observers and targets.'
+        self.canRunInBackground = False
+        self.category = "Visibility"
 
+    def getParameterInfo(self):
+        # Observers
+        param_1 = arcpy.Parameter()
+        param_1.name = u'Observers'
+        param_1.displayName = u'Observers'
+        param_1.parameterType = 'Required'
+        param_1.direction = 'Input'
+        param_1.datatype = u'Feature Set'
+        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "LLOS_InputObserversGDB.lyr")
+        param_1.value = input_layer_file_path
+
+        # Observer_Height_Above_Surface
+        param_2 = arcpy.Parameter()
+        param_2.name = u'Observer_Height_Above_Surface'
+        param_2.displayName = u'Observer Height Above Surface'
+        param_2.parameterType = 'Required'
+        param_2.direction = 'Input'
+        param_2.datatype = u'Double'
+        param_2.value = u'2'
+
+        # Targets
+        param_3 = arcpy.Parameter()
+        param_3.name = u'Targets'
+        param_3.displayName = u'Targets'
+        param_3.parameterType = 'Required'
+        param_3.direction = 'Input'
+        param_3.datatype = u'Feature Set'
+        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "LLOS_InputTargetsGDB.lyr")
+        param_3.value = input_layer_file_path
+
+        # Target_Height_Above_Surface
+        param_4 = arcpy.Parameter()
+        param_4.name = u'Target_Height_Above_Surface'
+        param_4.displayName = u'Target Height Above Surface'
+        param_4.parameterType = 'Required'
+        param_4.direction = 'Input'
+        param_4.datatype = u'Double'
+        param_4.value = u'0'
+
+        # Input_Elevation_Surface
+        param_5 = arcpy.Parameter()
+        param_5.name = u'Input_Elevation_Surface'
+        param_5.displayName = u'Input Elevation Surface'
+        param_5.parameterType = 'Required'
+        param_5.direction = 'Input'
+        param_5.datatype = u'Raster Layer'
+
+        # Output_Line_Of_Sight_Features
+        param_6 = arcpy.Parameter()
+        param_6.name = u'Output_Line_Of_Sight_Features'
+        param_6.displayName = u'Output Line Of Sight Features'
+        param_6.parameterType = 'Required'
+        param_6.direction = 'Output'
+        param_6.datatype = u'Feature Class'
+        param_6.value = u'%scratchGDB%/outputLOS'
+        param_6.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                            "layers", "LLOS_OutputLLOS.lyr")
+
+        # Output_Sight_Line_Features
+        param_7 = arcpy.Parameter()
+        param_7.name = u'Output_Sight_Line_Features'
+        param_7.displayName = u'Output Sight Line Features'
+        param_7.parameterType = 'Required'
+        param_7.direction = 'Output'
+        param_7.datatype = u'Feature Class'
+        param_7.value = u'%scratchGDB%/outputSightLines'
+        param_7.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                            "layers", "LLOS_OutputSightLines.lyr")
+
+        # Output_Observer_Features
+        param_8 = arcpy.Parameter()
+        param_8.name = u'Output_Observer_Features'
+        param_8.displayName = u'Output Observer Features'
+        param_8.parameterType = 'Required'
+        param_8.direction = 'Output'
+        param_8.datatype = u'Feature Class'
+        param_8.value = u'%scratchGDB%/outputObservers'
+        param_8.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                            "layers", "LLOS_Output_Observers.lyr")
+
+        # Output_Target_Features
+        param_9 = arcpy.Parameter()
+        param_9.name = u'Output_Target_Features'
+        param_9.displayName = u'Output Target Features'
+        param_9.parameterType = 'Required'
+        param_9.direction = 'Output'
+        param_9.datatype = u'Feature Class'
+        param_9.value = u'%scratchGDB%/outputTargets'
+        param_9.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                            "layers", "LLOS_Output_Targets.lyr")
+
+        # Input_Obstruction_Features
+        param_10 = arcpy.Parameter()
+        param_10.name = u'Input_Obstruction_Features'
+        param_10.displayName = u'Input Obstruction Features'
+        param_10.parameterType = 'Optional'
+        param_10.direction = 'Input'
+        param_10.datatype = u'Feature Layer'
+
+        return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8, param_9, param_10]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateParameters()
+
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+
+    def execute(self, parameters, messages):
+
+        inputObserverFeatures = parameters[0].valueAsText # 0 - Observers
+        inputObserverHeight = parameters[1].value # 1 - Observer Height Above Surface
+        inputTargetFeatures = parameters[2].valueAsText # 2 - Targets
+        inputTargetHeight = parameters[3].value # 3 - Target Height Above Surface
+        inputSurface = parameters[4].valueAsText # 4 - Input Elevation Surface
+        outputLineOfSight = parameters[5].valueAsText # 5 - Output Line Of Sight Features
+        outputSightLines = parameters[6].valueAsText # 6 - Output Sight Lines
+        outputObservers = parameters[7].valueAsText # 7 - Output Observers
+        outputTargets = parameters[8].valueAsText # 8 - Output Targets
+        inputObstructionFeatures = parameters[9].valueAsText # 9 - Input Obstruction Features - optional
+
+        arcpy.env.overwriteOutput = True
+
+        llos = VisibilityUtilities.linearLineOfSight(inputObserverFeatures,
+                                                inputObserverHeight,
+                                                inputTargetFeatures,
+                                                inputTargetHeight,
+                                                inputSurface,
+                                                outputLineOfSight,
+                                                outputSightLines,
+                                                outputObservers,
+                                                outputTargets,
+                                                inputObstructionFeatures)
+
+        # Set output
+        return llos[0],llos[1],llos[2],llos[3]
+
+class RadialLineOfSight(object):
+
+    def __init__(self):
+        self.label = u'Radial Line Of Sight'
+        self.description = u'Shows the areas visible (green) and not visible (red) to an observer at a specified distance and viewing angle.'
+        self.canRunInBackground = False
+        self.category = "Visibility"
+
+    def getParameterInfo(self):
+
+        # Input_Observer_Features
+        param_1 = arcpy.Parameter()
+        param_1.name = u'Input_Observer_Features'
+        param_1.displayName = u'Input Observer Features'
+        param_1.parameterType = 'Required'
+        param_1.direction = 'Input'
+        param_1.datatype = u'Feature Set'
+        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "LLOS_InputObserversGDB.lyr")
+        param_1.value = input_layer_file_path
+
+        # Observer_Height_Above_Surface
+        param_2 = arcpy.Parameter()
+        param_2.name = u'Observer_Height_Above_Surface'
+        param_2.displayName = u'Observer Height Above Surface'
+        param_2.parameterType = 'Required'
+        param_2.direction = 'Input'
+        param_2.datatype = u'Double'
+        param_2.value = u'2'
+
+        # Radius_Of_Observer
+        param_3 = arcpy.Parameter()
+        param_3.name = u'Radius_Of_Observer'
+        param_3.displayName = u'Radius Of Observer'
+        param_3.parameterType = 'Required'
+        param_3.direction = 'Input'
+        param_3.datatype = u'Double'
+        param_3.value = u'1000'
+
+        # Input_Surface
+        param_4 = arcpy.Parameter()
+        param_4.name = u'Input_Surface'
+        param_4.displayName = u'Input Surface'
+        param_4.parameterType = 'Required'
+        param_4.direction = 'Input'
+        param_4.datatype = u'Raster Layer'
+
+        # Output_Visibility
+        param_5 = arcpy.Parameter()
+        param_5.name = u'Output_Visibility'
+        param_5.displayName = u'Output Visibility'
+        param_5.parameterType = 'Required'
+        param_5.direction = 'Output'
+        param_5.datatype = u'Feature Class'
+        param_5.value = u'%scratchGDB%/outputRLOS'
+        param_5.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                            "layers", "Radial Line Of Sight Output.lyr")
+
+        # Force_Visibility_To_Infinity__Edge_Of_Surface_
+        param_6 = arcpy.Parameter()
+        param_6.name = u'Force_Visibility_To_Infinity__Edge_Of_Surface_'
+        param_6.displayName = u'Force Visibility To Infinity (Edge Of Surface)'
+        param_6.parameterType = 'Optional'
+        param_6.direction = 'Input'
+        param_6.datatype = u'Boolean'
+
+        # Spatial_Reference
+        param_7 = arcpy.Parameter()
+        param_7.name = u'Spatial_Reference'
+        param_7.displayName = u'Spatial Reference'
+        param_7.parameterType = 'Optional'
+        param_7.direction = 'Input'
+        param_7.datatype = u'Spatial Reference'
+        param_7.value = arcpy.SpatialReference(54032).exportToString() # World Azimuthal Equidistant
+
+        return [param_1, param_2, param_3, param_4, param_5, param_6, param_7]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateParameters()
+
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+
+    def execute(self, parameters, messages):
+
+        inputObserverFeatures = parameters[0].valueAsText # Input Observer Features
+        inputObserverHeight = parameters[1].value # Observer Height Above Surface
+        inputRadiusOfObserver = parameters[2].value # Radius Of Observer
+        inputSurface = parameters[3].valueAsText # Input Surface
+        outputVisibility = parameters[4].valueAsText # Output Visibility
+        inputForceVisibility = parameters[5].value # Force Visibility To Infinity (Edge of Surace)
+        inputSpatialReference = parameters[6].value # Spatial Reference
+        inputSpatialReferenceAsText = parameters[6].valueAsText
+
+        if inputSpatialReferenceAsText == "#" or inputSpatialReferenceAsText == '':
+            inputSpatialReference = arcpy.SpatialReference(54032) # World Azimuthal Equidistant
+
+        arcpy.env.overwriteOutput = True
+
+        outputVisibilityOut = VisibilityUtilities.radialLineOfSight(inputObserverFeatures,
+                                              inputObserverHeight,
+                                              inputRadiusOfObserver,
+                                              inputSurface,
+                                              outputVisibility,
+                                              inputForceVisibility,
+                                              inputSpatialReference)
+
+        # Set output
+        return outputVisibilityOut
+
+class FindLocalPeaks(object):
+    def __init__(self):
+        self.label = 'Find Local Peaks'
+        self.description = 'Finds the highest local maximums within the defined area. Peaks are found by inverting the surface and then finding the sinks in the surface. These points are then used to extract elevation values from the original surface, sorted based on elevation.'
+        self.category = "Visibility"
+        self.canRunInBackground = False
+
+    def getParameterInfo(self):
+        # Input_Area
+        param_1 = arcpy.Parameter()
+        param_1.name = 'Input_Area'
+        param_1.displayName = 'Input Area'
+        param_1.parameterType = 'Required'
+        param_1.direction = 'Input'
+        param_1.datatype = 'Feature Set'
+        # Set the Feature Set schema
+        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "InputArea_FeatureSetGDB.lyr")
+        param_1.value = input_layer_file_path
+
+        # Number_Of_Peaks
+        param_2 = arcpy.Parameter()
+        param_2.name = 'Number_Of_Peaks'
+        param_2.displayName = 'Number Of Peaks'
+        param_2.parameterType = 'Required'
+        param_2.direction = 'Input'
+        param_2.datatype = 'Long'
+        param_2.value = '10'
+
+        # Input_Surface
+        param_3 = arcpy.Parameter()
+        param_3.name = 'Input_Surface'
+        param_3.displayName = 'Input Surface'
+        param_3.parameterType = 'Required'
+        param_3.direction = 'Input'
+        param_3.datatype = 'Raster Layer'
+
+        # Output_Peak_Features
+        param_4 = arcpy.Parameter()
+        param_4.name = 'Output_Peak_Features'
+        param_4.displayName = 'Output Peak Features'
+        param_4.parameterType = 'Required'
+        param_4.direction = 'Output'
+        param_4.datatype = 'Feature Class'
+        output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "Highest Point Output.lyr")
+        param_4.symbology = output_layer_file_path								  
+
+        return [param_1, param_2, param_3, param_4]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        """Modify the values and properties of parameters before internal
+        validation is performed.  This method is called whenever a parameter
+        has been changed."""
+        # 0 - Input Area
+        # 1 - Number Of Peaks
+        # 2 - Input Surface
+        # 3 - Output Peak Features
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateParameters()
+        return
+
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+
+    def execute(self, parameters, messages):
+        try:
+            from . import VisibilityUtilities
+        except ImportError:
+            import VisibilityUtilities
+
+        input_area = parameters[0].valueAsText
+        number_of_peaks = parameters[1].valueAsText
+        input_surface = parameters[2].valueAsText
+        output_peak_features = parameters[3].valueAsText
+
+        out_findLocalPeaks = VisibilityUtilities.findLocalPeaks(input_area,
+                                                                    number_of_peaks,
+                                                                    input_surface,
+                                                                    output_peak_features)
+
+        return out_findLocalPeaks
+
+class HighestPoints(object):
+    def __init__(self):
+        self.label = 'Highest Points'
+        self.description = 'Finds the highest point (or points if several have the same elevation) of the input surface within a defined area.'
+        self.category = "Visibility"
+        self.canRunInBackground = False
+
+    def getParameterInfo(self):
+        # Input_Area
+        param_1 = arcpy.Parameter()
+        param_1.name = 'Input_Area'
+        param_1.displayName = 'Input Area'
+        param_1.parameterType = 'Required'
+        param_1.direction = 'Input'
+        param_1.datatype = 'Feature Set'
+        # Set the Feature Set schema
+        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "InputArea_FeatureSetGDB.lyr")
+        param_1.value = input_layer_file_path
+
+        # Input_Surface
+        param_2 = arcpy.Parameter()
+        param_2.name = 'Input_Surface'
+        param_2.displayName = 'Input Surface'
+        param_2.parameterType = 'Required'
+        param_2.direction = 'Input'
+        param_2.datatype = 'Raster Layer'
+
+        # Output_Highest_Point_Features
+        param_3 = arcpy.Parameter()
+        param_3.name = 'Output_Highest_Point_Features'
+        param_3.displayName = 'Output Highest Point Features'
+        param_3.parameterType = 'Required'
+        param_3.direction = 'Output'
+        param_3.datatype = 'Feature Class'
+        output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "Highest Point Output.lyr")
+        param_3.symbology = output_layer_file_path									  
+
+        return [param_1, param_2, param_3]
+
+    def isLicensed(self):
+        return True
+    def updateParameters(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateParameters()
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+    def execute(self, parameters, messages):
+        try:
+            from . import VisibilityUtilities
+        except ImportError:
+            import VisibilityUtilities
+
+        input_area = parameters[0].valueAsText
+        input_surface = parameters[1].valueAsText
+        output_highest_point_features = parameters[2].valueAsText
+        hi_low_Switch = 'MAXIMUM'
+
+        out_highest_points = VisibilityUtilities.hi_lowPointByArea(input_area,
+                                                                    input_surface,
+                                                                    hi_low_Switch,
+                                                                    output_highest_point_features)
+        return out_highest_points
+
+class LowestPoints(object):
+    def __init__(self):
+        self.label = 'Lowest Points'
+        self.description = 'Finds the lowest point (or points if several have the same elevation) of the input surface within a defined area.'
+        self.category = "Visibility"
+        self.canRunInBackground = False
+
+    def getParameterInfo(self):
+        # Input_Area
+        param_1 = arcpy.Parameter()
+        param_1.name = 'Input_Area'
+        param_1.displayName = 'Input Area'
+        param_1.parameterType = 'Required'
+        param_1.direction = 'Input'
+        param_1.datatype = 'Feature Set'
+        # Set the Feature Set schema
+        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "InputArea_FeatureSetGDB.lyr")
+        param_1.value = input_layer_file_path
+
+        # Input_Surface
+        param_2 = arcpy.Parameter()
+        param_2.name = 'Input_Surface'
+        param_2.displayName = 'Input Surface'
+        param_2.parameterType = 'Required'
+        param_2.direction = 'Input'
+        param_2.datatype = 'Raster Layer'
+
+        # Output_Lowest_Point_Features
+        param_3 = arcpy.Parameter()
+        param_3.name = 'Output_Lowest_Point_Features'
+        param_3.displayName = 'Output Lowest Point Features'
+        param_3.parameterType = 'Required'
+        param_3.direction = 'Output'
+        param_3.datatype = 'Feature Class'
+        output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "Lowest Point Output.lyr")
+        param_3.symbology = output_layer_file_path
+
+        return [param_1, param_2, param_3]
+    def isLicensed(self):
+        return True
+    def updateParameters(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateParameters()
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+    def execute(self, parameters, messages):
+        try:
+            from . import VisibilityUtilities
+        except ImportError:
+            import VisibilityUtilities
+
+        input_area = parameters[0].valueAsText
+        input_surface = parameters[1].valueAsText
+        output_lowest_point_features = parameters[2].valueAsText
+        hi_low_Switch = 'MINIMUM'
+
+        out_lowest_points = VisibilityUtilities.hi_lowPointByArea(input_area,
+                                                                    input_surface,
+                                                                    hi_low_Switch,
+                                                                    output_lowest_point_features)
+        return out_lowest_points		
