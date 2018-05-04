@@ -924,7 +924,10 @@ class FindLocalPeaks(object):
         param_4.parameterType = 'Required'
         param_4.direction = 'Output'
         param_4.datatype = 'Feature Class'
-        param_4.value = '%scratchGDB%/localPeaks'
+        output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "Highest Point Output.lyr")
+        param_4.value = output_layer_file_path								  
 
         return [param_1, param_2, param_3, param_4]
 
@@ -1003,7 +1006,10 @@ class HighestPoints(object):
         param_3.parameterType = 'Required'
         param_3.direction = 'Output'
         param_3.datatype = 'Feature Class'
-        param_3.value = '%scratchGDB%/highestPoints'
+        output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "Highest Point Output.lyr")
+        param_3.value = output_layer_file_path									  
 
         return [param_1, param_2, param_3]
 
@@ -1070,7 +1076,10 @@ class LowestPoints(object):
         param_3.parameterType = 'Required'
         param_3.direction = 'Output'
         param_3.datatype = 'Feature Class'
-        param_3.value = '%scratchGDB%/lowestPoints'
+        output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                          "layers",
+                                          "Lowest Point Output.lyr")
+        param_3.value = output_layer_file_path
 
         return [param_1, param_2, param_3]
     def isLicensed(self):
