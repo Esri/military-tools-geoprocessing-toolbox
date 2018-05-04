@@ -894,7 +894,6 @@ class FindLocalPeaks(object):
         param_1.parameterType = 'Required'
         param_1.direction = 'Input'
         param_1.datatype = 'Feature Set'
-        #param_1.value = 'in_memory\\{9757D20F-0ABF-4B3A-A740-F7B237EDEA57}'
         # Set the Feature Set schema
         input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                           "layers",
@@ -983,7 +982,6 @@ class HighestPoints(object):
         param_1.parameterType = 'Required'
         param_1.direction = 'Input'
         param_1.datatype = 'Feature Set'
-        #param_1.value = 'in_memory\\{5681EEEB-58A0-4368-84F9-EFE0DA181A74}'
         # Set the Feature Set schema
         input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                           "layers",
@@ -1051,7 +1049,6 @@ class LowestPoints(object):
         param_1.parameterType = 'Required'
         param_1.direction = 'Input'
         param_1.datatype = 'Feature Set'
-        #param_1.value = 'in_memory\\{35E2B4F4-CF01-4F72-A588-68AAE10EAF69}'
         # Set the Feature Set schema
         input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                           "layers",
