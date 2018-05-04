@@ -35,20 +35,237 @@ try:
     from . import ConversionUtilities
 except ImportError:
     import ConversionUtilities
-    
+
+# String constants shared by tools:
+defaultcoordinateFormat = u'DD_2'
+coordinateFormats = [u'DD_1', u'DD_2', u'DDM_1', u'DDM_2', u'DMS_1', u'DMS_2', u'GARS', u'GEOREF', u'UTM_BANDS', u'UTM_ZONES', u'USNG', u'MGRS']
+singleFieldTypes = ["DD_1", "DDM_1", "DMS_1", "GARS", "GEOREF", "UTM_BANDS", "UTM_ZONES", "USNG", "MGRS"]
+defaultLineType = "GEODESIC"
+lineTypes = ["GEODESIC", "GREAT_CIRCLE", "RHUMB_LINE", "NORMAL_SECTION"]
+defaultAngleType = "DEGREES"
+angleTypes = ["DEGREES", "MILS", "RADS", "GRADS"]
+defaultDistanceType = "METERS"
+distanceTypes = ["METERS", "KILOMETERS", "MILES", "NAUTICAL_MILES", "FEET", "US_SURVEY_FEET"]
+
+# Other shared objects
+srWGS84 = arcpy.SpatialReference(4326)  # GCS_WGS_1984
+
+class ConvertCoordinates(object):
+
+    def __init__(self):
+        self.label = u'Convert Coordinates'
+        self.description = u'Converts source coordinates in a table to multiple coordinate formats.  This tool uses an input table with coordinates and outputs a new table with fields for the following coordinate formats: Decimal Degrees, Decimal Degrees Minutes, Degrees Minutes Seconds, Universal Transverse Mercator, Military Grid Reference System, U.S. National Grid, Global Area Reference System, and World Geographic Reference System'
+        self.category = u'Conversion'
+        self.canRunInBackground = False
+
+    def getParameterInfo(self):
+        # Input_Table
+        param_1 = arcpy.Parameter()
+        param_1.name = u'Input_Table'
+        param_1.displayName = u'Input Table'
+        param_1.parameterType = 'Required'
+        param_1.direction = 'Input'
+        param_1.datatype = u'Table View'
+
+        # Input_Coordinate_Format
+        param_2 = arcpy.Parameter()
+        param_2.name = u'Input_Coordinate_Format'
+        param_2.displayName = u'Input Coordinate Format'
+        param_2.parameterType = 'Required'
+        param_2.direction = 'Input'
+        param_2.datatype = u'String'
+        param_2.value = defaultcoordinateFormat
+        param_2.filter.list = coordinateFormats
+
+        # X_Field__longitude__UTM__MGRS__USNG__GARS__GEOREF_
+        param_3 = arcpy.Parameter()
+        param_3.name = u'X_Field__longitude__UTM__MGRS__USNG__GARS__GEOREF_'
+        param_3.displayName = u'X Field (longitude, UTM, MGRS, USNG, GARS, GEOREF)'
+        param_3.parameterType = 'Required'
+        param_3.direction = 'Input'
+        param_3.datatype = u'Field'
+        param_3.parameterDependencies = ["Input_Table"]
+
+        # Y_Field__latitude_
+        param_4 = arcpy.Parameter()
+        param_4.name = u'Y_Field__latitude_'
+        param_4.displayName = u'Y Field (latitude)'
+        param_4.parameterType = 'Optional'
+        param_4.direction = 'Input'
+        param_4.datatype = u'Field'
+        param_4.parameterDependencies = ["Input_Table"]
+
+        # Output_Table
+        param_5 = arcpy.Parameter()
+        param_5.name = u'Output_Table'
+        param_5.displayName = u'Output Table'
+        param_5.parameterType = 'Required'
+        param_5.direction = 'Output'
+        param_5.datatype = u'Table'
+        param_5.value = u'%scratchGDB%/convertCoords'
+
+        # Spatial_Reference
+        param_6 = arcpy.Parameter()
+        param_6.name = u'Spatial_Reference'
+        param_6.displayName = u'Spatial Reference'
+        param_6.parameterType = 'Optional'
+        param_6.direction = 'Input'
+        param_6.datatype = u'Spatial Reference'
+        param_6.value = srWGS84.exportToString()
+
+        return [param_1, param_2, param_3, param_4, param_5, param_6]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateParameters()
+
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+
+    def execute(self, parameters, messages):
+
+        #TODO: 
+        pass
+
+class TableTo2PointLine(object):
+
+    def __init__(self):
+        self.label = u'Table To 2-Point Line'
+        self.description = u'Creates a line feature from start and end point coordinates.  This tool uses an input table with coordinate pairs and outputs line features.   '
+        self.category = u'Conversion'
+        self.canRunInBackground = False
+
+    def getParameterInfo(self):
+        # Input_Table
+        param_1 = arcpy.Parameter()
+        param_1.name = u'Input_Table'
+        param_1.displayName = u'Input Table'
+        param_1.parameterType = 'Required'
+        param_1.direction = 'Input'
+        param_1.datatype = u'Table View'
+
+        # Start_Point_Format
+        param_2 = arcpy.Parameter()
+        param_2.name = u'Start_Point_Format'
+        param_2.displayName = u'Start Point Format'
+        param_2.parameterType = 'Required'
+        param_2.direction = 'Input'
+        param_2.datatype = u'String'
+        param_2.value = defaultcoordinateFormat
+        param_2.filter.list = coordinateFormats
+
+        # Start_X_Field__longitude__UTM__MGRS__USNG__GARS__GEOREF_
+        param_3 = arcpy.Parameter()
+        param_3.name = u'Start_X_Field__longitude__UTM__MGRS__USNG__GARS__GEOREF_'
+        param_3.displayName = u'Start X Field (longitude, UTM, MGRS, USNG, GARS, GEOREF)'
+        param_3.parameterType = 'Required'
+        param_3.direction = 'Input'
+        param_3.datatype = u'Field'
+        param_3.parameterDependencies = ["Input_Table"]
+
+        # Start_Y_Field__latitude_
+        param_4 = arcpy.Parameter()
+        param_4.name = u'Start_Y_Field__latitude_'
+        param_4.displayName = u'Start Y Field (latitude)'
+        param_4.parameterType = 'Optional'
+        param_4.direction = 'Input'
+        param_4.datatype = u'Field'
+        param_4.parameterDependencies = ["Input_Table"]
+
+        # End_Point_Format
+        param_5 = arcpy.Parameter()
+        param_5.name = u'End_Point_Format'
+        param_5.displayName = u'End Point Format'
+        param_5.parameterType = 'Required'
+        param_5.direction = 'Input'
+        param_5.datatype = u'String'
+        param_5.value = defaultcoordinateFormat
+        param_5.filter.list = coordinateFormats
+
+        # End_X_Field__longitude__UTM__MGRS__USNG__GARS__GEOREF_
+        param_6 = arcpy.Parameter()
+        param_6.name = u'End_X_Field__longitude__UTM__MGRS__USNG__GARS__GEOREF_'
+        param_6.displayName = u'End X Field (longitude, UTM, MGRS, USNG, GARS, GEOREF)'
+        param_6.parameterType = 'Required'
+        param_6.direction = 'Input'
+        param_6.datatype = u'Field'
+        param_6.parameterDependencies = ["Input_Table"]
+
+        # End_Y_Field__latitude_
+        param_7 = arcpy.Parameter()
+        param_7.name = u'End_Y_Field__latitude_'
+        param_7.displayName = u'End Y Field (latitude)'
+        param_7.parameterType = 'Optional'
+        param_7.direction = 'Input'
+        param_7.datatype = u'Field'
+        param_7.parameterDependencies = ["Input_Table"]
+
+        # Output_Lines
+        param_8 = arcpy.Parameter()
+        param_8.name = u'Output_Lines'
+        param_8.displayName = u'Output Lines'
+        param_8.parameterType = 'Required'
+        param_8.direction = 'Output'
+        param_8.datatype = u'Feature Class'
+        param_8.value = u'%scratchGDB%/outputLines'
+        # TODO ADD SYMBOLOGY:
+        # param_8.symbology = 
+
+        # Line_Type
+        param_9 = arcpy.Parameter()
+        param_9.name = u'Line_Type'
+        param_9.displayName = u'Line Type'
+        param_9.parameterType = 'Optional'
+        param_9.direction = 'Input'
+        param_9.datatype = u'String'
+        param_9.value = defaultLineType
+        param_9.filter.list = lineTypes
+
+        # Spatial_Reference
+        param_10 = arcpy.Parameter()
+        param_10.name = u'Spatial_Reference'
+        param_10.displayName = u'Spatial Reference'
+        param_10.parameterType = 'Optional'
+        param_10.direction = 'Input'
+        param_10.datatype = u'Spatial Reference'
+        param_10.value = srWGS84.exportToString()
+
+        return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8, param_9, param_10]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateParameters()
+
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+
+    def execute(self, parameters, messages):
+
+        #TODO: 
+        pass
+
+
 class TableToPolygon(object):
     '''
     Use an input table to create polygons
     '''
 
-    coordinateFormats = [u'DD_1', u'DD_2', u'DDM_1', u'DDM_2', u'DMS_1', u'DMS_2', u'GARS', u'GEOREF', u'UTM_BANDS', u'UTM_ZONES', u'USNG', u'MGRS']
-
     class ToolValidator(object):
         """Class for validating a tool's parameter values and controlling
         the behavior of the tool's dialog."""
-      
-        singleFieldTypes = ["DD_1", "DDM_1", "DMS_1", "GARS", "GEOREF", "UTM_BANDS", "UTM_ZONES", "USNG", "MGRS"]
-    
+          
         def __init__(self, parameters):
             """Setup arcpy and the list of tool parameters."""
             self.params = parameters
@@ -72,7 +289,7 @@ class TableToPolygon(object):
             #0 - Input Table
             #1 - Input Coordinate Format
             if self.params[1].altered:
-                if self.params[1].value in self.singleFieldTypes:
+                if self.params[1].value in singleFieldTypes:
                     self.params[3].value = self.params[2].value
                     self.params[3].enabled = False
                 else:
@@ -90,7 +307,7 @@ class TableToPolygon(object):
             #1 - Input Coordinate Format
             #2 - X Field
             #3 - Y Field
-            if not self.params[1].value in self.singleFieldTypes:
+            if not self.params[1].value in singleFieldTypes:
                 if self.params[3].value == None or self.params[3].value == "":
                     self.params[3].setErrorMessage("Coordinate formats 'DD_2', 'DDM_2', and 'DMS_2' require both X Field and Y Field from the input table.")
             #4 - Output Table
@@ -120,8 +337,8 @@ class TableToPolygon(object):
         param_1.parameterType = 'Required'
         param_1.direction = 'Input'
         param_1.datatype = u'String'
-        param_1.value = u'DD_2'
-        param_1.filter.list = self.coordinateFormats
+        param_1.value = defaultcoordinateFormat
+        param_1.filter.list = coordinateFormats
 
         # X_Field__Longitude__UTM__MGRS__USNG__GARS__GeoRef_
         param_2 = arcpy.Parameter()
@@ -175,7 +392,7 @@ class TableToPolygon(object):
         param_7.parameterType = 'Optional'
         param_7.direction = 'Input'
         param_7.datatype = u'Spatial Reference'
-        param_7.value = arcpy.SpatialReference(4326).exportToString()
+        param_7.value = srWGS84.exportToString()
                
         return [param_0,
                 param_1,
