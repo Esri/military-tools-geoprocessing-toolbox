@@ -927,7 +927,7 @@ class FindLocalPeaks(object):
         output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                           "layers",
                                           "Highest Point Output.lyr")
-        param_4.value = output_layer_file_path								  
+        param_4.symbology = output_layer_file_path								  
 
         return [param_1, param_2, param_3, param_4]
 
@@ -1009,7 +1009,7 @@ class HighestPoints(object):
         output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                           "layers",
                                           "Highest Point Output.lyr")
-        param_3.value = output_layer_file_path									  
+        param_3.symbology = output_layer_file_path									  
 
         return [param_1, param_2, param_3]
 
@@ -1079,7 +1079,7 @@ class LowestPoints(object):
         output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                           "layers",
                                           "Lowest Point Output.lyr")
-        param_3.value = output_layer_file_path
+        param_3.symbology = output_layer_file_path
 
         return [param_1, param_2, param_3]
     def isLicensed(self):
