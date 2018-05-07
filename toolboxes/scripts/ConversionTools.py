@@ -181,8 +181,30 @@ class ConvertCoordinates(object):
 
     def execute(self, parameters, messages):
 
-        #TODO: 
-        pass
+        try:
+            from . import ConvertCoordinates
+        except ImportError:
+            import ConvertCoordinates
+
+        inputTable = parameters[0].valueAsText
+        inputCoordinateFormat = parameters[1].valueAsText
+        inputXField = parameters[2].valueAsText
+        inputYField = parameters[3].valueAsText
+        outputTable = parameters[4].valueAsText
+        optionalSpatialReference = parameters[5].value
+        optionalSpatialReferenceAsText = parameters[5].valueAsText
+
+        if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
+            optionalSpatialReference = srWGS84 #GCS_WGS_1984
+
+        output = ConvertCoordinates.convertCoordinates(inputTable,
+                           inputCoordinateFormat,
+                           inputXField,
+                           inputYField,
+                           outputTable,
+                           optionalSpatialReference)
+
+        return output
 
     # END ConvertCoordinates
 
