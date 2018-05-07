@@ -47,11 +47,11 @@ class Toolbox(object):
 					# Conversion 
 					ConvertCoordinates,
 					TableTo2PointLine, 
-					# TableToLineOfBearing, 
-					# TableToPoint, 
+					TableToLineOfBearing, 
+					TableToPoint, 
 					TableToPolygon, 
-					# TableToPolyline, 
-					# TableToEllipse,
+					TableToPolyline, 
+					TableToEllipse,
 
 					# DistanceAndDirection
 					RangeRingsFromInterval, 
