@@ -37,16 +37,6 @@ import sys, os, traceback
 import arcpy
 from arcpy import env
 
-# Script arguments
-inputTable = arcpy.GetParameterAsText(0)
-inputCoordinateFormat = arcpy.GetParameterAsText(1)
-inputXField = arcpy.GetParameterAsText(2)
-inputYField = arcpy.GetParameterAsText(3)
-outputTable = arcpy.GetParameterAsText(4)
-inputSpatialReference = arcpy.GetParameterAsText(5)
-if not inputSpatialReference:
-    inputSpatialReference = arcpy.SpatialReference(4326) #GCS_WGS_1984
-
 deleteIntermediateDatasets = []
 DEBUG = False
 
@@ -75,7 +65,8 @@ def addUniqueID(dataset, fieldName):
         #print msgs #UPDATE
         print(msgs)
 
-def addNotation(notationType, fieldsToAdd, joinFieldName, outputTable, scratchTable):
+def addNotation(notationType, fieldsToAdd, joinFieldName, outputTable, scratchTable,
+                inputXField, inputYField, inputCoordinateFormat, inputSpatialReference):
     ''' '''
     try:
         arcpy.AddMessage("Converting & appending {0} with fields {1} ...".format(notationType, fieldsToAdd))
@@ -161,7 +152,8 @@ def convertCoordinates(inputTable,
     
         for notationFormat in notationsToAdd:
             if not addNotation(notationFormat, notationsToAdd[notationFormat],
-                               joinFieldName, outputTable, scratchTable):
+                               joinFieldName, outputTable, scratchTable, 
+                               inputXField, inputYField, inputCoordinateFormat, inputSpatialReference):
                 raise Exception("Failed to convert notation {0}.".format(notationFormat))
     
         # cleanup
@@ -204,6 +196,17 @@ def convertCoordinates(inputTable,
 
 # MAIN =============================================
 if __name__ == "__main__":
+
+    # Script arguments
+    inputTable = arcpy.GetParameterAsText(0)
+    inputCoordinateFormat = arcpy.GetParameterAsText(1)
+    inputXField = arcpy.GetParameterAsText(2)
+    inputYField = arcpy.GetParameterAsText(3)
+    outputTable = arcpy.GetParameterAsText(4)
+    inputSpatialReference = arcpy.GetParameterAsText(5)
+    if not inputSpatialReference:
+        inputSpatialReference = arcpy.SpatialReference(4326) #GCS_WGS_1984
+
     output = convertCoordinates(inputTable,
                        inputCoordinateFormat,
                        inputXField,
