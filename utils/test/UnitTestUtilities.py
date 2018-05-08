@@ -184,14 +184,15 @@ def checkGeoObjects(objects):
     ''' check geospatial stuff exists '''
     if Configuration.DEBUG == True: print("UnitTestUtilities - checkGeoObjects")
     for object2Check in objects:
-        #TODO: Shouldn't we be using arcpy.Exists()?
-        desc = arcpy.Describe(object2Check)
-        if desc == None:
-            print("--> Invalid Object: " + str(object2Check))
-            arcpy.AddError("Bad Input")
-            raise Exception('Bad Input')
+        if not arcpy.Exists(object2Check):
+            # Might also just be normal file that describe doesn't recognize, 
+            # so check the file/path case also
+            if not os.path.exists(str(object2Check)) : 
+                print("--> Invalid Object: " + str(object2Check))
+                arcpy.AddError('Bad Input: ' + str(object2Check))
+                raise Exception('Bad Input' + str(object2Check))
         else:
-            if Configuration.DEBUG == True: print("Valid Object: " + desc.Name)
+            if Configuration.DEBUG == True: print("Valid Object: " + object2Check)
 
 def handleArcPyError():
     ''' Basic GP error handling, errors printed to console and logger '''

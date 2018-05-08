@@ -116,24 +116,25 @@ def GetPlatform() :
         import arcpy
 
         Platform = PLATFORM_DESKTOP
-        toolboxUnderTest = military_DesktopToolboxPath
 
         installInfo = arcpy.GetInstallInfo()
         if installInfo['ProductName'] == 'ArcGISPro':
             Platform = PLATFORM_PRO
-            toolboxUnderTest = military_ProToolboxPath
             checkTokenizeWorkaround()
+
+        # Both Pro and ArcMap just the .pyt toolbox now:
+        toolboxUnderTest = military_ToolboxPath
+
+        #############################################
+        # If for some reason we want to use/test the old .tbx toolbox version
+        # set the flag below to use this code
+        USE_TBX_VERSIONS = False
+        if USE_TBX_VERSIONS : 
+            if Platform == PLATFORM_PRO:
+                toolboxUnderTest = military_DesktopToolboxPath
+            else:
+                toolboxUnderTest = military_ProToolboxPath
+        #############################################
 
     return Platform
 
-def GetToolboxSuffix() :
-
-    platform = GetPlatform()
-
-    # default to ArcMap
-    suffix = "_arcmap.tbx"
-
-    if Platform == PLATFORM_PRO :
-        suffix = "_pro.tbx"
-
-    return suffix
