@@ -402,8 +402,38 @@ class TableTo2PointLine(object):
 
     def execute(self, parameters, messages):
 
-        #TODO: 
-        pass
+        inputTable = parameters[0].valueAsText # Input Table
+        inputStartCoordinateFormat = parameters[1].valueAsText # Start Point Format (from Value List)
+        inputStartXField = parameters[2].valueAsText # Start X Field (longitude, UTM, MGRS, USNG, GARS, GEOREF)(from Input Table)
+        inputStartYField = parameters[3].valueAsText # Start Y Field (latitude)(from Input Table)
+        inputEndCoordinateFormat = parameters[4].valueAsText # End Point Format (from Value List)
+        inputEndXField = parameters[5].valueAsText # End X Field (longitude, UTM, MGRS, USNG, GARS, GEOREF)(from Input Table)
+        inputEndYField = parameters[6].valueAsText # End Y Field (latitude) (from Input Table)
+        outputLineFeatures = parameters[7].valueAsText # Output Line
+        inputLineType = parameters[8].valueAsText # Line Type (from Value List)
+        optionalSpatialReference = parameters[9].value # Spatial Reference
+        optionalSpatialReferenceAsText = parameters[9].valueAsText
+
+        if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
+            optionalSpatialReference = srWGS84 #GCS_WGS_1984
+
+        arcpy.env.overwriteOutput = True
+
+        outputLineFeaturesOut = ConversionUtilities.tableTo2PointLine(inputTable,
+                                              inputStartCoordinateFormat,
+                                              inputStartXField,
+                                              inputStartYField,
+                                              inputEndCoordinateFormat,
+                                              inputEndXField,
+                                              inputEndYField,
+                                              outputLineFeatures,
+                                              inputLineType,
+                                              optionalSpatialReference)
+
+        # Set output
+        return outputLineFeaturesOut
+
+    # END TableTo2PointLine
 
 # -----------------------------------------------------------------------------
 # TableToLineOfBearing Tool
