@@ -126,7 +126,7 @@ class CreateGRGFromArea(object):
                                    'Alpha-Alpha',
                                    'Numeric']
         label_type.value = label_type.filter.list[0]
-        
+
         label_seperator = arcpy.Parameter(name='label_seperator',
                                       displayName='Separator (Only used for Alpha-Alpha labeling)',
                                       direction='Input',
@@ -219,7 +219,7 @@ class CreateGRGFromPoint(object):
         input_start_location.value = input_layer_file_path
 
         horizontal_cells = arcpy.Parameter(name='horizontal_cells',
-                                           displayName='Number of Horizontal Grid Cells',
+                                           displayName='Number of Rows',
                                            direction='Input',
                                            datatype='GPDouble',
                                            parameterType='Required',
@@ -228,7 +228,7 @@ class CreateGRGFromPoint(object):
         horizontal_cells.value = 10
 
         vertical_cells = arcpy.Parameter(name='vertical_cells',
-                                         displayName='Number of Vertical Grid Cells',
+                                         displayName='Number of Columns',
                                          direction='Input',
                                          datatype='GPDouble',
                                          parameterType='Required',
@@ -293,7 +293,7 @@ class CreateGRGFromPoint(object):
                                    'Alpha-Alpha',
                                    'Numeric']
         label_type.value = label_type.filter.list[0]
-        
+
         label_seperator = arcpy.Parameter(name='label_seperator',
                                       displayName='Separator (Only used for Alpha-Alpha labeling)',
                                       direction='Input',
@@ -305,7 +305,7 @@ class CreateGRGFromPoint(object):
         label_seperator.filter.type = 'ValueList'
         label_seperator.filter.list = ['-',',','.','/']
         label_seperator.value = label_seperator.filter.list[0]
-        
+
         grid_angle = arcpy.Parameter(name='grid_angle',
                                       displayName='Grid Rotation',
                                       direction='Input',
@@ -348,8 +348,8 @@ class CreateGRGFromPoint(object):
           parameters[8].enabled = True
         else:
           parameters[8].enabled = False
-          
-        
+
+
         return
 
     def updateMessages(self, parameters):
@@ -394,7 +394,7 @@ class CreateReferenceSystemGRGFromArea(object):
                               "USNG"]
         self.LARGE_GRID_OPTIONS = ["NO_LARGE_GRIDS",
                                    "ALLOW_LARGE_GRIDS"]
-        
+
     def getParameterInfo(self):
         '''
         Define parameter definitions
