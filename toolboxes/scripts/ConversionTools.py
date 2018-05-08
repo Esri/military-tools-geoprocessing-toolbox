@@ -1,7 +1,7 @@
 # coding: utf-8
 '''
 ------------------------------------------------------------------------------
- Copyright 2017 Esri
+ Copyright 2018 Esri
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  limitations under the License.
 ------------------------------------------------------------------------------
  ==================================================
-Conversion.py
+ ConversionTools.py
  --------------------------------------------------
  requirements: ArcGIS 10.3.1+, ArcGIS Pro 2.0, Python 2.7, or Python 3.5+
  author: ArcGIS Solutions
@@ -21,7 +21,7 @@ Conversion.py
  company: Esri
  ==================================================
  description:
-Conversion Tool logic model
+ Conversion Toolset logic model
  ==================================================
 '''
 
@@ -634,7 +634,37 @@ class TableToLineOfBearing(object):
 
     def execute(self, parameters, messages):
 
-        pass
+        inputTable = parameters[0].valueAsText # Input Table
+        inputCoordinateFormat = parameters[1].valueAsText # Input Coordinate Format
+        inputXField = parameters[2].valueAsText # X Field (Longitude, UTM, MGRS, USNG, GARS, GeoRef) - from inputTable
+        inputYField = parameters[3].valueAsText # Y Field (Latitude)
+        inputBearingUnits = parameters[4].valueAsText # Bearing Units - from ValueList
+        inputBearingField = parameters[5].valueAsText # Bearing Field - from inputTable
+        inputDistanceUnits = parameters[6].valueAsText # Distance Units - from ValueList
+        inputDistanceField = parameters[7].valueAsText # Distance Field - from inputTable
+        outputLineFeatures = parameters[8].valueAsText # Output Lines
+        inputLineType = parameters[9].valueAsText # Line Type - from ValueList
+        optionalSpatialReference = parameters[10].value # Spatial Reference
+        optionalSpatialReferenceAsText = parameters[10].valueAsText
+
+        if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
+            optionalSpatialReference = srWGS84 #GCS_WGS_1984
+
+        arcpy.env.overwriteOutput = True
+
+        outputLineFeaturesOut = ConversionUtilities.tableToLineOfBearing(inputTable,
+                                                 inputCoordinateFormat,
+                                                 inputXField,
+                                                 inputYField,
+                                                 inputBearingUnits,
+                                                 inputBearingField,
+                                                 inputDistanceUnits,
+                                                 inputDistanceField,
+                                                 outputLineFeatures,
+                                                 inputLineType,
+                                                 optionalSpatialReference)
+
+        return outputLineFeaturesOut
 
     # END TableToLineOfBearing
 
@@ -773,7 +803,28 @@ class TableToPoint(object):
              return validator(parameters).updateMessages()
 
     def execute(self, parameters, messages):
-        pass
+
+        inputTable = parameters[0].valueAsText
+        inputCoordinateFormat = parameters[1].valueAsText
+        inputXField = parameters[2].valueAsText
+        inputYField = parameters[3].valueAsText
+        outputPointFeatures = parameters[4].valueAsText
+        optionalSpatialReference = parameters[5].value
+        optionalSpatialReferenceAsText = parameters[5].valueAsText
+
+        if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
+            optionalSpatialReference = srWGS84 #GCS_WGS_1984
+
+        arcpy.env.overwriteOutput = True
+
+        outputPointFeaturesOut = ConversionUtilities.tableToPoint(inputTable,
+                                    inputCoordinateFormat,
+                                    inputXField,
+                                    inputYField,
+                                    outputPointFeatures,
+                                    optionalSpatialReference)
+
+        return outputPointFeaturesOut
 
     # END TableToPoint
 
@@ -950,12 +1001,12 @@ class TableToPolygon(object):
         outputPolygonFeatures = parameters[4].valueAsText
         inputLineField = parameters[5].valueAsText
         inputSortField = parameters[6].valueAsText
-        inputSpatialReference = parameters[7].value
-        inputSpatialReferenceAsText = parameters[7].valueAsText
+        optionalSpatialReference = parameters[7].value
+        optionalSpatialReferenceAsText = parameters[7].valueAsText
             
-        if not inputSpatialReference or inputSpatialReferenceAsText == "" or inputSpatialReferenceAsText == "#":
-            inputSpatialReference = arcpy.SpatialReference(4326) #default is GCS_WGS_1984
-            
+        if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
+            optionalSpatialReference = srWGS84 #GCS_WGS_1984
+                        
         #get/set environment
         arcpy.env.overwriteOutput = True
         
@@ -967,7 +1018,7 @@ class TableToPolygon(object):
                                                          outputPolygonFeatures,
                                                          inputLineField,
                                                          inputSortField,
-                                                         inputSpatialReference)
+                                                         optionalSpatialReference)
         #set output
         return outputPolygonFeaturesOut
 
@@ -1130,12 +1181,37 @@ class TableToPolyline(object):
              return validator(parameters).updateMessages()
 
     def execute(self, parameters, messages):
-        pass
+
+        inputTable = parameters[0].valueAsText # Input Table
+        inputCoordinateFormat = parameters[1].valueAsText # Input Coordinate Format - from ValueList
+        inputXField = parameters[2].valueAsText # X Field (Longitude, UTM, MGRS, USNG, GARS, GeoRef) - from inputTable
+        inputYField = parameters[3].valueAsText # Y Field (Latitude)
+        outputPolylineFeatures = parameters[4].valueAsText # Output Polygon Features
+        inputLineField = parameters[5].valueAsText # Line Field (optional) - from inputTable
+        inputSortField = parameters[6].valueAsText # Sort Field (optional) - from inputTable
+        optionalSpatialReference = parameters[7].value # Spatial Reference
+        optionalSpatialReferenceAsText = parameters[7].valueAsText
+
+        if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
+            optionalSpatialReference = srWGS84 #GCS_WGS_1984
+
+        arcpy.env.overwriteOutput = True
+
+        outputPolylineFeaturesOut = ConversionUtilities.tableToPolyline(inputTable,
+                                            inputCoordinateFormat,
+                                            inputXField,
+                                            inputYField,
+                                            outputPolylineFeatures,
+                                            inputLineField,
+                                            inputSortField,
+                                            optionalSpatialReference)
+
+        return outputPolylineFeaturesOut
 
     # END TableToPolyline
 
 # -----------------------------------------------------------------------------
-# TableToPolyline Tool
+# TableToEllipse Tool
 # -----------------------------------------------------------------------------
 class TableToEllipse(object):
 
@@ -1329,7 +1405,38 @@ class TableToEllipse(object):
              return validator(parameters).updateMessages()
 
     def execute(self, parameters, messages):
-        pass
+
+        inputTable = parameters[0].valueAsText # Input Table
+        inputCoordinateFormat = parameters[1].valueAsText # Input Coordinate Format
+        inputXField = parameters[2].valueAsText # X Field (Longitude, UTM, MGRS, USNG, GARS, GeoRef) - from inputTable
+        inputYField = parameters[3].valueAsText # Y Field (Latitude)
+        inputMajorAxisField = parameters[4].valueAsText # Major Field - from inputTable
+        inputMinorAxisField = parameters[5].valueAsText # Minor Field - from inputTable
+        inputDistanceUnits = parameters[6].valueAsText # Distance Units - from valuelist
+        outputEllipseFeatures = parameters[7].valueAsText # Output Ellipse
+        inputAzimuthField = parameters[8].valueAsText # Azimuth Field - from inputTable
+        inputAzimuthUnits = parameters[9].valueAsText # Azimuth Units - from valuelist
+        optionalSpatialReference = parameters[10].value # Spatial Reference
+        optionalSpatialReferenceAsText = parameters[10].valueAsText
+
+        if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
+            optionalSpatialReference = srWGS84 #GCS_WGS_1984
+
+        arcpy.env.overwriteOutput = True
+
+        outputEllipseFeaturesOut = ConversionUtilities.tableToEllipse(inputTable,
+                                           inputCoordinateFormat,
+                                           inputXField,
+                                           inputYField,
+                                           inputMajorAxisField,
+                                           inputMinorAxisField,
+                                           inputDistanceUnits,
+                                           outputEllipseFeatures,
+                                           inputAzimuthField,
+                                           inputAzimuthUnits,
+                                           optionalSpatialReference)
+
+        return outputEllipseFeaturesOut
 
     # END TableToEllipse
 
