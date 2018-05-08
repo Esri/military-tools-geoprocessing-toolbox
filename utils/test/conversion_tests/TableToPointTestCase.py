@@ -53,19 +53,32 @@ class TableToPointTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMixi
     outputPoints = None
     baseFC = None
 
-    def setUp(self):
-
+    @classmethod
+    def setUpClass(cls):
+        # Run once per class creation
         ''' Initialization needed if running Test Case standalone '''
         Configuration.GetLogger()
         Configuration.GetPlatform()
         ''' End standalone initialization '''
-
-        Configuration.Logger.debug("     TableToPointTestCase.setUp")
-
+            
+        Configuration.Logger.debug("     TableToPointTestCase.setUpClass")    
         UnitTestUtilities.checkArcPy()
 
         if not arcpy.Exists(Configuration.militaryScratchGDB):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
+
+        Configuration.Logger.debug("Import Toolbox: " + Configuration.toolboxUnderTest)
+        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
+        Configuration.Logger.debug("Done Toolbox Import")
+
+    @classmethod
+    def tearDownClass(cls):
+        Configuration.Logger.debug("     TableToPointTestCase.tearDownClass")
+        # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+
+    def setUp(self):
+
+        Configuration.Logger.debug("     TableToPointTestCase.setUp")
 
         csvFolder = os.path.join(Configuration.militaryDataPath, "CSV")
         self.inputTable = os.path.join(csvFolder, "TableToPoint.csv")
@@ -77,8 +90,6 @@ class TableToPointTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMixi
         UnitTestUtilities.checkFilePaths([self.inputTable, self.inputSingleTable])
 
         self.outputPoints = os.path.join(Configuration.militaryScratchGDB, "outputTableToPoint")
-
-        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
 
     def tearDown(self):
         Configuration.Logger.debug("     TableToPointTestCase.tearDown")

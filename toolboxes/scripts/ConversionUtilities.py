@@ -524,6 +524,8 @@ def tableToEllipse(inputTable,
     * US_SURVEY_FEET
     '''
     try:
+        env.overwriteOutput = True
+
         deleteme = []
         scratch = '%scratchGDB%'
         joinFieldName = "JoinID"
@@ -676,6 +678,8 @@ def tableToLineOfBearing(inputTable,
     
     '''
     try:
+        env.overwriteOutput = True
+
         deleteme = []
         joinFieldName = "JoinID"
         scratch = '%scratchGDB%'
@@ -789,7 +793,8 @@ def tableToPoint(inputTable,
 
     '''
     try:
-        
+        env.overwriteOutput = True
+       
         deleteme = []
         scratch = '%scratchGDB%'
         if env.scratchWorkspace:
@@ -877,6 +882,8 @@ def tableToPolygon(inputTable,
         
     '''
     try:
+        env.overwriteOutput = True
+
         deleteme = []
         scratch = '%scratchGDB%'
         if env.scratchWorkspace:
@@ -978,6 +985,8 @@ def tableToPolyline(inputTable,
      
     '''
     try:
+        env.overwriteOutput = True
+
         deleteme = []
         joinFieldName = "JoinID"
         scratch = '%scratchGDB%'
