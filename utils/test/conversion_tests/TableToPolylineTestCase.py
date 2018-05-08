@@ -53,18 +53,32 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
     outputPolylines = None
     baseFC = None
     
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        # Run once per class creation
         ''' Initialization needed if running Test Case standalone '''
         Configuration.GetLogger()
         Configuration.GetPlatform()
         ''' End standalone initialization '''
             
-        Configuration.Logger.debug("     TableToPolylineTestCase.setUp")    
-
+        Configuration.Logger.debug("     TableToPolylineTestCase.setUpClass")    
         UnitTestUtilities.checkArcPy()
 
         if not arcpy.Exists(Configuration.militaryScratchGDB):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
+
+        Configuration.Logger.debug("Import Toolbox: " + Configuration.toolboxUnderTest)
+        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
+        Configuration.Logger.debug("Done Toolbox Import")
+
+    @classmethod
+    def tearDownClass(cls):
+        Configuration.Logger.debug("     TableToPolylineTestCase.tearDownClass")
+        # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+
+    def setUp(self):
+           
+        Configuration.Logger.debug("     TableToPolylineTestCase.setUp")    
 
         csvPath = os.path.join(Configuration.militaryDataPath, "CSV")
         self.inputTable = os.path.join(csvPath, "TabletoPolyline.csv")
@@ -76,12 +90,9 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
         UnitTestUtilities.checkFilePaths([self.inputTable, self.inputSingleTable])
 
         self.outputPolylines = os.path.join(Configuration.militaryScratchGDB, "outputPolylines")
-                
-        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
-        
+                        
     def tearDown(self):
         Configuration.Logger.debug("     TableToPolylineTestCase.tearDown")
-        # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
     
     def test_table_to_polyline_desktop(self):
         '''Test Table To Polyline for ArcGIS Desktop'''

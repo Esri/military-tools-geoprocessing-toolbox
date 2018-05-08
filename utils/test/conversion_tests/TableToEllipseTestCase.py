@@ -51,17 +51,32 @@ class TableToEllipseTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMi
     outputEllipses = None
     baseFC = None
     
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        # Run once per class creation
         ''' Initialization needed if running Test Case standalone '''
         Configuration.GetLogger()
         Configuration.GetPlatform()
         ''' End standalone initialization '''
             
-        Configuration.Logger.debug("     TableToEllipseTestCase.setUp")    
+        Configuration.Logger.debug("     TableToEllipseTestCase.setUpClass")    
         UnitTestUtilities.checkArcPy()
 
         if not arcpy.Exists(Configuration.militaryScratchGDB):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
+
+        Configuration.Logger.debug("Import Toolbox: " + Configuration.toolboxUnderTest)
+        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
+        Configuration.Logger.debug("Done Toolbox Import")
+
+    @classmethod
+    def tearDownClass(cls):
+        Configuration.Logger.debug("     TableToEllipseTestCase.tearDownClass")
+        # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+
+    def setUp(self):
+        # Run before each test case
+        Configuration.Logger.debug("     TableToEllipseTestCase.setUp")    
 
         csvPath = os.path.join(Configuration.militaryDataPath, "CSV")
         self.inputTable = os.path.join(csvPath, "TableToEllipse.csv")
@@ -74,12 +89,9 @@ class TableToEllipseTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMi
         UnitTestUtilities.checkFilePaths([self.inputTable, self.inputSingleTable])
 
         self.outputEllipses = os.path.join(Configuration.militaryScratchGDB, "outputEllipses")
-                
-        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
 
     def tearDown(self):
         Configuration.Logger.debug("     TableToEllipseTestCase.tearDown")
-        # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
     
     def test_table_to_ellipse(self):
         '''test_table_to_ellipse '''

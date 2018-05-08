@@ -197,6 +197,8 @@ class ConvertCoordinates(object):
         if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
             optionalSpatialReference = srWGS84 #GCS_WGS_1984
 
+        arcpy.env.overwriteOutput = True
+
         output = ConvertCoordinates.convertCoordinates(inputTable,
                            inputCoordinateFormat,
                            inputXField,

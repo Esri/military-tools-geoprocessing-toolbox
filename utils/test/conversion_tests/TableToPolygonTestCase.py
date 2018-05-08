@@ -47,19 +47,33 @@ class TableToPolygonTestCase(unittest.TestCase):
     
     inputTable = None
     outputPolygons = None
-    
-    def setUp(self):
+  
+    @classmethod
+    def setUpClass(cls):
+        # Run once per class creation
         ''' Initialization needed if running Test Case standalone '''
         Configuration.GetLogger()
         Configuration.GetPlatform()
         ''' End standalone initialization '''
             
-        Configuration.Logger.debug("     TableToPolygonTestCase.setUp")
-
+        Configuration.Logger.debug("     TableToLineOfBearingTestCase.setUpClass")    
         UnitTestUtilities.checkArcPy()
 
         if not arcpy.Exists(Configuration.militaryScratchGDB):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
+
+        Configuration.Logger.debug("Import Toolbox: " + Configuration.toolboxUnderTest)
+        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
+        Configuration.Logger.debug("Done Toolbox Import")
+
+    @classmethod
+    def tearDownClass(cls):
+        Configuration.Logger.debug("     TableToLineOfBearingTestCase.tearDownClass")
+        # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+              
+    def setUp(self):
+
+        Configuration.Logger.debug("     TableToPolygonTestCase.setUp")
 
         csvFolder = os.path.join(Configuration.militaryDataPath, "CSV")
         self.inputTable = os.path.join(csvFolder, "TableToPolygon.csv")
@@ -69,12 +83,9 @@ class TableToPolygonTestCase(unittest.TestCase):
         UnitTestUtilities.checkFilePaths([self.inputTable, self.inputSingleTable])
 
         self.outputPolygons = os.path.join(Configuration.militaryScratchGDB, "outputPolygons")
-
-        arcpy.ImportToolbox(Configuration.toolboxUnderTest)
         
     def tearDown(self):
         Configuration.Logger.debug("     TableToPolygonTestCase.tearDown")
-        # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
     
     def test_table_to_polygon(self):
         '''Test Table To Polygon for ArcGIS Desktop'''

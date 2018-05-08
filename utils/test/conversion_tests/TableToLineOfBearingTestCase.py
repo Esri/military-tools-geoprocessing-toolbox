@@ -53,20 +53,34 @@ class TableToLineOfBearingTestCase(unittest.TestCase, arcpyAssert.FeatureClassAs
     outputLineOfBearing = None
     baseFC = None
     platform = None
-    
-    def setUp(self):
-
+  
+    @classmethod
+    def setUpClass(cls):
+        # Run once per class creation
         ''' Initialization needed if running Test Case standalone '''
         Configuration.GetLogger()
         Configuration.GetPlatform()
         ''' End standalone initialization '''
-
-        Configuration.Logger.debug("     TableToLineOfBearingTestCase.setUp")            
+            
+        Configuration.Logger.debug("     TableToLineOfBearingTestCase.setUpClass")    
         UnitTestUtilities.checkArcPy()
 
         if not arcpy.Exists(Configuration.militaryScratchGDB):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
-        
+
+        Configuration.Logger.debug("Import Toolbox: " + Configuration.toolboxUnderTest)
+        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
+        Configuration.Logger.debug("Done Toolbox Import")
+
+    @classmethod
+    def tearDownClass(cls):
+        Configuration.Logger.debug("     TableToLineOfBearingTestCase.tearDownClass")
+        # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+              
+    def setUp(self):
+
+        Configuration.Logger.debug("     TableToLineOfBearingTestCase.setUp")    
+      
         csvFolder = os.path.join(Configuration.militaryDataPath, "CSV")
         self.inputTable = os.path.join(csvFolder, "TabletoLineOfBearing.csv")
         self.inputSingleTable = os.path.join(csvFolder, "TableToLineOfBearing_single.csv")
@@ -77,12 +91,9 @@ class TableToLineOfBearingTestCase(unittest.TestCase, arcpyAssert.FeatureClassAs
         UnitTestUtilities.checkFilePaths([self.inputTable, self.inputSingleTable])
 
         self.outputLineOfBearing = os.path.join(Configuration.militaryScratchGDB, "outputLines")
-        
-        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
-        
+                
     def tearDown(self):
         Configuration.Logger.debug("     TableToLineOfBearingTestCase.tearDown")
-        # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
     
     def test_table_to_lineofbearing(self):
         '''Test Table To Line Of Bearing for ArcGIS'''

@@ -48,20 +48,34 @@ class TableToTwoPointLineTestCase(unittest.TestCase):
     
     inputTable = None
     outputLines = None
-    
-    def setUp(self):
+  
+    @classmethod
+    def setUpClass(cls):
+        # Run once per class creation
         ''' Initialization needed if running Test Case standalone '''
         Configuration.GetLogger()
         Configuration.GetPlatform()
         ''' End standalone initialization '''
-
-        Configuration.Logger.debug("     TableToTwoPointLineTestCase.setUp")    
-        
+            
+        Configuration.Logger.debug("     TableToLineOfBearingTestCase.setUpClass")    
         UnitTestUtilities.checkArcPy()
 
         if not arcpy.Exists(Configuration.militaryScratchGDB):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
-        
+
+        Configuration.Logger.debug("Import Toolbox: " + Configuration.toolboxUnderTest)
+        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
+        Configuration.Logger.debug("Done Toolbox Import")
+
+    @classmethod
+    def tearDownClass(cls):
+        Configuration.Logger.debug("     TableToLineOfBearingTestCase.tearDownClass")
+        # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+              
+    def setUp(self):
+
+        Configuration.Logger.debug("     TableToTwoPointLineTestCase.setUp")    
+                
         csvFolder = os.path.join(Configuration.militaryDataPath, "CSV")
         self.inputTable = os.path.join(csvFolder, "TableTo2PointLine.csv")
         self.inputSingleTable = os.path.join(csvFolder, "TableTo2PointLine_single.csv")
@@ -72,8 +86,6 @@ class TableToTwoPointLineTestCase(unittest.TestCase):
         UnitTestUtilities.checkFilePaths([self.inputTable, self.inputSingleTable])
 
         self.outputLines = os.path.join(Configuration.militaryScratchGDB, "output2PointLines") 
-                
-        arcpy.ImportToolbox(Configuration.toolboxUnderTest)       
         
     def tearDown(self):
         Configuration.Logger.debug("     TableToTwoPointLineTestCase.tearDown")
