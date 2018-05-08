@@ -15,7 +15,7 @@ is a collection of models, scripts, and tools for use in ArcGIS for Desktop and 
 
 ## Features
 
-This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to import geometry from tables, determine ranges, and provide basic visibility analysis capabilities.
+This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to import geometry from tables, determine ranges, create gridded reference graphics, and provide basic visibility analysis capabilities.
 
 ### Contents
 
@@ -23,12 +23,9 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 
 ## Requirements
 
-Tools for ArcMap are in the **Military_Tools_arcmap.tbx** toolbox and have the following requirements:
-
+The **Military Tools** toolbox is a Python Toolbox (PYT) that contains the contents of the older **Military_Tools_arcmap.tbx** and **Military_Tools_pro.tbx** toolboxes, and an added GRG toolset. This toolbox has the following requirements:
 * **ArcGIS 10.3.1+ for Desktop**
-
-Tools for ArcGIS Pro are in the **Military_Tools_pro.tbx** toolbox and have the following requirements: 
-
+or
 * **ArcGIS Pro 1.4+**
 
 Additionally there are additional extensions needed for certain tools:
