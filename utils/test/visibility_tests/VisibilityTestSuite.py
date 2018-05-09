@@ -28,24 +28,31 @@ description:
 This test suite collects all of the tests in the Visibility toolset 
 within the Military Tools toolbox
 ==================================================
-history:
-5/10/2016 - JH - initial creation
-==================================================
 '''
 
 import logging
 import unittest
-import Configuration
 
-from . import VisibilityUtilitiesTestCase
-from . import FindLocalPeaksTestCase
-from . import HighestPointsTestCase
-from . import LowestPointsTestCase
-from . import LinearLineOfSightTestCase
-from . import RadialLineOfSightTestCase
-from . import RadialLineOfSightAndRangeTestCase
-from . import AddLLOSFieldsTestCase
-from . import AddRLOSObserverFieldsTestCase
+try:
+    from . import VisibilityUtilitiesTestCase
+    from . import FindLocalPeaksTestCase
+    from . import HighestPointsTestCase
+    from . import LowestPointsTestCase
+    from . import LinearLineOfSightTestCase
+    from . import RadialLineOfSightTestCase
+    from . import RadialLineOfSightAndRangeTestCase
+    from . import AddLLOSFieldsTestCase
+    from . import AddRLOSObserverFieldsTestCase
+except:
+    import VisibilityUtilitiesTestCase
+    import FindLocalPeaksTestCase
+    import HighestPointsTestCase
+    import LowestPointsTestCase
+    import LinearLineOfSightTestCase
+    import RadialLineOfSightTestCase
+    import RadialLineOfSightAndRangeTestCase
+    import AddLLOSFieldsTestCase
+    import AddRLOSObserverFieldsTestCase
 
 def getTestSuite():
 
@@ -66,3 +73,12 @@ def getTestSuite():
     testSuite.addTest(loader.loadTestsFromTestCase(AddRLOSObserverFieldsTestCase.AddRLOSObserverFieldsTestCase))
 
     return testSuite
+
+def testSuiteMain():
+    testSuite = unittest.TestSuite()    
+    testSuite.addTests(getTestSuite())
+    result = unittest.TestResult()
+    testSuite.run(result)
+
+if __name__ == "__main__":
+    testSuiteMain()

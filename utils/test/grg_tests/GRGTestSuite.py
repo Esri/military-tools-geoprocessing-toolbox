@@ -15,11 +15,15 @@
 
 import unittest
 import logging
-import Configuration
 
-from . import GRGCreateGRGFromPointTestCase
-from . import GRGCreateGRGFromAreaTestCase
-from . import GRGCreateReferenceSystemGRGFromAreaTestCase
+try:
+    from . import GRGCreateGRGFromPointTestCase
+    from . import GRGCreateGRGFromAreaTestCase
+    from . import GRGCreateReferenceSystemGRGFromAreaTestCase
+except:
+    import GRGCreateGRGFromPointTestCase
+    import GRGCreateGRGFromAreaTestCase
+    import GRGCreateReferenceSystemGRGFromAreaTestCase
 
 ''' Test suite for all tools in the GRG Toolset '''
 
@@ -37,3 +41,12 @@ def getTestSuite():
     testSuite.addTest(loader.loadTestsFromTestCase(GRGCreateReferenceSystemGRGFromAreaTestCase.GRGCreateReferenceSystemGRGFromAreaTestCase))
 
     return testSuite
+
+def testSuiteMain():
+    testSuite = unittest.TestSuite()    
+    testSuite.addTests(getTestSuite())
+    result = unittest.TestResult()
+    testSuite.run(result)
+
+if __name__ == "__main__":
+    testSuiteMain()
