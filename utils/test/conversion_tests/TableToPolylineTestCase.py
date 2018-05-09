@@ -103,12 +103,22 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
         if arcpy.Exists(self.outputPolylines) :
             arcpy.Delete_management(self.outputPolylines)
 
+        inMemTable = arcpy.TableToTable_conversion(self.inputTable, "in_memory", "TableToPolyline_single_In_Mem")
+
+        # Get Frequency of the unique names
+        freqTable = arcpy.Frequency_analysis(inMemTable, "in_memory\\CountOfUniqueNames", "Group_", "")
+
+        # Get Count of the unique names
+        numPolyLines = arcpy.GetCount_management(freqTable)
+
+
         arcpy.TableToPolyline_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", \
             self.outputPolylines, "Group_")
 
         self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
-        polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
-        expectedFeatures = int(2)
+        #polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
+        polylineCount = arcpy.GetCount_management(self.outputPolylines).getOutput(0)
+        expectedFeatures = numPolyLines
         self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
 
         # Tool is not producing correct output - commented out check for now
@@ -117,6 +127,8 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
         #                        "OBJECTID", 0.0001)
 
         return  
+
+
 
     def test_table_to_polyline_desktop_MGRS(self):
         '''Test Table To Polyline for ArcGIS Desktop_MGRS'''

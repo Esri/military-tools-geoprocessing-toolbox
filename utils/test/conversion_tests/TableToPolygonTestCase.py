@@ -105,6 +105,36 @@ class TableToPolygonTestCase(unittest.TestCase):
 
         return
 
+    def test_table_to_polygon(self):
+        '''Test Table To Polygon using Name field as the grouping Line Field'''
+
+        Configuration.Logger.info(".....TableToPolygonTestCase.test_table_to_polygon_w_grouping")
+
+        # Delete the output feature class if already exists
+        if arcpy.Exists(self.outputPolygons) :
+            arcpy.Delete_management(self.outputPolygons)
+
+        inMemTable = arcpy.TableToTable_conversion(self.inputTable, "in_memory", "TableToPolygon_single_In_Mem")
+        # Get Frequency of the unique names
+        freqTable = arcpy.Frequency_analysis(inMemTable, "in_memory\\CountOfUniqueNames", "Name", "")
+
+        # Get Count of the unique names
+        numPolys = arcpy.GetCount_management(freqTable)
+
+        # Next line is commented out because tool fails when run with input "Name" and "Vsort" fields as params
+        arcpy.TableToPolygon_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolygons, "Name", "Vsort")
+
+        # this runs the tool without those fields - note that error is triggered on results: Expected 5 features, but got 1 - this is correct
+        #arcpy.TableToPolygon_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolygons)
+
+
+        self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
+        polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
+        expectedFeatures = numPolys
+        self.assertEqual(polygonCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polygonCount)))
+
+        return
+
     def test_table_to_polygon_MGRS(self):
         '''Test Table To Polygon for ArcGIS Desktop_MGRS'''
 
