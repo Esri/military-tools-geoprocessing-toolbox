@@ -25,9 +25,6 @@ from . import GRGCreateReferenceSystemGRGFromAreaTestCase
 
 def getTestSuite():
 
-    if Configuration.DEBUG == True:
-        print("      GRGTestSuite.getSuite")
-
     testSuite = unittest.TestSuite()
 
     ''' Add the GRG tests '''

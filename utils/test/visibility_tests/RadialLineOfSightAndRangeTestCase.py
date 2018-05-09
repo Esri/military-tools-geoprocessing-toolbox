@@ -58,10 +58,6 @@ class RadialLineOfSightAndRangeTestCase(unittest.TestCase):
         
     def test_toolboxMain(self):
 
-# TODO: Remove this when all test case are ported to pyt toolbox 
-        Configuration.toolboxUnderTest = Configuration.military_ToolboxPath
-        Configuration.Platform = None # This will force this to be refetched 
-# END TODO
         arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
 
         if arcpy.CheckExtension("3D") == "Available":

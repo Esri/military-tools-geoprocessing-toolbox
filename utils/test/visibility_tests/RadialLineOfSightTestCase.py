@@ -77,11 +77,6 @@ class RadialLineOfSightTestCase(unittest.TestCase):
         #    arcpy.CheckOutExtension("Spatial")
         #    arcpy.AddMessage(".....Spatial checked out")
 
-# TODO: Remove this when all test case are ported to pyt toolbox 
-        Configuration.toolboxUnderTest = Configuration.military_ToolboxPath
-        Configuration.Platform = None # This will force this to be refetched 
-# END TODO
-
         arcpy.ImportToolbox(Configuration.toolboxUnderTest)
 
     def tearDown(self):
