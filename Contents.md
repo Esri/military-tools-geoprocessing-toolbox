@@ -1,6 +1,32 @@
 The military-tools-geoprocessing-toolbox repository contains the following folders, files, and data.
 
 * [toolboxes](./toolboxes)
+	* Military Tools.pyt (Python toolbox, containing the tools from **Military_Tools_arcmap.tbx** and **Military_Tools_pro.tbx** toolboxes, plus GRG tools)
+		* **Conversion**
+			* Convert Coordinates
+			* Table To 2-Point Line
+			* Table To Ellipse
+			* Table To Line Of Bearing
+			* Table To Point
+			* Table To Polygon
+			* Table To Polyline
+		* **Distance and Direction**
+			* Range Rings (from Interval)
+			* Range Rings from Minimum Maximum
+			* Range Rings from Minimum Maximum Table
+		* **GRG**
+			* Create GRG from Area
+			* Create GRG from Point
+			* Create Reference System GRG from Area			
+		* **Visibility**
+			* Add LLOS Fields
+			* Add RLOS Observer Fields
+			* Linear Line Of Sight
+			* Radial Line Of Sight
+			* Find Local Peaks
+			* Highest Points
+			* Lowest Point
+			
 	* Military Tools.tbx (same tools as below)
 	* Military Tools_10.3.tbx
 		* Conversion
@@ -30,34 +56,86 @@ The military-tools-geoprocessing-toolbox repository contains the following folde
 			* Highest Points
 			* Lowest Point
 	* [scripts](./toolboxes/scripts)
-		* AddUniqueRowID.py
+		* AddLLOSFields.py
+		* AddRLOSObserverFields.py
+		* ConversionTools.py
+		* ConversionUtilities.py
 		* ConvertCoordinates.py
-		* LLOSProfileGraphAttachments.py
-		* PolylineToPolygon.py
-		* RangeRingsUtils.py
+		* DistanceAndDirectionTools.py
+		* FindLocalPeaks.py
+		* GRGTools.py
+		* GRGUtilities.py
+		* HighestPoints.py
+		* LinearLineOfSight.py
+		* LowestPoints.py
+		* NumberFeaturesTool.py
+		* RadialLineOfSight.py
+		* RadialLineOfSightAndRange.py
 		* RangeRingFromMinMaxTable.py
 		* RangeRingMinMax.py
 		* RangeRingsFromInterval.py
-		* RLOS.py
+		* RangeRingUtils.py
+		* RefGrid.py
+		* TableTo2PointLine.py
+		* TableToEllipse.py
+		* TableToLineOfBearing.py
+		* TableToPoint.py
+		* TableToPolygon.py
+		* TableToPolyline.py
+		* Utilities.py
+		* VisibilityUtilities.py
+		* VisTools.py
 	* [layers](./toolboxes/layers)
+		* GRG.lyr
+		* GRGInputArea.lyr
+		* GRGInputPoint.lyr
+		* GRG.lyrx
 		* Highest Point Output.lyr
+		* Highest_Point_Output.lyrx
+		* InputArea_FeatureSet.lyr
+		* InputArea_FeatureSetGDB.lyr
+		* InputArea_FeatureSet.lyrx
 		* Linear Line of Sight Output.lyr
 		* LinearLineOfSight.lyrx
-		* LLOS_Output_Observers.lyr
+		* Linear_Line_of_Sight_Output.lyrx
 		* LLOS_Output_Observers.lyrx
-		* LLOS_Output_Targets.lyr
 		* LLOS_Output_Targets.lyrx
+		* LLOS_InputObservers.lyr
+		* LLOS_InputObserversGDB.lyr
+		* LLOS_InputTargets.lyr
+		* LLOS_InputTargetsGDB.lyr
+		* LLOS_InputObservers.lyrx
+		* LLOS_InputTargets.lyrx
 		* LLOS_OutputLLOS.lyr
-		* LLOS_OutputLLOS.lyrx
 		* LLOS_OutputSightLines.lyr
+		* LLOS_Output_Observers.lyr
+		* LLOS_Output_Targets.lyr
+		* LLOS_OutputLLOS.lyrx
 		* LLOS_OutputSightLines.lyrx
 		* Lowest Point Output.lyr
+		* Lowest_Point_Output.lyrx
+		* NumberedStructures.lyr
+		* NumberFeaturesAreaInput.lyr
+		* NumberedStructures.lyrx
+		* OutputRefGrid.lyr
+		* RangeRings.lyrx
 		* Radial Line Of Sight Output.lyr
-		* RadialLineOfSightOutput.lyrx
+		* Radial_Line_Of_Sight_Output.lyrx
 		* RangeRadials.lyr
-		* RangeRingInputObserver.lyr
+		* RangeRingInputObservers.lyr
+		* RangeRingInputObserversGDB.lyr
 		* RangeRings.lyr
+		* RangeRadials.lyrx
+		* RangeRingInputObservers.lyrx
+		* RelativeGRGInputArea.lyr
+		* RelativeGRGInputPoint.lyr
+		* RelativeNumberFeaturesAreaInput.lyr
+		* RLOSDonutWedge.lyr
+		* RLOSPieWedge.lyr
 		* SightLines.lyrx
+		* TableToLineOfBearingOutput.lyr
+		* TableToLineOfBearingOutput.lyrx
+
 	* [tooldata](./toolboxes/tooldata)
 		* [Range Rings.gdb]
 			* rrInputTable
