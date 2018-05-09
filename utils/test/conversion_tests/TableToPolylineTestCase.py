@@ -94,32 +94,41 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
     def tearDown(self):
         Configuration.Logger.debug("     TableToPolylineTestCase.tearDown")
     
-    def test_table_to_polyline_desktop(self):
+    def test_table_to_polyline(self):
         '''Test Table To Polyline for ArcGIS Desktop'''
 
-        Configuration.Logger.info(".....TableToPolylineTestCase.test_table_to_polyline_desktop")
+        Configuration.Logger.info(".....TableToPolylineTestCase.test_table_to_polyline")
 
         # Delete the output feature class if already exists
         if arcpy.Exists(self.outputPolylines) :
             arcpy.Delete_management(self.outputPolylines)
 
+
+        toolOutput = arcpy.TableToPolyline_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", \
+            self.outputPolylines, "Group_")
+
+
+        # 1: Check the expected return value
+        self.assertIsNotNone(toolOutput, "No output returned from tool")
+        outputOut = toolOutput.getOutput(0)
+        self.assertEqual(self.outputPolylines, outputOut, "Unexpected return value from tool")
+
+        # Process to check tool results
+        # Step 1: Make in_memory table to get frequency of
         inMemTable = arcpy.TableToTable_conversion(self.inputTable, "in_memory", "TableToPolyline_single_In_Mem")
 
-        # Get Frequency of the unique names
-        freqTable = arcpy.Frequency_analysis(inMemTable, "in_memory\\CountOfUniqueNames", "Group_", "")
+        # Step 2: Get the frequency of unique "group values" in the input table
+        # Get Frequency of the unique names in the input table
+        freqInputTable = arcpy.Frequency_analysis(inMemTable, "in_memory\\CountOfUniqueNames", "Group_", "")
 
         # Get Count of the unique names
-        numPolyLines = arcpy.GetCount_management(freqTable)
-
-
-        arcpy.TableToPolyline_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", \
-            self.outputPolylines, "Group_")
+        toolOutput = arcpy.GetCount_management(freqInputTable)
+        expectedFeatureCount = int(toolOutput.getOutput(0))
 
         self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
         #polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
-        polylineCount = arcpy.GetCount_management(self.outputPolylines).getOutput(0)
-        expectedFeatures = numPolyLines
-        self.assertEqual(polylineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polylineCount)))
+        polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
+        self.assertEqual(polylineCount, expectedFeatureCount, "Expected %s features, but got %s" % (str(expectedFeatureCount), str(polylineCount)))
 
         # Tool is not producing correct output - commented out check for now
         # See: https://github.com/Esri/military-tools-geoprocessing-toolbox/issues/254
@@ -130,10 +139,10 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
 
 
 
-    def test_table_to_polyline_desktop_MGRS(self):
+    def test_table_to_polyline_MGRS(self):
         '''Test Table To Polyline for ArcGIS Desktop_MGRS'''
 
-        Configuration.Logger.info(".....TableToPolylineTestCase.test_table_to_polyline_desktop_MGRS")
+        Configuration.Logger.info(".....TableToPolylineTestCase.test_table_to_polyline_MGRS")
 
         # Delete the output feature class if already exists
         if arcpy.Exists(self.outputPolylines) :
@@ -152,10 +161,10 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
 
         return 
 
-    def test_table_to_polyline_desktop_GARS(self):
+    def test_table_to_polyline_GARS(self):
         '''Test Table To Polyline for ArcGIS Desktop_GARS'''
 
-        Configuration.Logger.info(".....TableToPolylineTestCase.test_table_to_polyline_desktop_GARS")
+        Configuration.Logger.info(".....TableToPolylineTestCase.test_table_to_polyline_GARS")
 
         # Delete the output feature class if already exists
         if arcpy.Exists(self.outputPolylines) :
@@ -174,10 +183,10 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
 
         return 
 
-    def test_table_to_polyline_desktop_GEOREF(self):
+    def test_table_to_polyline_GEOREF(self):
         '''Test Table To Polyline for ArcGIS Desktop_GEOREF'''
 
-        Configuration.Logger.info(".....TableToPolylineTestCase.test_table_to_polyline_desktop_GEOREF")
+        Configuration.Logger.info(".....TableToPolylineTestCase.test_table_to_polyline_GEOREF")
 
         # Delete the output feature class if already exists
         if arcpy.Exists(self.outputPolylines) :
@@ -196,10 +205,10 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
 
         return 
 
-    def test_table_to_polyline_desktop_USNG(self):
+    def test_table_to_polyline_USNG(self):
         '''Test Table To Polyline for ArcGIS Desktop_USNG'''
 
-        Configuration.Logger.info(".....TableToPolylineTestCase.test_table_to_polyline_desktop_USNG")
+        Configuration.Logger.info(".....TableToPolylineTestCase.test_table_to_polyline_USNG")
 
         # Delete the output feature class if already exists
         if arcpy.Exists(self.outputPolylines) :
@@ -218,10 +227,10 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
 
         return 
 
-    def test_table_to_polyline_desktop_UTM_BANDS(self):
+    def test_table_to_polyline_UTM_BANDS(self):
         '''Test Table To Polyline for ArcGIS Desktop_UTM_BANDS'''
 
-        Configuration.Logger.info(".....TableToPolylineTestCase.test_table_to_polyline_desktop_UTM_BANDS")
+        Configuration.Logger.info(".....TableToPolylineTestCase.test_table_to_polyline_UTM_BANDS")
 
         # Delete the output feature class if already exists
         if arcpy.Exists(self.outputPolylines) :
