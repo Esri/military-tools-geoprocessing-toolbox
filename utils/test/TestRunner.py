@@ -174,6 +174,9 @@ def addMilitarySuite():
     from distance_tests import RangeRingTestSuite
     testSuite.addTests(RangeRingTestSuite.getTestSuite())
     
+    from grg_tests import GRGTestSuite
+    testSuite.addTests(GRGTestSuite.getTestSuite())
+
     from visibility_tests import VisibilityTestSuite
     testSuite.addTests(VisibilityTestSuite.getTestSuite())
     

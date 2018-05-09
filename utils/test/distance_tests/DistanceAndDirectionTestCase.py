@@ -43,36 +43,42 @@ class DistanceAndDirectionTestCase(unittest.TestCase):
     srWAZED = arcpy.SpatialReference(54032) #World_Azimuthal_Equidistant  
     pointGeographic = None
 
-    def setUp(self):
-
+    @classmethod
+    def setUpClass(cls):
+        # Run once per class creation
         ''' Initialization needed if running Test Case standalone '''
         Configuration.GetLogger()
         Configuration.GetPlatform()
         ''' End standalone initialization '''
             
-        Configuration.Logger.debug("     DistanceAndDirectionTestCase.setUp")
-
+        Configuration.Logger.debug("     DistanceAndDirectionTestCase.setUpClass")    
         UnitTestUtilities.checkArcPy()
+
         if not arcpy.Exists(Configuration.militaryScratchGDB):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
 
-        self.pointGeographic = os.path.join(Configuration.militaryInputDataGDB, "RLOS_Observers")
+        Configuration.Logger.debug("Import Toolbox: " + Configuration.toolboxUnderTest)
+        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
+        Configuration.Logger.debug("Done Toolbox Import")
 
-# TODO: Remove this when all test case are ported to pyt toolbox 
-        Configuration.toolboxUnderTest = Configuration.military_ToolboxPath
-        Configuration.Platform = None # This will force this to be refetched 
-# END TODO
+        arcpy.env.overwriteOutput = True
+
+    @classmethod
+    def tearDownClass(cls):
+        Configuration.Logger.debug("     DistanceAndDirectionTestCase.tearDownClass")
+        UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+
+    def setUp(self):
+
+        Configuration.Logger.debug("     DistanceAndDirectionTestCase.setUp")
+
+        self.pointGeographic = os.path.join(Configuration.militaryInputDataGDB, "RLOS_Observers")
 
         UnitTestUtilities.checkGeoObjects([Configuration.toolboxUnderTest, \
             self.pointGeographic])
 
-        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
-
-        arcpy.env.overwriteOutput = True
-
     def tearDown(self):
         Configuration.Logger.debug("     DistanceAndDirectionTestCase.tearDown")
-        UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
 
     #=== TEST TOOL METHODS ==========================================
 
@@ -89,6 +95,8 @@ class DistanceAndDirectionTestCase(unittest.TestCase):
         rings = os.path.join(Configuration.militaryScratchGDB, "newRings")
         radials = os.path.join(Configuration.militaryScratchGDB, "newRadials") 
 
+        toolOutput = None
+
         try :      
             toolOutput = arcpy.RangeRingFromMinimumAndMaximum_mt(self.pointGeographic,
                                                  inputMinimumRange,
@@ -98,8 +106,10 @@ class DistanceAndDirectionTestCase(unittest.TestCase):
                                                  rings,
                                                  radials,
                                                  self.srWAZED)
-        except :
+        except arcpy.ExecuteError:
             UnitTestUtilities.handleArcPyError()
+        except:
+            UnitTestUtilities.handleGeneralError()
 
         # 1: Check the expected return value
         self.assertIsNotNone(toolOutput, "No output returned from tool")
@@ -144,8 +154,10 @@ class DistanceAndDirectionTestCase(unittest.TestCase):
                                                rings,
                                                radials,
                                                self.srWAZED)
-        except :
+        except arcpy.ExecuteError:
             UnitTestUtilities.handleArcPyError()
+        except:
+            UnitTestUtilities.handleGeneralError()
 
         # 1: Check the expected return value
         self.assertIsNotNone(toolOutput, "No output returned from tool")
@@ -189,8 +201,10 @@ class DistanceAndDirectionTestCase(unittest.TestCase):
                                         rings,
                                         radials,
                                         self.srWAZED)
-        except :
+        except arcpy.ExecuteError:
             UnitTestUtilities.handleArcPyError()
+        except:
+            UnitTestUtilities.handleGeneralError()
 
         # 1: Check the expected return value
         self.assertIsNotNone(toolOutput, "No output returned from tool")
@@ -234,8 +248,10 @@ class DistanceAndDirectionTestCase(unittest.TestCase):
                                         rings,
                                         radials) 
                                         # SR is not set
-        except :
+        except arcpy.ExecuteError:
             UnitTestUtilities.handleArcPyError()
+        except:
+            UnitTestUtilities.handleGeneralError()
 
         # 1: Check the expected return value
         self.assertIsNotNone(toolOutput, "No output returned from tool")
