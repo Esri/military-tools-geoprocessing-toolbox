@@ -26,20 +26,18 @@ company: Esri
 ==================================================
 description:
 This test suite collects all of the range ring tests.
-
-==================================================
-history:
-3/30/2016 - mf - original coding
-5/23/2016 - mf - update for framework
 ==================================================
 '''
 
 import unittest
 import logging
-import Configuration
 
-from . import RangeRingUtilsTestCase
-from . import DistanceAndDirectionTestCase
+try:
+    from . import RangeRingUtilsTestCase
+    from . import DistanceAndDirectionTestCase
+except:
+    import RangeRingUtilsTestCase
+    import DistanceAndDirectionTestCase
 
 def getTestSuite():
 
@@ -53,3 +51,12 @@ def getTestSuite():
     testSuite.addTest(loader.loadTestsFromTestCase(RangeRingUtilsTestCase.RangeRingUtilsTestCase))
 
     return testSuite
+
+def testSuiteMain():
+    testSuite = unittest.TestSuite()    
+    testSuite.addTests(getTestSuite())
+    result = unittest.TestResult()
+    testSuite.run(result)
+
+if __name__ == "__main__":
+    testSuiteMain()

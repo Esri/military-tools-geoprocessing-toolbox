@@ -26,26 +26,28 @@ company: Esri
 ==================================================
 description:
 This test suite collects all of the tests in the Conversion toolset within the Military Tools toolbox:
-
-
-==================================================
-history:
-5/10/2016 - JH - initial creation
-12/09/2016 - MF - added single field tests
 ==================================================
 '''
 
 import unittest
 import logging
-import Configuration
 
-from . import ConvertCoordinatesTestCase
-from . import TableToTwoPointLineTestCase    
-from . import TableToEllipseTestCase
-from . import TableToLineOfBearingTestCase
-from . import TableToPointTestCase
-from . import TableToPolygonTestCase
-from . import TableToPolylineTestCase
+try:
+    from . import ConvertCoordinatesTestCase
+    from . import TableToTwoPointLineTestCase    
+    from . import TableToEllipseTestCase
+    from . import TableToLineOfBearingTestCase
+    from . import TableToPointTestCase
+    from . import TableToPolygonTestCase
+    from . import TableToPolylineTestCase
+except:
+    import ConvertCoordinatesTestCase
+    import TableToTwoPointLineTestCase    
+    import TableToEllipseTestCase
+    import TableToLineOfBearingTestCase
+    import TableToPointTestCase
+    import TableToPolygonTestCase
+    import TableToPolylineTestCase
 
 def getTestSuite():
 
@@ -65,6 +67,12 @@ def getTestSuite():
 
     return testSuite
 
-        
- 
-        
+def testSuiteMain():
+    testSuite = unittest.TestSuite()    
+    testSuite.addTests(getTestSuite())
+    result = unittest.TestResult()
+    testSuite.run(result)
+
+if __name__ == "__main__":
+    testSuiteMain()
+     
