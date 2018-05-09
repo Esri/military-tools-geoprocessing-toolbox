@@ -35,6 +35,7 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
     ref_grid = None
     large_grid_handling = None
     ignore_options = None
+    xy_tolerance = None
 
     @classmethod
     def setUpClass(cls):
@@ -69,13 +70,15 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
         self.inputArea10m = os.path.join(Configuration.militaryInputDataGDB, r"GRGInputAO10m")
         self.ref_grid = "MGRS"
         self.large_grid_handling = "ALLOW_LARGE_GRIDS"
+        self.xy_tolerance = 0.0000001
         self.ignore_options = ["IGNORE_M",
                                "IGNORE_Z",
                                "IGNORE_POINTID",
                                "IGNORE_EXTENSION_PROPERTIES",
                                "IGNORE_SUBTYPES",
                                "IGNORE_RELATIONSHIPCLASSES",
-                               "IGNORE_REPRESENTATIONCLASSES"]
+                               "IGNORE_REPRESENTATIONCLASSES",
+                               "IGNORE_FIELDALIAS"]
 
         UnitTestUtilities.checkGeoObjects([self.inputArea, self.inputArea10m])
 
@@ -124,7 +127,8 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
                                      arcpy.Describe(output).oidFieldName,
                                      None,
                                      "ALL",
-                                     self.ignore_options)
+                                     self.ignore_options,
+                                     self.xy_tolerance)
 
     # 100KM Test
     def testCreateReferenceSystemGRGFromArea_100KM(self):
@@ -168,7 +172,8 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
                                      arcpy.Describe(output).oidFieldName,
                                      None,
                                      "ALL",
-                                     self.ignore_options)
+                                     self.ignore_options,
+                                     self.xy_tolerance)
 
     # 10KM Test
     def testCreateReferenceSystemGRGFromArea_10KM(self):
@@ -212,7 +217,8 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
                                      arcpy.Describe(output).oidFieldName,
                                      None,
                                      "ALL",
-                                     self.ignore_options)
+                                     self.ignore_options,
+                                     self.xy_tolerance)
 
     # 1000M Test
     def testCreateReferenceSystemGRGFromArea_1000M(self):
@@ -256,7 +262,8 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
                                      arcpy.Describe(output).oidFieldName,
                                      None,
                                      "ALL",
-                                     self.ignore_options)
+                                     self.ignore_options,
+                                     self.xy_tolerance)
 
     # 100M Test
     def testCreateReferenceSystemGRGFromArea_100M(self):
@@ -300,7 +307,8 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
                                      arcpy.Describe(output).oidFieldName,
                                      None,
                                      "ALL",
-                                     self.ignore_options)
+                                     self.ignore_options,
+                                     self.xy_tolerance)
 
     # 10M Test
     def testCreateReferenceSystemGRGFromArea_10M(self):
@@ -344,7 +352,8 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
                                      arcpy.Describe(output).oidFieldName,
                                      None,
                                      "ALL",
-                                     self.ignore_options)
+                                     self.ignore_options,
+                                     self.xy_tolerance)
 
     # Check that no large grids created for 10m
     def testCreateReferenceSystemGRGFromArea_10mNoLargeGrids(self):
