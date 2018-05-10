@@ -76,7 +76,7 @@ class GRGCreateGRGFromPointTestCase(unittest.TestCase):
         labelStart = "Lower-Left"
         labelStyle = "Alpha-Numeric"
         labelSeparator = "-" # TRICKY: Only used for Alpha-Alpha but required parameter?
-        gridRotationAngle = 0
+        gridRotationAngle = 10
 
         output = os.path.join(Configuration.militaryScratchGDB, "ptTarget")
 

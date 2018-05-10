@@ -165,7 +165,7 @@ def RotateFeatureClass(inputFC, outputFC,
         # set up environment
         env_file = arcpy.CreateScratchName("xxenv",".xml","file",
                                            os.environ["TEMP"])
-        arcpy.SaveSettings(env_file)
+        arcpy.gp.SaveSettings(env_file)
         
         WKS = env.workspace
         if not WKS:
@@ -266,7 +266,7 @@ def RotateFeatureClass(inputFC, outputFC,
         arcpy.AddError(tbinfo + str(xmsg))
     finally:
         # reset environment
-        if env_file: arcpy.LoadSettings(env_file)
+        if env_file: arcpy.gp.LoadSettings(env_file)
         # Clean up temp files
         for f in [lyrFC, lyrTmp, lyrOut, tmpFC, env_file]:
             try:

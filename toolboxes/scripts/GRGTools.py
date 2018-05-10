@@ -372,7 +372,7 @@ class CreateGRGFromPoint(object):
                                             parameters[7].value, #Labeling Type
                                             parameters[8].value, #Labeling Seperator
                                             parameters[9].value, #Grid Angle
-                                            parameters[10].value)  #Output
+                                            parameters[10].valueAsText)  #Output
         return out_grg
 
 class CreateReferenceSystemGRGFromArea(object):
