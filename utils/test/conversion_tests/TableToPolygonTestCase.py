@@ -114,24 +114,33 @@ class TableToPolygonTestCase(unittest.TestCase):
         if arcpy.Exists(self.outputPolygons) :
             arcpy.Delete_management(self.outputPolygons)
 
-        inMemTable = arcpy.TableToTable_conversion(self.inputTable, "in_memory", "TableToPolygon_single_In_Mem")
-        # Get Frequency of the unique names
-        freqTable = arcpy.Frequency_analysis(inMemTable, "in_memory\\CountOfUniqueNames", "Name", "")
-
-        # Get Count of the unique names
-        numPolys = arcpy.GetCount_management(freqTable)
-
-        # Next line is commented out because tool fails when run with input "Name" and "Vsort" fields as params
-        arcpy.TableToPolygon_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolygons, "Name", "Vsort")
+        # Note: tool fails when run with input "Name" and "Vsort" fields as params
+        toolOutput = arcpy.TableToPolygon_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolygons, "Name", "Vsort")
 
         # this runs the tool without those fields - note that error is triggered on results: Expected 5 features, but got 1 - this is correct
-        #arcpy.TableToPolygon_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolygons)
+        #toolOutput = arcpy.TableToPolygon_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolygons)
 
+        # 1: Check the expected return value
+        self.assertIsNotNone(toolOutput, "No output returned from tool")
+        outputOut = toolOutput.getOutput(0)
+        self.assertEqual(self.outputPolygons, outputOut, "Unexpected return value from tool")
 
-        self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
+        # Process to check tool results
+        # Step 1: Make in_memory table to get frequency of
+        inMemTable = arcpy.TableToTable_conversion(self.inputTable, "in_memory", "TableToPolygon_single_In_Mem")
+
+        # Step 2: Get the frequency of unique "group values" in the input table
+        # Get Frequency of the unique names in the input table
+        freqInputTable = arcpy.Frequency_analysis(inMemTable, "in_memory\\CountOfUniqueNames", "Group_", "")
+
+        # Get Count of the unique names
+        toolOutput = arcpy.GetCount_management(freqInputTable)
+        expectedFeatureCount = int(toolOutput.getOutput(0))
+
+        self.assertTrue(arcpy.Exists(self.outputPolygons), "Output features do not exist or were not created")
+        #polylineCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
         polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
-        expectedFeatures = numPolys
-        self.assertEqual(polygonCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polygonCount)))
+        self.assertEqual(polygonCount, expectedFeatureCount, "Expected %s features, but got %s" % (str(expectedFeatureCount), str(polygonCount)))
 
         return
 
