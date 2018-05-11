@@ -1013,7 +1013,7 @@ def tableToPolyline(inputTable,
                                       outputPolylineFeatures,
                                       inputLineField,
                                       inputSortField,
-                                      "CLOSE")
+                                      "NO_CLOSE")
         
         return outputPolylineFeatures
     
