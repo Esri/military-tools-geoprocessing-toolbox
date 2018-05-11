@@ -77,8 +77,7 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
                                "IGNORE_EXTENSION_PROPERTIES",
                                "IGNORE_SUBTYPES",
                                "IGNORE_RELATIONSHIPCLASSES",
-                               "IGNORE_REPRESENTATIONCLASSES",
-                               "IGNORE_FIELDALIAS"]
+                               "IGNORE_REPRESENTATIONCLASSES"]
 
         UnitTestUtilities.checkGeoObjects([self.inputArea, self.inputArea10m])
 
