@@ -110,6 +110,10 @@ def ColIdxToXlName_PointTargetGRG(index):
             return chr(index + ord('A') - 1) + result
 
 
+'''
+Sample adapted/taken from: https://github.com/usgs/arcgis-sample/blob/master/scripts/RotateFeatureClass.py
+License: Public Domain: https://github.com/usgs/arcgis-sample/blob/master/LICENSE.txt
+'''
 def RotateFeatureClass(inputFC, outputFC,
                        angle=0, pivot_point=None):
     """Rotate Feature Class
@@ -200,58 +204,54 @@ def RotateFeatureClass(inputFC, outputFC,
         arcpy.AddField_management(lyrTmp, gridField, "TEXT")
         arcpy.DeleteField_management(lyrTmp, 'ID')
 
-        # rotate the feature class coordinates
+        # rotate the feature class coordinates for each feature, and each feature part
 
         # open read and write cursors
-        Rows = arcpy.SearchCursor(lyrFC, "", "",
-                                  "%s;%s;" % (shpField,'Grid'))
-        oRows = arcpy.InsertCursor(lyrTmp)
-        arcpy.AddMessage("Opened search cursor")
+        updateFields = ['SHAPE@','Grid']
+        arcpy.AddMessage('Rotating temporary dataset')
         
         parts = arcpy.Array()
         rings = arcpy.Array()
         ring = arcpy.Array()
-        for Row in Rows:
-            shp = Row.getValue(shpField)
-            p = 0
-            for part in shp:
-                for pnt in part:
-                    if pnt:
-                        x, y = RotateXY(pnt.X, pnt.Y, xcen, ycen, angle)
-                        ring.add(arcpy.Point(x, y, pnt.ID))
-                    else:
-                        # if we have a ring, save it
-                        if len(ring) > 0:
-                            rings.add(ring)
-                            ring.removeAll()
-                # we have our last ring, add it
-                rings.add(ring)
-                ring.removeAll()
+
+        with arcpy.da.SearchCursor(lyrFC, updateFields) as inRows,\
+          arcpy.da.InsertCursor(lyrTmp, updateFields) as outRows:
+            for inRow in inRows:
+                shp = inRow[0] # SHAPE
+                p = 0
+                for part in shp:
+                    for pnt in part:
+                        if pnt:
+                            x, y = RotateXY(pnt.X, pnt.Y, xcen, ycen, angle)
+                            ring.add(arcpy.Point(x, y, pnt.ID))
+                        else:
+                            # if we have a ring, save it
+                            if len(ring) > 0:
+                                rings.add(ring)
+                                ring.removeAll()
+                    # we have our last ring, add it
+                    rings.add(ring)
+                    ring.removeAll()
+                    # if only one, remove nesting
+                    if len(rings) == 1: rings = rings.getObject(0)
+                    parts.add(rings)
+                    rings.removeAll()
+                    p += 1
+
                 # if only one, remove nesting
-                if len(rings) == 1: rings = rings.getObject(0)
-                parts.add(rings)
-                rings.removeAll()
-                p += 1
+                if len(parts) == 1: parts = parts.getObject(0)
+                if dFC.shapeType == "Polyline":
+                    shp = arcpy.Polyline(parts)
+                else:
+                    shp = arcpy.Polygon(parts)
+                parts.removeAll()
 
-            # if only one, remove nesting
-            if len(parts) == 1: parts = parts.getObject(0)
-            if dFC.shapeType == "Polyline":
-                shp = arcpy.Polyline(parts)
-            else:
-                shp = arcpy.Polygon(parts)
-            parts.removeAll()
-            oRow = oRows.newRow()
-            oRow.setValue(shpField, shp)
-            oRow.setValue('Grid', Row.getValue('Grid'))                
-            oRows.insertRow(oRow)              
+                gridValue = inRow[1] # GRID string        
+                outRows.insertRow([shp, gridValue])  # write row to output       
 
-        del oRow, oRows # close write cursor (ensure buffer written)
-        oRow, oRows = None, None # restore variables for cleanup
-        
+        arcpy.AddMessage('Merging temporary, rotated dataset with output')
         env.qualifiedFieldNames = False
-        arcpy.Merge_management(lyrTmp, outputFC)
-        lyrOut = 'lyrOut'
-        arcpy.MakeFeatureLayer_management(outputFC, lyrOut)        
+        arcpy.Merge_management(lyrTmp, outputFC)      
 
     except MsgError as xmsg:
         arcpy.AddError(str(xmsg))
@@ -274,11 +274,6 @@ def RotateFeatureClass(inputFC, outputFC,
                 if f: arcpy.Delete_management(f)
             except:
                 pass
-        # delete cursors
-        try:
-            for c in [Row, Rows, oRow, oRows]: del c
-        except:
-            pass
 
         # return pivot point
         try:
