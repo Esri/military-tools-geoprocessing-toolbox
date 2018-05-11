@@ -893,7 +893,7 @@ class TableToPolygon(object):
         # END ToolValidator
 
     def __init__(self):
-        self.label = u'Table to Polygon'
+        self.label = u'Table To Polygon'
         self.description = u'Converts an input table of vertex points to one or more polygon features.'
         self.category = u'Conversion'
         self.canRunInBackground = False
