@@ -48,9 +48,9 @@ class CreateGRGFromArea(object):
         '''
         Create GRG From Area tool constructor method
         '''
-        self.label = "Create GRG from Area"
+        self.label = "Create GRG From Area"
         self.description = "Create a Gridded Reference Graphic (GRG) from an selected area on the map."
-        self.category = "GRG"
+        self.category = "Gridded Reference Graphic"
 
     def getParameterInfo(self):
         '''
@@ -196,9 +196,9 @@ class CreateGRGFromPoint(object):
     '''
     def __init__(self):
         ''' Point Target GRG constructor '''
-        self.label = "Create GRG from Point"
+        self.label = "Create GRG From Point"
         self.description = "Create a Gridded Reference Graphic (GRG) from an selected location on the map."
-        self.category = "GRG"
+        self.category = "Gridded Reference Graphic"
 
     def getParameterInfo(self):
         '''
@@ -381,9 +381,9 @@ class CreateReferenceSystemGRGFromArea(object):
     '''
     def __init__(self):
         ''' Define Reference Grid From Area constructor '''
-        self.label = "Create Reference System GRG from Area"
+        self.label = "Create Reference System GRG From Area"
         self.description = "Create an MGRS or USNG gridded reference graphic from an selected area on the map."
-        self.category = "GRG"
+        self.category = "Gridded Reference Graphic"
         self.GRID_LIST = ['GRID_ZONE_DESIGNATOR',
                           '100000M_GRID',
                           '10000M_GRID',
