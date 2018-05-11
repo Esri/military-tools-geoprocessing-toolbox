@@ -188,6 +188,7 @@ def RotateFeatureClass(inputFC, outputFC,
 
         # create temp feature class
         tmpFC = arcpy.CreateScratchName("xxfc", "", "featureclass")
+
         arcpy.CreateFeatureclass_management(os.path.dirname(tmpFC),
                                             os.path.basename(tmpFC),
                                             shpType)
@@ -287,6 +288,7 @@ def RotateFeatureClass(inputFC, outputFC,
 
         return pivot_point
 
+    # END RotateFeatureClass
 
 def GRGFromArea(AOI,
                 cellWidth,
@@ -539,9 +541,6 @@ def GRGFromArea(AOI,
         else:
             arcpy.AddMessage("Non-map environment, skipping labeling...")
 
-        # Set tool output
-        arcpy.SetParameter(6, outputFeatureClass)
-
     except arcpy.ExecuteError: 
         # Get the tool error messages
         msgs = arcpy.GetMessages()
@@ -771,16 +770,13 @@ def GRGFromPoint(starting_point,
 
         # Get and label the output feature
         #UPDATE
-        targetLayerName = os.path.basename(outputFeatureClass.value)
+        targetLayerName = os.path.basename(outputFeatureClass)
         if appEnvironment == "ARCGIS_PRO":
             arcpy.AddMessage("Do not apply symbology it will be done in the next task step")
         elif appEnvironment == "ARCMAP":
             arcpy.AddMessage("Non-map environment, skipping labeling based on best practices")
         else:
             arcpy.AddMessage("Non-map environment, skipping labeling...")
-
-        # Set tool output
-        arcpy.SetParameter(8, outputFeatureClass)
 
     except arcpy.ExecuteError:
         # Get the tool error messages
