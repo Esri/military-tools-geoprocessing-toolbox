@@ -194,7 +194,7 @@ class VisibilityUtilitiesTestCase(unittest.TestCase, arcpyAssert.FeatureClassAss
         resultClippedRaster = os.path.join(Configuration.militaryScratchGDB, "resultClippedRaster")
         resultClippedRaster = VisibilityUtilities._clipRasterToArea(self.inputSurface, self.inputArea, resultClippedRaster)
         deleteIntermediateData.append(resultClippedRaster)
-        result = arcpy.RasterCompare_management(expectedOutput, resultClippedRaster, "RASTER_DATASET").getOutput(1)
+        result = arcpy.RasterCompare_management(expectedOutput, resultClippedRaster,"RASTER_DATASET","Columns And Rows;NoData;Pixel Value;Raster Attribute Table","","","All 1 Fraction","","").getOutput(1)
         self.assertEqual(result, "true", "Raster Compare failed: \n %s" % arcpy.GetMessages())
 
     def test_getUniqueValuesFromField001(self):
