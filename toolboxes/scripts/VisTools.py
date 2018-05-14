@@ -553,7 +553,7 @@ class RadialLineOfSightAndRange(object):
         # Output_FullWedge
         param_10 = arcpy.Parameter()
         param_10.name = u'Output_FullWedge'
-        param_10.displayName = u'Output FullWedge'
+        param_10.displayName = u'Output Full Wedge'
         param_10.parameterType = 'Required'
         param_10.direction = 'Output'
         param_10.datatype = u'Feature Class'
