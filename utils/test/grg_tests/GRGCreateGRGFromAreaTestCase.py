@@ -102,10 +102,35 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
         self.assertEqual(output, outputOut, "Unexpected return value from tool") 
 
         # 2: Check the number of features created 
+        Configuration.Logger.debug ('''
+        =================================================================
+        Test #2 Check to see if the amount of features created is the
+        number expected.
+        We expect 40
+        ==================================================================
+        ''')
         result = arcpy.GetCount_management(output)
         count = int(result.getOutput(0))
         Configuration.Logger.debug("Output number features: " + str(count))
         self.assertEqual(count, 40)
+
+        # 3: Check the size of the grids that have been created
+        Configuration.Logger.debug ('''
+        ==================================================================
+        Test #3 Check the size of the grids that have been created using the
+        assertLessEqual. Comparing this to the cellwidth and height times 2.
+        If the number returned  is less than 1 the test passes.This is used
+        because of the percision of the field does not produce the exact number.
+        ==================================================================
+        ''')
+
+        #Configuration.Logger.debug ("Check the size of the grids that have been created")
+        primter_area = (cellWidth * 2) +  (cellHeight * 2)
+        field_name = "Shape_Length"
+        cursor = arcpy.da.SearchCursor(output,field_name)
+        for row in cursor:
+            testlen= primter_area - int(row[0])
+            self.assertLessEqual(testlen, 1)
 
 if __name__ == "__main__":
     unittest.main()       
