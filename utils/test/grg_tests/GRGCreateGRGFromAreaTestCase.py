@@ -124,7 +124,7 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
         ==================================================================
         ''')
 
-        #Configuration.Logger.debug ("Check the size of the grids that have been created")
+
         primter_area = (cellWidth * 2) +  (cellHeight * 2)
         field_name = "Shape_Length"
         with arcpy.da.SearchCursor(output, field_name) as cursor:
