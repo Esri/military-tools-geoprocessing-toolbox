@@ -35,15 +35,15 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
         Configuration.GetLogger()
         Configuration.GetPlatform()
         ''' End standalone initialization '''
-            
-        Configuration.Logger.debug("     GRGCreateGRGFromAreaTestCase.setUpClass")    
+
+        Configuration.Logger.debug("     GRGCreateGRGFromAreaTestCase.setUpClass")
         UnitTestUtilities.checkArcPy()
 
         if not arcpy.Exists(Configuration.militaryScratchGDB):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
 
         Configuration.Logger.debug("Import Toolbox: " + Configuration.toolboxUnderTest)
-        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
+        arcpy.ImportToolbox(Configuration.toolboxUnderTest)
         Configuration.Logger.debug("Done Toolbox Import")
 
         arcpy.env.overwriteOutput = True
@@ -99,9 +99,9 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
         # 1: Check the expected return value
         self.assertIsNotNone(toolOutput, "No output returned from tool")
         outputOut = toolOutput.getOutput(0)
-        self.assertEqual(output, outputOut, "Unexpected return value from tool") 
+        self.assertEqual(output, outputOut, "Unexpected return value from tool")
 
-        # 2: Check the number of features created 
+        # 2: Check the number of features created
         Configuration.Logger.debug ('''
         =================================================================
         Test #2 Check to see if the amount of features created is the
@@ -127,10 +127,10 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
         #Configuration.Logger.debug ("Check the size of the grids that have been created")
         primter_area = (cellWidth * 2) +  (cellHeight * 2)
         field_name = "Shape_Length"
-        cursor = arcpy.da.SearchCursor(output,field_name)
-        for row in cursor:
-            testlen= primter_area - int(row[0])
-            self.assertLessEqual(testlen, 1)
+        with arcpy.da.SearchCursor(output, field_name) as cursor:
+            for row in cursor:
+                testlen= primter_area - int(row[0])
+                self.assertLessEqual(testlen, 1)
 
 if __name__ == "__main__":
-    unittest.main()       
+    unittest.main()
