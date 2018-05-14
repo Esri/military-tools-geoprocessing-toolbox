@@ -110,6 +110,10 @@ def ColIdxToXlName_PointTargetGRG(index):
             return chr(index + ord('A') - 1) + result
 
 
+'''
+Sample adapted/taken from: https://github.com/usgs/arcgis-sample/blob/master/scripts/RotateFeatureClass.py
+License: Public Domain: https://github.com/usgs/arcgis-sample/blob/master/LICENSE.txt
+'''
 def RotateFeatureClass(inputFC, outputFC,
                        angle=0, pivot_point=None):
     """Rotate Feature Class
@@ -165,7 +169,7 @@ def RotateFeatureClass(inputFC, outputFC,
         # set up environment
         env_file = arcpy.CreateScratchName("xxenv",".xml","file",
                                            os.environ["TEMP"])
-        arcpy.SaveSettings(env_file)
+        arcpy.gp.SaveSettings(env_file)
         
         WKS = env.workspace
         if not WKS:
@@ -188,6 +192,7 @@ def RotateFeatureClass(inputFC, outputFC,
 
         # create temp feature class
         tmpFC = arcpy.CreateScratchName("xxfc", "", "featureclass")
+
         arcpy.CreateFeatureclass_management(os.path.dirname(tmpFC),
                                             os.path.basename(tmpFC),
                                             shpType)
@@ -199,58 +204,54 @@ def RotateFeatureClass(inputFC, outputFC,
         arcpy.AddField_management(lyrTmp, gridField, "TEXT")
         arcpy.DeleteField_management(lyrTmp, 'ID')
 
-        # rotate the feature class coordinates
+        # rotate the feature class coordinates for each feature, and each feature part
 
         # open read and write cursors
-        Rows = arcpy.SearchCursor(lyrFC, "", "",
-                                  "%s;%s;" % (shpField,'Grid'))
-        oRows = arcpy.InsertCursor(lyrTmp)
-        arcpy.AddMessage("Opened search cursor")
+        updateFields = ['SHAPE@','Grid']
+        arcpy.AddMessage('Rotating temporary dataset')
         
         parts = arcpy.Array()
         rings = arcpy.Array()
         ring = arcpy.Array()
-        for Row in Rows:
-            shp = Row.getValue(shpField)
-            p = 0
-            for part in shp:
-                for pnt in part:
-                    if pnt:
-                        x, y = RotateXY(pnt.X, pnt.Y, xcen, ycen, angle)
-                        ring.add(arcpy.Point(x, y, pnt.ID))
-                    else:
-                        # if we have a ring, save it
-                        if len(ring) > 0:
-                            rings.add(ring)
-                            ring.removeAll()
-                # we have our last ring, add it
-                rings.add(ring)
-                ring.removeAll()
+
+        with arcpy.da.SearchCursor(lyrFC, updateFields) as inRows,\
+          arcpy.da.InsertCursor(lyrTmp, updateFields) as outRows:
+            for inRow in inRows:
+                shp = inRow[0] # SHAPE
+                p = 0
+                for part in shp:
+                    for pnt in part:
+                        if pnt:
+                            x, y = RotateXY(pnt.X, pnt.Y, xcen, ycen, angle)
+                            ring.add(arcpy.Point(x, y, pnt.ID))
+                        else:
+                            # if we have a ring, save it
+                            if len(ring) > 0:
+                                rings.add(ring)
+                                ring.removeAll()
+                    # we have our last ring, add it
+                    rings.add(ring)
+                    ring.removeAll()
+                    # if only one, remove nesting
+                    if len(rings) == 1: rings = rings.getObject(0)
+                    parts.add(rings)
+                    rings.removeAll()
+                    p += 1
+
                 # if only one, remove nesting
-                if len(rings) == 1: rings = rings.getObject(0)
-                parts.add(rings)
-                rings.removeAll()
-                p += 1
+                if len(parts) == 1: parts = parts.getObject(0)
+                if dFC.shapeType == "Polyline":
+                    shp = arcpy.Polyline(parts)
+                else:
+                    shp = arcpy.Polygon(parts)
+                parts.removeAll()
 
-            # if only one, remove nesting
-            if len(parts) == 1: parts = parts.getObject(0)
-            if dFC.shapeType == "Polyline":
-                shp = arcpy.Polyline(parts)
-            else:
-                shp = arcpy.Polygon(parts)
-            parts.removeAll()
-            oRow = oRows.newRow()
-            oRow.setValue(shpField, shp)
-            oRow.setValue('Grid', Row.getValue('Grid'))                
-            oRows.insertRow(oRow)              
+                gridValue = inRow[1] # GRID string        
+                outRows.insertRow([shp, gridValue])  # write row to output       
 
-        del oRow, oRows # close write cursor (ensure buffer written)
-        oRow, oRows = None, None # restore variables for cleanup
-        
+        arcpy.AddMessage('Merging temporary, rotated dataset with output')
         env.qualifiedFieldNames = False
-        arcpy.Merge_management(lyrTmp, outputFC)
-        lyrOut = 'lyrOut'
-        arcpy.MakeFeatureLayer_management(outputFC, lyrOut)        
+        arcpy.Merge_management(lyrTmp, outputFC)      
 
     except MsgError as xmsg:
         arcpy.AddError(str(xmsg))
@@ -266,18 +267,13 @@ def RotateFeatureClass(inputFC, outputFC,
         arcpy.AddError(tbinfo + str(xmsg))
     finally:
         # reset environment
-        if env_file: arcpy.LoadSettings(env_file)
+        if env_file: arcpy.gp.LoadSettings(env_file)
         # Clean up temp files
         for f in [lyrFC, lyrTmp, lyrOut, tmpFC, env_file]:
             try:
                 if f: arcpy.Delete_management(f)
             except:
                 pass
-        # delete cursors
-        try:
-            for c in [Row, Rows, oRow, oRows]: del c
-        except:
-            pass
 
         # return pivot point
         try:
@@ -287,6 +283,7 @@ def RotateFeatureClass(inputFC, outputFC,
 
         return pivot_point
 
+    # END RotateFeatureClass
 
 def GRGFromArea(AOI,
                 cellWidth,
@@ -539,9 +536,6 @@ def GRGFromArea(AOI,
         else:
             arcpy.AddMessage("Non-map environment, skipping labeling...")
 
-        # Set tool output
-        arcpy.SetParameter(6, outputFeatureClass)
-
     except arcpy.ExecuteError: 
         # Get the tool error messages
         msgs = arcpy.GetMessages()
@@ -771,16 +765,13 @@ def GRGFromPoint(starting_point,
 
         # Get and label the output feature
         #UPDATE
-        targetLayerName = os.path.basename(outputFeatureClass.value)
+        targetLayerName = os.path.basename(outputFeatureClass)
         if appEnvironment == "ARCGIS_PRO":
             arcpy.AddMessage("Do not apply symbology it will be done in the next task step")
         elif appEnvironment == "ARCMAP":
             arcpy.AddMessage("Non-map environment, skipping labeling based on best practices")
         else:
             arcpy.AddMessage("Non-map environment, skipping labeling...")
-
-        # Set tool output
-        arcpy.SetParameter(8, outputFeatureClass)
 
     except arcpy.ExecuteError:
         # Get the tool error messages
