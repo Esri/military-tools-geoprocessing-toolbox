@@ -108,20 +108,23 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
         # 2: Check the number of features created
         Configuration.Logger.debug ('''
         =================================================================
-        Test #2 Check to see if the amount of features created is the
+        Check #2 Check to see if the amount of features created is the
         number expected.
         We expect 40
         ==================================================================
         ''')
-        result = arcpy.GetCount_management(output)
-        count = int(result.getOutput(0))
-        Configuration.Logger.debug("Output number features: " + str(count))
+        #Commenting out this check until we figure out how to do the same
+        #test based on random inputs
+
+        #result = arcpy.GetCount_management(output)
+        #count = int(result.getOutput(0))
+        #Configuration.Logger.debug("Output number features: " + str(count))
         #self.assertEqual(count, 40)
 
         # 3: Check the size of the grids that have been created
         Configuration.Logger.debug ('''
         ==================================================================
-        Test #3 Check the size of the grids that have been created using the
+        Check #3 Check the size of the grids that have been created using the
         assertLessEqual. Comparing this to the cellwidth and height times 2.
         If the number returned  is less than 1 the test passes.This is used
         because of the percision of the field does not produce the exact number.
@@ -138,28 +141,31 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
 
         Configuration.Logger.debug ('''
         ==================================================================
-        Test #4 Check to see if all the correct numeric labels have been
-        created. This is tested by comparing the numbers to objectID.
+        Check #4 Check to see if all the correct numeric labels have been
+        created. This is tested by comparing the numbers to objectID to the
+        number sin the Grid attribute.
         ==================================================================
         ''')
 
         oid = []
         grid = []
+        #Create a list with the attributes from the OID in output
         with arcpy.da.SearchCursor(output, "ObjectID") as cursor:
             for row in cursor:
                 oid.append(row[0])
-
+        #Create a list with the attributes from the Grid in output
         with arcpy.da.SearchCursor(output,"Grid") as cursor:
             for row in cursor:
                 grid.append(int(row[0]))
 
-        #Compare the oid list and the grid list
 
+        #sort the oid and grid to allow each list to be compared correctly
         list.sort(oid)
         list.sort(grid)
         Configuration.Logger.debug(oid)
         Configuration.Logger.debug(grid)
 
+        #Compare the oid list and the grid list
         self.assertEquals(oid, grid)
 
 
