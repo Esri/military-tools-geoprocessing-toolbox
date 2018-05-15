@@ -112,7 +112,7 @@ class GRGCreateGRGFromPointTestCase(unittest.TestCase):
         self.assertEqual(count, expectedCount, "Unexpected number of output feature created")
 
     # Test Removed because it broke test harness
-    def _testGRGPointTarget_Rotated(self):
+    def testGRGPointTarget_Rotated(self):
         Configuration.Logger.debug(".....GRGCreateGRGFromPointTestCase.testGRGPointTarget_Rotated")
 
         #inputs
