@@ -15,6 +15,7 @@
 
 import os
 import unittest
+
 import arcpy
 
 # Add parent folder to python path if running test case standalone
@@ -25,6 +26,11 @@ import Configuration
 import UnitTestUtilities
 
 class GRGCreateGRGFromPointTestCase(unittest.TestCase):
+    '''
+    Test cases for GRG CreateGRGFromPoint GP Tool
+    Unit Test Design at: 
+    https://github.com/Esri/military-tools-geoprocessing-toolbox/wiki/GRG-From-Point
+    '''
 
     pointTarget = None
 
@@ -64,8 +70,8 @@ class GRGCreateGRGFromPointTestCase(unittest.TestCase):
     def tearDown(self):
         Configuration.Logger.debug("         GRGCreateGRGFromPointTestCase.tearDown")
 
-    def testGRGPointTarget_Simple(self):
-        Configuration.Logger.debug(".....GRGCreateGRGFromPointTestCase.testGRGPointTarget_Simple")
+    def testGRGPointTarget(self):
+        Configuration.Logger.debug(".....GRGCreateGRGFromPointTestCase.testGRGPointTarget")
 
         #inputs
         rows = 5
@@ -111,8 +117,86 @@ class GRGCreateGRGFromPointTestCase(unittest.TestCase):
         expectedCount = rows * cols
         self.assertEqual(count, expectedCount, "Unexpected number of output feature created")
 
-    # Test Removed because it broke test harness
-    def _testGRGPointTarget_Rotated(self):
+        # 3: Checks 3 and 4 - check size of feature shape and grid zone label
+        # for each feature matches the expected values
+        expectedPerimeter = (cellWidth * 2.0) + (cellHeight * 2.0)
+        tolerance = 0.001
+        field_names = ["Grid", "Shape_Length"]
+        with arcpy.da.SearchCursor(outputOut, field_names) as cursor:
+            for row in cursor:
+                gridDesignator = row[0]
+                perimeterLength = row[1]
+                perimeterDelta = abs(expectedPerimeter - perimeterLength)
+                # Check 3 - Grid Perimeter length matched expected (within tolerance)
+                self.assertLessEqual(perimeterDelta, tolerance)
+                # Check 4 - Grid Zone Designator matches expectedd format
+                regexExpression = '[A-Z][0-9]+$' # [LETTER A-Z][One or more digits]
+                self.assertRegex(gridDesignator, regexExpression)
+
+    def testGRGPointTarget_Numeric(self):
+        Configuration.Logger.debug(".....GRGCreateGRGFromPointTestCase.testGRGPointTarget_Numeric")
+
+        #inputs
+        rows = 10
+        cols = 20
+        cellWidth = 100
+        cellHeight = 200
+        cellUnits = "Meters"
+        labelStart = "Lower-Left"
+        labelStyle = "Numeric"
+        labelSeparator = "-" # TRICKY: Only used for Alpha-Alpha but required parameter?
+        gridRotationAngle = 0 # No Rotation
+
+        output = os.path.join(Configuration.militaryScratchGDB, "ptTarget")
+
+        #Testing
+        runToolMsg="Running tool (Point Target)"
+        arcpy.AddMessage(runToolMsg)
+        Configuration.Logger.info(runToolMsg)
+
+        toolOutput = None
+
+        try:
+            # Calling the PointTargetGRG Script Tool
+            toolOutput = arcpy.CreateGRGFromPoint_mt(self.pointTarget, \
+                rows, cols, \
+                cellWidth, cellHeight, cellUnits, \
+                labelStart, labelStyle, labelSeparator, gridRotationAngle, \
+                output)
+        except arcpy.ExecuteError:
+            UnitTestUtilities.handleArcPyError()
+        except:
+            UnitTestUtilities.handleGeneralError()
+
+        # 1: Check the expected return value and that output exists
+        self.assertIsNotNone(toolOutput, "No output returned from tool")
+        outputOut = toolOutput.getOutput(0)
+        self.assertEqual(output, outputOut, "Unexpected return value from tool") 
+        self.assertTrue(arcpy.Exists(outputOut), "Output does not exist")
+
+        # 2: Check the number of features created 
+        result = arcpy.GetCount_management(output)
+        count = int(result.getOutput(0))
+        expectedCount = rows * cols
+        self.assertEqual(count, expectedCount, "Unexpected number of output feature created")
+
+        # 3: Checks 3 and 4 - check size of feature shape and grid zone label
+        # for each feature matches the expected values
+        expectedPerimeter = (cellWidth * 2.0) + (cellHeight * 2.0)
+        tolerance = 0.001
+        field_names = ["Grid", "Shape_Length"]
+        with arcpy.da.SearchCursor(outputOut, field_names) as cursor:
+            for row in cursor:
+                gridDesignator = row[0]
+                perimeterLength = row[1]
+                perimeterDelta = abs(expectedPerimeter - perimeterLength)
+                # Check 3 - Grid Perimeter length matched expected (within tolerance)
+                self.assertLessEqual(perimeterDelta, tolerance)
+                # Check 4 - Grid Zone Designator matches expectedd format
+                regexExpression = '[0-9]+$' # [One or more digits]
+                self.assertRegex(gridDesignator, regexExpression)
+
+    def testGRGPointTarget_Rotated(self):
         Configuration.Logger.debug(".....GRGCreateGRGFromPointTestCase.testGRGPointTarget_Rotated")
 
         #inputs

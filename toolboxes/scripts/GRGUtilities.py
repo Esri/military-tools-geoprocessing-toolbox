@@ -148,9 +148,8 @@ def RotateFeatureClass(inputFC, outputFC,
 
     # temp names for cleanup
     env_file = None
-    lyrFC, lyrTmp, lyrOut   = [None] * 3  # layers
+    lyrFC, lyrTmp = [None] * 2  # layers
     tmpFC  = None # temp dataset
-    Row, Rows, oRow, oRows = [None] * 4 # cursors
 
     try:
         # process parameters
@@ -193,16 +192,19 @@ def RotateFeatureClass(inputFC, outputFC,
         # create temp feature class
         tmpFC = arcpy.CreateScratchName("xxfc", "", "featureclass")
 
+        # Create Feature Class using inputFC as template (so will have "Grid" field)
         arcpy.CreateFeatureclass_management(os.path.dirname(tmpFC),
                                             os.path.basename(tmpFC),
-                                            shpType)
+                                            shpType,
+                                            inputFC)
         lyrTmp = 'lyrTmp'
         arcpy.MakeFeatureLayer_management(tmpFC, lyrTmp)
 
-        # set up grid field
-        gridField = "Grid"
-        arcpy.AddField_management(lyrTmp, gridField, "TEXT")
-        arcpy.DeleteField_management(lyrTmp, 'ID')
+        ## WORKAROUND: removed below because it was creating a schema lock until Pro/arcpy exited
+        ## set up grid field
+        #gridField = "Grid"
+        #arcpy.AddField_management(lyrTmp, gridField, "TEXT")
+        #arcpy.DeleteField_management(lyrTmp, 'ID')
 
         # rotate the feature class coordinates for each feature, and each feature part
 
@@ -269,9 +271,10 @@ def RotateFeatureClass(inputFC, outputFC,
         # reset environment
         if env_file: arcpy.gp.LoadSettings(env_file)
         # Clean up temp files
-        for f in [lyrFC, lyrTmp, lyrOut, tmpFC, env_file]:
+        for f in [lyrFC, lyrTmp, tmpFC, env_file]:
             try:
-                if f: arcpy.Delete_management(f)
+                if f and arcpy.Exists(f) : 
+                    arcpy.Delete_management(f)
             except:
                 pass
 
