@@ -74,7 +74,7 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
         cellHeight = 100
         cellunits = "Meters"
         labelStart = "Lower-Left"
-        labelStyle = "Alpha-Numeric"
+        labelStyle = "Numeric"
         labelSeparator = "-" # Only used for Alpha-Alpha but required parameter?
         output = os.path.join(Configuration.militaryScratchGDB, "grg")
 
@@ -131,6 +131,29 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
             for row in cursor:
                 testlen= primter_area - int(row[0])
                 self.assertLessEqual(testlen, 1)
+
+        Configuration.Logger.debug ('''
+        ==================================================================
+        Test #4 Check to see if all the correct numeric labels have been
+        created. This is tested by comparing the numbers to objectID.
+        ==================================================================
+        ''')
+
+        oid = []
+        grid = []
+        with arcpy.da.SearchCursor(output, "ObjectID") as cursor:
+            for row in cursor:
+                oid.append(row[0])
+
+        with arcpy.da.SearchCursor(output,"Grid") as cursor:
+            for row in cursor:
+                grid.append(int(row[0]))
+
+        #Compare the oid list and the grid list
+        list.sort(oid)
+        list.sort(grid)
+        self.assertEquals(oid, grid)
+
 
 if __name__ == "__main__":
     unittest.main()
