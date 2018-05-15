@@ -28,6 +28,8 @@ import arcpyAssert
 class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMixin):
     '''
     Test cases for Create Reference System GRG From Area in the Gridded Reference Graphic Tools toolbox.
+    Unit Test Design at: 
+    https://github.com/Esri/military-tools-geoprocessing-toolbox/wiki/GRG-CreateReferenceSystemGRGFromArea
     '''
 
     inputArea = None

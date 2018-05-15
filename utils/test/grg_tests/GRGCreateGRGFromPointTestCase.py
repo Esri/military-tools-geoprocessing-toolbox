@@ -26,6 +26,11 @@ import Configuration
 import UnitTestUtilities
 
 class GRGCreateGRGFromPointTestCase(unittest.TestCase):
+    '''
+    Test cases for GRG CreateGRGFromPoint GP Tool
+    Unit Test Design at: 
+    https://github.com/Esri/military-tools-geoprocessing-toolbox/wiki/GRG-From-Point
+    '''
 
     pointTarget = None
 
