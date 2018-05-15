@@ -105,7 +105,7 @@ class TableToPolygonTestCase(unittest.TestCase):
 
         return
 
-    def test_table_to_polygon(self):
+    def test_table_to_polygon_w_grouping(self):
         '''Test Table To Polygon using Name field as the grouping Line Field'''
 
         Configuration.Logger.info(".....TableToPolygonTestCase.test_table_to_polygon_w_grouping")
