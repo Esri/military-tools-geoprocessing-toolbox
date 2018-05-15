@@ -16,6 +16,7 @@
 import os
 import unittest
 import arcpy
+from random import randint
 
 # Add parent folder to python path if running test case standalone
 import sys
@@ -70,13 +71,16 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
         Configuration.Logger.debug(".....GRGCreateGRGFromAreaTestCase.testGRGAreaGRG")
 
         #inputs
-        cellWidth = 100
-        cellHeight = 100
+        cellWidth = randint(100, 500)
+        cellHeight = randint(100, 500)
         cellunits = "Meters"
         labelStart = "Lower-Left"
         labelStyle = "Numeric"
         labelSeparator = "-" # Only used for Alpha-Alpha but required parameter?
         output = os.path.join(Configuration.militaryScratchGDB, "grg")
+
+        Configuration.Logger.debug ("Cell Width: " + str(cellWidth))
+        Configuration.Logger.debug ("Cell Height: " + str(cellHeight))
 
         #Testing
         runToolMsg="Running tool (Canvas Area GRG)"
@@ -112,7 +116,7 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
         result = arcpy.GetCount_management(output)
         count = int(result.getOutput(0))
         Configuration.Logger.debug("Output number features: " + str(count))
-        self.assertEqual(count, 40)
+        #self.assertEqual(count, 40)
 
         # 3: Check the size of the grids that have been created
         Configuration.Logger.debug ('''
@@ -150,8 +154,12 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
                 grid.append(int(row[0]))
 
         #Compare the oid list and the grid list
+
         list.sort(oid)
         list.sort(grid)
+        Configuration.Logger.debug(oid)
+        Configuration.Logger.debug(grid)
+
         self.assertEquals(oid, grid)
 
 
