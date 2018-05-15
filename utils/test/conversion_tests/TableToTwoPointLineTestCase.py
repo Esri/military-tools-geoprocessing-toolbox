@@ -32,6 +32,7 @@
 
 import os
 import unittest
+import math
 
 import arcpy
 
@@ -104,11 +105,45 @@ class TableToTwoPointLineTestCase(unittest.TestCase):
         arcpy.TableTo2PointLine_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", "DD_2", \
             "POINT_X2", "POINT_Y2", self.outputLines, "GEODESIC")
 
+        # Check 1
+        # Does the output feature class exist.
         self.assertTrue(arcpy.Exists(self.outputLines), "Output features do not exist or were not created")
-        lineCount = int(arcpy.GetCount_management(self.outputLines).getOutput(0))
-        expectedFeatures = int(3)
-        self.assertEqual(lineCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(lineCount)))
+        
+        # Check 2
+        # Compare the number of rows in the input vs the number of features in the output.  
+        # Expected: inputLineCount = outputLineCount 
+        
+        inputLineCount = int(arcpy.GetCount_management(self.inputTable).getOutput(0))
+        outputLineCount = int(arcpy.GetCount_management(self.outputLines).getOutput(0))
+     
+        self.assertEqual(inputLineCount, outputLineCount, "Expected %s features, but got %s" % (str(inputLineCount), str(outputLineCount)))
+        
+        # Check 3
+        # Check line length from output created.
+        # Expected: For each feature in the feature class get the attributes (Point_X, Point_Y) and (Point_X2, Point_Y2). Calculate the expected line length using these attributes.
+        # Shape_Length attribute should be the same as expected line length.
+        # POINT_X POINT_Y POINT_X2 POINT_Y2
+
+        tolerance = 0.0001
+        field_names = ["Shape_Length","POINT_X","POINT_Y", "POINT_X2", "POINT_Y2"]
+        with arcpy.da.SearchCursor(self.outputLines, field_names) as cursor:
+            for row in cursor:
+                actualLineLength = row[0]
+                point_X = row[1]
+                point_Y = row[2]
+                point_X2 = row[3]
+                point_Y2 = row[4]
+
+                deltaX = float(point_X2)-float(point_X)
+                deltaY = float(point_Y2)-float(point_Y)
+
+                expectedLineLength = math.sqrt((deltaY*deltaY)+(deltaX*deltaX))
+           
+                deltaLineLength = abs(expectedLineLength - actualLineLength)
+                self.assertLessEqual(deltaLineLength, tolerance)
+       
         return
+
 
     #Test GARS
     def test_table_to_twopointline_GARS(self):
