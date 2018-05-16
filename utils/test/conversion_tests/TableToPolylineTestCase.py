@@ -112,8 +112,9 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
         self.assertIsNotNone(toolOutput, "No output returned from tool")
         outputOut = toolOutput.getOutput(0)
         self.assertEqual(self.outputPolylines, outputOut, "Unexpected return value from tool")
+        self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
 
-        # Process to check tool results
+        # Process to check tool results for grouping
         # Step 1: Make in_memory table to get frequency of
         inMemTable = arcpy.TableToTable_conversion(self.inputTable, "in_memory", "TableToPolyline_single_In_Mem")
 
@@ -124,9 +125,6 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
         # Get Count of the unique names
         toolOutput = arcpy.GetCount_management(freqInputTable)
         expectedFeatureCount = int(toolOutput.getOutput(0))
-
-        self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
-        #polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
         polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
         self.assertEqual(polylineCount, expectedFeatureCount, "Expected %s features, but got %s" % (str(expectedFeatureCount), str(polylineCount)))
 
