@@ -248,6 +248,50 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
         #                             "OBJECTID")
 
         return 
-        
+
+    def test_table_to_polyline_check_vertex_count(self):
+        '''Test Table To Polyline to verify that a last vertex is not being added to close the line to a polygon'''
+        # Test for issue 254
+
+        Configuration.Logger.info(".....TableToPolylineTestCase.test_table_to_polyline_check_vertex_count")
+
+        # Delete the output feature class if already exists
+        if arcpy.Exists(self.outputPolylines) :
+            arcpy.Delete_management(self.outputPolylines)
+
+
+        toolOutput = arcpy.TableToPolyline_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", \
+            self.outputPolylines, "Group_")
+
+
+        # 1: Check the expected return value
+        self.assertIsNotNone(toolOutput, "No output returned from tool")
+        outputOut = toolOutput.getOutput(0)
+        self.assertEqual(self.outputPolylines, outputOut, "Unexpected return value from tool")
+
+        # 2: Count the number of vertices in the output to see that it matches the number of rows in input table
+        # Set counter to 0
+        vertex_count = 0
+        # Enter for loop for each feature
+        for row in arcpy.da.SearchCursor(outputOut, ["OID@", "SHAPE@"]):
+            partnum = 0
+            # Step through each part of the feature
+            for part in row[1]:
+                # Step through each vertex in the feature
+                for pnt in part:
+                    if pnt:
+                        # Increment the vertex count
+                        vertex_count += 1
+                    else:
+                        # If pnt is None, this represents an interior ring
+                        print("Interior Ring:")
+                partnum += 1
+
+        # 3: Check if this count matches the number of input table rows
+        input_table_row_count = int(arcpy.GetCount_management(self.inputTable).getOutput(0))
+        self.assertEqual(vertex_count, input_table_row_count, "Expected %s vertices, but got %s" % (str(input_table_row_count), str(vertex_count)))
+        return
+
+
 if __name__ == "__main__":
     unittest.main()

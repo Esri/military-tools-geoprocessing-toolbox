@@ -48,9 +48,9 @@ class CreateGRGFromArea(object):
         '''
         Create GRG From Area tool constructor method
         '''
-        self.label = "Create GRG from Area"
+        self.label = "Create GRG From Area"
         self.description = "Create a Gridded Reference Graphic (GRG) from an selected area on the map."
-        self.category = "GRG"
+        self.category = "Gridded Reference Graphic"
 
     def getParameterInfo(self):
         '''
@@ -196,9 +196,9 @@ class CreateGRGFromPoint(object):
     '''
     def __init__(self):
         ''' Point Target GRG constructor '''
-        self.label = "Create GRG from Point"
+        self.label = "Create GRG From Point"
         self.description = "Create a Gridded Reference Graphic (GRG) from an selected location on the map."
-        self.category = "GRG"
+        self.category = "Gridded Reference Graphic"
 
     def getParameterInfo(self):
         '''
@@ -318,7 +318,7 @@ class CreateGRGFromPoint(object):
         output_features= arcpy.Parameter(name='output_grg_features',
                                          displayName='Output GRG Features',
                                          direction='Output',
-                                         datatype='DEFeatureClass',
+                                         datatype=u'Feature Class',
                                          parameterType='Required',
                                          enabled=True,
                                          multiValue=False)
@@ -349,7 +349,6 @@ class CreateGRGFromPoint(object):
         else:
           parameters[8].enabled = False
 
-
         return
 
     def updateMessages(self, parameters):
@@ -362,17 +361,24 @@ class CreateGRGFromPoint(object):
     def execute(self, parameters, messages):
         ''' execute for toolbox'''
 
-        out_grg = GRGUtilities.GRGFromPoint(parameters[0].value, #Input Location
-                                            parameters[1].value, #Number Horizontal Cells
-                                            parameters[2].value, #Number Vertical Cells
-                                            parameters[3].value, #Cell Width
-                                            parameters[4].value, #Cell Height
-                                            parameters[5].value, #Cell Units
-                                            parameters[6].value, #Labeling Start Postiton
-                                            parameters[7].value, #Labeling Type
-                                            parameters[8].value, #Labeling Seperator
-                                            parameters[9].value, #Grid Angle
-                                            parameters[10].value)  #Output
+        pointTargets = parameters[0].value #Input Location(s)
+        rows         = parameters[1].value #Number Horizontal Cells
+        cols         = parameters[2].value #Number Vertical Cells
+        cellWidth    = parameters[3].value #Cell Width
+        cellHeight   = parameters[4].value #Cell Height
+        cellUnits    = parameters[5].value #Cell Units
+        labelStart   = parameters[6].value #Labeling Start Postiton
+        labelStyle   = parameters[7].value #Labeling Type
+        labelSeparator    = parameters[8].value #Labeling Seperator
+        gridRotationAngle = parameters[9].value #Grid Angle
+        output            = parameters[10].valueAsText  #Output
+
+        out_grg = GRGUtilities.GRGFromPoint(pointTargets, \
+                rows, cols, \
+                cellWidth, cellHeight, cellUnits, \
+                labelStart, labelStyle, labelSeparator, gridRotationAngle, \
+                output)
+
         return out_grg
 
 class CreateReferenceSystemGRGFromArea(object):
@@ -381,9 +387,9 @@ class CreateReferenceSystemGRGFromArea(object):
     '''
     def __init__(self):
         ''' Define Reference Grid From Area constructor '''
-        self.label = "Create Reference System GRG from Area"
+        self.label = "Create Reference System GRG From Area"
         self.description = "Create an MGRS or USNG gridded reference graphic from an selected area on the map."
-        self.category = "GRG"
+        self.category = "Gridded Reference Graphic"
         self.GRID_LIST = ['GRID_ZONE_DESIGNATOR',
                           '100000M_GRID',
                           '10000M_GRID',

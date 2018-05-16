@@ -28,6 +28,8 @@ import arcpyAssert
 class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMixin):
     '''
     Test cases for Create Reference System GRG From Area in the Gridded Reference Graphic Tools toolbox.
+    Unit Test Design at: 
+    https://github.com/Esri/military-tools-geoprocessing-toolbox/wiki/GRG-CreateReferenceSystemGRGFromArea
     '''
 
     inputArea = None
@@ -77,8 +79,7 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
                                "IGNORE_EXTENSION_PROPERTIES",
                                "IGNORE_SUBTYPES",
                                "IGNORE_RELATIONSHIPCLASSES",
-                               "IGNORE_REPRESENTATIONCLASSES",
-                               "IGNORE_FIELDALIAS"]
+                               "IGNORE_REPRESENTATIONCLASSES"]
 
         UnitTestUtilities.checkGeoObjects([self.inputArea, self.inputArea10m])
 
@@ -120,6 +121,7 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
         self.assertIsNotNone(toolOutput, "No output returned from tool")
         outputOut = toolOutput.getOutput(0)
         self.assertEqual(output, outputOut, "Unexpected return value from tool") 
+        self.assertTrue(arcpy.Exists(outputOut), "Output does not exist") 
 
         # 2: Check the features created 
         self.assertFeatureClassEqual(compareDataset,
@@ -165,6 +167,7 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
         self.assertIsNotNone(toolOutput, "No output returned from tool")
         outputOut = toolOutput.getOutput(0)
         self.assertEqual(output, outputOut, "Unexpected return value from tool") 
+        self.assertTrue(arcpy.Exists(outputOut), "Output does not exist") 
 
         # 2: Check the features created 
         self.assertFeatureClassEqual(compareDataset,
@@ -210,6 +213,7 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
         self.assertIsNotNone(toolOutput, "No output returned from tool")
         outputOut = toolOutput.getOutput(0)
         self.assertEqual(output, outputOut, "Unexpected return value from tool") 
+        self.assertTrue(arcpy.Exists(outputOut), "Output does not exist") 
 
         # 2: Check the features created 
         self.assertFeatureClassEqual(compareDataset,
@@ -255,6 +259,7 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
         self.assertIsNotNone(toolOutput, "No output returned from tool")
         outputOut = toolOutput.getOutput(0)
         self.assertEqual(output, outputOut, "Unexpected return value from tool") 
+        self.assertTrue(arcpy.Exists(outputOut), "Output does not exist") 
 
         # 2: Check the features created 
         self.assertFeatureClassEqual(compareDataset,
@@ -300,6 +305,7 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
         self.assertIsNotNone(toolOutput, "No output returned from tool")
         outputOut = toolOutput.getOutput(0)
         self.assertEqual(output, outputOut, "Unexpected return value from tool") 
+        self.assertTrue(arcpy.Exists(outputOut), "Output does not exist") 
 
         # 2: Check the features created 
         self.assertFeatureClassEqual(compareDataset,
@@ -345,6 +351,7 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
         self.assertIsNotNone(toolOutput, "No output returned from tool")
         outputOut = toolOutput.getOutput(0)
         self.assertEqual(output, outputOut, "Unexpected return value from tool") 
+        self.assertTrue(arcpy.Exists(outputOut), "Output does not exist") 
 
         # 2: Check the features created 
         self.assertFeatureClassEqual(compareDataset,

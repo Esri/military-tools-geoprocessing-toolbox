@@ -91,7 +91,16 @@ class ConvertCoordinatesTestCase(unittest.TestCase):
         expectedFeatures = int(288)
         self.assertGreaterEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
 
-        #TODO: Were correct fields added to the output?
+        # Were all of the expected added?
+        expected_field_names = ["DDLat","DDLon","DMSLat","DMSLon","DDMLat","DDMLon","MGRS","USNG","UTM_BANDS","GEOREF","GARS"]
+        field_list = arcpy.ListFields(self.outputConvert)
+        out_field_names_list = []
+        for out_field in field_list:
+            out_field_name = str(out_field.name)
+            out_field_names_list.append(out_field_name)
+
+        for expected_name in expected_field_names:
+            self.assertTrue(expected_name in out_field_names_list, ("Field %s is not present!" % expected_name))
 
         return
 
