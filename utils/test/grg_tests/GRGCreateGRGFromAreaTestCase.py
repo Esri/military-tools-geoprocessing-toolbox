@@ -66,6 +66,71 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
     def tearDown(self):
         Configuration.Logger.debug("         GRGTestCase.tearDown")
 
+    def testGRGAreaGRGSimple(self):
+        '''
+        Test GRG from area with a input of 100 meters as the cell width and height.
+        The checks in the tis test will check:
+                If the output feature class has been created
+                If the expected amount of features have been created
+        '''
+
+        Configuration.Logger.debug(".....GRGCreateGRGFromAreaTestCase.testGRGAreaGRGSimple")
+
+        #inputs
+        cellWidth = 100
+        cellHeight = 100
+        cellunits = "Meters"
+        labelStart = "Lower-Left"
+        labelStyle = "Numeric"
+        labelSeparator = "-" # Only used for Alpha-Alpha but required parameter?
+        output = os.path.join(Configuration.militaryScratchGDB, "grg")
+
+        Configuration.Logger.debug ("Cell Width: " + str(cellWidth))
+        Configuration.Logger.debug ("Cell Height: " + str(cellHeight))
+
+        #Testing
+        runToolMsg="Running tool (Canvas Area GRG)"
+        arcpy.AddMessage(runToolMsg)
+        Configuration.Logger.info(runToolMsg)
+
+        toolOutput = None
+
+        try:
+            # Calling the Create GRG From Area script tool
+            toolOutput = arcpy.CreateGRGFromArea_mt(self.inputArea, \
+                cellWidth, cellHeight, cellunits, \
+                labelStart, labelStyle, labelSeparator, output)
+
+        except arcpy.ExecuteError:
+            UnitTestUtilities.handleArcPyError()
+        except:
+            UnitTestUtilities.handleGeneralError()
+
+        Configuration.Logger.debug('''
+        ==================================================================
+        Check #1 Check to see if the output featureclass is created
+        ==================================================================
+                ''')
+
+        self.assertIsNotNone(toolOutput, "No output returned from tool")
+        outputOut = toolOutput.getOutput(0)
+        self.assertEqual(output, outputOut, "Unexpected return value from tool")
+
+        # 2: Check the number of features created
+        Configuration.Logger.debug ('''
+        =================================================================
+        Check #2 Check to see if the amount of features created is the
+        number expected.
+        ==================================================================
+        ''')
+
+        result = arcpy.GetCount_management(output)
+        count = int(result.getOutput(0))
+        Configuration.Logger.debug("Output number features: " + str(count))
+        self.assertEqual(count, 40)
+
+
+
     def testGRGAreaGRG(self):
 
         Configuration.Logger.debug(".....GRGCreateGRGFromAreaTestCase.testGRGAreaGRG")
@@ -100,31 +165,9 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
         except:
             UnitTestUtilities.handleGeneralError()
 
-        # 1: Check the expected return value
-        self.assertIsNotNone(toolOutput, "No output returned from tool")
-        outputOut = toolOutput.getOutput(0)
-        self.assertEqual(output, outputOut, "Unexpected return value from tool")
-
-        # 2: Check the number of features created
-        Configuration.Logger.debug ('''
-        =================================================================
-        Check #2 Check to see if the amount of features created is the
-        number expected.
-        We expect 40
-        ==================================================================
-        ''')
-        #Commenting out this check until we figure out how to do the same
-        #test based on random inputs
-
-        #result = arcpy.GetCount_management(output)
-        #count = int(result.getOutput(0))
-        #Configuration.Logger.debug("Output number features: " + str(count))
-        #self.assertEqual(count, 40)
-
-        # 3: Check the size of the grids that have been created
         Configuration.Logger.debug ('''
         ==================================================================
-        Check #3 Check the size of the grids that have been created using the
+        Check #1 Check the size of the grids that have been created using the
         assertLessEqual. Comparing this to the cellwidth and height times 2.
         If the number returned  is less than 1 the test passes.This is used
         because of the percision of the field does not produce the exact number.
@@ -141,7 +184,7 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
 
         Configuration.Logger.debug ('''
         ==================================================================
-        Check #4 Check to see if all the correct numeric labels have been
+        Check #2 Check to see if all the correct numeric labels have been
         created. This is tested by comparing the numbers to objectID to the
         number sin the Grid attribute.
         ==================================================================
@@ -167,7 +210,5 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
 
         #Compare the oid list and the grid list
         self.assertEquals(oid, grid)
-
-
 if __name__ == "__main__":
     unittest.main()
