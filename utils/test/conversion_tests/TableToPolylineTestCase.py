@@ -2,7 +2,7 @@
 '''
 -----------------------------------------------------------------------------
 Copyright 2016 Esri
-Licensed under the Apache License, Version 2.0 (the "License");
+Licensed ungder the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
@@ -123,8 +123,8 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
         freqInputTable = arcpy.Frequency_analysis(inMemTable, "in_memory\\CountOfUniqueNames", "Group_", "")
 
         # Get Count of the unique names
-        toolOutput = arcpy.GetCount_management(freqInputTable)
-        expectedFeatureCount = int(toolOutput.getOutput(0))
+        freqTableCount = arcpy.GetCount_management(freqInputTable)
+        expectedFeatureCount = int(freqTableCount.getOutput(0))
         polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
         self.assertEqual(polylineCount, expectedFeatureCount, "Expected %s features, but got %s" % (str(expectedFeatureCount), str(polylineCount)))
 

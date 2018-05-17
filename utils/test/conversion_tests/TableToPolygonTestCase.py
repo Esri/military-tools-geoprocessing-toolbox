@@ -133,8 +133,8 @@ class TableToPolygonTestCase(unittest.TestCase):
         freqInputTable = arcpy.Frequency_analysis(inMemTable, "in_memory\\CountOfUniqueNames", groupingFieldName, "")
 
         # Get Count of the unique names
-        toolOutput = arcpy.GetCount_management(freqInputTable)
-        expectedFeatureCount = int(toolOutput.getOutput(0))
+        freqTableCount = arcpy.GetCount_management(freqInputTable)
+        expectedFeatureCount = int(freqTableCount.getOutput(0))
 
         polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
         self.assertEqual(polygonCount, expectedFeatureCount, "Expected %s features, but got %s" % (str(expectedFeatureCount), str(polygonCount)))
