@@ -163,6 +163,10 @@ class LinearLineOfSightTestCase(unittest.TestCase):
         
         #TODO: check attached profile graphs were created
 
+        return
+
+    def test_empty_observer(self):
+        toolOutput = None
         # Check for empty observer input parameter
         with self.assertRaises(arcpy.ExecuteError) as manage_raise:
             toolOutput = arcpy.LinearLineOfSight_mt(self.observers_empty,
@@ -175,7 +179,10 @@ class LinearLineOfSightTestCase(unittest.TestCase):
                                        self.outputObservers,
                                        self.outputTargets)
         self.assertTrue("Please provide at least one observer" in str(manage_raise.exception))
+        return
 
+    def test_empty_observer(self):
+        toolOutput = None
         # Check for empty target input parameter
         with self.assertRaises(arcpy.ExecuteError) as manage_raise:
             toolOutput = arcpy.LinearLineOfSight_mt(self.observers,
@@ -188,7 +195,6 @@ class LinearLineOfSightTestCase(unittest.TestCase):
                                        self.outputObservers,
                                        self.outputTargets)
         self.assertTrue("Please provide at least one target feature" in str(manage_raise.exception))
-
         return
         
 if __name__ == "__main__":
