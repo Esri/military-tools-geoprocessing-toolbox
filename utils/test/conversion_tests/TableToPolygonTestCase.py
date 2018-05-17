@@ -105,6 +105,42 @@ class TableToPolygonTestCase(unittest.TestCase):
 
         return
 
+    def test_table_to_polygon_w_grouping(self):
+        '''Test Table To Polygon using Name field as the grouping Line Field'''
+
+        Configuration.Logger.info(".....TableToPolygonTestCase.test_table_to_polygon_w_grouping")
+
+        # Delete the output feature class if already exists
+        if arcpy.Exists(self.outputPolygons) :
+            arcpy.Delete_management(self.outputPolygons)
+
+        # Note: tool fails when run with input "Name" and "Vsort" fields as params
+        groupingFieldName = 'Name'
+        toolOutput = arcpy.TableToPolygon_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolygons, groupingFieldName, "Vsort")
+
+        # 1: Check the expected return value
+        self.assertIsNotNone(toolOutput, "No output returned from tool")
+        outputOut = toolOutput.getOutput(0)
+        self.assertEqual(self.outputPolygons, outputOut, "Unexpected return value from tool")
+        self.assertTrue(arcpy.Exists(self.outputPolygons), "Output features do not exist or were not created")
+
+        # Process to check tool results for Grouping
+        # Step 1: Make in_memory table to get frequency of
+        inMemTable = arcpy.TableToTable_conversion(self.inputTable, "in_memory", "TableToPolygon_single_In_Mem")
+
+        # Step 2: Get the frequency of unique "group values" in the input table
+        # Get Frequency of the unique names in the input table
+        freqInputTable = arcpy.Frequency_analysis(inMemTable, "in_memory\\CountOfUniqueNames", groupingFieldName, "")
+
+        # Get Count of the unique names
+        freqTableCount = arcpy.GetCount_management(freqInputTable)
+        expectedFeatureCount = int(freqTableCount.getOutput(0))
+
+        polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
+        self.assertEqual(polygonCount, expectedFeatureCount, "Expected %s features, but got %s" % (str(expectedFeatureCount), str(polygonCount)))
+
+        return
+
     def test_table_to_polygon_MGRS(self):
         '''Test Table To Polygon for ArcGIS Desktop_MGRS'''
 
