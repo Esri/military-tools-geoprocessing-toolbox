@@ -74,6 +74,9 @@ class LinearLineOfSightTestCase(unittest.TestCase):
         self.targets = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Targets")
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
 
+        self.observers_empty = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Observers_Empty")
+        self.targets_empty = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Targets_Empty")
+
         UnitTestUtilities.checkGeoObjects([Configuration.toolboxUnderTest, \
             self.observers, self.targets, self.inputSurface])
 
@@ -159,6 +162,32 @@ class LinearLineOfSightTestCase(unittest.TestCase):
                          "Expected {0} targets but got {1}".format(expectedTargetCount, actualTargetCount))
         
         #TODO: check attached profile graphs were created
+
+        # Check for empty observer input parameter
+        with self.assertRaises(arcpy.ExecuteError) as manage_raise:
+            toolOutput = arcpy.LinearLineOfSight_mt(self.observers_empty,
+                                       2.0,
+                                       self.targets,
+                                       0.0,
+                                       self.inputSurface,
+                                       self.outputLOS,
+                                       self.outputSightLines,
+                                       self.outputObservers,
+                                       self.outputTargets)
+        self.assertTrue("Please provide at least one observer" in str(manage_raise.exception))
+
+        # Check for empty target input parameter
+        with self.assertRaises(arcpy.ExecuteError) as manage_raise:
+            toolOutput = arcpy.LinearLineOfSight_mt(self.observers,
+                                       2.0,
+                                       self.targets_empty,
+                                       0.0,
+                                       self.inputSurface,
+                                       self.outputLOS,
+                                       self.outputSightLines,
+                                       self.outputObservers,
+                                       self.outputTargets)
+        self.assertTrue("Please provide at least one target feature" in str(manage_raise.exception))
 
         return
         
