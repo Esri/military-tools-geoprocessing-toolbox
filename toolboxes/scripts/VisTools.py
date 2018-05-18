@@ -535,29 +535,29 @@ class RadialLineOfSightAndRange(object):
         param_8.parameterType = 'Required'
         param_8.direction = 'Output'
         param_8.datatype = u'Feature Class'
-        param_8.value = u'in_memory\\viewshed'
+        param_8.value = u'in_memory\\Viewshed'
         param_8.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                             "layers", "Radial Line Of Sight Output.lyr")
 
         # Output_Wedge
         param_9 = arcpy.Parameter()
         param_9.name = u'Output_Wedge'
-        param_9.displayName = u'Output Wedge'
+        param_9.displayName = u'Ouput Field of View'
         param_9.parameterType = 'Required'
         param_9.direction = 'Output'
         param_9.datatype = u'Feature Class'
-        param_9.value = u'in_memory\\wedge'
+        param_9.value = u'in_memory\\FieldOfView'
         param_9.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                             "layers", "RLOSPieWedge.lyr")
 
         # Output_FullWedge
         param_10 = arcpy.Parameter()
         param_10.name = u'Output_FullWedge'
-        param_10.displayName = u'Output Full Wedge'
+        param_10.displayName = u'Output Range'
         param_10.parameterType = 'Required'
         param_10.direction = 'Output'
         param_10.datatype = u'Feature Class'
-        param_10.value = u'in_memory\\fullwedge'
+        param_10.value = u'in_memory\\Range'
         param_10.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                             "layers", "RLOSDonutWedge.lyr")
 
