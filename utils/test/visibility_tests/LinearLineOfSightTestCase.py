@@ -121,7 +121,6 @@ class LinearLineOfSightTestCase(unittest.TestCase):
             pass
 
         # WORKAROUND: see about - toolOutput not being set because of exception on return
-        Configuration.GetPlatform()
         if (Configuration.Platform != Configuration.PLATFORM_PRO):        
             # 1: Check the expected return value
             self.assertIsNotNone(toolOutput, "No output returned from tool")
