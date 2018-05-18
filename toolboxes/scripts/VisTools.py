@@ -757,6 +757,8 @@ class LinearLineOfSight(object):
                                                 outputObservers,
                                                 outputTargets,
                                                 inputObstructionFeatures)
+        if llos == None:
+            return None
 
         # Set output
         return llos[0],llos[1],llos[2],llos[3]

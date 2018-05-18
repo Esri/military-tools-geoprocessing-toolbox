@@ -1144,6 +1144,23 @@ def linearLineOfSight(inputObserverFeatures,
     global scratch
     addProfileGraphToSurfaceLine = True
     try:
+        # Check if a valid observer is supplied
+        if not inputObserverFeatures:
+            arcpy.AddError("Please provide a valid observer")
+            return
+        # Check if there are any features in the observer
+        if int(arcpy.GetCount_management(inputObserverFeatures).getOutput(0)) == 0:
+            arcpy.AddError("Please provide at least one observer")
+            return
+        # Check if a valid target is supplied
+        if not inputTargetFeatures:
+            arcpy.AddError("Please provide a valid target feature")
+            return
+        # Check if there are any features for the target
+        if int(arcpy.GetCount_management(inputTargetFeatures).getOutput(0)) == 0:
+            arcpy.AddError("Please provide at least one target feature")
+            return
+
         #Need Spatial Analyst to run this tool
         if arcpy.CheckExtension("Spatial") == "Available":
             arcpy.CheckOutExtension("Spatial")

@@ -95,7 +95,7 @@ def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
             #Add ID field
             if debug:
                 arcpy.AddMessage("Adding ID field: %s ..." % str(inputIDFieldName))
-            arcpy.AddField_management(outpolygonsFC,inputIDFieldName, "LONG")
+            arcpy.AddField_management(outpolygonsFC,inputIDFieldName, "TEXT")
             inFields = ["SHAPE@", inputIDFieldName]
 
         if debug:
@@ -120,7 +120,7 @@ def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
                 arcpy.AddMessage('Processing Row: ' + str(rowCount))
 
             if inputIDFieldName:
-                inID = row[1]
+                inID = str(row[1])
 
             # Polyline will only have one part
             featShape = row[0]
