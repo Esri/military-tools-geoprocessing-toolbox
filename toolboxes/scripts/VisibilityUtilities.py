@@ -626,6 +626,7 @@ def makeProfileGraph(inputFeatures):
                 #if debug == True: arcpy.AddMessage("graphPath: " + str(graphPath))
                 pylab.savefig(graphPath, dpi=900)
                 pylab.cla() # clear the graph???
+                pylab.close()  #closing pylab to prevent crashes
                 
                 graphLocationDict[llosID] = graphPath
                 deleteme.append(graphPath)
