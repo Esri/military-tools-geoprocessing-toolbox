@@ -129,9 +129,14 @@ class GRGCreateGRGFromPointTestCase(unittest.TestCase):
                 perimeterDelta = abs(expectedPerimeter - perimeterLength)
                 # Check 3 - Grid Perimeter length matched expected (within tolerance)
                 self.assertLessEqual(perimeterDelta, tolerance)
-                # Check 4 - Grid Zone Designator matches expectedd format
+                # Check 4 - Grid Zone Designator matches expected format
                 regexExpression = '[A-Z][0-9]+$' # [LETTER A-Z][One or more digits]
-                self.assertRegex(gridDesignator, regexExpression)
+
+                # assertRegex (Python 3) vs assertRegexpMatches (Python 2.7)
+                if sys.version_info >= (3,2):
+                    self.assertRegex(gridDesignator, regexExpression)
+                else:
+                    self.assertRegexpMatches(gridDesignator, regexExpression)
 
     def testGRGPointTarget_Numeric(self):
         Configuration.Logger.debug(".....GRGCreateGRGFromPointTestCase.testGRGPointTarget_Numeric")
@@ -192,9 +197,14 @@ class GRGCreateGRGFromPointTestCase(unittest.TestCase):
                 perimeterDelta = abs(expectedPerimeter - perimeterLength)
                 # Check 3 - Grid Perimeter length matched expected (within tolerance)
                 self.assertLessEqual(perimeterDelta, tolerance)
-                # Check 4 - Grid Zone Designator matches expectedd format
+                # Check 4 - Grid Zone Designator matches expected format
                 regexExpression = '[0-9]+$' # [One or more digits]
-                self.assertRegex(gridDesignator, regexExpression)
+
+                # assertRegex (Python 3) vs assertRegexpMatches (Python 2.7)
+                if sys.version_info >= (3,2):
+                    self.assertRegex(gridDesignator, regexExpression)
+                else:
+                    self.assertRegexpMatches(gridDesignator, regexExpression)
 
     def testGRGPointTarget_Rotated(self):
         Configuration.Logger.debug(".....GRGCreateGRGFromPointTestCase.testGRGPointTarget_Rotated")

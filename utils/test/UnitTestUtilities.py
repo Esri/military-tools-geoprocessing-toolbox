@@ -34,6 +34,7 @@ history:
 
 import datetime
 import logging
+import glob
 import os
 import platform
 import traceback
@@ -129,6 +130,7 @@ def setUpLogFileHeader():
     Configuration.Logger.debug("UnitTestUtilities - setUpLogFileHeader")
     Configuration.Logger.info("------------ Begin Tests ------------------")
     Configuration.Logger.info("Platform: {0}".format(platform.platform()))
+    Configuration.Logger.info("Host Name: " + platform.node())
     Configuration.Logger.info("Python Version {0}".format(sys.version))
     agsInstallInfo = arcpy.GetInstallInfo()
     Configuration.Logger.info("Product: {0}, Version: {1}, Installed on: {2}, Build: {3}.".format(agsInstallInfo['ProductName'], \
@@ -150,7 +152,7 @@ def createScratch(scratchPath):
     if Configuration.DEBUG == True: print("UnitTestUtilities - createScratch")
     scratchName = 'scratch.gdb'
     scratchGDB = os.path.join(scratchPath, scratchName)
-    if checkExists(scratchGDB):
+    if arcpy.Exists(scratchGDB):
         print("Scratch already exists")
         return scratchGDB
     try:
@@ -164,6 +166,17 @@ def createScratch(scratchPath):
 def deleteScratch(scratchPath):
     ''' delete scratch geodatabase '''
     if Configuration.DEBUG == True: print("UnitTestUtilities - deleteScratch")
+
+    # WORKAROUND: To problem encountered running arcpy from the unit test harness
+    # in Pro where Delete_management deletes everything in the scratch.gdb folder
+    # *except* the lock files and the scratch.gdb folder remains
+    # corrupting the scratch.gdb
+    findLocksPattern = os.path.normpath(os.path.join(scratchPath, '*.lock'))
+    lockFileList = glob.glob(findLocksPattern)
+    if (len(lockFileList) > 0):
+        print("*** WARNING: scratch.gdb contains lock files, skipping delete ***")
+        return
+
     try:
         arcpy.Delete_management(scratchPath)
         if Configuration.DEBUG == True: print("Deleted scratch gdb.")
