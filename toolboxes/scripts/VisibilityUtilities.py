@@ -698,6 +698,14 @@ def hi_lowPointByArea(inputAreaFeature,
     '''
     global scratch
     try:
+        # Check if a valid input area is supplied
+        if not inputAreaFeature:
+            arcpy.AddError("Please provide a valid input area")
+            return
+        # Check if there are any features in the input area
+        if int(arcpy.GetCount_management(inputAreaFeature).getOutput(0)) == 0:
+            arcpy.AddError("Please provide at least one input area feature")
+            return
         #Need Spatial Analyst to run this tool
         if arcpy.CheckExtension("Spatial") == "Available":
             arcpy.CheckOutExtension("Spatial")
