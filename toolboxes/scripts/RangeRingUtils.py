@@ -179,6 +179,7 @@ class RingMaker:
             pt = i.firstPoint
             for r in self.rangeList:
                 cursor.insertRow([pt.X, pt.Y, r * 2])
+
         del cursor
         self.deleteme.append(inTable)
         outFeatures = os.path.join("in_memory", "outRings")
@@ -186,10 +187,10 @@ class RingMaker:
                                         'x', 'y', 'Range', 'Range',
                                         self.distanceUnits,
                                         '#', '#', '#', self.sr)
-        exp = r"!Range! / 2.0"
-        arcpy.CalculateField_management(inTable, 'Range', exp, 'PYTHON_9.3')
+
         self.deleteme.append(outFeatures)
         self.ringFeatures = outFeatures
+        arcpy.CalculateField_management(outFeatures, "Range",'!Range! / 2.0','PYTHON_9.3')
         return outFeatures
 
     def makeRadials(self, numRadials):
