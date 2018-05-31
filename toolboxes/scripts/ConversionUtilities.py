@@ -179,8 +179,8 @@ def addUniqueRowID(dataset, fieldName="JoinID"):
     try:
         counter = 1
         # add unique ID field
-        if debug: arcpy.AddMessage("Adding LONG field " + str(fieldName))
-        arcpy.AddField_management(dataset, fieldName, "LONG")
+        if debug: arcpy.AddMessage("Adding Text field " + str(fieldName))
+        arcpy.AddField_management(dataset, fieldName, "TEXT")
     
         # add unique numbers to each row
         fields = [str(fieldName)]
