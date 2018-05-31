@@ -561,7 +561,7 @@ class RadialLineOfSightAndRange(object):
         param_10.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                             "layers", "RLOSDonutWedge.lyr")
 
-        return [param_1, param_2, param_3, param_4, param_5, param_6, param_3, param_8, param_9, param_10]
+        return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8, param_9, param_10]
 
     def isLicensed(self):
         return arcpy.CheckExtension("3D") == "Available"
