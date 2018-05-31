@@ -278,6 +278,15 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         outRings = rr[0]
         outRadials = rr[1]
 
+        # get a list of values in the Range field of the output features
+        outRingLyr = arcpy.management.MakeFeatureLayer(outRings)
+        rangeList = [row[0] for row in arcpy.da.SearchCursor(outRingLyr, "Range")]
+        # get sorted sets of values for the two lists to compare
+        # ringList will have duplicate values when run for multiple input points
+        sortedSetRange = (sorted(set(rangeList)))
+        sortedSetRings = (sorted(set(ringList)))
+        self.assertTrue(sortedSetRange == sortedSetRings, "Range values result list not equal to input values")
+
         self.assertTrue(arcpy.Exists(outRings), "Ring features not created or do not exist")
         self.assertEqual(int(arcpy.GetCount_management(outRings).getOutput(0)), len(ringList) * numCenters, "Wrong number of expected ring features")
 
