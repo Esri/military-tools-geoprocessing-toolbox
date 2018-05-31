@@ -284,6 +284,12 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         self.assertTrue(arcpy.Exists(outRadials), "Radial features not created or do not exist")
         self.assertEqual(int(arcpy.GetCount_management(outRadials).getOutput(0)), numRadials * numCenters, "Wrong number of expected radial features")
 
+        #get a list of values in the Range field of the output features
+        outRingLyr = arcpy.management.MakeFeatureLayer("outRings")
+        rangeList = [row[0] for row in arcpy.da.SearchCursor(outRingLyr, "Range")]
+        rangeList.sort()
+        self.assertEqual(rangeList == ringList, "Range values result list not equal to input values")
+
         deleteIntermediateData.append(rings)
         deleteIntermediateData.append(radials)
         return
