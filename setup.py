@@ -15,7 +15,7 @@
 ------------------------------------------------------------------------------
 '''
 
-
+#from distutils.core import setup
 from setuptools import setup, find_packages
 
 setup(name='militarytools',
@@ -26,10 +26,15 @@ setup(name='militarytools',
       license='Apache-2.0',
       keywords=r"military tools arcgis arcpy solutions esri",
       version='2.0',
-      packages=find_packages(),
+      #packages=find_packages(),
+      packages='militarytools',
       package_dir={'militarytools': 'militarytools'},
       package_data={'militarytools':
                     [r'*.*',
+                     r'layers/*.*',
+                     r'layers/featuresetsWebMerc.gdb/*.*',
+                     r'tooldata/*.*',
+                     r'tooldata/Range Rings.gdb/*.*',
                      r'esri/*.*',
                      r'esri/arcpy/*.*',
                      r'esri/help/*.*',
@@ -37,4 +42,5 @@ setup(name='militarytools',
                      r'esri/help/gp/toolboxes/*.*',
                      r'esri/toolboxes/*.*']
                    },
+      #zip_safe=False,
      )
