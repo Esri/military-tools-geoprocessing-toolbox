@@ -20,15 +20,15 @@
  contact: support@esri.com
  company: Esri
  ==================================================
- description: 
+ description:
  Python toolbox container for Military Tools.
  ==================================================
 '''
 
-from scripts.ConversionTools import *
-from scripts.DistanceAndDirectionTools import *
-from scripts.GRGTools import *
-from scripts.VisTools import *
+from militarytools.ConversionTools import *
+from militarytools.DistanceAndDirectionTools import *
+from militarytools.GRGTools import *
+from militarytools.VisTools import *
 
 class Toolbox(object):
     '''
@@ -39,23 +39,23 @@ class Toolbox(object):
         ''' constructor '''
         self.label = u'Military Tools for ArcGIS'
         self.alias = "mt"
-		# NOTE: this description doesn't do anything, description shown in ArcGIS 
+		# NOTE: this description doesn't do anything, description shown in ArcGIS
 		# comes from the pyt.xml file
         self.description = u'A Geoprocessing Toolbox for ArcGIS for Desktop that contains collections of tools to import geometry from tables, determine ranges, and provide basic visibility analysis capabilities.'
 
         self.tools = [
-					# Conversion 
+					# Conversion
 					ConvertCoordinates,
-					TableTo2PointLine, 
-					TableToLineOfBearing, 
-					TableToPoint, 
-					TableToPolygon, 
-					TableToPolyline, 
+					TableTo2PointLine,
+					TableToLineOfBearing,
+					TableToPoint,
+					TableToPolygon,
+					TableToPolyline,
 					TableToEllipse,
 
 					# DistanceAndDirection
-					RangeRingsFromInterval, 
-					RangeRingFromMinimumAndMaximum, 
+					RangeRingsFromInterval,
+					RangeRingFromMinimumAndMaximum,
 					RangeRingsFromMinAndMaxTable,
 
 					# GRG

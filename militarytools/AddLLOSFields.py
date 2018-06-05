@@ -52,7 +52,7 @@ def main():
     try:
         # get/set environment
         env.overwriteOutput = True
-        
+
         outputObserverFeatures, outputTargetFeatures = VisibilityUtilities.addLLOSFields(inputObserverFeatures,
                                                                                          float(inputObserverHeight),
                                                                                          inputTargetFeatures,
@@ -62,7 +62,7 @@ def main():
         arcpy.SetParameter(4, outputObserverFeatures)
         arcpy.SetParameter(5, outputTargetFeatures)
 
-    except arcpy.ExecuteError: 
+    except arcpy.ExecuteError:
         # Get the tool error messages
         msgs = arcpy.GetMessages()
         arcpy.AddError(msgs)
