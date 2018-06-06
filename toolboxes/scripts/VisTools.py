@@ -44,11 +44,11 @@ class AddLinearLineOfSightFields(object):
     class ToolValidator(object):
         """Class for validating a tool's parameter values and controlling
         the behavior of the tool's dialog."""
-    
+
         def __init__(self, parameters):
             """Setup arcpy and the list of tool parameters."""
             self.params = parameters
-    
+
         def initializeParameters(self):
             """Refine the properties of a tool's parameters.  This method is
             called when the tool is opened."""
@@ -61,13 +61,13 @@ class AddLinearLineOfSightFields(object):
             # 5 - Output Target Features
 
             return
-    
+
         def updateParameters(self):
             """Modify the values and properties of parameters before internal
             validation is performed.  This method is called whenever a parameter
             has been changed."""
             return
-    
+
         def updateMessages(self):
             """Modify the messages created by internal validation for each tool
             parameter.  This method is called after internal validation."""
@@ -195,11 +195,11 @@ class AddRadialLineOfSightObserverFields(object):
     class ToolValidator(object):
         """Class for validating a tool's parameter values and controlling
         the behavior of the tool's dialog."""
-    
+
         def __init__(self, parameters):
             """Setup arcpy and the list of tool parameters."""
             self.params = parameters
-    
+
         def initializeParameters(self):
             """Refine the properties of a tool's parameters.  This method is
             called when the tool is opened."""
@@ -215,7 +215,7 @@ class AddRadialLineOfSightObserverFields(object):
             # 8 - Bottom Vertical Angle
             # 9 - Output Observer Features
             return
-    
+
         def updateParameters(self):
             """Modify the values and properties of parameters before internal
             validation is performed.  This method is called whenever a parameter
@@ -231,7 +231,7 @@ class AddRadialLineOfSightObserverFields(object):
             # 8 - Bottom Vertical Angle
             # 9 - Output Observer Features
             return
-    
+
         def updateMessages(self):
             """Modify the messages created by internal validation for each tool
             parameter.  This method is called after internal validation."""
@@ -243,60 +243,60 @@ class AddRadialLineOfSightObserverFields(object):
             msgErrorTopVertGreater = r"Top Vertical Angle must be greater than Bottom Vertical Angle."
             msgErrorHFOVRange = r"Azimuth/Bearing values must be between 0 and 360."
             msgErrorVFOVRange = r"Vertical Angles must be between 90 and -90."
-        
+
             # 0 - Input Observer Features
             # 1 - Observer Offset
             if self.params[1].altered:
                 if self.params[1].value < 0.0:
                     self.params[1].setWarningMessage(msgWarnLessThanZero)
-            
+
             # 2 - Surface Offset
             if self.params[2].altered:
                 if self.params[2].value < 0.0:
                     self.params[2].setErrorMessage(msgErrorLessThanZero)
-            
+
             # 3 - Minimum Distance Radius
             if self.params[3].altered:
                 if self.params[3].value < 0.0:
                     self.params[3].setErrorMessage(msgErrorLessThanZero)
                 if self.params[3].value >= self.params[4].value:
                     self.params[3].setErrorMessage(msgErrorMaxDistGreater)
-            
+
             # 4 - Maximum Distance Radius
             if self.params[4].altered:
                 if self.params[4].value < 0.0:
                     self.params[4].setErrorMessage(msgErrorLessThanZero)
                 if self.params[3].value >= self.params[4].value:
                     self.params[4].setErrorMessage(msgErrorMaxDistGreater)
-            
+
             # 5 - Left Bearing Azimuth
             if self.params[5].altered:
                 if self.params[5].value < 0.0 or self.params[5].value > 360.0:
                     self.params[5].setErrorMessage(msgErrorHFOVRange)
                 if self.params[5].value >= self.params[6].value:
                     self.params[5].setErrorMessage(msgErrorRightAzimGreater)
-            
+
             # 6 - Right Bearing Azimuth
             if self.params[6].altered:
                 if self.params[6].value < 0.0 or self.params[6].value > 360.0:
                     self.params[6].setErrorMessage(msgErrorHFOVRange)
                 if self.params[5].value >= self.params[6].value:
                     self.params[6].setErrorMessage(msgErrorRightAzimGreater)
-            
+
             # 7 - Top Vertical Angle
             if self.params[7].altered:
                 if self.params[7].value < -90.0 or self.params[7].value > 90.0:
                     self.params[7].setErrorMessage(msgErrorVFOVRange)
                 if self.params[7].value <= self.params[8].value:
                     self.params[7].setErrorMessage(msgErrorTopVertGreater)
-            
+
             # 8 - Bottom Vertical Angle
             if self.params[8].altered:
                 if self.params[8].value < -90.0 or self.params[8].value > 90.0:
                     self.params[8].setErrorMessage(msgErrorVFOVRange)
                 if self.params[7].value <= self.params[8].value:
                     self.params[8].setErrorMessage(msgErrorTopVertGreater)
-            
+
             # 9 - Output Observer Features
             return
 
@@ -423,7 +423,7 @@ class AddRadialLineOfSightObserverFields(object):
     def updateMessages(self, parameters):
         validator = getattr(self, 'ToolValidator', None)
         if validator:
-             return validator(parameters).updateMessages()             
+             return validator(parameters).updateMessages()
 
     def execute(self, parameters, messages):
         ''' execute for toolbox'''
@@ -440,7 +440,7 @@ class AddRadialLineOfSightObserverFields(object):
         inputAZIMUTH2 = parameters[6].value
         inputVERT1 = parameters[7].value
         inputVERT2 = parameters[8].value
-                       
+
         out_RLOS_added = VisibilityUtilities.addRLOSObserverFields(inputObserverFeatures,
                                                                     inputOFFSETA,
                                                                     inputOFFSETB,
@@ -450,11 +450,11 @@ class AddRadialLineOfSightObserverFields(object):
                                                                     inputAZIMUTH2,
                                                                     inputVERT1,
                                                                     inputVERT2)
-                
+
         return out_RLOS_added
 
 class RadialLineOfSightAndRange(object):
-    
+
     def __init__(self):
         self.label = u'Radial Line Of Sight And Range'
         self.description = u'Shows visible areas to one or more observers. Shows the areas visible (green) and not visible (red) to an observer at a specified distance and viewing angle.'
@@ -483,50 +483,50 @@ class RadialLineOfSightAndRange(object):
         param_2.direction = 'Input'
         param_2.datatype = u'Raster Layer'
 
-        # Maximum_Distance__RADIUS2_
+        # Near_Distance__RADIUS1_
         param_3 = arcpy.Parameter()
-        param_3.name = u'Maximum_Distance__RADIUS2_'
-        param_3.displayName = u'Maximum Distance (RADIUS2)'
+        param_3.name = u'Near_Distance__RADIUS1_'
+        param_3.displayName = u'Near Distance (RADIUS1)'
         param_3.parameterType = 'Required'
         param_3.direction = 'Input'
         param_3.datatype = u'String'
-        param_3.value = u'3000'
+        param_3.value = u'1000'
 
-        # Left_Azimuth__AZIMUTH1_
+        # Maximum_Distance__RADIUS2_
         param_4 = arcpy.Parameter()
-        param_4.name = u'Left_Azimuth__AZIMUTH1_'
-        param_4.displayName = u'Left Azimuth (AZIMUTH1)'
+        param_4.name = u'Maximum_Distance__RADIUS2_'
+        param_4.displayName = u'Maximum Distance (RADIUS2)'
         param_4.parameterType = 'Required'
         param_4.direction = 'Input'
         param_4.datatype = u'String'
-        param_4.value = u'40'
+        param_4.value = u'3000'
 
-        # Right_Azimuth__AZIMUTH2_
+        # Left_Azimuth__AZIMUTH1_
         param_5 = arcpy.Parameter()
-        param_5.name = u'Right_Azimuth__AZIMUTH2_'
-        param_5.displayName = u'Right Azimuth (AZIMUTH2)'
+        param_5.name = u'Left_Azimuth__AZIMUTH1_'
+        param_5.displayName = u'Left Azimuth (AZIMUTH1)'
         param_5.parameterType = 'Required'
         param_5.direction = 'Input'
         param_5.datatype = u'String'
-        param_5.value = u'120'
+        param_5.value = u'40'
 
-        # Observer_Offset__OFFSETA_
+        # Right_Azimuth__AZIMUTH2_
         param_6 = arcpy.Parameter()
-        param_6.name = u'Observer_Offset__OFFSETA_'
-        param_6.displayName = u'Observer Offset (OFFSETA)'
+        param_6.name = u'Right_Azimuth__AZIMUTH2_'
+        param_6.displayName = u'Right Azimuth (AZIMUTH2)'
         param_6.parameterType = 'Required'
         param_6.direction = 'Input'
         param_6.datatype = u'String'
-        param_6.value = u'20'
+        param_6.value = u'120'
 
-        # Near_Distance__RADIUS1_
+        # Observer_Offset__OFFSETA_
         param_7 = arcpy.Parameter()
-        param_7.name = u'Near_Distance__RADIUS1_'
-        param_7.displayName = u'Near Distance (RADIUS1)'
+        param_7.name = u'Observer_Offset__OFFSETA_'
+        param_7.displayName = u'Observer Offset (OFFSETA)'
         param_7.parameterType = 'Required'
         param_7.direction = 'Input'
         param_7.datatype = u'String'
-        param_7.value = u'1000'
+        param_7.value = u'20'
 
         # Output_Viewshed
         param_8 = arcpy.Parameter()
@@ -535,29 +535,29 @@ class RadialLineOfSightAndRange(object):
         param_8.parameterType = 'Required'
         param_8.direction = 'Output'
         param_8.datatype = u'Feature Class'
-        param_8.value = u'in_memory\\viewshed'
+        param_8.value = u'in_memory\\Viewshed'
         param_8.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                             "layers", "Radial Line Of Sight Output.lyr")
 
         # Output_Wedge
         param_9 = arcpy.Parameter()
         param_9.name = u'Output_Wedge'
-        param_9.displayName = u'Output Wedge'
+        param_9.displayName = u'Ouput Field of View'
         param_9.parameterType = 'Required'
         param_9.direction = 'Output'
         param_9.datatype = u'Feature Class'
-        param_9.value = u'in_memory\\wedge'
+        param_9.value = u'in_memory\\Field_Of_View'
         param_9.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                             "layers", "RLOSPieWedge.lyr")
 
         # Output_FullWedge
         param_10 = arcpy.Parameter()
         param_10.name = u'Output_FullWedge'
-        param_10.displayName = u'Output Full Wedge'
+        param_10.displayName = u'Output Range'
         param_10.parameterType = 'Required'
         param_10.direction = 'Output'
         param_10.datatype = u'Feature Class'
-        param_10.value = u'in_memory\\fullwedge'
+        param_10.value = u'in_memory\\Range'
         param_10.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                             "layers", "RLOSDonutWedge.lyr")
 
@@ -585,11 +585,11 @@ class RadialLineOfSightAndRange(object):
 
         inputObserverPoints = parameters[0].valueAsText
         elevationRaster     = parameters[1].valueAsText
-        outerRadiusInput    = parameters[2].valueAsText
-        leftAzimuthInput    = parameters[3].valueAsText
-        rightAzimuthInput   = parameters[4].valueAsText
-        observerOffsetInput = parameters[5].valueAsText
-        innerRadiusInput    = parameters[6].valueAsText
+        innerRadiusInput    = parameters[2].valueAsText
+        outerRadiusInput    = parameters[3].valueAsText
+        leftAzimuthInput    = parameters[4].valueAsText
+        rightAzimuthInput   = parameters[5].valueAsText
+        observerOffsetInput = parameters[6].valueAsText
         viewshed    = parameters[7].valueAsText
         sectorWedge = parameters[8].valueAsText
         fullWedge   = parameters[9].valueAsText
@@ -607,7 +607,7 @@ class RadialLineOfSightAndRange(object):
         return viewshed, sectorWedge, fullWedge
 
 class LinearLineOfSight(object):
-    
+
     def __init__(self):
         self.label = u'Linear Line Of Sight'
         self.description = u'Creates line(s) of sight between observers and targets.'
@@ -677,14 +677,14 @@ class LinearLineOfSight(object):
                                             "layers", "LLOS_OutputLLOS.lyr")
 
         # Output_Sight_Line_Features
-        param_7 = arcpy.Parameter()
-        param_7.name = u'Output_Sight_Line_Features'
-        param_7.displayName = u'Output Sight Line Features'
-        param_7.parameterType = 'Required'
-        param_7.direction = 'Output'
-        param_7.datatype = u'Feature Class'
-        param_7.value = u'%scratchGDB%/outputSightLines'
-        param_7.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+        param_3 = arcpy.Parameter()
+        param_3.name = u'Output_Sight_Line_Features'
+        param_3.displayName = u'Output Sight Line Features'
+        param_3.parameterType = 'Required'
+        param_3.direction = 'Output'
+        param_3.datatype = u'Feature Class'
+        param_3.value = u'%scratchGDB%/outputSightLines'
+        param_3.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                             "layers", "LLOS_OutputSightLines.lyr")
 
         # Output_Observer_Features
@@ -717,7 +717,7 @@ class LinearLineOfSight(object):
         param_10.direction = 'Input'
         param_10.datatype = u'Feature Layer'
 
-        return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8, param_9, param_10]
+        return [param_1, param_2, param_3, param_4, param_5, param_6, param_3, param_8, param_9, param_10]
 
     def isLicensed(self):
         return True
@@ -831,15 +831,15 @@ class RadialLineOfSight(object):
         param_6.datatype = u'Boolean'
 
         # Spatial_Reference
-        param_7 = arcpy.Parameter()
-        param_7.name = u'Spatial_Reference'
-        param_7.displayName = u'Spatial Reference'
-        param_7.parameterType = 'Optional'
-        param_7.direction = 'Input'
-        param_7.datatype = u'Spatial Reference'
-        param_7.value = arcpy.SpatialReference(54032).exportToString() # World Azimuthal Equidistant
+        param_3 = arcpy.Parameter()
+        param_3.name = u'Spatial_Reference'
+        param_3.displayName = u'Spatial Reference'
+        param_3.parameterType = 'Optional'
+        param_3.direction = 'Input'
+        param_3.datatype = u'Spatial Reference'
+        param_3.value = arcpy.SpatialReference(54032).exportToString() # World Azimuthal Equidistant
 
-        return [param_1, param_2, param_3, param_4, param_5, param_6, param_7]
+        return [param_1, param_2, param_3, param_4, param_5, param_6, param_3]
 
     def isLicensed(self):
         return True
@@ -929,7 +929,7 @@ class FindLocalPeaks(object):
         output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                           "layers",
                                           "Highest Point Output.lyr")
-        param_4.symbology = output_layer_file_path								  
+        param_4.symbology = output_layer_file_path
 
         return [param_1, param_2, param_3, param_4]
 
@@ -1011,7 +1011,7 @@ class HighestPoints(object):
         output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                           "layers",
                                           "Highest Point Output.lyr")
-        param_3.symbology = output_layer_file_path									  
+        param_3.symbology = output_layer_file_path
 
         return [param_1, param_2, param_3]
 
@@ -1109,4 +1109,4 @@ class LowestPoints(object):
                                                                     input_surface,
                                                                     hi_low_Switch,
                                                                     output_lowest_point_features)
-        return out_lowest_points		
+        return out_lowest_points
