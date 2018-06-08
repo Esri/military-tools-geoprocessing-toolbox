@@ -677,14 +677,14 @@ class LinearLineOfSight(object):
                                             "layers", "LLOS_OutputLLOS.lyr")
 
         # Output_Sight_Line_Features
-        param_3 = arcpy.Parameter()
-        param_3.name = u'Output_Sight_Line_Features'
-        param_3.displayName = u'Output Sight Line Features'
-        param_3.parameterType = 'Required'
-        param_3.direction = 'Output'
-        param_3.datatype = u'Feature Class'
-        param_3.value = u'%scratchGDB%/outputSightLines'
-        param_3.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+        param_7 = arcpy.Parameter()
+        param_7.name = u'Output_Sight_Line_Features'
+        param_7.displayName = u'Output Sight Line Features'
+        param_7.parameterType = 'Required'
+        param_7.direction = 'Output'
+        param_7.datatype = u'Feature Class'
+        param_7.value = u'%scratchGDB%/outputSightLines'
+        param_7.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                             "layers", "LLOS_OutputSightLines.lyr")
 
         # Output_Observer_Features
@@ -717,7 +717,7 @@ class LinearLineOfSight(object):
         param_10.direction = 'Input'
         param_10.datatype = u'Feature Layer'
 
-        return [param_1, param_2, param_3, param_4, param_5, param_6, param_3, param_8, param_9, param_10]
+        return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8, param_9, param_10]
 
     def isLicensed(self):
         return True
