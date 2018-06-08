@@ -831,15 +831,15 @@ class RadialLineOfSight(object):
         param_6.datatype = u'Boolean'
 
         # Spatial_Reference
-        param_3 = arcpy.Parameter()
-        param_3.name = u'Spatial_Reference'
-        param_3.displayName = u'Spatial Reference'
-        param_3.parameterType = 'Optional'
-        param_3.direction = 'Input'
-        param_3.datatype = u'Spatial Reference'
-        param_3.value = arcpy.SpatialReference(54032).exportToString() # World Azimuthal Equidistant
+        param_7 = arcpy.Parameter()
+        param_7.name = u'Spatial_Reference'
+        param_7.displayName = u'Spatial Reference'
+        param_7.parameterType = 'Optional'
+        param_7.direction = 'Input'
+        param_7.datatype = u'Spatial Reference'
+        param_7.value = arcpy.SpatialReference(54032).exportToString() # World Azimuthal Equidistant
 
-        return [param_1, param_2, param_3, param_4, param_5, param_6, param_3]
+        return [param_1, param_2, param_3, param_4, param_5, param_6, param_7]
 
     def isLicensed(self):
         return True
