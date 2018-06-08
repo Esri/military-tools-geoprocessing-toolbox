@@ -104,7 +104,7 @@ class HighestPointsTestCase(unittest.TestCase):
             # 1: Check the expected return value
             self.assertIsNotNone(toolOutput, "No output returned from tool")
             outputOut = toolOutput.getOutput(0)
-            self.assertEqual(self.outputLOS, outputOut, "Unexpected return value from tool") 
+            self.assertEqual(self.outputPoints, outputOut, "Unexpected return value from tool") 
 
         self.assertTrue(arcpy.Exists(self.outputPoints), "Output dataset does not exist or was not created")
 
