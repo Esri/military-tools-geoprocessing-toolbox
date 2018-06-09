@@ -19,7 +19,7 @@ package:
 
 source:
   # https://conda.io/docs/user-guide/tasks/build-packages/define-metadata.html#source-from-a-local-path
-  path: ../../..
+  url: ../package.zip
 
 build:
     # https://conda.io/docs/user-guide/tasks/build-packages/define-metadata.html#script
