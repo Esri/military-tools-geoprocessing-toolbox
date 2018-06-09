@@ -42,7 +42,7 @@ import sys
 import traceback
 import arcpy
 from arcpy import env
-import VisibilityUtilities
+from . import VisibilityUtilities
 
 # LOCALS ===========================================
 deleteme = [] # intermediate datasets to be deleted

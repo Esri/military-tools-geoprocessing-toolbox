@@ -35,7 +35,7 @@ import sys
 import traceback
 import arcpy
 from arcpy import env
-import VisibilityUtilities
+from . import VisibilityUtilities
 
 inputObserverFeatures = arcpy.GetParameterAsText(0) # Input Observer Features
 inputObserverHeight = arcpy.GetParameterAsText(1) # Observer Height Above Surface
