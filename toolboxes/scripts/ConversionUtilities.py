@@ -178,14 +178,17 @@ def addUniqueRowID(dataset, fieldName="JoinID"):
     '''
     try:
         counter = 1
-        # add unique ID field
-        if debug: arcpy.AddMessage("Adding Text field " + str(fieldName))
-        arcpy.AddField_management(dataset, fieldName, "TEXT")
+
+        # add unique ID field if it does not already exist
+        desc = arcpy.Describe(dataset)
+        if not fieldName in [field.name for field in desc.Fields] :
+            if debug: arcpy.AddMessage("Adding Text field: " + str(fieldName))
+            arcpy.AddField_management(dataset, fieldName, "TEXT")
     
         # add unique numbers to each row
-        fields = [str(fieldName)]
+        updatedFields = [str(fieldName)]
         arcpy.AddMessage("Adding unique row IDs...")
-        rows = arcpy.da.UpdateCursor(dataset,fields)
+        rows = arcpy.da.UpdateCursor(dataset, updatedFields)
         for row in rows:
             row[0] = counter
             rows.updateRow(row)
@@ -193,8 +196,7 @@ def addUniqueRowID(dataset, fieldName="JoinID"):
         del rows
         
         # set output
-        return dataset
-        
+        return dataset        
     
     except arcpy.ExecuteError:
         error = True
