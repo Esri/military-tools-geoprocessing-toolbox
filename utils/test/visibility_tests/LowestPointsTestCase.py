@@ -84,17 +84,45 @@ class LowestPointsTestCase(unittest.TestCase):
         # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
 
     def test_lowest_points(self):
-        ''' Test Lowest Points tool in ArcGIS Desktop '''
+        ''' Test Lowest Points tool '''
         Configuration.Logger.info("...LowestPointsTestCase.test_lowest_points")
 
         arcpy.env.overwriteOutput = True
 
-        arcpy.LowestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)
+        try :  
+            arcpy.LowestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)
+        except:
+            # WORKAROUND: To arpy exception with Pro: 
+            # "DeprecationWarning: Product and extension licensing is no longer handled with this method."
+            # when this tool is run in Pro from unit test driver
+            if (Configuration.Platform == Configuration.PLATFORM_PRO):
+                pass
+ 
         self.assertTrue(arcpy.Exists(self.outputPoints), "Output dataset does not exist or was not created")
         pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
         expectedFeatures = int(6)
         self.assertEqual(pointCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(pointCount)))
         return
         
+    def test_lowest_points_no_input_area(self):
+        Configuration.Logger.info(".....LowestPointsTestCase.test_lowest_points_no_input_area")
+
+        arcpy.env.overwriteOutput = True
+
+        errorMsgs = None
+        noInputArea = None # <-- Bad Input Area
+
+        try : 
+            arcpy.LowestPoints_mt(noInputArea, self.inputSurface, self.outputPoints)
+        except arcpy.ExecuteError:
+            # ExecuteError is expected because of bad input
+            errorMsgs = arcpy.GetMessages(severity = 2)
+
+        self.assertIsNotNone(errorMsgs, "Error Message Expected for No Input Area")
+        # 2 Error Messages: "No Input Area" "Tool Failed" - errorMsgs is a string not list
+        self.assertEqual(errorMsgs.count('\n'), 2, "Only 2 Error Messages Expected for No Input Area")
+
+        return
+
 if __name__ == "__main__":
     unittest.main()

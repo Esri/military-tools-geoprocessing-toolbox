@@ -89,11 +89,40 @@ class FindLocalPeaksTestCase(unittest.TestCase):
 
         arcpy.env.overwriteOutput = True
 
-        arcpy.FindLocalPeaks_mt(self.inputArea, 10, self.inputSurface, self.outputPoints)
+        try:
+            arcpy.FindLocalPeaks_mt(self.inputArea, 10, self.inputSurface, self.outputPoints)
+        except:
+            # WORKAROUND: To arpy exception with Pro: 
+            # "DeprecationWarning: Product and extension licensing is no longer handled with this method."
+            # when this tool is run in Pro from unit test driver
+            if (Configuration.Platform == Configuration.PLATFORM_PRO):
+                pass
+
         self.assertTrue(arcpy.Exists(self.outputPoints), "Output dataset does not exist or was not created")
         pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
         expectedFeatures = int(10)
         self.assertEqual(pointCount, expectedFeatures, "Expected %s features but got %s" % (str(expectedFeatures),str(pointCount)))
+        return
+
+    def test_find_local_peaks_no_input_area(self):
+        ''' Test Find Local Peaks for ArcGIS Desktop '''
+        Configuration.Logger.info(".....FindLocalPeaksTestCase.test_find_local_peaks_no_input_area")
+
+        arcpy.env.overwriteOutput = True
+
+        errorMsgs = None
+        noInputArea = None # <-- Bad Input Area
+
+        try : 
+           arcpy.FindLocalPeaks_mt(noInputArea, 10, self.inputSurface, self.outputPoints)
+        except arcpy.ExecuteError:
+            # ExecuteError is expected because of bad input
+            errorMsgs = arcpy.GetMessages(severity = 2)
+
+        self.assertIsNotNone(errorMsgs, "Error Message Expected for No Input Area")
+        # 2 Error Messages: "No Input Area" "Tool Failed" - errorMsgs is a string not list
+        self.assertEqual(errorMsgs.count('\n'), 2, "Only 2 Error Messages Expected for No Input Area")
+
         return
         
 if __name__ == "__main__":

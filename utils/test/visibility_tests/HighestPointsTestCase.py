@@ -97,9 +97,10 @@ class HighestPointsTestCase(unittest.TestCase):
             # WORKAROUND: To arpy exception with Pro: 
             # "DeprecationWarning: Product and extension licensing is no longer handled with this method."
             # when this tool is run in Pro from unit test driver
-            pass
+            if (Configuration.Platform == Configuration.PLATFORM_PRO):
+                pass
 
-        # WORKAROUND: see about - toolOutput not being set because of exception on return
+        # WORKAROUND: see above - toolOutput not being set because of exception on return
         if (Configuration.Platform != Configuration.PLATFORM_PRO):        
             # 1: Check the expected return value
             self.assertIsNotNone(toolOutput, "No output returned from tool")
@@ -117,6 +118,27 @@ class HighestPointsTestCase(unittest.TestCase):
             elevation = row.Elevation
             self.assertEqual(elevation, int(1123), "Bad elevation value: %s" % str(elevation))
             row = rows.next()
+        return
+
+    def test_highest_points_no_input_area(self):
+        ''' Test Find Local Peaks for ArcGIS Desktop '''
+        Configuration.Logger.info(".....HighestPointsTestCase.test_highest_points_no_input_area")
+
+        arcpy.env.overwriteOutput = True
+
+        errorMsgs = None
+        noInputArea = None # <-- Bad Input Area
+
+        try : 
+           arcpy.HighestPoints_mt(noInputArea, self.inputSurface, self.outputPoints)
+        except arcpy.ExecuteError:
+            # ExecuteError is expected because of bad input
+            errorMsgs = arcpy.GetMessages(severity = 2)
+
+        self.assertIsNotNone(errorMsgs, "Error Message Expected for No Input Area")
+        # 2 Error Messages: "No Input Area" "Tool Failed" - errorMsgs is a string not list
+        self.assertEqual(errorMsgs.count('\n'), 2, "Only 2 Error Messages Expected for No Input Area")
+
         return
 
 if __name__ == "__main__":
