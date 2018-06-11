@@ -41,9 +41,18 @@ REM name is optional; if not specified, name will be specified for you
 set LOG=
 REM === LOG SETUP ====================================
 
-REM You may need to add this section in if ArcMap Python is not in your PATH
+REM === SET ARCPY PATH IF NECESSARY
+REM You may need to add/uncomment this section in if ArcMap Python is not already in your PATH
 REM SET ARCMAP_PYTHON_PATH=C:\Python27\ArcGIS10.4
 REM SET PATH=%ARCMAP_PYTHON_PATH%;%PATH%
+REM === SET ARCPY PATH IF NECESSARY
+
+REM === Remove previous scratch workspaces
+del /s /q /f scratch.gdb 1>nul
+rmdir /s /q scratch.gdb 
+del /s /q /f %temp%\scratch.gdb 1>nul 
+rmdir /s /q %temp%\scratch.gdb
+REM === Remove previous scratch workspaces
 
 ECHO Testing with ArcMap ===============================
 
