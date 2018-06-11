@@ -40,6 +40,13 @@ REM name is optional; if not specified, name will be specified for you
 set LOG=
 REM === LOG SETUP ====================================
 
+REM === Remove previous scratch workspaces
+del /s /q /f scratch.gdb 1>nul
+rmdir /s /q scratch.gdb 
+del /s /q /f %temp%\scratch.gdb 1>nul 
+rmdir /s /q %temp%\scratch.gdb
+REM === Remove previous scratch workspaces
+
 ECHO Testing with ArcGIS Pro ===============================
 REM The location of python.exe will depend upon your installation
 REM of ArcGIS Pro. Modify the following line as necessary:

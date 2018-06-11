@@ -121,9 +121,10 @@ class LinearLineOfSightTestCase(unittest.TestCase):
             # WORKAROUND: To arpy exception with Pro: 
             # "DeprecationWarning: Product and extension licensing is no longer handled with this method."
             # when this tool is run in Pro from unit test driver
-            pass
+            if (Configuration.Platform == Configuration.PLATFORM_PRO):
+                pass
 
-        # WORKAROUND: see about - toolOutput not being set because of exception on return
+        # WORKAROUND: see above - toolOutput not being set because of exception on return
         if (Configuration.Platform != Configuration.PLATFORM_PRO):        
             # 1: Check the expected return value
             self.assertIsNotNone(toolOutput, "No output returned from tool")
