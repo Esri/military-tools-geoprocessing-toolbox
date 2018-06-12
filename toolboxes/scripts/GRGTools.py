@@ -32,12 +32,12 @@ import os
 import arcpy
 
 try:
+    from . import Utilities
     from . import GRGUtilities
-except ImportError:
-    import GRGUtilities
-try:
     from . import RefGrid
 except ImportError:
+    import Utilities
+    import GRGUtilities
     import RefGrid
 
 class CreateGRGFromArea(object):
@@ -498,6 +498,99 @@ class CreateReferenceSystemGRGFromArea(object):
         out_grid = RG.Build(parameters[3].value)
         return out_grid
 
+class NumberFeatures(object):
+    '''
+    Number input features within a specified area.
+    '''
+    def __init__(self):
+        '''
+        Number Features constructor
+        '''
+        self.label = "Number Features"
+        self.description = "Number input point features within a selected area."
+        self.category = "Gridded Reference Graphic"
+
+    def getParameterInfo(self):
+        '''
+        Define parameter definitions
+        '''
+        input_area_features = arcpy.Parameter(name='input_area_features',
+                                              displayName='Input Area to Number',
+                                              direction='Input',
+                                              datatype='GPFeatureRecordSetLayer',
+                                              parameterType='Required',
+                                              enabled=True,
+                                              multiValue=False)
+        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                             "layers",
+                                             "RelativeNumberFeaturesAreaInput.lyr")
+        input_area_features.value = input_layer_file_path
+
+        input_number_features = arcpy.Parameter(name='input_point_features',
+                                               displayName='Features to Number',
+                                               direction='Input',
+                                               datatype='GPFeatureLayer',
+                                               parameterType='Required',
+                                               enabled=True,
+                                               multiValue=False)
+
+        field_to_number = arcpy.Parameter(name='field_to_number',
+                                          displayName='Field to Number',
+                                          direction='Input',
+                                          datatype='Field',
+                                          parameterType='Optional',
+                                          enabled=True,
+                                          multiValue=False)
+        field_to_number.filter.list = ['Short', 'Long', 'Double', 'Single']
+        field_to_number.parameterDependencies = [input_number_features.name]
+
+        output_features= arcpy.Parameter(name='output_features',
+                                         displayName='Output Numbered Features',
+                                         direction='Output',
+                                         datatype='DEFeatureClass',
+                                         parameterType='Optional',
+                                         enabled=True,
+                                         multiValue=False)
+
+        layerFile = "NumberedStructures.lyr"
+        if (Utilities.GetPlatform() == Utilities.PLATFORM_PRO):
+            layerFile = "NumberedStructures.lyrx" # Use this one for Pro so labeling works
+
+        output_features.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                                 "layers", layerFile)
+
+        return [input_area_features,
+                input_number_features,
+                field_to_number,
+                output_features]
+
+    def updateParameters(self, parameters):
+        '''
+        Modify the values and properties of parameters before internal
+        validation is performed.  This method is called whenever a parameter
+        has been changed.
+        '''
+        return
+
+    def updateMessages(self, parameters):
+        '''
+        '''
+        return
+
+    def execute(self, parameters, messages):
+        '''
+        '''
+        areaToNumber   = parameters[0].value
+        pointFeatures  = parameters[1].value
+        numberingField = parameters[2].value
+        outputFeatureClass = parameters[3].value
+
+        output_fc = GRGUtilities.NumberFeatures(areaToNumber,
+                        pointFeatures,
+                        numberingField,
+                        outputFeatureClass)
+
+        return output_fc
 
 def _outputGRGSchema():
     ''' '''

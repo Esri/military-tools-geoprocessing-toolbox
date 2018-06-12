@@ -804,3 +804,167 @@ def GRGFromPoint(starting_point,
 
     return outputFeatureClass
 
+def NumberFeatures(areaToNumber,
+                    pointFeatures,
+                    numberingField,
+                    outputFeatureClass):
+
+        descPointFeatures = arcpy.Describe(pointFeatures)
+        arcpy.AddMessage("pointFeatures: {0}".format(descPointFeatures.catalogPath))
+            
+        # If no output FC is specified, then set it a temporary one, as this will be copied to the input and then deleted.
+        overwriteFC = False
+        if not outputFeatureClass:
+            DEFAULT_OUTPUT_LOCATION = r'%scratchGDB%\tempSortedPoints'
+            outputFeatureClass = DEFAULT_OUTPUT_LOCATION
+            overwriteFC = True
+        else:
+            descOutputFeatureClass = arcpy.Describe(outputFeatureClass)
+            arcpy.AddMessage("outputFeatureClass: {0}".format(descOutputFeatureClass.catalogPath))
+      
+        # Sort layer by upper right across and then down spatially               
+        arcpy.CopyFeatures_management(areaToNumber, os.path.join("in_memory","areaToNumber"))
+        areaToNumber = os.path.join("in_memory","areaToNumber")
+
+        DEBUG = True
+        appEnvironment = None
+        mxd, df, aprx, mp, mapList = None, None, None, None, None
+        pointFeatureName = os.path.basename(str(pointFeatures))
+        layerExists = False
+        try:
+            # Check that area to number is a polygon
+            descArea = arcpy.Describe(areaToNumber)
+            areaGeom = descArea.shapeType
+            arcpy.AddMessage("Shape type: " + str(areaGeom))
+            if (descArea.shapeType != "Polygon"):
+                raise Exception("ERROR: The area to number must be a polygon.")
+
+            #Checking the version of the Desktop Application
+            appEnvironment = Utilities.GetApplication()
+            if DEBUG == True: arcpy.AddMessage("App environment: " + appEnvironment)
+
+            #Getting the layer name from the Table of Contents
+            if appEnvironment == Utilities.PLATFORM_PRO:
+                from arcpy import mp
+                aprx = arcpy.mp.ArcGISProject("CURRENT")
+                mapList = aprx.listMaps()[0]
+                for lyr in mapList.listLayers():
+                    if lyr.name == pointFeatureName:
+                        layerExists = True
+            #else:
+            if appEnvironment == Utilities.PLATFORM_DESKTOP:
+                from arcpy import mapping
+                mxd = arcpy.mapping.MapDocument('CURRENT')
+                df = arcpy.mapping.ListDataFrames(mxd)[0]
+                for lyr in arcpy.mapping.ListLayers(mxd):
+                    if lyr.name == pointFeatureName:
+                        layerExists = True
+
+            if layerExists == False:
+                arcpy.MakeFeatureLayer_management(pointFeatures, pointFeatureName)
+            else:
+                pointFeatureName = pointFeatures
+
+            # Select all the points that are inside of area
+            if areaToNumber:
+                arcpy.AddMessage("Selecting points from {0} inside of the area {1}".format(pointFeatureName, areaToNumber))
+            else:
+                arcpy.AddMessage("Selecting points from {0} inside of the area {1}".format(pointFeatureName, areaToNumber.name))
+
+            selectionLayer = arcpy.SelectLayerByLocation_management(pointFeatureName, "INTERSECT",
+                                                                    areaToNumber, "#", "NEW_SELECTION")
+            if DEBUG == True:
+                arcpy.AddMessage("Selected " + str(arcpy.GetCount_management(pointFeatureName).getOutput(0)) + " points")
+
+            arcpy.AddMessage("Sorting the selected points geographically, left to right, top to bottom")
+            arcpy.Sort_management(pointFeatureName, outputFeatureClass, [["Shape", "ASCENDING"]])
+
+            #global numberingField
+            if numberingField is None or numberingField == "":
+                fnames = [field.name for field in arcpy.ListFields(outputFeatureClass)]
+                addfield = "Number"
+                if addfield in fnames:
+                    arcpy.AddMessage("Number field is already used")
+                    numberingField = "Number"
+                else:
+                    arcpy.AddMessage("Add One")
+                    arcpy.AddMessage("Adding Number field because no input field was given")
+                    arcpy.AddField_management(outputFeatureClass,"Number","SHORT")
+                    numberingField = "Number"
+            else:
+                pass
+
+            # Number the fields
+            arcpy.AddMessage("Numbering the fields")
+            i = 1
+            cursor = arcpy.UpdateCursor(outputFeatureClass) # Object: Error in parsing arguments for UpdateCursor
+            for row in cursor:
+                row.setValue(numberingField, i)
+                cursor.updateRow(row)
+                i += 1
+            # Clear the selection
+            arcpy.AddMessage("Clearing the selection")
+            arcpy.SelectLayerByAttribute_management(pointFeatureName, "CLEAR_SELECTION")
+
+            # Overwrite the Input Point Features, and then delete the temporary output feature class
+            targetLayerName = ""
+            if (overwriteFC):
+                arcpy.AddMessage("Copying the features to the input, and then deleting the temporary feature class")
+                desc = arcpy.Describe(pointFeatures)
+                if hasattr(desc, "layer"):
+                    overwriteFC = desc.layer.catalogPath
+                else:
+                    overwriteFC = desc.catalogPath
+
+                arcpy.AddMessage("what is the numberingField: " + str(numberingField))
+                addfield = "Number"
+                fnames1 = [field.name for field in arcpy.ListFields(overwriteFC)]
+                if addfield in fnames1:
+                    arcpy.AddMessage("Number field is already used")
+                else:
+                    arcpy.AddMessage("Adding Number field to overwriteFC due to no input field")
+                    arcpy.AddField_management(overwriteFC,"Number")
+                    arcpy.AddMessage("Added Number field to overwriteFC")
+
+                fields = (str(numberingField), "SHAPE@")
+
+                overwriteCursor = arcpy.da.UpdateCursor(overwriteFC, fields)
+                for overwriteRow in overwriteCursor:
+                    sortedPointsCursor = arcpy.da.SearchCursor(outputFeatureClass, fields)
+                    for sortedRow in sortedPointsCursor:
+                        if sortedRow[1].equals(overwriteRow[1]):
+                            overwriteRow[0] = sortedRow[0]
+                    overwriteCursor.updateRow(overwriteRow)
+                arcpy.Delete_management(outputFeatureClass)
+                targetLayerName = pointFeatureName
+            else:
+                targetLayerName = os.path.basename(str(outputFeatureClass))
+
+            # Workaround: don't set the outputFeatureClass if none was supplied to the tool
+            if overwriteFC:
+                outputFeatureClass = ''
+
+        except arcpy.ExecuteError:
+            # Get the tool error messages
+            msgs = arcpy.GetMessages()
+            arcpy.AddError(msgs)
+            print(msgs)
+
+        except:
+            # Get the traceback object
+            tb = sys.exc_info()[2]
+            tbinfo = traceback.format_tb(tb)[0]
+
+            # Concatenate information together concerning the error into a message string
+            pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+            msgs = "ArcPy ERRORS:\n" + arcpy.GetMessages() + "\n"
+
+            # Return python error messages for use in script tool or Python Window
+            arcpy.AddError(pymsg)
+            arcpy.AddError(msgs)
+
+            # Print Python error messages for use in Python / Python Window
+            print(pymsg + "\n")
+            print(msgs)
+
+        return outputFeatureClass
