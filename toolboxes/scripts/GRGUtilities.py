@@ -822,9 +822,10 @@ def NumberFeatures(areaToNumber,
             descOutputFeatureClass = arcpy.Describe(outputFeatureClass)
             arcpy.AddMessage("outputFeatureClass: {0}".format(descOutputFeatureClass.catalogPath))
       
-        # Sort layer by upper right across and then down spatially               
-        arcpy.CopyFeatures_management(areaToNumber, os.path.join("in_memory","areaToNumber"))
-        areaToNumber = os.path.join("in_memory","areaToNumber")
+        # Sort layer by upper right across and then down spatially    
+        areaToNumberInMemory = os.path.join("in_memory","areaToNumber")
+        arcpy.CopyFeatures_management(areaToNumber, areaToNumberInMemory)
+        areaToNumber = areaToNumberInMemory
 
         DEBUG = True
         appEnvironment = None

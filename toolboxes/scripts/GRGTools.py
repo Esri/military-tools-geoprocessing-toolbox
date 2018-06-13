@@ -574,12 +574,16 @@ class NumberFeatures(object):
 
     def updateMessages(self, parameters):
         '''
+        Modify the messages created by internal validation for each tool
+        parameter.  This method is called after internal validation
         '''
         return
 
     def execute(self, parameters, messages):
-        '''
-        '''
+        ''' execute the tool'''
+
+        arcpy.env.overwriteOutput = True
+
         areaToNumber   = parameters[0].value
         pointFeatures  = parameters[1].value
         numberingField = parameters[2].value
