@@ -462,7 +462,6 @@ def GRGFromArea(AOI,
         ' Now use the CreateFishnet_management tool to create the desired grid
         '''
         arcpy.AddMessage("Creating Fishnet Grid...")
-        #arcpy.CreateFishnet_management(fishnet, origin, yaxis, str(cellWidth), str(cellHeight), verticalCells, horizontalCells, oppositeCorner, "NO_LABELS", fc, "POLYGON")
         arcpy.CreateFishnet_management(fishnet, origin, yaxis, str(cellWidth), str(cellHeight), 0, 0, oppositeCorner, "NO_LABELS", fc, "POLYGON")
 
         '''
