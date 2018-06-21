@@ -324,6 +324,10 @@ def GRGFromArea(AOI,
             mxd = arcpy.mapping.MapDocument('CURRENT')
             df = arcpy.mapping.ListDataFrames(mxd)[0]
 
+        #Set output spatial reference
+        arcpy.env.outputCoordinateSystem = arcpy.Describe(AOI).spatialReference
+        arcpy.AddMessage("Setting Spatial Reference to {0}".format(arcpy.env.outputCoordinateSystem.name))
+
         # From the template extent, create a polygon that we can project into a localized World Azimuthal Equidistan
         if DEBUG == True: arcpy.AddMessage("Getting extent info...")
 
@@ -378,8 +382,8 @@ def GRGFromArea(AOI,
             orientation = row[0]
             arcpy.AddMessage("Orientation Angle: {0}".format(str(orientation)))
             if(orientation >= 45 and orientation <= 135):
-                horizontalCells = math.ceil(row[1]/float(cellWidth))
-                verticalCells = math.ceil(row[2]/float(cellHeight))
+	            horizontalCells = math.ceil(row[1]/float(cellWidth))
+	            verticalCells = math.ceil(row[2]/float(cellHeight))
             else:
                 verticalCells = math.ceil(row[1]/float(cellWidth))
                 horizontalCells = math.ceil(row[2]/float(cellHeight))
@@ -458,7 +462,8 @@ def GRGFromArea(AOI,
         ' Now use the CreateFishnet_management tool to create the desired grid
         '''
         arcpy.AddMessage("Creating Fishnet Grid...")
-        arcpy.CreateFishnet_management(fishnet, origin, yaxis, str(cellWidth), str(cellHeight), verticalCells, horizontalCells, oppositeCorner, "NO_LABELS", fc, "POLYGON")
+        #arcpy.CreateFishnet_management(fishnet, origin, yaxis, str(cellWidth), str(cellHeight), verticalCells, horizontalCells, oppositeCorner, "NO_LABELS", fc, "POLYGON")
+        arcpy.CreateFishnet_management(fishnet, origin, yaxis, str(cellWidth), str(cellHeight), 0, 0, oppositeCorner, "NO_LABELS", fc, "POLYGON")
 
         '''
         ' Add a field which will be used to add the grid labels
