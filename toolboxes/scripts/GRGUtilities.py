@@ -305,6 +305,8 @@ def GRGFromArea(AOI,
     df = None
     aprx = None
     mapList = None
+    scratch = None
+    fc_WM = None
 
     try:
         #UPDATE
@@ -324,9 +326,22 @@ def GRGFromArea(AOI,
             mxd = arcpy.mapping.MapDocument('CURRENT')
             df = arcpy.mapping.ListDataFrames(mxd)[0]
 
+        arcpy.env.overwriteOutput = True
+        if arcpy.env.scratchWorkspace:
+            scratch = arcpy.env.scratchWorkspace
+        else:
+            scratch = r"%scratchGDB%"
+
         #Set output spatial reference
-        arcpy.env.outputCoordinateSystem = arcpy.Describe(AOI).spatialReference
-        arcpy.AddMessage("Setting Spatial Reference to {0}".format(arcpy.env.outputCoordinateSystem.name))
+        #arcpy.env.outputCoordinateSystem = arcpy.Describe(AOI).spatialReference
+        #arcpy.AddMessage("Setting Spatial Reference to {0}".format(arcpy.env.outputCoordinateSystem.name))
+
+        #If AOI is in WGS84, project to WebMercator
+        if arcpy.Describe(AOI).spatialReference.name != "WGS_1984_Web_Mercator_Auxiliary_Sphere":
+	        fc_WM = os.path.join(scratch, "AOI_WM")
+	        outCS = arcpy.SpatialReference(3857) #the code for WGS84 Web Mercator
+	        arcpy.Project_management(fc, fc_WM, outCS)
+	        fc = fc_WM
 
         # From the template extent, create a polygon that we can project into a localized World Azimuthal Equidistan
         if DEBUG == True: arcpy.AddMessage("Getting extent info...")
@@ -543,6 +558,8 @@ def GRGFromArea(AOI,
         else:
             arcpy.AddMessage("Non-map environment, skipping labeling...")
 
+        return outputFeatureClass
+
     except arcpy.ExecuteError: 
         # Get the tool error messages
         msgs = arcpy.GetMessages()
@@ -566,8 +583,9 @@ def GRGFromArea(AOI,
         print(pymsg + "\n")
         print(msgs)
 
-    return outputFeatureClass
-
+    finally:
+   		if arcpy.Exists(fc_WM):
+   			arcpy.Delete_management(fc_WM)
 
 def GRGFromPoint(starting_point,
                  horizontal_cells,
