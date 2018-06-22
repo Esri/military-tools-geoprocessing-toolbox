@@ -3,13 +3,13 @@
   "version" : "2.1.0",
   "build" : 10257,
   "layers" : [
-    "CIMPATH=map/points_numbered.xml"
+    "CIMPATH=map/points_numbered2.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Structures",
-      "uRI" : "CIMPATH=map/points_numbered.xml",
+      "name" : "points_numbered",
+      "uRI" : "CIMPATH=map/points_numbered2.xml",
       "sourceModifiedTime" : {
         "type" : "TimeInstant"
       },
@@ -37,7 +37,7 @@
         "editable" : true,
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
-          "workspaceConnectionString" : "DATABASE=..\\..\\..\\solutions-defense-test-catalog\\MilitaryToolsTesting\\TruthData\\GriddedReferenceGraphic.gdb",
+          "workspaceConnectionString" : "DATABASE=.\\featuresetsWebMerc.gdb",
           "workspaceFactory" : "FileGDB",
           "dataset" : "points_numbered",
           "datasetType" : "esriDTFeatureClass"
@@ -45,14 +45,6 @@
         "studyAreaSpatialRel" : "esriSpatialRelUndefined",
         "searchOrder" : "esriSearchOrderSpatial"
       },
-      "featureTemplates" : [
-        {
-          "type" : "CIMFeatureTemplate",
-          "name" : "Structures",
-          "tags" : "Point",
-          "toolProgID" : "2a8b3331-5238-4025-972e-452a69535b06"
-        }
-      ],
       "htmlPopupEnabled" : true,
       "selectable" : true,
       "featureCacheType" : "Session",
@@ -131,7 +123,7 @@
               "belowLeft" : 8,
               "centerLeft" : 6
             },
-            "pointPlacementMethod" : "CenteredOnPoint",
+            "pointPlacementMethod" : "AroundPoint",
             "polygonAnchorPointType" : "GeometricCenter",
             "polygonBoundaryWeight" : 0,
             "polygonExternalZones" : {
@@ -266,7 +258,6 @@
           "iD" : -1
         }
       ],
-      "labelVisibility" : true,
       "renderer" : {
         "type" : "CIMSimpleRenderer",
         "patch" : "Default",
@@ -367,25 +358,6 @@
       },
       "scaleSymbols" : true,
       "snappable" : true
-    }
-  ],
-  "elevationSurfaces" : [
-    {
-      "type" : "CIMMapElevationSurface",
-      "elevationMode" : "BaseGlobeSurface",
-      "name" : "Ground",
-      "verticalExaggeration" : 1,
-      "mapElevationID" : "{397CA874-EC59-440D-BAEC-14D633258AC3}",
-      "color" : {
-        "type" : "CIMRGBColor",
-        "values" : [
-          255,
-          255,
-          255,
-          100
-        ]
-      },
-      "surfaceTINShadingMode" : "Smooth"
     }
   ]
 }
