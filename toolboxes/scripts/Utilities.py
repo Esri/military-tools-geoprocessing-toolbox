@@ -36,13 +36,36 @@ import string
 import random
 import arcpy
 
-app_found = 'NOT_SET'
+PLATFORM_PRO = 'ARCGIS_PRO'
+PLATFORM_DESKTOP = 'ARCMAP'
+PLATFORM_OTHER = 'OTHER'
+PLATFORM_NOT_SET = 'NOT_SET'
 
+platform = None
+app_found = PLATFORM_NOT_SET
+
+# Returns Pro or ArcMap only
+def GetPlatform() :
+
+    global platform
+
+    if platform is None :
+
+        platform = PLATFORM_DESKTOP
+
+        installInfo = arcpy.GetInstallInfo()
+        if installInfo['ProductName'] == 'ArcGISPro':
+            platform = PLATFORM_PRO
+
+    return platform
+
+# Returns Pro or ArcMap if running in application (where arcpy.mapping or arcpy.mp present)
+# and Other if in stand-alone arcpy
 def GetApplication():
     '''Return app environment as: ARCMAP, ARCGIS_PRO, OTHER'''
 
     global app_found
-    if app_found != 'NOT_SET':
+    if app_found != PLATFORM_NOT_SET:
             return app_found
 
     try:
@@ -51,17 +74,17 @@ def GetApplication():
         try:
             from arcpy import mapping
             mxd = arcpy.mapping.MapDocument("CURRENT")
-            app_found = "ARCMAP"
+            app_found = PLATFORM_DESKTOP
             return app_found
         except:
-            app_found = "OTHER"
+            app_found = PLATFORM_OTHER
             return app_found
     try:
         aprx = arcpy.mp.ArcGISProject('CURRENT')
-        app_found = "ARCGIS_PRO"
+        app_found = PLATFORM_PRO
         return app_found
     except:
-        app_found = "OTHER"
+        app_found = PLATFORM_OTHER
         return app_found
 
 def MakeScratchGeodatabase():
