@@ -989,8 +989,7 @@ def findLocalPeaks(inputAreaFeature,
         if arcpy.env.scratchWorkspace:
             scratch = arcpy.env.scratchWorkspace
         else:
-            scratch = r"%scratchGDB%"
-            
+            scratch = r"%scratchGDB%"            
         
         #Get SR of the surface and set as default output
         surfaceDescribe = arcpy.Describe(inputSurfaceRaster)
@@ -1020,10 +1019,13 @@ def findLocalPeaks(inputAreaFeature,
         arcpy.AddMessage("Finding inverted sinks...")
         saFlowDirection = sa.FlowDirection(invertedMapAlgebra, "NORMAL")
         saSink = sa.Sink(saFlowDirection)
-        invertedSinks = os.path.join(scratch, "invertedSinks")
+        invertedSinks = os.path.join("in_memory", "invertedSinks")
         saSink.save(invertedSinks)
         deleteme.append(invertedSinks)
-                
+             
+        #need to make sure there is a VAT for GetCount
+        arcpy.BuildRasterAttributeTable_management(invertedSinks, "Overwrite")
+                   
         #check the number of sink values before proceeding as no sinks will cause an error
         result = arcpy.GetCount_management(invertedSinks)
         numberSinkValues = int(result.getOutput(0))
