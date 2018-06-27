@@ -39,38 +39,38 @@ class Toolbox(object):
         ''' constructor '''
         self.label = u'Military Tools for ArcGIS'
         self.alias = "mt"
-		# NOTE: this description doesn't do anything, description shown in ArcGIS
-		# comes from the pyt.xml file
+        # NOTE: this description doesn't do anything, description shown in ArcGIS
+        # comes from the pyt.xml file
         self.description = u'A Geoprocessing Toolbox for ArcGIS for Desktop that contains collections of tools to import geometry from tables, determine ranges, and provide basic visibility analysis capabilities.'
 
         self.tools = [
-					# Conversion
-					ConvertCoordinates,
-					TableTo2PointLine,
-					TableToLineOfBearing,
-					TableToPoint,
-					TableToPolygon,
-					TableToPolyline,
-					TableToEllipse,
+                    # Conversion
+                    ConvertCoordinates,
+                    TableTo2PointLine,
+                    TableToLineOfBearing,
+                    TableToPoint,
+                    TableToPolygon,
+                    TableToPolyline,
+                    TableToEllipse,
 
-					# DistanceAndDirection
-					RangeRingsFromInterval,
-					RangeRingFromMinimumAndMaximum,
-					RangeRingsFromMinAndMaxTable,
+                    # DistanceAndDirection
+                    RangeRingsFromInterval,
+                    RangeRingFromMinimumAndMaximum,
+                    RangeRingsFromMinAndMaxTable,
 
-					# GRG
-					CreateGRGFromArea,
-					CreateGRGFromPoint,
-					CreateReferenceSystemGRGFromArea,
-					NumberFeatures,
+                    # GRG
+                    CreateGRGFromArea,
+                    CreateGRGFromPoint,
+                    CreateReferenceSystemGRGFromArea,
+                    NumberFeatures,
 
-					# Visibility
-					AddLinearLineOfSightFields,
-					AddRadialLineOfSightObserverFields,
-					FindLocalPeaks,
-					HighestPoints,
-					LowestPoints,
-					LinearLineOfSight,
-					RadialLineOfSight,
-					RadialLineOfSightAndRange
-					]
+                    # Visibility
+                    AddLinearLineOfSightFields,
+                    AddRadialLineOfSightObserverFields,
+                    FindLocalPeaks,
+                    HighestPoints,
+                    LowestPoints,
+                    LinearLineOfSight,
+                    RadialLineOfSight,
+                    RadialLineOfSightAndRange
+                    ]
