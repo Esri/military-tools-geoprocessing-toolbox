@@ -62,6 +62,7 @@ class Toolbox(object):
 					CreateGRGFromArea,
 					CreateGRGFromPoint,
 					CreateReferenceSystemGRGFromArea,
+					NumberFeatures,
 
 					# Visibility
 					AddLinearLineOfSightFields,
