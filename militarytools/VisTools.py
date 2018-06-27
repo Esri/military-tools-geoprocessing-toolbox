@@ -32,8 +32,10 @@ import traceback
 
 try:
     from . import VisibilityUtilities
+    from . import MilitaryToolsUtilities
 except ImportError:
     import VisibilityUtilities
+    import MilitaryToolsUtilities
 
 class AddLinearLineOfSightFields(object):
     '''
@@ -470,8 +472,7 @@ class RadialLineOfSightAndRange(object):
         param_1.direction = 'Input'
         param_1.datatype = u'Feature Set'
         # Set the Feature Set schema
-        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                          "layers",
+        input_layer_file_path = os.path.join(MilitaryToolsUtilities.GetLayerPath(),
                                           "RangeRingInputObserversGDB.lyr")
         param_1.value = input_layer_file_path
 
@@ -536,8 +537,7 @@ class RadialLineOfSightAndRange(object):
         param_8.direction = 'Output'
         param_8.datatype = u'Feature Class'
         param_8.value = u'in_memory\\Viewshed'
-        param_8.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "Radial Line Of Sight Output.lyr")
+        param_8.symbology = os.path.join(MilitaryToolsUtilities.GetLayerPath(), "Radial Line Of Sight Output.lyr")
 
         # Output_Wedge
         param_9 = arcpy.Parameter()
@@ -547,8 +547,7 @@ class RadialLineOfSightAndRange(object):
         param_9.direction = 'Output'
         param_9.datatype = u'Feature Class'
         param_9.value = u'in_memory\\Field_Of_View'
-        param_9.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "RLOSPieWedge.lyr")
+        param_9.symbology = os.path.join(MilitaryToolsUtilities.GetLayerPath(), "RLOSPieWedge.lyr")
 
         # Output_FullWedge
         param_10 = arcpy.Parameter()
@@ -558,8 +557,7 @@ class RadialLineOfSightAndRange(object):
         param_10.direction = 'Output'
         param_10.datatype = u'Feature Class'
         param_10.value = u'in_memory\\Range'
-        param_10.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "RLOSDonutWedge.lyr")
+        param_10.symbology = os.path.join(MilitaryToolsUtilities.GetLayerPath(), "RLOSDonutWedge.lyr")
 
         return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8, param_9, param_10]
 
@@ -622,8 +620,7 @@ class LinearLineOfSight(object):
         param_1.parameterType = 'Required'
         param_1.direction = 'Input'
         param_1.datatype = u'Feature Set'
-        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                          "layers",
+        input_layer_file_path = os.path.join(MilitaryToolsUtilities.GetLayerPath(),
                                           "LLOS_InputObserversGDB.lyr")
         param_1.value = input_layer_file_path
 
@@ -643,8 +640,7 @@ class LinearLineOfSight(object):
         param_3.parameterType = 'Required'
         param_3.direction = 'Input'
         param_3.datatype = u'Feature Set'
-        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                          "layers",
+        input_layer_file_path = os.path.join(MilitaryToolsUtilities.GetLayerPath(),
                                           "LLOS_InputTargetsGDB.lyr")
         param_3.value = input_layer_file_path
 
@@ -673,8 +669,7 @@ class LinearLineOfSight(object):
         param_6.direction = 'Output'
         param_6.datatype = u'Feature Class'
         param_6.value = u'%scratchGDB%/outputLOS'
-        param_6.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "LLOS_OutputLLOS.lyr")
+        param_6.symbology = os.path.join(MilitaryToolsUtilities.GetLayerPath(), "LLOS_OutputLLOS.lyr")
 
         # Output_Sight_Line_Features
         param_7 = arcpy.Parameter()
@@ -684,8 +679,7 @@ class LinearLineOfSight(object):
         param_7.direction = 'Output'
         param_7.datatype = u'Feature Class'
         param_7.value = u'%scratchGDB%/outputSightLines'
-        param_7.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "LLOS_OutputSightLines.lyr")
+        param_7.symbology = os.path.join(MilitaryToolsUtilities.GetLayerPath(), "LLOS_OutputSightLines.lyr")
 
         # Output_Observer_Features
         param_8 = arcpy.Parameter()
@@ -695,8 +689,7 @@ class LinearLineOfSight(object):
         param_8.direction = 'Output'
         param_8.datatype = u'Feature Class'
         param_8.value = u'%scratchGDB%/outputObservers'
-        param_8.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "LLOS_Output_Observers.lyr")
+        param_8.symbology = os.path.join(MilitaryToolsUtilities.GetLayerPath(), "LLOS_Output_Observers.lyr")
 
         # Output_Target_Features
         param_9 = arcpy.Parameter()
@@ -706,8 +699,7 @@ class LinearLineOfSight(object):
         param_9.direction = 'Output'
         param_9.datatype = u'Feature Class'
         param_9.value = u'%scratchGDB%/outputTargets'
-        param_9.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "LLOS_Output_Targets.lyr")
+        param_9.symbology = os.path.join(MilitaryToolsUtilities.GetLayerPath(), "LLOS_Output_Targets.lyr")
 
         # Input_Obstruction_Features
         param_10 = arcpy.Parameter()
@@ -780,8 +772,7 @@ class RadialLineOfSight(object):
         param_1.parameterType = 'Required'
         param_1.direction = 'Input'
         param_1.datatype = u'Feature Set'
-        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                          "layers",
+        input_layer_file_path = os.path.join(MilitaryToolsUtilities.GetLayerPath(),
                                           "LLOS_InputObserversGDB.lyr")
         param_1.value = input_layer_file_path
 
@@ -819,8 +810,7 @@ class RadialLineOfSight(object):
         param_5.direction = 'Output'
         param_5.datatype = u'Feature Class'
         param_5.value = u'%scratchGDB%/outputRLOS'
-        param_5.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "Radial Line Of Sight Output.lyr")
+        param_5.symbology = os.path.join(MilitaryToolsUtilities.GetLayerPath(), "Radial Line Of Sight Output.lyr")
 
         # Force_Visibility_To_Infinity__Edge_Of_Surface_
         param_6 = arcpy.Parameter()
@@ -897,8 +887,7 @@ class FindLocalPeaks(object):
         param_1.direction = 'Input'
         param_1.datatype = 'Feature Set'
         # Set the Feature Set schema
-        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                          "layers",
+        input_layer_file_path = os.path.join(MilitaryToolsUtilities.GetLayerPath(),
                                           "InputArea_FeatureSetGDB.lyr")
         param_1.value = input_layer_file_path
 
@@ -926,8 +915,7 @@ class FindLocalPeaks(object):
         param_4.parameterType = 'Required'
         param_4.direction = 'Output'
         param_4.datatype = 'Feature Class'
-        output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                          "layers",
+        output_layer_file_path = os.path.join(MilitaryToolsUtilities.GetLayerPath(),
                                           "Highest Point Output.lyr")
         param_4.symbology = output_layer_file_path
 
@@ -988,8 +976,7 @@ class HighestPoints(object):
         param_1.direction = 'Input'
         param_1.datatype = 'Feature Set'
         # Set the Feature Set schema
-        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                          "layers",
+        input_layer_file_path = os.path.join(MilitaryToolsUtilities.GetLayerPath(),
                                           "InputArea_FeatureSetGDB.lyr")
         param_1.value = input_layer_file_path
 
@@ -1008,8 +995,7 @@ class HighestPoints(object):
         param_3.parameterType = 'Required'
         param_3.direction = 'Output'
         param_3.datatype = 'Feature Class'
-        output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                          "layers",
+        output_layer_file_path = os.path.join(MilitaryToolsUtilities.GetLayerPath(),
                                           "Highest Point Output.lyr")
         param_3.symbology = output_layer_file_path
 
@@ -1058,8 +1044,7 @@ class LowestPoints(object):
         param_1.direction = 'Input'
         param_1.datatype = 'Feature Set'
         # Set the Feature Set schema
-        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                          "layers",
+        input_layer_file_path = os.path.join(MilitaryToolsUtilities.GetLayerPath(),
                                           "InputArea_FeatureSetGDB.lyr")
         param_1.value = input_layer_file_path
 
@@ -1078,8 +1063,7 @@ class LowestPoints(object):
         param_3.parameterType = 'Required'
         param_3.direction = 'Output'
         param_3.datatype = 'Feature Class'
-        output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                          "layers",
+        output_layer_file_path = os.path.join(MilitaryToolsUtilities.GetLayerPath(),
                                           "Lowest Point Output.lyr")
         param_3.symbology = output_layer_file_path
 
