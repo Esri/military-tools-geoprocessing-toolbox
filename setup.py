@@ -25,7 +25,7 @@ setup(name='militarytools',
       description=r"Military Tools for ArcGIS",
       license='Apache-2.0',
       keywords=r"military tools arcgis arcpy solutions esri",
-      version='2.0',
+      version='3.0',
       packages=find_packages(),
       package_data={'militarytools':
                     [r'*.*',
