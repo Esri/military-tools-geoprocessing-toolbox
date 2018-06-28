@@ -20,7 +20,7 @@
  contact: support@esri.com
  company: Esri
  ==================================================
- description: 
+ description:
  GRG objects module.
  ==================================================
  history:
@@ -169,7 +169,7 @@ def RotateFeatureClass(inputFC, outputFC,
         env_file = arcpy.CreateScratchName("xxenv",".xml","file",
                                            os.environ["TEMP"])
         arcpy.gp.SaveSettings(env_file)
-        
+
         WKS = env.workspace
         if not WKS:
             if os.path.dirname(outputFC):
@@ -211,7 +211,7 @@ def RotateFeatureClass(inputFC, outputFC,
         # open read and write cursors
         updateFields = ['SHAPE@','Grid']
         arcpy.AddMessage('Rotating temporary dataset')
-        
+
         parts = arcpy.Array()
         rings = arcpy.Array()
         ring = arcpy.Array()
@@ -248,12 +248,12 @@ def RotateFeatureClass(inputFC, outputFC,
                     shp = arcpy.Polygon(parts)
                 parts.removeAll()
 
-                gridValue = inRow[1] # GRID string        
-                outRows.insertRow([shp, gridValue])  # write row to output       
+                gridValue = inRow[1] # GRID string
+                outRows.insertRow([shp, gridValue])  # write row to output
 
         arcpy.AddMessage('Merging temporary, rotated dataset with output')
         env.qualifiedFieldNames = False
-        arcpy.Merge_management(lyrTmp, outputFC)      
+        arcpy.Merge_management(lyrTmp, outputFC)
 
     except MsgError as xmsg:
         arcpy.AddError(str(xmsg))
@@ -273,7 +273,7 @@ def RotateFeatureClass(inputFC, outputFC,
         # Clean up temp files
         for f in [lyrFC, lyrTmp, tmpFC, env_file]:
             try:
-                if f and arcpy.Exists(f) : 
+                if f and arcpy.Exists(f) :
                     arcpy.Delete_management(f)
             except:
                 pass
@@ -338,10 +338,10 @@ def GRGFromArea(AOI,
 
         #If AOI is in WGS84, project to WebMercator
         if arcpy.Describe(AOI).spatialReference.name != "WGS_1984_Web_Mercator_Auxiliary_Sphere":
-	        fc_WM = os.path.join(scratch, "AOI_WM")
-	        outCS = arcpy.SpatialReference(3857) #the code for WGS84 Web Mercator
-	        arcpy.Project_management(fc, fc_WM, outCS)
-	        fc = fc_WM
+            fc_WM = os.path.join(scratch, "AOI_WM")
+            outCS = arcpy.SpatialReference(3857) #the code for WGS84 Web Mercator
+            arcpy.Project_management(fc, fc_WM, outCS)
+            fc = fc_WM
 
         # From the template extent, create a polygon that we can project into a localized World Azimuthal Equidistan
         if DEBUG == True: arcpy.AddMessage("Getting extent info...")
@@ -352,28 +352,28 @@ def GRGFromArea(AOI,
         if (cellUnits == "Feet"):
             cellWidth = float(cellWidth) / 3.2808
             cellHeight = float(cellHeight) / 3.2808
-            
+
         '''
         ' If cell units are kilometers convert to meters
         '''
         if (cellUnits == "Kilometers"):
             cellWidth = float(cellWidth) * 1000
             cellHeight = float(cellHeight) * 1000
-        
+
         '''
         ' If cell units are miles convert to meters
         '''
         if (cellUnits == "Miles"):
             cellWidth = float(cellWidth) * 1609.344
             cellHeight = float(cellHeight) * 1609.344
-            
+
         '''
         ' If cell units are yards convert to meters
         '''
         if (cellUnits == "Yards"):
             cellWidth = float(cellWidth) * 0.9144
             cellHeight = float(cellHeight) * 0.9144
-            
+
         '''
         ' If cell units are Nautical Miles convert to meters
         '''
@@ -383,7 +383,7 @@ def GRGFromArea(AOI,
 
         '''
         ' create a minimum bounding rectangle around the AOI
-        ' The use of the MBG_FIELDS option in MinimumBoundingGeometry_management 
+        ' The use of the MBG_FIELDS option in MinimumBoundingGeometry_management
         ' tool also creates a field that has the shape orientation
         '''
         arcpy.AddMessage("Getting Minimum Bounding Geometry that fits the Area of Interest")
@@ -397,8 +397,8 @@ def GRGFromArea(AOI,
             orientation = row[0]
             arcpy.AddMessage("Orientation Angle: {0}".format(str(orientation)))
             if(orientation >= 45 and orientation <= 135):
-	            horizontalCells = math.ceil(row[1]/float(cellWidth))
-	            verticalCells = math.ceil(row[2]/float(cellHeight))
+                horizontalCells = math.ceil(row[1]/float(cellWidth))
+                verticalCells = math.ceil(row[2]/float(cellHeight))
             else:
                 verticalCells = math.ceil(row[1]/float(cellWidth))
                 horizontalCells = math.ceil(row[2]/float(cellHeight))
@@ -542,7 +542,7 @@ def GRGFromArea(AOI,
                         secondLetterIndex = -1
                         if labelStyle != 'Numeric':
                             labelNumber = 0
-                            
+
         arcpy.CopyFeatures_management(fishnet, outputFeatureClass)
         arcpy.Delete_management(fishnet)
 
@@ -560,7 +560,7 @@ def GRGFromArea(AOI,
 
         return outputFeatureClass
 
-    except arcpy.ExecuteError: 
+    except arcpy.ExecuteError:
         # Get the tool error messages
         msgs = arcpy.GetMessages()
         arcpy.AddError(msgs)
@@ -584,8 +584,11 @@ def GRGFromArea(AOI,
         print(msgs)
 
     finally:
-   		if arcpy.Exists(fc_WM):
-   			arcpy.Delete_management(fc_WM)
+        try:
+            if arcpy.Exists(os.path.join(scratch, "AOI_WM")):
+                arcpy.Delete_management(fc_WM)
+        except:
+            pass
 
 def GRGFromPoint(starting_point,
                  horizontal_cells,
@@ -633,11 +636,11 @@ def GRGFromPoint(starting_point,
             df = arcpy.mapping.ListDataFrames(mxd)[0]
         else:
             if DEBUG == True: arcpy.AddMessage("Non-map application...")
-        
+
         numberOfFeatures = arcpy.GetCount_management(targetPointOrigin)
         if(int(numberOfFeatures[0]) == 0):
           raise Exception("The input start location must contain at least one feature.")
-        
+
         if(int(numberOfFeatures[0]) > 1):
           arcpy.AddMessage("More than one feature detected for the start location, last feature entered will be used.")
         '''
@@ -646,35 +649,35 @@ def GRGFromPoint(starting_point,
         if (cellUnits == "Feet"):
             cellWidth = float(cellWidth) / 3.2808
             cellHeight = float(cellHeight) / 3.2808
-            
+
         '''
         ' If cell units are kilometers convert to meters
         '''
         if (cellUnits == "Kilometers"):
             cellWidth = float(cellWidth) * 1000
             cellHeight = float(cellHeight) * 1000
-        
+
         '''
         ' If cell units are miles convert to meters
         '''
         if (cellUnits == "Miles"):
             cellWidth = float(cellWidth) * 1609.344
             cellHeight = float(cellHeight) * 1609.344
-            
+
         '''
         ' If cell units are yards convert to meters
         '''
         if (cellUnits == "Yards"):
             cellWidth = float(cellWidth) * 0.9144
             cellHeight = float(cellHeight) * 0.9144
-            
+
         '''
         ' If cell units are Nautical Miles convert to meters
         '''
         if (cellUnits == "Nautical Miles"):
             cellWidth = float(cellWidth) * 1852
             cellHeight = float(cellHeight) * 1852
-            
+
 
         # Get the coordinates of the point inputExtentDrawnFromMap.
         rows = arcpy.SearchCursor(targetPointOrigin)
@@ -731,10 +734,10 @@ def GRGFromPoint(starting_point,
             startPos = "LL"
         elif (labelStartPos == "Lower-Right"):
             startPos = "LR"
-            
-        arcpy.AddMessage("Creating Fishnet Grid") 
+
+        arcpy.AddMessage("Creating Fishnet Grid")
         env.outputCoordinateSystem = arcpy.Describe(targetPointOrigin).spatialReference
-        
+
         arcpy.CreateFishnet_management(tempOutput, originCoordinate, yAxisCoordinate, 0, 0, str(numberCellsHo), str(numberCellsVert), oppCornerCoordinate, "NO_LABELS", fullExtent, "POLYGON")
 
         # Sort the grid upper left to lower right, and delete the in memory one
@@ -803,7 +806,7 @@ def GRGFromPoint(starting_point,
         msgs = arcpy.GetMessages()
         arcpy.AddError(msgs)
         print(msgs)
-    
+
     except Exception as xmsg:
         arcpy.AddError(str(xmsg))
 
@@ -833,7 +836,7 @@ def NumberFeatures(areaToNumber,
 
         descPointFeatures = arcpy.Describe(pointFeatures)
         arcpy.AddMessage("pointFeatures: {0}".format(descPointFeatures.catalogPath))
-            
+
         # If no output FC is specified, then set it a temporary one, as this will be copied to the input and then deleted.
         overwriteFC = False
         if not outputFeatureClass:
@@ -843,8 +846,8 @@ def NumberFeatures(areaToNumber,
         else:
             descOutputFeatureClass = arcpy.Describe(outputFeatureClass)
             arcpy.AddMessage("outputFeatureClass: {0}".format(descOutputFeatureClass.catalogPath))
-      
-        # Sort layer by upper right across and then down spatially    
+
+        # Sort layer by upper right across and then down spatially
         areaToNumberInMemory = os.path.join("in_memory","areaToNumber")
         arcpy.CopyFeatures_management(areaToNumber, areaToNumberInMemory)
         areaToNumber = areaToNumberInMemory
