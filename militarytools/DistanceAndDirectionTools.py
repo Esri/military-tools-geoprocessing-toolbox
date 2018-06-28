@@ -31,8 +31,10 @@ import arcpy
 
 try:
     from . import RangeRingUtils
+    from . import MilitaryToolsUtilities
 except ImportError:
     import RangeRingUtils
+    import MilitaryToolsUtilities
 
 # ----------------------------------------------------------------------------------
 # RangeRingsFromInterval Tool
@@ -55,8 +57,7 @@ class RangeRingsFromInterval(object):
         param_1.datatype = u'Feature Set'  # Same as u'GPFeatureRecordSetLayer'
         
         # Set the Feature Set schema
-        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                          "layers",
+        input_layer_file_path = os.path.join(MilitaryToolsUtilities.GetLayerPath(),
                                           "RangeRingInputObserversGDB.lyr")
         param_1.value = input_layer_file_path
 
@@ -105,8 +106,7 @@ class RangeRingsFromInterval(object):
         param_6.direction = 'Output'
         param_6.datatype = u'Feature Class'
         param_6.value = u'%scratchGDB%\\Rings'
-        param_6.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "RangeRings.lyr")
+        param_6.symbology = os.path.join(MilitaryToolsUtilities.GetLayerPath(), "RangeRings.lyr")
 
         # Output_Radial_Features
         param_7 = arcpy.Parameter()
@@ -116,8 +116,7 @@ class RangeRingsFromInterval(object):
         param_7.direction = 'Output'
         param_7.datatype = u'Feature Class'
         param_7.value = u'%scratchGDB%\\Radials'
-        param_7.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "RangeRadials.lyr")
+        param_7.symbology = os.path.join(MilitaryToolsUtilities.GetLayerPath(), "RangeRadials.lyr")
 
         # Spatial_Reference
         param_8 = arcpy.Parameter()
@@ -199,8 +198,7 @@ class RangeRingFromMinimumAndMaximum(object):
         param_1.datatype = u'Feature Set'
 
         # Set the Feature Set schema
-        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                          "layers",
+        input_layer_file_path = os.path.join(MilitaryToolsUtilities.GetLayerPath(),
                                           "RangeRingInputObserversGDB.lyr")
         param_1.value = input_layer_file_path
 
@@ -249,8 +247,7 @@ class RangeRingFromMinimumAndMaximum(object):
         param_6.direction = 'Output'
         param_6.datatype = u'Feature Class'
         param_6.value = u'%scratchGDB%\\rings'
-        param_6.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "RangeRings.lyr")
+        param_6.symbology = os.path.join(MilitaryToolsUtilities.GetLayerPath(), "RangeRings.lyr")
 
         # Output_Radial_Features
         param_7 = arcpy.Parameter()
@@ -260,8 +257,7 @@ class RangeRingFromMinimumAndMaximum(object):
         param_7.direction = 'Output'
         param_7.datatype = u'Feature Class'
         param_7.value = u'%scratchGDB%\\radials'
-        param_7.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "RangeRadials.lyr")
+        param_7.symbology = os.path.join(MilitaryToolsUtilities.GetLayerPath(), "RangeRadials.lyr")
 
         # Spatial_Reference
         param_8 = arcpy.Parameter()
@@ -347,7 +343,7 @@ class RangeRingsFromMinAndMaxTable(object):
             # Input Table Minimum Range Field (Field) [8]
             # Input Table Maximum Range Field (Field) [9]
 
-            inputParamsTable = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+            inputParamsTable = os.path.join(MilitaryToolsUtilities.GetCurrentFilePath(),
                                           "tooldata", "Range Rings.gdb", "rrInputTable")
             self.params[1].value = inputParamsTable
             # Get list of type names from InputTable [1]
@@ -404,8 +400,7 @@ class RangeRingsFromMinAndMaxTable(object):
         param_1.direction = 'Input'
         param_1.datatype = u'Feature Set'
         # Set the Feature Set schema
-        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                          "layers",
+        input_layer_file_path = os.path.join(MilitaryToolsUtilities.GetLayerPath(),
                                           "RangeRingInputObserversGDB.lyr")
         param_1.value = input_layer_file_path
 
@@ -418,7 +413,7 @@ class RangeRingsFromMinAndMaxTable(object):
         param_2.datatype = u'Table'
         # military-tools-geoprocessing-toolbox\\toolboxes\\tooldata\\Range
         # Rings.gdb\\rrInputTable'
-        param_2.value = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+        param_2.value = os.path.join(MilitaryToolsUtilities.GetCurrentFilePath(),
                                           "tooldata", "Range Rings.gdb", "rrInputTable")
 
         # Selected_Type
@@ -448,8 +443,7 @@ class RangeRingsFromMinAndMaxTable(object):
         param_5.direction = 'Output'
         param_5.datatype = u'Feature Class'
         param_5.value = u'%scratchGDB%\\Rings'
-        param_5.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "RangeRings.lyr")
+        param_5.symbology = os.path.join(MilitaryToolsUtilities.GetLayerPath(), "RangeRings.lyr")
 
         # Output_Radial_Features
         param_6 = arcpy.Parameter()
@@ -459,8 +453,7 @@ class RangeRingsFromMinAndMaxTable(object):
         param_6.direction = 'Output'
         param_6.datatype = u'Feature Class'
         param_6.value = u'%scratchGDB%\\Radials'
-        param_6.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "RangeRadials.lyr")
+        param_6.symbology = os.path.join(MilitaryToolsUtilities.GetLayerPath(), "RangeRadials.lyr")
 
         # Spatial_Reference
         param_7 = arcpy.Parameter()

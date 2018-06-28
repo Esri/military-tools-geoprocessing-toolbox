@@ -138,3 +138,6 @@ TestResults
 # Mac
 .DS_Store
 *.lock
+
+# PyCharm
+.idea/*
