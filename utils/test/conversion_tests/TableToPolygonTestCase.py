@@ -29,9 +29,15 @@
 # 5/11/2016 - JH - initial creation
 # ==================================================
 
-import unittest
-import arcpy
 import os
+import unittest
+
+import arcpy
+
+# Add parent folder to python path if running test case standalone
+import sys
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '..')))
+
 import UnitTestUtilities
 import Configuration
 
@@ -41,168 +47,190 @@ class TableToPolygonTestCase(unittest.TestCase):
     
     inputTable = None
     outputPolygons = None
-    
-    def setUp(self):
-        if Configuration.DEBUG == True: print("     TableToPolygonTestCase.setUp")    
+  
+    @classmethod
+    def setUpClass(cls):
+        # Run once per class creation
+        ''' Initialization needed if running Test Case standalone '''
+        Configuration.GetLogger()
+        Configuration.GetPlatform()
+        ''' End standalone initialization '''
+            
+        Configuration.Logger.debug("     TableToLineOfBearingTestCase.setUpClass")    
         UnitTestUtilities.checkArcPy()
+
         if not arcpy.Exists(Configuration.militaryScratchGDB):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
+
+        Configuration.Logger.debug("Import Toolbox: " + Configuration.toolboxUnderTest)
+        arcpy.ImportToolbox(Configuration.toolboxUnderTest)  
+        Configuration.Logger.debug("Done Toolbox Import")
+
+    @classmethod
+    def tearDownClass(cls):
+        Configuration.Logger.debug("     TableToLineOfBearingTestCase.tearDownClass")
+        # UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+              
+    def setUp(self):
+
+        Configuration.Logger.debug("     TableToPolygonTestCase.setUp")
+
         csvFolder = os.path.join(Configuration.militaryDataPath, "CSV")
         self.inputTable = os.path.join(csvFolder, "TableToPolygon.csv")
         self.inputSingleTable = os.path.join(csvFolder, "TableToPolygon_single.csv")
+
+        UnitTestUtilities.checkGeoObjects([Configuration.toolboxUnderTest])
+        UnitTestUtilities.checkFilePaths([self.inputTable, self.inputSingleTable])
+
         self.outputPolygons = os.path.join(Configuration.militaryScratchGDB, "outputPolygons")
-        UnitTestUtilities.checkFilePaths([Configuration.militaryDataPath, Configuration.militaryInputDataGDB, Configuration.militaryScratchGDB, Configuration.militaryResultsGDB, Configuration.military_ProToolboxPath, Configuration.military_DesktopToolboxPath])
         
     def tearDown(self):
-        if Configuration.DEBUG == True: print("     TableToPolygonTestCase.tearDown")
-        UnitTestUtilities.deleteScratch(Configuration.militaryScratchGDB)
+        Configuration.Logger.debug("     TableToPolygonTestCase.tearDown")
     
-    def test_table_to_polygon_desktop(self):
+    def test_table_to_polygon(self):
         '''Test Table To Polygon for ArcGIS Desktop'''
-        runToolMessage = ".....TableToPolygonTestCase.test_table_to_polygon_desktop"
-        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+
+        Configuration.Logger.info(".....TableToPolygonTestCase.test_table_to_polygon")
+
+        # Delete the output feature class if already exists
+        if arcpy.Exists(self.outputPolygons) :
+            arcpy.Delete_management(self.outputPolygons)
+
         arcpy.TableToPolygon_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolygons)
+
         self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
         polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
         expectedFeatures = int(1)
         self.assertEqual(polygonCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polygonCount)))
-        return
-    def test_table_to_polygon_desktop_MGRS(self):
-        '''Test Table To Polygon for ArcGIS Desktop_MGRS'''
-        runToolMessage = ".....TableToPolygonTestCase.test_table_to_polygon_desktop_MGRS"
-        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
-        arcpy.TableToPolygon_mt(self.inputSingleTable, "MGRS", "MGRS", None, self.outputPolygons)
-        self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
-        polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
-        expectedFeatures = int(1)
-        self.assertEqual(polygonCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polygonCount)))
-        return
-    def test_table_to_polygon_desktop_GARS(self):
-        '''Test Table To Polygon for ArcGIS Desktop_GARS'''
-        runToolMessage = ".....TableToPolygonTestCase.test_table_to_polygon_desktop_GARS"
-        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
-        arcpy.TableToPolygon_mt(self.inputSingleTable, "GARS", "GARS", None, self.outputPolygons)
-        self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
-        polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
-        expectedFeatures = int(1)
-        self.assertEqual(polygonCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polygonCount)))
-        return
-    def test_table_to_polygon_desktop_GEOREF(self):
-        '''Test Table To Polygon for ArcGIS Desktop_GEOREF'''
-        runToolMessage = ".....TableToPolygonTestCase.test_table_to_polygon_desktop_GEOREF"
-        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
-        arcpy.TableToPolygon_mt(self.inputSingleTable, "GEOREF", "GEOREF", None, self.outputPolygons)
-        self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
-        polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
-        expectedFeatures = int(1)
-        self.assertEqual(polygonCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polygonCount)))
-        return
-    def test_table_to_polygon_desktop_USNG(self):
-        '''Test Table To Polygon for ArcGIS Desktop_USNG'''
-        runToolMessage = ".....TableToPolygonTestCase.test_table_to_polygon_desktop_USNG"
-        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
-        arcpy.TableToPolygon_mt(self.inputSingleTable, "USNG", "USNG", None, self.outputPolygons)
-        self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
-        polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
-        expectedFeatures = int(1)
-        self.assertEqual(polygonCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polygonCount)))
-        return
-    def test_table_to_polygon_desktop_UTM_BANDS(self):
-        '''Test Table To Polygon for ArcGIS Desktop_UTM_BANDS'''
-        runToolMessage = ".....TableToPolygonTestCase.test_table_to_polygon_desktop_UTM_BANDS"
-        arcpy.ImportToolbox(Configuration.military_DesktopToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
-        arcpy.TableToPolygon_mt(self.inputSingleTable, "UTM_BANDS", "UTM", None, self.outputPolygons)
-        self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
-        polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
-        expectedFeatures = int(1)
-        self.assertEqual(polygonCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polygonCount)))
+
         return
 
-    def test_table_to_polygon_pro(self):
-        '''Test Table To Polygon for ArcGIS Pro'''
-        runToolMessage = ".....TableToPolygonTestCase.test_table_to_polygon_pro"
-        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
-        
-        arcpy.TableToPolygon_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolygons)
-        
-        self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
-        
+    def test_table_to_polygon_w_grouping(self):
+        '''Test Table To Polygon using Name field as the grouping Line Field'''
+
+        Configuration.Logger.info(".....TableToPolygonTestCase.test_table_to_polygon_w_grouping")
+
+        # Delete the output feature class if already exists
+        if arcpy.Exists(self.outputPolygons) :
+            arcpy.Delete_management(self.outputPolygons)
+
+        # Note: tool fails when run with input "Name" and "Vsort" fields as params
+        groupingFieldName = 'Name'
+        toolOutput = arcpy.TableToPolygon_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolygons, groupingFieldName, "Vsort")
+
+        # 1: Check the expected return value
+        self.assertIsNotNone(toolOutput, "No output returned from tool")
+        outputOut = toolOutput.getOutput(0)
+        self.assertEqual(self.outputPolygons, outputOut, "Unexpected return value from tool")
+        self.assertTrue(arcpy.Exists(self.outputPolygons), "Output features do not exist or were not created")
+
+        # Process to check tool results for Grouping
+        # Step 1: Make in_memory table to get frequency of
+        inMemTable = arcpy.TableToTable_conversion(self.inputTable, "in_memory", "TableToPolygon_single_In_Mem")
+
+        # Step 2: Get the frequency of unique "group values" in the input table
+        # Get Frequency of the unique names in the input table
+        freqInputTable = arcpy.Frequency_analysis(inMemTable, "in_memory\\CountOfUniqueNames", groupingFieldName, "")
+
+        # Get Count of the unique names
+        freqTableCount = arcpy.GetCount_management(freqInputTable)
+        expectedFeatureCount = int(freqTableCount.getOutput(0))
+
         polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
-        expectedFeatures = int(1)
-        self.assertEqual(polygonCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polygonCount)))
+        self.assertEqual(polygonCount, expectedFeatureCount, "Expected %s features, but got %s" % (str(expectedFeatureCount), str(polygonCount)))
+
         return
-    def test_table_to_polygon_pro_MGRS(self):
-        '''Test Table To Polygon for ArcGIS Pro_MGRS'''
-        runToolMessage = ".....TableToPolygonTestCase.test_table_to_polygon_pro_MGRS"
-        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+
+    def test_table_to_polygon_MGRS(self):
+        '''Test Table To Polygon for ArcGIS Desktop_MGRS'''
+
+        Configuration.Logger.info(".....TableToPolygonTestCase.test_table_to_polygon_MGRS")
+
+        # Delete the output feature class if already exists
+        if arcpy.Exists(self.outputPolygons) :
+            arcpy.Delete_management(self.outputPolygons)
+
         arcpy.TableToPolygon_mt(self.inputSingleTable, "MGRS", "MGRS", None, self.outputPolygons)
+
         self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
         polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
         expectedFeatures = int(1)
         self.assertEqual(polygonCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polygonCount)))
+
         return
-    def test_table_to_polygon_pro_GARS(self):
-        '''Test Table To Polygon for ArcGIS Pro_GARS'''
-        runToolMessage = ".....TableToPolygonTestCase.test_table_to_polygon_pro_GARS"
-        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+
+    def test_table_to_polygon_GARS(self):
+        '''Test Table To Polygon for ArcGIS Desktop_GARS'''
+
+        Configuration.Logger.info(".....TableToPolygonTestCase.test_table_to_polygon_GARS")
+
+        # Delete the output feature class if already exists
+        if arcpy.Exists(self.outputPolygons) :
+            arcpy.Delete_management(self.outputPolygons)
+
         arcpy.TableToPolygon_mt(self.inputSingleTable, "GARS", "GARS", None, self.outputPolygons)
+
         self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
         polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
         expectedFeatures = int(1)
         self.assertEqual(polygonCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polygonCount)))
+
         return
-    def test_table_to_polygon_pro_GEOREF(self):
-        '''Test Table To Polygon for ArcGIS Pro_GEOREF'''
-        runToolMessage = ".....TableToPolygonTestCase.test_table_to_polygon_pro_GEOREF"
-        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+
+    def test_table_to_polygon_GEOREF(self):
+        '''Test Table To Polygon for ArcGIS Desktop_GEOREF'''
+
+        Configuration.Logger.info(".....TableToPolygonTestCase.test_table_to_polygon_GEOREF")
+
+        # Delete the output feature class if already exists
+        if arcpy.Exists(self.outputPolygons) :
+            arcpy.Delete_management(self.outputPolygons)
+
         arcpy.TableToPolygon_mt(self.inputSingleTable, "GEOREF", "GEOREF", None, self.outputPolygons)
+
         self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
         polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
         expectedFeatures = int(1)
         self.assertEqual(polygonCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polygonCount)))
+
         return
-    def test_table_to_polygon_pro_USNG(self):
-        '''Test Table To Polygon for ArcGIS Pro_USNG'''
-        runToolMessage = ".....TableToPolygonTestCase.test_table_to_polygon_pro_USNG"
-        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+
+    def test_table_to_polygon_USNG(self):
+        '''Test Table To Polygon for ArcGIS Desktop_USNG'''
+
+        Configuration.Logger.info(".....TableToPolygonTestCase.test_table_to_polygon_USNG")
+
+        # Delete the output feature class if already exists
+        if arcpy.Exists(self.outputPolygons) :
+            arcpy.Delete_management(self.outputPolygons)
+
         arcpy.TableToPolygon_mt(self.inputSingleTable, "USNG", "USNG", None, self.outputPolygons)
+
         self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
         polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
         expectedFeatures = int(1)
         self.assertEqual(polygonCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polygonCount)))
+
         return
-    def test_table_to_polygon_pro_UTM_BANDS(self):
-        '''Test Table To Polygon for ArcGIS Pro_UTM_BANDS'''
-        runToolMessage = ".....TableToPolygonTestCase.test_table_to_polygon_pro_UTM_BANDS"
-        arcpy.ImportToolbox(Configuration.military_ProToolboxPath, "mt")
-        arcpy.AddMessage(runToolMessage)
-        Configuration.Logger.info(runToolMessage)
+
+    def test_table_to_polygon_UTM_BANDS(self):
+        '''Test Table To Polygon for ArcGIS Desktop_UTM_BANDS'''
+
+        Configuration.Logger.info(".....TableToPolygonTestCase.test_table_to_polygon_UTM_BANDS")
+
+        # Delete the output feature class if already exists
+        if arcpy.Exists(self.outputPolygons) :
+            arcpy.Delete_management(self.outputPolygons)
+
         arcpy.TableToPolygon_mt(self.inputSingleTable, "UTM_BANDS", "UTM", None, self.outputPolygons)
+
         self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
         polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
         expectedFeatures = int(1)
         self.assertEqual(polygonCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(polygonCount)))
+
         return
+
+if __name__ == "__main__":
+    unittest.main()
             

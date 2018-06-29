@@ -17,7 +17,8 @@ rem  ArcMapTestKickStart.bat
 rem ------------------------------------------------------------------------------
 rem  requirements:
 rem  * ArcGIS Desktop 10.X+ or ArcGIS Pro 1.X+
-rem  * Python 2.7 or Python 3.4
+rem  * Python 2.7 
+rem  * Python added to executable PATH
 rem  author: ArcGIS Solutions
 rem  company: Esri
 rem ==================================================
@@ -40,11 +41,26 @@ REM name is optional; if not specified, name will be specified for you
 set LOG=
 REM === LOG SETUP ====================================
 
+REM === SET ARCPY PATH IF NECESSARY
+REM You may need to add/uncomment this section in if ArcMap Python is not already in your PATH
+REM SET ARCMAP_PYTHON_PATH=C:\Python27\ArcGIS10.4
+REM SET PATH=%ARCMAP_PYTHON_PATH%;%PATH%
+REM === SET ARCPY PATH IF NECESSARY
+
+REM === Remove previous scratch workspaces
+del /s /q /f scratch.gdb 1>nul
+rmdir /s /q scratch.gdb 
+del /s /q /f %temp%\scratch.gdb 1>nul 
+rmdir /s /q %temp%\scratch.gdb
+REM === Remove previous scratch workspaces
+
 ECHO Testing with ArcMap ===============================
+
 python TestRunner.py %LOG%
+
 REM check if Desktop for ArcGIS/Python 2.7 tests failed
 IF %ERRORLEVEL% NEQ 0 (
    ECHO 'One or more tests failed'
 )
 
-pause
+REM pause

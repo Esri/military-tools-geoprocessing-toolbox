@@ -26,47 +26,37 @@ company: Esri
 ==================================================
 description:
 This test suite collects all of the range ring tests.
-
-==================================================
-history:
-3/30/2016 - mf - original coding
-5/23/2016 - mf - update for framework
 ==================================================
 '''
 
-import logging
 import unittest
-import Configuration
-from . import RangeRingUtilsTestCase
+import logging
 
-TestSuite = unittest.TestSuite()
+try:
+    from . import RangeRingUtilsTestCase
+    from . import DistanceAndDirectionTestCase
+except:
+    import RangeRingUtilsTestCase
+    import DistanceAndDirectionTestCase
 
-def getRangeRingTestSuite():
-    ''' Range Rings test suite '''
+def getTestSuite():
 
-    testCaseList = ['test_RingMaker_init',
-                    'test_RingMaker_sortList_empty',
-                    'test_RingMaker_sortList_isSorted',
-                    'test_RingMaker_addFieldsToTable',
-                    'test_RingMaker_makeTempTable',
-                    'test_RingMaker_makeRingsFromDistances',
-                    'test_RingMaker_saveRingsAsFeatures',
-                    'test_RingMaker_makeRadials',
-                    'test_RingMaker_saveRadialsAsFeatures',
-                    'test_rangeRingsFromMinMax',
-                    'test_rangeRingsFromList',
-                    'test_rangeRingsFromInterval']
+    testSuite = unittest.TestSuite()
 
-    if Configuration.Platform == "DESKTOP":
-        addRangeRingUtilsTests(testCaseList)
-    else:
-        addRangeRingUtilsTests(testCaseList)
-    
-    return TestSuite
+    ''' Add the Range Ring tests '''
+ 
+    loader = unittest.TestLoader()
 
-def addRangeRingUtilsTests(inputTestList):
-    ''' add all of the tests from RangeRingTestCase.py '''
-    for test in inputTestList:
-        print("adding test: " + str(test))
-        TestSuite.addTest(RangeRingUtilsTestCase.RangeRingUtilsTestCase(test))
+    testSuite.addTest(loader.loadTestsFromTestCase(DistanceAndDirectionTestCase.DistanceAndDirectionTestCase))
+    testSuite.addTest(loader.loadTestsFromTestCase(RangeRingUtilsTestCase.RangeRingUtilsTestCase))
 
+    return testSuite
+
+def testSuiteMain():
+    testSuite = unittest.TestSuite()    
+    testSuite.addTests(getTestSuite())
+    result = unittest.TestResult()
+    testSuite.run(result)
+
+if __name__ == "__main__":
+    testSuiteMain()
