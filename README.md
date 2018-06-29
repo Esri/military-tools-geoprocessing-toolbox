@@ -26,7 +26,7 @@ This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to im
 The **Military Tools** toolbox is a Python Toolbox (PYT) that contains the contents of the older **Military_Tools_arcmap.tbx** and **Military_Tools_pro.tbx** toolboxes, and an added GRG toolset. This toolbox has the following requirements:
 * **ArcGIS 10.3.1+ for Desktop**
 or
-* **ArcGIS Pro 1.4+**
+* **ArcGIS Pro 2.1+**
 
 Additionally there are additional extensions needed for certain tools:
 
@@ -36,7 +36,7 @@ Additionally there are additional extensions needed for certain tools:
 	* Lowest Points
 	* Radial Line Of Sight
 
-* Requires **ArcGIS Spatial Analyst** *and* **ArcGIS 3D Analyst**:
+* Requires **ArcGIS Spatial Analyst**:
 	* Linear Line Of Sight
 
 ## Instructions

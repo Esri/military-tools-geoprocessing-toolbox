@@ -17,7 +17,8 @@ The military-tools-geoprocessing-toolbox repository contains the following folde
 		* **GRG**
 			* Create GRG from Area
 			* Create GRG from Point
-			* Create Reference System GRG from Area			
+			* Create Reference System GRG from Area	
+			* Number Features		
 		* **Visibility**
 			* Add LLOS Fields
 			* Add RLOS Observer Fields
@@ -27,34 +28,7 @@ The military-tools-geoprocessing-toolbox repository contains the following folde
 			* Highest Points
 			* Lowest Point
 			
-	* Military Tools.tbx (same tools as below)
-	* Military Tools_10.3.tbx
-		* Conversion
-			* Convert Coordinates
-			* Table To 2-Point Line
-			* Table To Ellipse
-			* Table To Line Of Bearing
-			* Table To Point
-			* Table To Polygon
-			* Table To Polyline
-		* Distance and Direction
-			* Range Rings (from Interval)
-			* Range Rings from Minimum Maximum
-			* Range Rings from Minimum Maximum Table
-		* Source Scripts
-			* Add Unique Row ID
-			* Attach Profile Graph To LLOS
-			* Polyline To Polygon
-			* sourceCC
-			* sourceRLOSscript
-		* Visibility
-			* Add LLOS Fields
-			* Add RLOS Observer Fields
-			* Linear Line Of Sight
-			* Radial Line Of Sight
-			* Find Local Peaks
-			* Highest Points
-			* Lowest Point
+	
 	* [scripts](./toolboxes/scripts)
 		* AddLLOSFields.py
 		* AddRLOSObserverFields.py
