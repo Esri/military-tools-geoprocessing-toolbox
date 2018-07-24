@@ -332,16 +332,12 @@ def GRGFromArea(AOI,
         else:
             scratch = r"%scratchGDB%"
 
-        #Set output spatial reference
-        #arcpy.env.outputCoordinateSystem = arcpy.Describe(AOI).spatialReference
-        #arcpy.AddMessage("Setting Spatial Reference to {0}".format(arcpy.env.outputCoordinateSystem.name))
-
-        #If AOI is in WGS84, project to WebMercator
+        #If AOI is not in WebMercator, re-project to it
         if arcpy.Describe(AOI).spatialReference.name != "WGS_1984_Web_Mercator_Auxiliary_Sphere":
-	        fc_WM = os.path.join(scratch, "AOI_WM")
-	        outCS = arcpy.SpatialReference(3857) #the code for WGS84 Web Mercator
-	        arcpy.Project_management(fc, fc_WM, outCS)
-	        fc = fc_WM
+            fc_WM = os.path.join(scratch, "AOI_WM")
+            outCS = arcpy.SpatialReference(3857) #the code for WGS84 Web Mercator
+            arcpy.Project_management(fc, fc_WM, outCS)
+            fc = fc_WM
 
         # From the template extent, create a polygon that we can project into a localized World Azimuthal Equidistan
         if DEBUG == True: arcpy.AddMessage("Getting extent info...")
@@ -397,8 +393,8 @@ def GRGFromArea(AOI,
             orientation = row[0]
             arcpy.AddMessage("Orientation Angle: {0}".format(str(orientation)))
             if(orientation >= 45 and orientation <= 135):
-	            horizontalCells = math.ceil(row[1]/float(cellWidth))
-	            verticalCells = math.ceil(row[2]/float(cellHeight))
+                horizontalCells = math.ceil(row[1]/float(cellWidth))
+                verticalCells = math.ceil(row[2]/float(cellHeight))
             else:
                 verticalCells = math.ceil(row[1]/float(cellWidth))
                 horizontalCells = math.ceil(row[2]/float(cellHeight))
@@ -585,8 +581,8 @@ def GRGFromArea(AOI,
 
     finally:
         try:
-       		if arcpy.Exists(os.path.join(scratch, "AOI_WM")):
-       			arcpy.Delete_management(fc_WM)
+            if arcpy.Exists(os.path.join(scratch, "AOI_WM")):
+                arcpy.Delete_management(fc_WM)
         except:
             pass
 
@@ -619,7 +615,8 @@ def GRGFromPoint(starting_point,
     DEBUG = True
     mxd = None
     df, aprx = None, None
-
+    point_WM = None
+    scratch = None
 
     try:
         #UPDATE
@@ -639,10 +636,25 @@ def GRGFromPoint(starting_point,
 
         numberOfFeatures = arcpy.GetCount_management(targetPointOrigin)
         if(int(numberOfFeatures[0]) == 0):
-          raise Exception("The input start location must contain at least one feature.")
+            raise Exception("The input start location must contain at least one feature.")
 
         if(int(numberOfFeatures[0]) > 1):
-          arcpy.AddMessage("More than one feature detected for the start location, last feature entered will be used.")
+            arcpy.AddMessage("More than one feature detected for the start location, last feature entered will be used.")
+
+        arcpy.env.overwriteOutput = True
+        if arcpy.env.scratchWorkspace:
+            scratch = arcpy.env.scratchWorkspace
+        else:
+            scratch = r"%scratchGDB%"
+
+        #If starting point is not in WebMercator, re-project to it
+        if arcpy.Describe(targetPointOrigin).spatialReference.name != "WGS_1984_Web_Mercator_Auxiliary_Sphere":
+            point_WM = os.path.join(scratch, "GRG_POINT_WM")
+            outCS = arcpy.SpatialReference(3857) #the code for WGS84 Web Mercator
+            arcpy.Project_management(targetPointOrigin, point_WM, outCS)
+            targetPointOrigin = point_WM
+            arcpy.AddMessage("Projected starting point to Web Mercator.")
+
         '''
         ' If cell units are feet convert to meters
         '''
@@ -801,6 +813,8 @@ def GRGFromPoint(starting_point,
         else:
             arcpy.AddMessage("Non-map environment, skipping labeling...")
 
+        return outputFeatureClass
+
     except arcpy.ExecuteError:
         # Get the tool error messages
         msgs = arcpy.GetMessages()
@@ -827,7 +841,12 @@ def GRGFromPoint(starting_point,
         print(pymsg + "\n")
         print(msgs)
 
-    return outputFeatureClass
+    finally:
+        try:
+            if arcpy.Exists(os.path.join(scratch, "GRG_POINT_WM")):
+                arcpy.Delete_management(point_WM)
+        except:
+            pass
 
 def NumberFeatures(areaToNumber,
                     pointFeatures,
