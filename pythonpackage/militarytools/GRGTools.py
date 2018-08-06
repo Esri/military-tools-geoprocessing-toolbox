@@ -546,10 +546,11 @@ class NumberFeatures(object):
                                          parameterType='Optional',
                                          enabled=True,
                                          multiValue=False)
+        app = Utilities.GetPlatform()
 
-        layerFile = "NumberedStructures.lyr"
-        if (Utilities.GetPlatform() == Utilities.PLATFORM_PRO):
-            layerFile = "NumberedStructures.lyrx" # Use this one for Pro so labeling works
+        layerFile = "NumberedFeatures.lyrx"
+        if (app == 'ARCMAP'):
+            layerFile = "NumberedFeatures.lyr" # Use this one for Pro so labeling works
 
         output_features.symbology = os.path.join(MilitaryToolsUtilities.GetLayerPath(), layerFile)
 
