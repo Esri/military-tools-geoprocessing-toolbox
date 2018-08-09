@@ -445,7 +445,7 @@ class CreateReferenceSystemGRGFromArea(object):
                                          enabled=True,
                                          multiValue=False)
         output_grid_features.value = r"%scratchGDB%/output_grid"
-        output_grid_features.symbology = os.path.join(MilitaryToolsUtilities.GetLayerPath(), "OutputRefGrid.lyr")
+        output_grid_features.symbology = os.path.join(MilitaryToolsUtilities.GetLayerPath(), "GRG.lyr")
 
         large_grid_handling = arcpy.Parameter(name='large_grid_handling',
                                            displayName='Large Grid Handling',
