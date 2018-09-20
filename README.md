@@ -1,5 +1,5 @@
 # military-tools-geoprocessing-toolbox
-is a collection of models, scripts, and tools for use in ArcGIS for Desktop and ArcGIS Pro. This toolbox is one component that is a part of the Military Tools Product. 
+contains a Python toolbox and supporting files. It also contains a Python package to install the Military Tools toolbox as a system toolbox in ArcGIS Pro.This toolbox is one component that is a part of the Military Tools product. 
 
 ![screenshot of tools](m-t-g-t_screenshot_600x400.png)
 
@@ -15,7 +15,7 @@ is a collection of models, scripts, and tools for use in ArcGIS for Desktop and 
 
 ## Features
 
-This is an ArcGIS Geoprocessing Toolbox that contains collections of tools to import geometry from tables, determine ranges, create gridded reference graphics, and provide basic visibility analysis capabilities.
+This is an ArcGIS Geoprocessing toolbox that contains collections of tools to import geometry from tables, determine ranges, create gridded reference graphics, and provide basic visibility analysis capabilities.
 
 ### Contents
 
@@ -70,18 +70,8 @@ Repository specific instructions:
 
 Please see Esri general [guidelines for contributing](https://github.com/esri/contributing).
 
-### Repository Points of Contact
-
-Repository Owner: [Kevin](https://github.com/kgonzago)
-
-* Merge Pull Requests
-* Creates Releases and Tags
-* Manages Milestones
-* Manages and Assigns Issues
-
-Secondary Contact: [Lyle Wright](https://github.com/topowright)
-
-* Backup when the Owner is away
+## Repository Points of Contact 
+Contact the [Military Tools team](mailto:defensesolutions@esri.com)
 
 ## Resources
 
@@ -91,24 +81,21 @@ Secondary Contact: [Lyle Wright](https://github.com/topowright)
 * [ArcGIS for Defense Downloads](http://appsforms.esri.com/products/download/#ArcGIS_for_Defense)
 * [ArcGIS 10.3 Help](http://resources.arcgis.com/en/help/)
 * [ArcGIS Blog](http://blogs.esri.com/esri/arcgis/)
-* ![Twitter](https://g.twimg.com/twitter-bird-16x16.png)[@EsriDefense](http://twitter.com/EsriDefense)
 * [ArcGIS Solutions Website](http://solutions.arcgis.com/military/)
 
 ### Related repositories
 * [solutions-geoprocessing-toolbox](https://github.com/Esri/solutions-geoprocessing-toolbox)
-* [solutions-webappbuilder-widgets](https://github.com/Esri/solutions-webappbuilder-widgets)
 * [coordinate-conversion-addin-dotnet](https://github.com/Esri/coordinate-conversion-addin-dotnet)
 * [distance-direction-addin-dotnet](https://github.com/Esri/distance-direction-addin-dotnet)
 
 ## Licensing
-
-Copyright 2016-2017 Esri
+Copyright 2018 Esri
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+You may obtain a copy of the License at:
 
-   [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
+   http://www.apache.org/licenses/LICENSE-2.0.
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -116,8 +103,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-A copy of the license is available in the repository's
-[license.txt](license.txt) file.
+A copy of the license is available in the repository's [license.txt](./License.txt) file.
 
 [](Esri Tags: ArcGISSolutions Military Defense Military-Tools-for-ArcGIS)
 [](Esri Language: Python)
