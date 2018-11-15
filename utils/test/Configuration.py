@@ -63,6 +63,13 @@ distancePath = os.path.normpath(os.path.join(currentPath, r"distance_tests"))
 ''' Visibility Path '''
 visibilityPath = os.path.normpath(os.path.join(currentPath, r"visibility_tests"))
 
+''' Script Path (needed by some tests that test functions directly '''
+scriptsPath = os.path.join(militaryToolboxesPath, 'scripts')
+
+def addScriptsPath() : 
+    if (scriptsPath not in sys.path) :
+        sys.path.append(scriptsPath) 
+
 def checkTokenizeWorkaround() :
     #################################################
     # WORKAROUND: for Python 3 choking on reading some binary files (with nulls)
