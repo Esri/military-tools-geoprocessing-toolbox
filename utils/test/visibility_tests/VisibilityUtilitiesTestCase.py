@@ -42,8 +42,8 @@ import UnitTestUtilities
 import Configuration
 import arcpyAssert
 
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), \
-    r"../../../toolboxes/scripts")))
+# Add scripts to path so can call methods directly
+Configuration.addScriptsPath()
 import VisibilityUtilities
 
 # LOCALS ===========================================

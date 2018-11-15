@@ -44,15 +44,13 @@ repoPath = os.path.dirname(os.path.dirname(currentPath))
 logPath = os.path.normpath(os.path.join(currentPath, r"log")) # should go to .\military-geoprocessing-toolbox\utils\test\log
 
 ''' Data path '''
-militaryDataPath = os.path.normpath(os.path.join(currentPath, r"../../testdata/"))
+militaryDataPath = os.path.normpath(os.path.join(currentPath, r"../testdata/"))
 militaryInputDataGDB = os.path.normpath(os.path.join(militaryDataPath, "MilitaryToolsTestData.gdb"))
 militaryResultsGDB = os.path.normpath(os.path.join(militaryDataPath, "Results.gdb"))
 militaryScratchGDB = os.path.normpath(os.path.join(currentPath, "scratch.gdb"))
 
 ''' Toolboxes paths '''
-militaryToolboxesPath = os.path.normpath(os.path.join(currentPath, r"../../toolboxes/"))
-military_ProToolboxPath = os.path.normpath(os.path.join(militaryToolboxesPath, "Military_Tools_pro.tbx"))
-military_DesktopToolboxPath = os.path.normpath(os.path.join(militaryToolboxesPath, "Military_Tools_arcmap.tbx"))
+militaryToolboxesPath = os.path.normpath(os.path.join(currentPath, r"../../tools/militarytools/esri/toolboxes/"))
 military_ToolboxPath  = os.path.normpath(os.path.join(militaryToolboxesPath, "Military Tools.pyt"))
 toolboxUnderTest = None # Set to Pro or ArcMap toolbox at runtime
 
@@ -64,6 +62,13 @@ distancePath = os.path.normpath(os.path.join(currentPath, r"distance_tests"))
 
 ''' Visibility Path '''
 visibilityPath = os.path.normpath(os.path.join(currentPath, r"visibility_tests"))
+
+''' Script Path (needed by some tests that test functions directly '''
+scriptsPath = os.path.join(militaryToolboxesPath, 'scripts')
+
+def addScriptsPath() : 
+    if (scriptsPath not in sys.path) :
+        sys.path.append(scriptsPath) 
 
 def checkTokenizeWorkaround() :
     #################################################
@@ -124,17 +129,6 @@ def GetPlatform() :
 
         # Both Pro and ArcMap just the .pyt toolbox now:
         toolboxUnderTest = military_ToolboxPath
-
-        #############################################
-        # If for some reason we want to use/test the old .tbx toolbox version
-        # set the flag below to use this code
-        USE_TBX_VERSIONS = False
-        if USE_TBX_VERSIONS : 
-            if Platform == PLATFORM_PRO:
-                toolboxUnderTest = military_DesktopToolboxPath
-            else:
-                toolboxUnderTest = military_ProToolboxPath
-        #############################################
 
     return Platform
 
