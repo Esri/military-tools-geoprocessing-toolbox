@@ -134,7 +134,7 @@ def getErrorResultsAsList(result):
 def configCheck():
     UnitTestUtilities.checkFilePaths([Configuration.militaryDataPath, \
         Configuration.militaryInputDataGDB, Configuration.militaryResultsGDB, \
-        Configuration.military_ProToolboxPath, Configuration.military_DesktopToolboxPath])
+        Configuration.military_ToolboxPath])
 
 def runTestSuite():
     ''' collect all test suites before running them '''

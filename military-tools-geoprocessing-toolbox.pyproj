@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{a10201f6-5a06-4328-bb56-1698d8da4e7e}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>utils\test\TestRunner.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId>{c14efad2-6ce8-44f7-9a54-461437950898}</InterpreterId>
+    <InterpreterVersion>3.4</InterpreterVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+    <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="license.txt" />
+    <Content Include="m-t-g-t_screenshot_600x400.png" />
+    <Content Include="tools\militarytools\esri\toolboxes\scripts\grg_tool_help_illustration.png" />
+    <Content Include="tools\militarytools\esri\toolboxes\scripts\num_feat_tool_help_illustration.png" />
+    <Content Include="utils\testdata\CSV\schema.ini" />
+    <Content Include="utils\testdata\DataCreditsforMilitaryToolsGeoprocessingToolbox.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\AddLLOSFields.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\AddRLOSObserverFields.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\ConversionTools.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\ConversionUtilities.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\ConvertCoordinates.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\DistanceAndDirectionTools.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\FindLocalPeaks.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\GRGTools.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\GRGUtilities.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\HighestPoints.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\LinearLineOfSight.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\LowestPoints.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\RadialLineOfSight.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\RadialLineOfSightAndRange.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\RangeRingFromMinMaxTable.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\RangeRingMinMax.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\RangeRingsFromInterval.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\RangeRingUtils.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\RefGrid.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\TableTo2PointLine.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\TableToEllipse.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\TableToLineOfBearing.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\TableToPoint.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\TableToPolygon.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\TableToPolyline.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\Utilities.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\VisibilityUtilities.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\VisTools.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\__init__.py" />
+    <Compile Include="tools\militarytools\__init__.py" />
+    <Compile Include="tools\setup.py" />
+    <Compile Include="utils\test\arcpyAssert.py" />
+    <Compile Include="utils\test\Configuration.py" />
+    <Compile Include="utils\test\conversion_tests\ConversionTestSuite.py" />
+    <Compile Include="utils\test\conversion_tests\ConversionUtilitiesTestCase.py" />
+    <Compile Include="utils\test\conversion_tests\ConvertCoordinatesTestCase.py" />
+    <Compile Include="utils\test\conversion_tests\TableToEllipseTestCase.py" />
+    <Compile Include="utils\test\conversion_tests\TableToLineOfBearingTestCase.py" />
+    <Compile Include="utils\test\conversion_tests\TableToPointTestCase.py" />
+    <Compile Include="utils\test\conversion_tests\TableToPolygonTestCase.py" />
+    <Compile Include="utils\test\conversion_tests\TableToPolylineTestCase.py" />
+    <Compile Include="utils\test\conversion_tests\TableToTwoPointLineTestCase.py" />
+    <Compile Include="utils\test\conversion_tests\__init__.py" />
+    <Compile Include="utils\test\distance_tests\DistanceAndDirectionTestCase.py" />
+    <Compile Include="utils\test\distance_tests\RangeRingTestSuite.py" />
+    <Compile Include="utils\test\distance_tests\RangeRingUtilsTestCase.py" />
+    <Compile Include="utils\test\distance_tests\__init__.py" />
+    <Compile Include="utils\test\grg_tests\GRGCreateGRGFromAreaTestCase.py" />
+    <Compile Include="utils\test\grg_tests\GRGCreateGRGFromPointTestCase.py" />
+    <Compile Include="utils\test\grg_tests\GRGCreateReferenceSystemGRGFromAreaTestCase.py" />
+    <Compile Include="utils\test\grg_tests\GRGTestSuite.py" />
+    <Compile Include="utils\test\grg_tests\__init__.py" />
+    <Compile Include="utils\test\TestRunner.py" />
+    <Compile Include="utils\test\UnitTestUtilities.py" />
+    <Compile Include="utils\test\visibility_tests\AddLLOSFieldsTestCase.py" />
+    <Compile Include="utils\test\visibility_tests\AddRLOSObserverFieldsTestCase.py" />
+    <Compile Include="utils\test\visibility_tests\FindLocalPeaksTestCase.py" />
+    <Compile Include="utils\test\visibility_tests\HighestPointsTestCase.py" />
+    <Compile Include="utils\test\visibility_tests\LinearLineOfSightTestCase.py" />
+    <Compile Include="utils\test\visibility_tests\LowestPointsTestCase.py" />
+    <Compile Include="utils\test\visibility_tests\RadialLineOfSightAndRangeTestCase.py" />
+    <Compile Include="utils\test\visibility_tests\RadialLineOfSightTestCase.py" />
+    <Compile Include="utils\test\visibility_tests\VisibilityTestSuite.py" />
+    <Compile Include="utils\test\visibility_tests\VisibilityUtilitiesTestCase.py" />
+    <Compile Include="utils\test\visibility_tests\__init__.py" />
+    <Compile Include="utils\test\__init__.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="tools" />
+    <Folder Include="tools\militarytools" />
+    <Folder Include="tools\militarytools\esri\" />
+    <Folder Include="tools\militarytools\esri\toolboxes\" />
+    <Folder Include="tools\militarytools\esri\toolboxes\scripts" />
+    <Folder Include="tools\recipe\" />
+    <Folder Include="utils\" />
+    <Folder Include="utils\test" />
+    <Folder Include="utils\testdata" />
+    <Folder Include="utils\testdata\CSV" />
+    <Folder Include="utils\test\conversion_tests" />
+    <Folder Include="utils\test\distance_tests" />
+    <Folder Include="utils\test\grg_tests" />
+    <Folder Include="utils\test\visibility_tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="{c14efad2-6ce8-44f7-9a54-461437950898}\3.4" />
+  </ItemGroup>
+  <Import Project="$(PtvsTargetsFile)" Condition="Exists($(PtvsTargetsFile))" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="!Exists($(PtvsTargetsFile))" />
+</Project>
