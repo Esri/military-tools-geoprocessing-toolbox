@@ -1,5 +1,6 @@
 # military-tools-geoprocessing-toolbox
-contains a Python toolbox and supporting files. It also contains a Python package to install the Military Tools toolbox as a system toolbox in ArcGIS Pro.This toolbox is one component that is a part of the Military Tools product. 
+
+The Military Tools toolbox is an ArcGIS Python Toolbox supporting defense and intelligence workflows. This toolbox a component of the [Military Tools for ArcGIS product](http://solutions.arcgis.com/defense/help/military-tools/). 
 
 ![screenshot of tools](m-t-g-t_screenshot_600x400.png)
 
@@ -23,9 +24,9 @@ This is an ArcGIS Geoprocessing toolbox that contains collections of tools to im
 
 ## Requirements
 
-The **Military Tools** toolbox is a Python Toolbox (PYT) that contains the contents of the older **Military_Tools_arcmap.tbx** and **Military_Tools_pro.tbx** toolboxes, and an added GRG toolset. This toolbox has the following requirements:
+The **Military Tools** toolbox is a Python Toolbox (PYT) has the following requirements:
 * **ArcGIS 10.3.1+ for Desktop**
-or
+-or-
 * **ArcGIS Pro 2.1+**
 
 Additionally there are additional extensions needed for certain tools:
@@ -41,9 +42,9 @@ Additionally there are additional extensions needed for certain tools:
 
 ## Instructions
 
-* [New to Github? Get started here.](http://htmlpreview.github.com/?https://github.com/Esri/esri.github.com/blob/master/help/esri-getting-to-know-github.html)
-* [Intstructions on running the tests for this repository](./utils/test/Readme.md)
-* [Want to help update the tools in this repository?](https://github.com/esri/contributing)
+* To use the tools, clone the repository and open the [Python Toolbox]( ./tools/militarytools/esri/toolboxes)
+* [Instructions for building the package on Conda](./tools/recipe/Readme.md)
+* [Instructions on running the tests for this repository](./utils/test/Readme.md)
 
 ## Issues
 
@@ -71,12 +72,12 @@ Repository specific instructions:
 Please see Esri general [guidelines for contributing](https://github.com/esri/contributing).
 
 ## Repository Points of Contact 
+
 Contact the [Military Tools team](mailto:defensesolutions@esri.com)
 
 ## Resources
 
-* [ArcGIS for Defense Military Tools Toolbox](http://solutions.arcgis.com/defense/help/military-tools/arcmap/an-overview-of-the-military-tools-toolbox.htm)
-* [Military Tools for ArcGIS](https://esri.github.io/military-tools-desktop-addins/)
+* [Military Tools for ArcGIS](http://solutions.arcgis.com/defense/help/military-tools/)
 * [Military Tools for ArcGIS Solutions Pages](http://solutions.arcgis.com/defense/help/military-tools/) 
 * [ArcGIS for Defense Downloads](http://appsforms.esri.com/products/download/#ArcGIS_for_Defense)
 * [ArcGIS 10.3 Help](http://resources.arcgis.com/en/help/)
@@ -87,6 +88,7 @@ Contact the [Military Tools team](mailto:defensesolutions@esri.com)
 * [solutions-geoprocessing-toolbox](https://github.com/Esri/solutions-geoprocessing-toolbox)
 * [coordinate-conversion-addin-dotnet](https://github.com/Esri/coordinate-conversion-addin-dotnet)
 * [distance-direction-addin-dotnet](https://github.com/Esri/distance-direction-addin-dotnet)
+* [military-tools-desktop-addins](https://github.com/Esri/military-tools-desktop-addins)
 
 ## Licensing
 Copyright 2018 Esri
@@ -104,6 +106,3 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 A copy of the license is available in the repository's [license.txt](./License.txt) file.
-
-[](Esri Tags: ArcGISSolutions Military Defense Military-Tools-for-ArcGIS)
-[](Esri Language: Python)
