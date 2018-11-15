@@ -10,7 +10,7 @@ The Military Tools for ArcGIS toolbox is an ArcGIS python toolbox supporting def
 * [Requirements](#requirements)
 * [Instructions](#instructions)
 * [Issues](#issues)
-* [Contact](#repository-points-of-contact)
+* [Contact](#contact-us)
 * [Contributing](#contributing)
 * [Resources](#resources)
 * [Licensing](#licensing)
@@ -33,7 +33,7 @@ The **Military Tools for ArcGIS** python toolbox (`.pyt`) has the following requ
 
 * **ArcGIS Pro 2.1+**
 
-Additionally there are additional extensions needed for certain tools:
+Additionally there are extensions required to run certain tools:
 
 * Requires **ArcGIS Spatial Analyst**:
 	* Find Local Peaks
