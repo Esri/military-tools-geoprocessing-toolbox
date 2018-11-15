@@ -1,10 +1,11 @@
 # military-tools-geoprocessing-toolbox
 
-The Military Tools toolbox is an ArcGIS Python Toolbox supporting defense and intelligence workflows. This toolbox a component of the [Military Tools for ArcGIS product](http://solutions.arcgis.com/defense/help/military-tools/). 
+The Military Tools for ArcGIS toolbox is an ArcGIS python toolbox supporting defense and intelligence workflows. The toolbox a component of the [Military Tools for ArcGIS product](http://solutions.arcgis.com/defense/help/military-tools/). 
 
 ![screenshot of tools](m-t-g-t_screenshot_600x400.png)
 
 ## Sections
+
 * [Features](#features)
 * [Requirements](#requirements)
 * [Instructions](#instructions)
@@ -16,7 +17,7 @@ The Military Tools toolbox is an ArcGIS Python Toolbox supporting defense and in
 
 ## Features
 
-This is an ArcGIS Geoprocessing toolbox that contains collections of tools to import geometry from tables, determine ranges, create gridded reference graphics, and provide basic visibility analysis capabilities.
+The Military Tools for ArcGIS toolbox is an ArcGIS Geoprocessing python toolbox supporting defense and intelligence workflows such as importing geometry from tables, determining ranges, creating gridded reference graphics, providing visibility analysis, and other capabilities.
 
 ### Contents
 
@@ -24,9 +25,12 @@ This is an ArcGIS Geoprocessing toolbox that contains collections of tools to im
 
 ## Requirements
 
-The **Military Tools** toolbox is a Python Toolbox (PYT) has the following requirements:
+The **Military Tools for ArcGIS** python toolbox (`.pyt`) has the following requirements:
+
 * **ArcGIS 10.3.1+ for Desktop**
+
 -or-
+
 * **ArcGIS Pro 2.1+**
 
 Additionally there are additional extensions needed for certain tools:
@@ -44,7 +48,7 @@ Additionally there are additional extensions needed for certain tools:
 
 * To use the tools, clone the repository and open the [Python Toolbox]( ./tools/militarytools/esri/toolboxes)
 * [Instructions for building the package on Conda](./tools/recipe/Readme.md)
-* [Instructions on running the tests for this repository](./utils/test/Readme.md)
+* [Instructions for running the python tests in this repository](./utils/test/Readme.md)
 
 ## Issues
 
@@ -71,26 +75,28 @@ Repository specific instructions:
 
 Please see Esri general [guidelines for contributing](https://github.com/esri/contributing).
 
-## Repository Points of Contact 
+## Contact Us 
 
 Contact the [Military Tools team](mailto:defensesolutions@esri.com)
 
 ## Resources
 
 * [Military Tools for ArcGIS](http://solutions.arcgis.com/defense/help/military-tools/)
-* [Military Tools for ArcGIS Solutions Pages](http://solutions.arcgis.com/defense/help/military-tools/) 
-* [ArcGIS for Defense Downloads](http://appsforms.esri.com/products/download/#ArcGIS_for_Defense)
-* [ArcGIS 10.3 Help](http://resources.arcgis.com/en/help/)
-* [ArcGIS Blog](http://blogs.esri.com/esri/arcgis/)
 * [ArcGIS Solutions Website](http://solutions.arcgis.com/military/)
+* [ArcGIS for Defense Downloads](http://appsforms.esri.com/products/download/#ArcGIS_for_Defense)
+* [ArcGIS 10.X Help](http://resources.arcgis.com/en/help/)
+* [ArcGIS Pro Help](http://pro.arcgis.com/en/pro-app/)
+* [ArcGIS Blog](http://blogs.esri.com/esri/arcgis/)
 
 ### Related repositories
+
 * [solutions-geoprocessing-toolbox](https://github.com/Esri/solutions-geoprocessing-toolbox)
 * [coordinate-conversion-addin-dotnet](https://github.com/Esri/coordinate-conversion-addin-dotnet)
 * [distance-direction-addin-dotnet](https://github.com/Esri/distance-direction-addin-dotnet)
 * [military-tools-desktop-addins](https://github.com/Esri/military-tools-desktop-addins)
 
 ## Licensing
+
 Copyright 2018 Esri
 
 Licensed under the Apache License, Version 2.0 (the "License");
