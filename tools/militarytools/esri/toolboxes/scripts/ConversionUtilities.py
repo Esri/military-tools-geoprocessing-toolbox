@@ -530,7 +530,8 @@ def tableToEllipse(inputTable,
 
         deleteme = []
         scratch = '%scratchGDB%'
-        joinFieldName = "JoinID"
+        joinFieldName = 'JoinID'
+        deleteJoinFieldName = 'JoinID_1'
         
         if env.scratchWorkspace:
             scratch = env.scratchWorkspace
@@ -574,11 +575,10 @@ def tableToEllipse(inputTable,
         #Join original table fields to output
         arcpy.AddMessage("Joining fields from input table to output line features...")
         arcpy.JoinField_management(outputEllipseFeatures, joinFieldName,
-                                   copyRows, joinFieldName,
-                                   originalTableFieldNames)
+                                   copyRows, joinFieldName) 
         
         arcpy.DeleteField_management(outputEllipseFeatures,
-                                     [joinFieldName])
+                                     [joinFieldName, deleteJoinFieldName])
 
         return outputEllipseFeatures
     
