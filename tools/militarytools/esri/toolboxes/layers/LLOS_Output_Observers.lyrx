@@ -1,21 +1,23 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "1.2.0",
-  "build" : 5023,
+  "version" : "2.1.0",
+  "build" : 10257,
   "layers" : [
     "CIMPATH=map/outputobservers.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Observers",
+      "name" : "outputObservers",
       "uRI" : "CIMPATH=map/outputobservers.xml",
       "sourceModifiedTime" : {
-        "type" : "TimeInstant",
-        "start" : 978307200000
+        "type" : "TimeInstant"
       },
-      "metadataURI" : "CIMPATH=Metadata/64cf40917cf333f3ea5808b3d16716c2.xml",
+      "useSourceMetadata" : true,
       "description" : "outputObservers",
+      "layerElevation" : {
+        "type" : "CIMLayerElevationSurface"
+      },
       "expanded" : true,
       "layer3DProperties" : {
         "type" : "CIM3DLayerProperties",
@@ -42,20 +44,21 @@
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
       "serviceLayerID" : -1,
+      "refreshRate" : -1,
+      "refreshRateUnit" : "esriTimeUnitsSeconds",
       "autoGenerateFeatureTemplates" : true,
-      "featureElevationExpression" : "Shape.Z",
       "featureTable" : {
         "type" : "CIMFeatureTable",
         "displayField" : "OID_OBSERV",
         "editable" : true,
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
-          "workspaceConnectionString" : "DATABASE=C:\\Users\\matt2542\\Documents\\ArcGIS\\Projects\\mf-fix-symbol-labeling\\mf-fix-symbol-labeling.gdb",
+          "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\..\\..\\..\\ArcGIS\\Projects\\testCSM_MT_fixes\\scratch.gdb",
           "workspaceFactory" : "FileGDB",
           "dataset" : "outputObservers",
           "datasetType" : "esriDTFeatureClass"
         },
-        "studyAreaSpatialRel" : "esriSpatialRelIntersects",
+        "studyAreaSpatialRel" : "esriSpatialRelUndefined",
         "searchOrder" : "esriSearchOrderSpatial"
       },
       "htmlPopupEnabled" : true,
@@ -64,12 +67,14 @@
         "htmlUseCodedDomainValues" : true,
         "htmlPresentationStyle" : "TwoColumnTable"
       },
+      "isFlattened" : true,
       "selectable" : true,
+      "featureCacheType" : "Session",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "[OID_OBSERV]",
-          "expressionEngine" : "VBScript",
+          "expression" : "$feature.OID_OBSERV",
+          "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
             "type" : "CIMMaplexLabelPlacementProperties",
@@ -318,13 +323,13 @@
                       "curveRings" : [
                         [
                           [
-                            1.2246467991473532e-016,
+                            1.2246467991473532e-16,
                             2
                           ],
                           {
                             "a" : [
                               [
-                                1.2246467991473532e-016,
+                                1.2246467991473532e-16,
                                 2
                               ],
                               [
@@ -396,7 +401,7 @@
             "classes" : [
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "Targets Not Visible",
+                "label" : "Target is Not Visible",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -478,8 +483,7 @@
                     "haloSize" : 1,
                     "scaleX" : 1,
                     "angleAlignment" : "Map"
-                  },
-                  "symbolName" : "Symbol_24"
+                  }
                 },
                 "values" : [
                   {
@@ -493,7 +497,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "Targets Visible",
+                "label" : "Target is Visible",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -575,8 +579,7 @@
                     "haloSize" : 1,
                     "scaleX" : 1,
                     "angleAlignment" : "Map"
-                  },
-                  "symbolName" : "Symbol_25"
+                  }
                 },
                 "values" : [
                   {
@@ -594,14 +597,29 @@
         ]
       },
       "scaleSymbols" : true,
-      "snappable" : true
-    }
-  ],
-  "binaryReferences" : [
-    {
-      "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/64cf40917cf333f3ea5808b3d16716c2.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20161215</CreaDate><CreaTime>08052900</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+      "snappable" : true,
+      "symbolLayerDrawing" : {
+        "type" : "CIMSymbolLayerDrawing",
+        "symbolLayers" : [
+          {
+            "type" : "CIMSymbolLayerIdentifier",
+            "symbolLayerName" : "Level_3"
+          },
+          {
+            "type" : "CIMSymbolLayerIdentifier",
+            "symbolLayerName" : "Level_2"
+          },
+          {
+            "type" : "CIMSymbolLayerIdentifier",
+            "symbolLayerName" : "Level_1"
+          },
+          {
+            "type" : "CIMSymbolLayerIdentifier",
+            "symbolLayerName" : "Level_0"
+          }
+        ],
+        "useSymbolLayerDrawing" : true
+      }
     }
   ]
 }

@@ -1,21 +1,23 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "1.2.0",
-  "build" : 5023,
+  "version" : "2.1.0",
+  "build" : 10257,
   "layers" : [
     "CIMPATH=map/outputtargets.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Targets",
+      "name" : "outputTargets",
       "uRI" : "CIMPATH=map/outputtargets.xml",
       "sourceModifiedTime" : {
-        "type" : "TimeInstant",
-        "start" : 978307200000
+        "type" : "TimeInstant"
       },
-      "metadataURI" : "CIMPATH=Metadata/ad1f40a324c64f22d330354d993c125e.xml",
+      "useSourceMetadata" : true,
       "description" : "outputTargets",
+      "layerElevation" : {
+        "type" : "CIMLayerElevationSurface"
+      },
       "expanded" : true,
       "layer3DProperties" : {
         "type" : "CIM3DLayerProperties",
@@ -42,6 +44,8 @@
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
       "serviceLayerID" : -1,
+      "refreshRate" : -1,
+      "refreshRateUnit" : "esriTimeUnitsSeconds",
       "autoGenerateFeatureTemplates" : true,
       "featureElevationExpression" : "Shape.Z",
       "featureTable" : {
@@ -50,7 +54,7 @@
         "editable" : true,
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
-          "workspaceConnectionString" : "DATABASE=C:\\Users\\matt2542\\Documents\\ArcGIS\\Projects\\mf-fix-symbol-labeling\\mf-fix-symbol-labeling.gdb",
+          "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\..\\..\\..\\ArcGIS\\Projects\\testCSM_MT_fixes\\scratch.gdb",
           "workspaceFactory" : "FileGDB",
           "dataset" : "outputTargets",
           "datasetType" : "esriDTFeatureClass"
@@ -65,35 +69,38 @@
         "htmlPresentationStyle" : "TwoColumnTable"
       },
       "selectable" : true,
+      "featureCacheType" : "Session",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "[COUNT_TarIsVis]",
-          "expressionEngine" : "VBScript",
+          "expression" : "$feature.COUNT_TarIsVis",
+          "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
             "type" : "CIMMaplexLabelPlacementProperties",
             "featureType" : "Point",
-            "avoidPolygonHoles" : false,
-            "canOverrunFeature" : false,
-            "canPlaceLabelOutsidePolygon" : false,
-            "canRemoveOverlappingLabel" : false,
+            "avoidPolygonHoles" : true,
+            "canOverrunFeature" : true,
+            "canPlaceLabelOutsidePolygon" : true,
+            "canRemoveOverlappingLabel" : true,
             "canStackLabel" : true,
-            "connectionType" : "MinimizeLabels",
+            "connectionType" : "Unambiguous",
             "constrainOffset" : "NoConstraint",
-            "contourAlignmentType" : "Uphill",
-            "contourLadderType" : "None",
-            "contourMaximumAngle" : 0,
-            "enableConnection" : false,
-            "featureWeight" : 100,
-            "fontHeightReductionLimit" : 0,
-            "fontHeightReductionStep" : 0,
-            "fontWidthReductionLimit" : 0,
-            "fontWidthReductionStep" : 0,
+            "contourAlignmentType" : "Page",
+            "contourLadderType" : "Straight",
+            "contourMaximumAngle" : 90,
+            "enableConnection" : true,
+            "enablePointPlacementPriorities" : true,
+            "featureWeight" : 0,
+            "fontHeightReductionLimit" : 4,
+            "fontHeightReductionStep" : 0.5,
+            "fontWidthReductionLimit" : 90,
+            "fontWidthReductionStep" : 5,
             "graticuleAlignmentType" : "Straight",
+            "keyNumberGroupName" : "Default",
             "labelBuffer" : 15,
-            "labelLargestPolygon" : false,
-            "labelPriority" : 0,
+            "labelLargestPolygon" : true,
+            "labelPriority" : -1,
             "labelStackingProperties" : {
               "type" : "CIMMaplexLabelStackingProperties",
               "stackAlignment" : "ChooseBest",
@@ -115,11 +122,11 @@
               ]
             },
             "lineFeatureType" : "General",
-            "linePlacementMethod" : "CenteredHorizontalOnLine",
-            "maximumLabelOverrun" : 0,
-            "maximumLabelOverrunUnit" : "Map",
+            "linePlacementMethod" : "OffsetCurvedFromLine",
+            "maximumLabelOverrun" : 36,
+            "maximumLabelOverrunUnit" : "Point",
             "minimumFeatureSizeUnit" : "Map",
-            "multiPartOption" : "OneLabelPerFeature",
+            "multiPartOption" : "OneLabelPerPart",
             "offsetAlongLineProperties" : {
               "type" : "CIMMaplexOffsetAlongLineProperties",
               "placementMethod" : "BestPositionAlongLine",
@@ -157,17 +164,17 @@
               "type" : "CIMMaplexInternalZonePriorities",
               "center" : 1
             },
-            "polygonPlacementMethod" : "HorizontalInPolygon",
-            "primaryOffset" : 0,
-            "primaryOffsetUnit" : "Map",
-            "removeExtraWhiteSpace" : false,
+            "polygonPlacementMethod" : "CurvedInPolygon",
+            "primaryOffset" : 1,
+            "primaryOffsetUnit" : "Point",
+            "removeExtraWhiteSpace" : true,
             "repetitionIntervalUnit" : "Map",
             "rotationProperties" : {
               "type" : "CIMMaplexRotationProperties",
               "rotationType" : "Arithmetic",
               "alignmentType" : "Straight"
             },
-            "secondaryOffset" : 0,
+            "secondaryOffset" : 100,
             "strategyPriorities" : {
               "type" : "CIMMaplexStrategyPriorities",
               "stacking" : 1,
@@ -176,9 +183,9 @@
               "fontReduction" : 4,
               "abbreviation" : 5
             },
-            "thinningDistanceUnit" : "Map",
+            "thinningDistanceUnit" : "Point",
             "truncationMarkerCharacter" : ".",
-            "truncationMinimumLength" : 0,
+            "truncationMinimumLength" : 1,
             "truncationPreferredCharacters" : "aeiou"
           },
           "name" : "Class 1",
@@ -232,10 +239,10 @@
               "fontEffects" : "Normal",
               "fontEncoding" : "Unicode",
               "fontFamilyName" : "Tahoma",
-              "fontStyleName" : "Bold",
+              "fontStyleName" : "Regular",
               "fontType" : "Unspecified",
               "haloSize" : 1,
-              "height" : 11,
+              "height" : 10,
               "hinting" : "Default",
               "horizontalAlignment" : "Left",
               "kerning" : true,
@@ -317,13 +324,13 @@
                       "curveRings" : [
                         [
                           [
-                            1.2246467991473532e-016,
+                            1.2246467991473532e-16,
                             2
                           ],
                           {
                             "a" : [
                               [
-                                1.2246467991473532e-016,
+                                1.2246467991473532e-16,
                                 2
                               ],
                               [
@@ -395,7 +402,7 @@
             "classes" : [
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "Target Not Visible",
+                "label" : "Target is Not Visible",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -492,7 +499,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "Target Visible",
+                "label" : "Target is Visible",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -594,13 +601,6 @@
       },
       "scaleSymbols" : true,
       "snappable" : true
-    }
-  ],
-  "binaryReferences" : [
-    {
-      "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/ad1f40a324c64f22d330354d993c125e.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20161215</CreaDate><CreaTime>08045800</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
     }
   ]
 }

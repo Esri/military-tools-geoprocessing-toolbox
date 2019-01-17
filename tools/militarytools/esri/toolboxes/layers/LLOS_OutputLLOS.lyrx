@@ -1,21 +1,23 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "1.2.0",
-  "build" : 5023,
+  "version" : "2.1.0",
+  "build" : 10257,
   "layers" : [
     "CIMPATH=map/outputlos.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "LOS - Surface Lines",
+      "name" : "outputLOS",
       "uRI" : "CIMPATH=map/outputlos.xml",
       "sourceModifiedTime" : {
-        "type" : "TimeInstant",
-        "start" : 978307200000
+        "type" : "TimeInstant"
       },
-      "metadataURI" : "CIMPATH=Metadata/b3c07da1208a19ac5b8e5c33014747b7.xml",
+      "useSourceMetadata" : true,
       "description" : "outputLOS",
+      "layerElevation" : {
+        "type" : "CIMLayerElevationSurface"
+      },
       "expanded" : true,
       "layer3DProperties" : {
         "type" : "CIM3DLayerProperties",
@@ -42,15 +44,16 @@
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
       "serviceLayerID" : -1,
+      "refreshRate" : -1,
+      "refreshRateUnit" : "esriTimeUnitsSeconds",
       "autoGenerateFeatureTemplates" : true,
-      "featureElevationExpression" : "Shape.Z",
       "featureTable" : {
         "type" : "CIMFeatureTable",
         "displayField" : "SourceOID",
         "editable" : true,
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
-          "workspaceConnectionString" : "DATABASE=C:\\Users\\matt2542\\Documents\\ArcGIS\\Projects\\mf-fix-symbol-labeling\\mf-fix-symbol-labeling.gdb",
+          "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\..\\..\\..\\ArcGIS\\Projects\\testCSM_MT_fixes\\scratch.gdb",
           "workspaceFactory" : "FileGDB",
           "dataset" : "outputLOS",
           "datasetType" : "esriDTFeatureClass"
@@ -64,12 +67,14 @@
         "htmlXSLStyleSheet" : "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<xsl:stylesheet version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns:fo=\"http://www.w3.org/1999/XSL/Format\" xmlns:msxsl=\"urn:schemas-microsoft-com:xslt\">\n    <xsl:output method=\"html\" version=\"1.0\" encoding=\"UTF-8\" indent=\"yes\" />\n    <xsl:variable name=\"ignoreFieldNames\" select=\"'|OBJECTID|Shape|Shape_Length|Shape_Area|ATTACHMENTID|REL_OBJECTID|CONTENT_TYPE|ATT_NAME|DATA_SIZE|DATA|'\" />\n    <xsl:variable name=\"headerRowColor\" select=\"'#E4ECE9'\" />\n    <xsl:variable name=\"alternateRowColor\" select=\"'#E4ECE9'\" />\n    <xsl:variable name=\"MaskedRowColor\" select=\"'#FF0000'\" />\n    <xsl:variable name=\"VisibleRowColor\" select=\"'#00CC00'\" />\n    \n    <xsl:template match=\"/\">\n        <html>\n            <body style=\"margin:0px 0px 0px 0px;overflow:auto;background:#FFFFFF;\">\n                <table style=\"font-family:Arial,Verdana,Times;font-size:10px;text-align:left;width:100%;border-collapse:collapse;padding:3px 3px 3px 3px\">\n                    <!--<tr style=\"text-align:center;font-weight:bold;background:{$headerRowColor}\">-->\n                    <!--    <td>-->\n                    <!--        <xsl:value-of select=\"FieldsDoc/Title\" />-->\n                    <!--    </td>-->\n                    <!--</tr>-->\n                    <tr>\n                        <td>\n                            <table style=\"font-family:Arial,Verdana,Times;font-size:14px;text-align:left;width:100%;border-spacing:0px; padding:3px 3px 3px 3px\">\n                                <xsl:apply-templates select=\"FieldsDoc/Fields/Field[not(contains($ignoreFieldNames, concat(concat('|', FieldName), '|'))) and not(FieldValue = '&lt;Null&gt;')]\" />\n                            </table>\n                        </td>\n                    </tr>\n                </table>\n            </body>\n        </html>\n    </xsl:template>\n\n    <xsl:template match=\"Field\">\n        <tr>\n            <xsl:if test=\"(position() +1) mod 2\">\n                <xsl:attribute name=\"bgcolor\">\n                    <xsl:value-of select=\"$alternateRowColor\" />\n                </xsl:attribute>\n            </xsl:if>\n            <!-- Color row by visible value either Red for invisible or green for visible   -->\n            <xsl:choose>\n                <xsl:when test=\"FieldValue[contains(.,'2')]\">\n                    <xsl:attribute name=\"bgcolor\">\n                        <xsl:value-of select=\"$MaskedRowColor\" />\n                    </xsl:attribute>\n                </xsl:when>\n                <xsl:when test=\"FieldValue[contains(.,'1')]\">\n                    <xsl:attribute name=\"bgcolor\">\n                        <xsl:value-of select=\"$VisibleRowColor\" />\n                    </xsl:attribute>\n                </xsl:when>\n                <xsl:otherwise>\n                    <xsl:attribute name=\"bgcolor\">\n                        <xsl:value-of select=\"$VisibleRowColor\" />\n                    </xsl:attribute>\n                </xsl:otherwise>\n            </xsl:choose>\n            <!-- Don't show the field name, don't need to see it -->\n            <!--<td>-->\n            <!--    <xsl:value-of select=\"FieldName\" />-->\n            <!--</td>-->\n            <td>\n                <!-- CHANGE THE FIELD VALUES HERE!! -->\n                <xsl:choose>\n                    \n                    <xsl:when test=\"FieldValue[contains(.,'2')]\">\n                        <a>NOT VISIBLE</a>\n                    </xsl:when>\n                    \n                    <xsl:when test=\"FieldValue[contains(.,'1')]\">\n                        <a>VISIBLE</a>\n                    </xsl:when>\n                    \n                </xsl:choose>\n            </td>\n        </tr>\n    </xsl:template>\n</xsl:stylesheet>",
         "htmlPresentationStyle" : "XSLStyleSheet"
       },
+      "isFlattened" : true,
       "selectable" : true,
+      "featureCacheType" : "Session",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "[SourceOID]",
-          "expressionEngine" : "VBScript",
+          "expression" : "$feature.SourceOID",
+          "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
             "type" : "CIMMaplexLabelPlacementProperties",
@@ -327,7 +332,7 @@
             "classes" : [
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "Surface Visible",
+                "label" : "Visible",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -341,7 +346,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 2,
+                        "width" : 3,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -353,8 +358,7 @@
                         }
                       }
                     ]
-                  },
-                  "symbolName" : "Symbol_5"
+                  }
                 },
                 "values" : [
                   {
@@ -368,7 +372,7 @@
               },
               {
                 "type" : "CIMUniqueValueClass",
-                "label" : "Surface Not Visible",
+                "label" : "Not Visible",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -382,7 +386,7 @@
                         "joinStyle" : "Round",
                         "lineStyle3D" : "Strip",
                         "miterLimit" : 10,
-                        "width" : 2,
+                        "width" : 3,
                         "color" : {
                           "type" : "CIMRGBColor",
                           "values" : [
@@ -394,8 +398,7 @@
                         }
                       }
                     ]
-                  },
-                  "symbolName" : "Symbol_6"
+                  }
                 },
                 "values" : [
                   {
@@ -414,13 +417,6 @@
       },
       "scaleSymbols" : true,
       "snappable" : true
-    }
-  ],
-  "binaryReferences" : [
-    {
-      "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/b3c07da1208a19ac5b8e5c33014747b7.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20161215</CreaDate><CreaTime>08053800</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
     }
   ]
 }

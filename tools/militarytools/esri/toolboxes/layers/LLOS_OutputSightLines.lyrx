@@ -1,21 +1,23 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "1.2.0",
-  "build" : 5023,
+  "version" : "2.1.0",
+  "build" : 10257,
   "layers" : [
     "CIMPATH=map/outputsightlines.xml"
   ],
   "layerDefinitions" : [
     {
       "type" : "CIMFeatureLayer",
-      "name" : "Sight Lines",
+      "name" : "outputSightLines",
       "uRI" : "CIMPATH=map/outputsightlines.xml",
       "sourceModifiedTime" : {
-        "type" : "TimeInstant",
-        "start" : 978307200000
+        "type" : "TimeInstant"
       },
-      "metadataURI" : "CIMPATH=Metadata/b4a4c0253b30cb3c49134837236b412f.xml",
+      "useSourceMetadata" : true,
       "description" : "outputSightLines",
+      "layerElevation" : {
+        "type" : "CIMLayerElevationSurface"
+      },
       "expanded" : true,
       "layer3DProperties" : {
         "type" : "CIM3DLayerProperties",
@@ -42,6 +44,8 @@
       "maxDisplayCacheAge" : 5,
       "showPopups" : true,
       "serviceLayerID" : -1,
+      "refreshRate" : -1,
+      "refreshRateUnit" : "esriTimeUnitsSeconds",
       "autoGenerateFeatureTemplates" : true,
       "featureElevationExpression" : "Shape.Z",
       "featureTable" : {
@@ -50,7 +54,7 @@
         "editable" : true,
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
-          "workspaceConnectionString" : "DATABASE=C:\\Users\\matt2542\\Documents\\ArcGIS\\Projects\\mf-fix-symbol-labeling\\mf-fix-symbol-labeling.gdb",
+          "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\..\\..\\..\\ArcGIS\\Projects\\testCSM_MT_fixes\\scratch.gdb",
           "workspaceFactory" : "FileGDB",
           "dataset" : "outputSightLines",
           "datasetType" : "esriDTFeatureClass"
@@ -65,11 +69,12 @@
         "htmlPresentationStyle" : "TwoColumnTable"
       },
       "selectable" : true,
+      "featureCacheType" : "Session",
       "labelClasses" : [
         {
           "type" : "CIMLabelClass",
-          "expression" : "[OID_OBSERV]",
-          "expressionEngine" : "VBScript",
+          "expression" : "$feature.OID_OBSERV",
+          "expressionEngine" : "Arcade",
           "featuresToLabel" : "AllVisibleFeatures",
           "maplexLabelPlacementProperties" : {
             "type" : "CIMMaplexLabelPlacementProperties",
@@ -315,7 +320,7 @@
               }
             ]
           },
-          "symbolName" : "Group_2"
+          "symbolName" : "Level_1"
         },
         "fields" : [
           "TarIsVis"
@@ -327,7 +332,7 @@
               {
                 "type" : "CIMUniqueValueClass",
                 "editable" : true,
-                "label" : "Target Not Visible",
+                "label" : "Target is Not Visible",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -370,7 +375,7 @@
               {
                 "type" : "CIMUniqueValueClass",
                 "editable" : true,
-                "label" : "Target Visible",
+                "label" : "Target is Visible",
                 "patch" : "Default",
                 "symbol" : {
                   "type" : "CIMSymbolReference",
@@ -416,34 +421,7 @@
         ]
       },
       "scaleSymbols" : true,
-      "snappable" : true,
-      "symbolLayerDrawing" : {
-        "type" : "CIMSymbolLayerDrawing",
-        "symbolLayers" : [
-          {
-            "type" : "CIMSymbolLayerIdentifier",
-            "symbolReferenceName" : "RequiredForDraw",
-            "symbolLayerName" : "Group_0"
-          },
-          {
-            "type" : "CIMSymbolLayerIdentifier",
-            "symbolReferenceName" : "RequiredForDraw",
-            "symbolLayerName" : "Group_1"
-          },
-          {
-            "type" : "CIMSymbolLayerIdentifier",
-            "symbolReferenceName" : "RequiredForDraw",
-            "symbolLayerName" : "Group_2"
-          }
-        ]
-      }
-    }
-  ],
-  "binaryReferences" : [
-    {
-      "type" : "CIMBinaryReference",
-      "uRI" : "CIMPATH=Metadata/b4a4c0253b30cb3c49134837236b412f.xml",
-      "data" : "<?xml version=\"1.0\"?>\r\n<metadata xml:lang=\"en\"><Esri><CreaDate>20161215</CreaDate><CreaTime>08035900</CreaTime><ArcGISFormat>1.0</ArcGISFormat><SyncOnce>TRUE</SyncOnce></Esri></metadata>\r\n"
+      "snappable" : true
     }
   ]
 }
