@@ -31,8 +31,10 @@ import sys
 import traceback
 
 try:
+    from . import Utilities
     from . import VisibilityUtilities
 except ImportError:
+    import Utilities
     import VisibilityUtilities
 
 class AddLinearLineOfSightFields(object):
@@ -706,8 +708,13 @@ class LinearLineOfSight(object):
         param_9.direction = 'Output'
         param_9.datatype = u'Feature Class'
         param_9.value = u'%scratchGDB%/outputTargets'
+
+        layerFile = "LLOS_Output_Targets.lyr"
+        platform = Utilities.GetPlatform()
+        if (platform == Utilities.PLATFORM_PRO):
+            layerFile = "LLOS_Output_Targets.lyrx"
         param_9.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "LLOS_Output_Targets.lyr")
+                                            "layers", layerFile)
 
         # Input_Obstruction_Features
         param_10 = arcpy.Parameter()
