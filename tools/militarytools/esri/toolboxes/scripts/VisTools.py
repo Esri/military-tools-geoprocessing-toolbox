@@ -667,6 +667,9 @@ class LinearLineOfSight(object):
         param_5.direction = 'Input'
         param_5.datatype = u'Raster Layer'
 
+        # Need to know if running on Pro or ArcMap for some of the output symbology below
+        platform = Utilities.GetPlatform()
+
         # Output_Line_Of_Sight_Features
         param_6 = arcpy.Parameter()
         param_6.name = u'Output_Line_Of_Sight_Features'
@@ -686,8 +689,12 @@ class LinearLineOfSight(object):
         param_7.direction = 'Output'
         param_7.datatype = u'Feature Class'
         param_7.value = u'%scratchGDB%/outputSightLines'
+
+        layerFile = "LLOS_OutputSightLines.lyr"
+        if (platform == Utilities.PLATFORM_PRO):
+            layerFile = "LLOS_OutputSightLines.lyrx"
         param_7.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "LLOS_OutputSightLines.lyr")
+                                            "layers", layerFile)
 
         # Output_Observer_Features
         param_8 = arcpy.Parameter()
@@ -710,7 +717,6 @@ class LinearLineOfSight(object):
         param_9.value = u'%scratchGDB%/outputTargets'
 
         layerFile = "LLOS_Output_Targets.lyr"
-        platform = Utilities.GetPlatform()
         if (platform == Utilities.PLATFORM_PRO):
             layerFile = "LLOS_Output_Targets.lyrx"
         param_9.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
