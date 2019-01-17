@@ -709,11 +709,11 @@ class LinearLineOfSight(object):
         param_8.datatype = u'Feature Class'
         param_8.value = u'%scratchGDB%/outputObservers'
 
-		layerFile = "LLOS_Output_Observers.lyr"
+        layerFile = "LLOS_Output_Observers.lyr"
         if (platform == Utilities.PLATFORM_PRO):
             layerFile = "LLOS_Output_Observers.lyrx"
         param_8.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", layerFile)									
+                                            "layers", layerFile)                                    
 
         # Output_Target_Features
         param_9 = arcpy.Parameter()
