@@ -1,7 +1,7 @@
 {
   "type" : "CIMLayerDocument",
-  "version" : "2.1.0",
-  "build" : 10257,
+  "version" : "2.2.0",
+  "build" : 12813,
   "layers" : [
     "CIMPATH=map/outputsightlines.xml"
   ],
@@ -54,7 +54,7 @@
         "editable" : true,
         "dataConnection" : {
           "type" : "CIMStandardDataConnection",
-          "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\..\\..\\..\\ArcGIS\\Projects\\testCSM_MT_fixes\\scratch.gdb",
+          "workspaceConnectionString" : "DATABASE=..\\..\\..\\..\\..\\..\\..\\ArcGIS\\Projects\\test llos symb pro 22\\scratch.gdb",
           "workspaceFactory" : "FileGDB",
           "dataset" : "outputSightLines",
           "datasetType" : "esriDTFeatureClass"
@@ -62,6 +62,44 @@
         "studyAreaSpatialRel" : "esriSpatialRelUndefined",
         "searchOrder" : "esriSearchOrderSpatial"
       },
+      "featureTemplates" : [
+        {
+          "type" : "CIMFeatureTemplate",
+          "name" : "Target is Not Visible",
+          "tags" : "Line",
+          "toolProgID" : "af2dbf8f-280e-44db-8860-e399d0b30cf1",
+          "toolFilter" : [
+            "09c6f589-a3ce-48ab-81bc-46965c58f264",
+            "28c04532-3daf-4d3d-b7be-a589c9c9a03e",
+            "6f0ed2cc-c099-4895-bd7e-beec2f78adbf"
+          ],
+          "defaultValues" : {
+            "type" : "PropertySet",
+            "propertySetItems" : [
+              "tarisvis",
+              0
+            ]
+          }
+        },
+        {
+          "type" : "CIMFeatureTemplate",
+          "name" : "Target is Visible",
+          "tags" : "Line",
+          "toolProgID" : "af2dbf8f-280e-44db-8860-e399d0b30cf1",
+          "toolFilter" : [
+            "09c6f589-a3ce-48ab-81bc-46965c58f264",
+            "28c04532-3daf-4d3d-b7be-a589c9c9a03e",
+            "6f0ed2cc-c099-4895-bd7e-beec2f78adbf"
+          ],
+          "defaultValues" : {
+            "type" : "PropertySet",
+            "propertySetItems" : [
+              "tarisvis",
+              1
+            ]
+          }
+        }
+      ],
       "htmlPopupEnabled" : true,
       "htmlPopupFormat" : {
         "type" : "CIMHtmlPopupFormat",
@@ -418,7 +456,8 @@
             ],
             "heading" : "TarIsVis"
           }
-        ]
+        ],
+        "polygonSymbolColorTarget" : "Fill"
       },
       "scaleSymbols" : true,
       "snappable" : true
