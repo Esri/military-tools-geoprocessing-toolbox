@@ -29,6 +29,11 @@ import math
 import os
 import arcpy
 
+try:
+    from . import VisibilityUtilities
+except ImportError:
+    import VisibilityUtilities
+
 DEBUG = False
 
 def drawWedge(cx, cy, r1, r2, startBearing, endBearing):
@@ -97,53 +102,6 @@ def drawWedge(cx, cy, r1, r2, startBearing, endBearing):
     polygon = arcpy.Polygon(array)
 
     return polygon
-
-def surfaceContainsPoints(pointFeatures, surfaceRaster):
-    '''
-    Check if points fall within surface extent, return True or False
-
-    Note: projects both surface extent and pointFeatures to WGS84 so both will 
-    have same Spatial Reference and within checks will work 
-    '''
-    surfaceDesc = arcpy.Describe(surfaceRaster)
-    pointsDesc = arcpy.Describe(pointFeatures)
-
-    surfaceSR = surfaceDesc.spatialReference
-    pointsSR = pointsDesc.spatialReference
-
-    # Warn if not the same Spatial Reference
-    if (surfaceSR.Name != pointsSR.Name) or (surfaceSR.FactoryCode != pointsSR.FactoryCode) :
-        arcpy.AddWarning('SurfaceContainsPoints: Spatial References do not match: ' \
-            + pointsSR.Name + ' != ' + surfaceSR.Name + ' -or- ' \
-            + str(pointsSR.FactoryCode) + ' != ' + str(surfaceSR.FactoryCode))
-
-    surfaceExtent = surfaceDesc.extent
-
-    srWGS84 = arcpy.SpatialReference(4326) # GCS_WGS_1984
-    projSurfaceExtent = surfaceExtent.projectAs(srWGS84) 
-
-    pointRows = arcpy.da.SearchCursor(pointFeatures, ["SHAPE@"])
-
-    isWithin = False
-
-    for pointRow in pointRows:
-    
-        point = pointRow[0]   
-        projPoint = point.projectAs(srWGS84).firstPoint
-
-        isWithin = projSurfaceExtent.contains(projPoint) # pointProj.within(surfaceExtent)  
-
-        x = projPoint.X  
-        y = projPoint.Y 
-          
-        if not isWithin : 
-            arcpy.AddMessage("Point:({0}, {1})\n Within:({2})\n sr: {3}\n".format(x, y, \
-                projSurfaceExtent, surfaceSR.name))
-            break
-
-    if DEBUG: arcpy.AddMessage("Input Points Within Surface: {0}".format(isWithin))
-
-    return isWithin
 
 # Solution reused from:
 # http://joshwerts.com/blog/2015/09/10/arcpy-dot-project-in-memory-featureclass/
@@ -239,7 +197,7 @@ def createViewshed(inputObserverPoints, elevationRaster, outerRadiusInput, \
     copyFeaturesAndProject(inputObserverPoints, tempObserverPoints, elevationSR)
 
     # Check if points falls within surface extent
-    isWithin = surfaceContainsPoints(tempObserverPoints, elevationRaster)
+    isWithin = VisibilityUtilities.surfaceContainsPoints(tempObserverPoints, elevationRaster)
     if not isWithin:
         msgErrorPointNotInSurface = \
             "Error: Input Observer(s) does not fall within the extent of the input surface: {0}!".format(os.path.basename(elevationRaster))
