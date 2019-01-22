@@ -473,6 +473,53 @@ def _prepPointFromSurface(inputPoints, inputSurface, outputPoints, offsetFieldNa
         print(pymsg + "\n")
         print(msgs) 
 
+def surfaceContainsPoints(pointFeatures, surfaceRaster):
+    '''
+    Check if points fall within surface extent, return True or False
+
+    Note: projects both surface extent and pointFeatures to WGS84 so both will 
+    have same Spatial Reference and within checks will work 
+    '''
+    surfaceDesc = arcpy.Describe(surfaceRaster)
+    pointsDesc = arcpy.Describe(pointFeatures)
+
+    surfaceSR = surfaceDesc.spatialReference
+    pointsSR = pointsDesc.spatialReference
+
+    # Warn if not the same Spatial Reference
+    if (surfaceSR.Name != pointsSR.Name) or (surfaceSR.FactoryCode != pointsSR.FactoryCode) :
+        arcpy.AddWarning('SurfaceContainsPoints: Spatial References do not match: ' \
+            + pointsSR.Name + ' != ' + surfaceSR.Name + ' -or- ' \
+            + str(pointsSR.FactoryCode) + ' != ' + str(surfaceSR.FactoryCode))
+
+    surfaceExtent = surfaceDesc.extent
+
+    srWGS84 = arcpy.SpatialReference(4326) # GCS_WGS_1984
+    projSurfaceExtent = surfaceExtent.projectAs(srWGS84) 
+
+    pointRows = arcpy.da.SearchCursor(pointFeatures, ["SHAPE@"])
+
+    isWithin = False
+
+    for pointRow in pointRows:
+    
+        point = pointRow[0]   
+        projPoint = point.projectAs(srWGS84).firstPoint
+
+        isWithin = projSurfaceExtent.contains(projPoint) 
+
+        x = projPoint.X  
+        y = projPoint.Y 
+          
+        if not isWithin : 
+            arcpy.AddWarning("Point:({0}, {1})\n is *NOT* in extent of:({2})\n sr: {3}\n".format(x, y, \
+                projSurfaceExtent, surfaceSR.name))
+            break
+
+    if debug: arcpy.AddMessage("Input Points Within Surface: {0}".format(isWithin))
+
+    return isWithin
+
 def makeProfileGraph(inputFeatures):
     '''
     '''
@@ -1196,6 +1243,21 @@ def linearLineOfSight(inputObserverFeatures,
         else:
             scratch = r"%scratchGDB%"
         
+        # Check that all observer and target points are within the surface extent
+        arcpy.AddMessage("Checking that observer points fall within the extent of the input surface.")
+        observersWithInSurface = surfaceContainsPoints(inputObserverFeatures, inputSurface)
+        if not observersWithInSurface:
+            errorMsg = "Error: Not all input observer points fall within the extent of the input surface."
+            arcpy.AddError(errorMsg)
+            raise Exception(errorMsg)
+
+        arcpy.AddMessage("Checking that target points fall within the extent of the input surface.")
+        targetsWithInSurface = surfaceContainsPoints(inputTargetFeatures, inputSurface)
+        if not targetsWithInSurface:
+            errorMsg = "Error: Not all input target points fall within the extent of the input surface."
+            arcpy.AddError(errorMsg)
+            raise Exception(errorMsg)
+
         #get spatial reference of surface
         srSurface = arcpy.Describe(inputSurface).spatialReference
         offsetFieldName = "OFFSET"
@@ -1488,6 +1550,14 @@ def radialLineOfSight(inputObserverFeatures,
             arcpy.AddMessage("OFFSETA field not in Input Observer Features. Using Observer Height Above Surface {0}".format(inputObserverHeight))
             hasOFFSETA = False
         
+        # Check that all observer points are within the surface extent
+        arcpy.AddMessage("Checking that observer points fall within the extent of the input surface.")
+        observersWithInSurface = surfaceContainsPoints(inputObserverFeatures, inputSurface)
+        if not observersWithInSurface:
+            errorMsg = "Error: Not all input observer points fall within the extent of the input surface."
+            arcpy.AddError(errorMsg)
+            raise Exception(errorMsg)
+
         #get number of observers:
         numberOfObservers = int(arcpy.GetCount_management(inputObserverFeatures).getOutput(0))
         
