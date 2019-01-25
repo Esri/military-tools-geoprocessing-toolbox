@@ -1,11 +1,9 @@
 # Note: you may need to edit this file to work with your development environment
 
-# Defense Template specific ignores
 
 #Note: if your build script creates these, you may want these ignored
-#application/
-#data/
-#maps/
+
+tools/recipe/bld/
 
 *.sav
 *-sav.*
@@ -21,8 +19,7 @@ log/
 
 # Python
 *.py[cod]
-*.sln
-*.pyproj
+
 # Packages
 *.egg
 *.egg-info

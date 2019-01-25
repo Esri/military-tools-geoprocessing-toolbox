@@ -1,6 +1,6 @@
 The military-tools-geoprocessing-toolbox repository contains the following folders, files, and data.
 
-* [toolboxes](./toolboxes)
+* [toolboxes](./tools/militarytools/esri/toolboxes)
 	* Military Tools.pyt (Python toolbox, containing the tools from **Military_Tools_arcmap.tbx** and **Military_Tools_pro.tbx** toolboxes, plus GRG tools)
 		* **Conversion**
 			* Convert Coordinates
@@ -29,7 +29,7 @@ The military-tools-geoprocessing-toolbox repository contains the following folde
 			* Lowest Point
 			
 	
-	* [scripts](./toolboxes/scripts)
+	* [scripts](./tools/militarytools/esri/toolboxes/scripts)
 		* AddLLOSFields.py
 		* AddRLOSObserverFields.py
 		* ConversionTools.py
@@ -59,7 +59,7 @@ The military-tools-geoprocessing-toolbox repository contains the following folde
 		* Utilities.py
 		* VisibilityUtilities.py
 		* VisTools.py
-	* [layers](./toolboxes/layers)
+	* [layers](./tools/militarytools/esri/toolboxes/layers)
 		* GRG.lyr
 		* GRGInputArea.lyr
 		* GRGInputPoint.lyr
@@ -110,10 +110,10 @@ The military-tools-geoprocessing-toolbox repository contains the following folde
 		* TableToLineOfBearingOutput.lyr
 		* TableToLineOfBearingOutput.lyrx
 
-	* [tooldata](./toolboxes/tooldata)
+	* [tooldata](./tools/militarytools/esri/toolboxes/tooldata)
 		* [Range Rings.gdb]
 			* rrInputTable
-* [testdata](./testdata)
+* [testdata](./utils/testdata)
 	* CSV
 		* TableTo2PointLine.csv
 		* TableToEllipse.csv
@@ -151,7 +151,7 @@ The military-tools-geoprocessing-toolbox repository contains the following folde
 		* ExpectedOutputTableToPolyline
 		* Viewshed
 * [utils](./utils)
-	* [test]
+	* [test](./utils/test)
 		* TestKickStart.bat
 		* TestRunner.py
 		* UnitTestUtilities.py
@@ -179,4 +179,4 @@ The military-tools-geoprocessing-toolbox repository contains the following folde
 			* LinearLineOfSiggihtTestCase.py
 			* LowestPointsTestCase.py
 			* RadialLineOfSightTestCase.py
-		
+

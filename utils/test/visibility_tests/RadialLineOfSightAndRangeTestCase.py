@@ -38,8 +38,8 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '..')))
 import UnitTestUtilities
 import Configuration
 
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), \
-    r"../../../toolboxes/scripts")))
+# Add scripts to path so can call methods directly
+Configuration.addScriptsPath()
 import RadialLineOfSightAndRange
 
 class RadialLineOfSightAndRangeTestCase(unittest.TestCase):
