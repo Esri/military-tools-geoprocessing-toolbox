@@ -41,6 +41,7 @@ import Configuration
 # Add scripts to path so can call methods directly
 Configuration.addScriptsPath()
 import RadialLineOfSightAndRange
+import VisibilityUtilities
 
 class RadialLineOfSightAndRangeTestCase(unittest.TestCase):
 
@@ -143,7 +144,7 @@ class RadialLineOfSightAndRangeTestCase(unittest.TestCase):
 
         elevationSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
 
-        pointsIn = RadialLineOfSightAndRange.surfaceContainsPoints(observers, elevationSurface)
+        pointsIn = VisibilityUtilities.surfaceContainsPoints(observers, elevationSurface)
 
         self.assertTrue(pointsIn, 'Points not within Surface as Expected')
 
@@ -171,7 +172,7 @@ class RadialLineOfSightAndRangeTestCase(unittest.TestCase):
 
         elevationSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
 
-        arePointsIn = RadialLineOfSightAndRange.surfaceContainsPoints(observerFeatureClass, elevationSurface)
+        arePointsIn = VisibilityUtilities.surfaceContainsPoints(observerFeatureClass, elevationSurface)
 
         self.assertTrue(arePointsIn, 'Points not within Surface as Expected')
         
