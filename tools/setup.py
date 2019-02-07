@@ -18,7 +18,7 @@
 from setuptools import setup, find_packages
 
 setup(name='militarytools',
-      version='3.3',
+      version='3.3.1',
       description=r"Military Tools for ArcGIS",
       license='Apache-2.0', 
       url=r'http://solutions.arcgis.com/defense/help/military-tools/',
