@@ -348,7 +348,7 @@ class RangeRingsFromMinAndMaxTable(object):
             # Input Table Maximum Range Field (Field) [9]
 
             inputParamsTable = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                          "tooldata", "Range Rings.gdb", "rrInputTable")
+                                          "tooldata", "RangeRings.gdb", "rrInputTable")
             self.params[1].value = inputParamsTable
             # Get list of type names from InputTable [1]
             typeNames = self.updateTypes(str(self.params[1].value))
@@ -419,7 +419,7 @@ class RangeRingsFromMinAndMaxTable(object):
         # military-tools-geoprocessing-toolbox\\toolboxes\\tooldata\\Range
         # Rings.gdb\\rrInputTable'
         param_2.value = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                          "tooldata", "Range Rings.gdb", "rrInputTable")
+                                          "tooldata", "RangeRings.gdb", "rrInputTable")
 
         # Selected_Type
         param_3 = arcpy.Parameter()

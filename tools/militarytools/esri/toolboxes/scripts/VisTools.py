@@ -539,7 +539,7 @@ class RadialLineOfSightAndRange(object):
         param_8.datatype = u'Feature Class'
         param_8.value = u'in_memory\\Viewshed'
         param_8.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "Radial Line Of Sight Output.lyr")
+                                            "layers", "Radial_Line_Of_Sight_Output.lyr")
 
         # Output_Wedge
         param_9 = arcpy.Parameter()
@@ -841,7 +841,7 @@ class RadialLineOfSight(object):
         param_5.datatype = u'Feature Class'
         param_5.value = u'%scratchGDB%/outputRLOS'
         param_5.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "Radial Line Of Sight Output.lyr")
+                                            "layers", "Radial_Line_Of_Sight_Output.lyr")
 
         # Force_Visibility_To_Infinity__Edge_Of_Surface_
         param_6 = arcpy.Parameter()
@@ -949,7 +949,7 @@ class FindLocalPeaks(object):
         param_4.datatype = 'Feature Class'
         output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                           "layers",
-                                          "Highest Point Output.lyr")
+                                          "Highest_Point_Output.lyr")
         param_4.symbology = output_layer_file_path
 
         return [param_1, param_2, param_3, param_4]
@@ -1031,7 +1031,7 @@ class HighestPoints(object):
         param_3.datatype = 'Feature Class'
         output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                           "layers",
-                                          "Highest Point Output.lyr")
+                                          "Highest_Point_Output.lyr")
         param_3.symbology = output_layer_file_path
 
         return [param_1, param_2, param_3]
@@ -1101,7 +1101,7 @@ class LowestPoints(object):
         param_3.datatype = 'Feature Class'
         output_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                           "layers",
-                                          "Lowest Point Output.lyr")
+                                          "Lowest_Point_Output.lyr")
         param_3.symbology = output_layer_file_path
 
         return [param_1, param_2, param_3]

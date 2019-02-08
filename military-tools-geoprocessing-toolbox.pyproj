@@ -23,7 +23,7 @@
   <ItemGroup>
     <Content Include="license.txt" />
     <Content Include="m-t-g-t_screenshot_600x400.png" />
-    <Content Include="tools\militarytools\esri\toolboxes\Military Tools.pyt" />
+    <Content Include="tools\militarytools\esri\toolboxes\MilitaryTools.pyt" />
     <Content Include="tools\militarytools\esri\toolboxes\scripts\grg_tool_help_illustration.png" />
     <Content Include="tools\militarytools\esri\toolboxes\scripts\num_feat_tool_help_illustration.png" />
     <Content Include="tools\recipe\meta.yaml" />

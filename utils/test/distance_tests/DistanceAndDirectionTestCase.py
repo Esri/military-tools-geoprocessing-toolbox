@@ -136,7 +136,7 @@ class DistanceAndDirectionTestCase(unittest.TestCase):
         
         numCenters = int(arcpy.GetCount_management(self.pointGeographic).getOutput(0))
         inputTable = os.path.join(Configuration.militaryToolboxesPath, \
-                                   "tooldata", "Range Rings.gdb", "rrInputTable")
+                                   "tooldata", "RangeRings.gdb", "rrInputTable")
         inputSelectedType = 'M249'
         numRadials = 8
         rings = os.path.join(Configuration.militaryScratchGDB, "newRings")

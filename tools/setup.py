@@ -18,7 +18,7 @@
 from setuptools import setup, find_packages
 
 setup(name='militarytools',
-      version='3.3',
+      version='3.3.1',
       description=r"Military Tools for ArcGIS",
       license='Apache-2.0', 
       url=r'http://solutions.arcgis.com/defense/help/military-tools/',
@@ -34,8 +34,8 @@ setup(name='militarytools',
                      r'esri/toolboxes/layers/featuresetsWebMerc.gdb/*.*',
                      r'esri/toolboxes/layers/featuresetsWebMerc.gdb/*',
                      r'esri/toolboxes/tooldata/*.*',
-                     r'esri/toolboxes/tooldata/Range Rings.gdb/*.*',
-                     r'esri/toolboxes/tooldata/Range Rings.gdb/*',
+                     r'esri/toolboxes/tooldata/RangeRings.gdb/*.*',
+                     r'esri/toolboxes/tooldata/RangeRings.gdb/*',
                      r'esri/toolboxes/*.*',
                      r'esri/*.*',
                      r'esri/arcpy/*.*', # Not currently used
