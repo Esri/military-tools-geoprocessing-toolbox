@@ -257,6 +257,102 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         deleteIntermediateData.append(radials)
         return
 
+    def test_rangeRingsFromMinMaxEdgeCases(self):
+        runToolMessage = ".....RangeRingsUtilsTestCase.test_rangeRingsFromMinMaxEdgeCases"
+        Configuration.Logger.info(runToolMessage)
+        
+        ##########################
+        # numRadials = 0 Edge Case
+        ##########################
+
+        numCenters = int(arcpy.GetCount_management(self.pointGeographic).getOutput(0))
+        numRadials = 0
+        minRange = 100.0
+        maxRange = 1000.0
+        rings = os.path.join(Configuration.militaryScratchGDB, "newRings")
+        radials = os.path.join(Configuration.militaryScratchGDB, "newRadials") 
+
+        if arcpy.Exists(rings):
+            arcpy.Delete_management(rings)
+        if arcpy.Exists(radials):
+            arcpy.Delete_management(radials)
+
+        rr = RangeRingUtils.rangeRingsFromMinMax(self.pointGeographic,
+                                                 minRange,
+                                                 maxRange,
+                                                 "METERS",
+                                                 numRadials,
+                                                 rings,
+                                                 radials,
+                                                 srWAZED)
+
+        outRings = rr[0]
+        outRadials = rr[1]
+
+        self.assertTrue(arcpy.Exists(outRings), "Ring features not created or do not exist")
+        self.assertEqual(int(arcpy.GetCount_management(outRings).getOutput(0)), numCenters * 2, "Wrong number of expected ring features")
+
+        self.assertIsNone(outRadials)
+    
+        ##########################
+        # maxRange = 0 Edge Case
+        ##########################
+
+        numRadials = 8
+        maxRange = 0.0
+
+        if arcpy.Exists(rings):
+            arcpy.Delete_management(rings)
+        if arcpy.Exists(radials):
+            arcpy.Delete_management(radials)
+
+        rr = RangeRingUtils.rangeRingsFromMinMax(self.pointGeographic,
+                                                 minRange,
+                                                 maxRange,
+                                                 "METERS",
+                                                 numRadials,
+                                                 rings,
+                                                 radials,
+                                                 srWAZED)
+
+        outRings = rr[0]
+        outRadials = rr[1]
+
+        self.assertIsNone(outRings)
+        self.assertIsNone(outRadials)
+
+        ##########################
+        # maxRange < minRange Edge Case
+        ##########################
+
+        numRadials = 8
+        minRange = 1000.0
+        maxRange = 100.0
+
+        if arcpy.Exists(rings):
+            arcpy.Delete_management(rings)
+        if arcpy.Exists(radials):
+            arcpy.Delete_management(radials)
+
+        rr = RangeRingUtils.rangeRingsFromMinMax(self.pointGeographic,
+                                                 minRange,
+                                                 maxRange,
+                                                 "METERS",
+                                                 numRadials,
+                                                 rings,
+                                                 radials,
+                                                 srWAZED)
+
+        outRings = rr[0]
+        outRadials = rr[1]
+
+        self.assertIsNone(outRings)
+        self.assertIsNone(outRadials)
+
+        deleteIntermediateData.append(rings)
+
+        return
+
     def test_rangeRingsFromList(self):
         ''' testing rangeRingsFromList method'''
         runToolMessage = ".....RangeRingsUtilsTestCase.test_rangeRingsFromList"

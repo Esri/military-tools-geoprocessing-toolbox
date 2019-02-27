@@ -107,8 +107,8 @@ def rangeRingsFromList(centerFC, rangeList, distanceUnits, numRadials, outputRin
 
 def rangeRingsFromMinMax(centerFC, rangeMin, rangeMax, distanceUnits, numRadials, outputRingFeatures, outputRadialFeatures, sr):
     ''' Make range ring features from only two distances, a minimum and a maximum '''
-    if distBetween <= 0.0:
-        arcpy.AddError("Distance between rings must be > 0")
+    if (rangeMin < 0.0) or (rangeMax <= 0.0) or (rangeMin > rangeMax):
+        arcpy.AddError("Range parameters are not valid")
         return [None, None]
 
     rangeList = [min(rangeMin, rangeMax), max(rangeMin, rangeMax)]
