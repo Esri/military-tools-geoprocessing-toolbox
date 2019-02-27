@@ -58,6 +58,13 @@ optionalSpatialReferenceAsText = arcpy.GetParameterAsText(7)
 if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
     optionalSpatialReference = None
 
+# Allow radials to be optional
+if inputNumberOfRadials == "#" or inputNumberOfRadials == "" :
+    inputNumberOfRadials = 0
+
+if outputRadialFeatures == "#" or outputRadialFeatures == "" :
+    outputRadialFeatures = None
+
 def main():
     try:
         # get/set environment
