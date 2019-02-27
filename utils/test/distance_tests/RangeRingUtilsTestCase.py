@@ -295,6 +295,104 @@ class RangeRingUtilsTestCase(unittest.TestCase):
 
         deleteIntermediateData.append(rings)
         deleteIntermediateData.append(radials)
+
+        return
+
+    def test_rangeRingsFromIntervalEdgeCases(self):
+        ''' testing rangeRingsFromInterval method'''
+        runToolMessage = ".....RangeRingsUtilsTestCase.test_rangeRingsFromIntervalEdgeCases"
+        Configuration.Logger.info(runToolMessage)
+
+        ##########################
+        # numRadials = 0 Edge Case
+        ##########################
+             
+        numCenters = int(arcpy.GetCount_management(self.pointGeographic).getOutput(0))
+        numRadials = 0
+        rings = os.path.join(Configuration.militaryScratchGDB, "newRings")
+        radials = os.path.join(Configuration.militaryScratchGDB, "newRadials")
+
+        if arcpy.Exists(rings):
+            arcpy.Delete_management(rings)
+        if arcpy.Exists(radials):
+            arcpy.Delete_management(radials)
+
+        numRings = 4
+        distanceBetween = 200.0
+        rr = RangeRingUtils.rangeRingsFromInterval(self.pointGeographic,
+                                                   numRings,
+                                                   distanceBetween,
+                                                   "METERS",
+                                                   numRadials,
+                                                   rings,
+                                                   radials,
+                                                   srWAZED)
+        outRings = rr[0]
+        outRadials = rr[1]
+
+        self.assertTrue(arcpy.Exists(outRings), "Ring features not created or do not exist")
+        self.assertEqual(int(arcpy.GetCount_management(outRings).getOutput(0)), 4 * numCenters, "Wrong number of expected ring features")
+
+        self.assertIsNone(outRadials)
+
+        ##########################
+        # numRings = 0 Edge Case
+        ##########################
+
+        numRadials = 4
+
+        if arcpy.Exists(rings):
+            arcpy.Delete_management(rings)
+        if arcpy.Exists(radials):
+            arcpy.Delete_management(radials)
+
+        numRings = 0
+
+        rr = RangeRingUtils.rangeRingsFromInterval(self.pointGeographic,
+                                                    numRings,
+                                                    distanceBetween,
+                                                    "METERS",
+                                                    numRadials,
+                                                    rings,
+                                                    radials,
+                                                    srWAZED)
+
+        outRings = rr[0]
+        outRadials = rr[1]
+
+        self.assertIsNone(outRings)
+        self.assertIsNone(outRadials)
+
+        ##########################
+        # distanceBetween = 0 Edge Case
+        ##########################
+
+        if arcpy.Exists(rings):
+            arcpy.Delete_management(rings)
+        if arcpy.Exists(radials):
+            arcpy.Delete_management(radials)
+
+        numRings = 4
+        numRadials = 4
+        distanceBetween = 0
+
+        rr = RangeRingUtils.rangeRingsFromInterval(self.pointGeographic,
+                                                    numRings,
+                                                    distanceBetween,
+                                                    "METERS",
+                                                    numRadials,
+                                                    rings,
+                                                    radials,
+                                                    srWAZED)
+
+        outRings = rr[0]
+        outRadials = rr[1]
+
+        self.assertIsNone(outRings)
+        self.assertIsNone(outRadials)
+
+        deleteIntermediateData.append(rings)
+
         return
 
     def test_rangeRingsFromInterval(self):
@@ -306,6 +404,12 @@ class RangeRingUtilsTestCase(unittest.TestCase):
         numRadials = 8
         rings = os.path.join(Configuration.militaryScratchGDB, "newRings")
         radials = os.path.join(Configuration.militaryScratchGDB, "newRadials")
+
+        if arcpy.Exists(rings):
+            arcpy.Delete_management(rings)
+        if arcpy.Exists(radials):
+            arcpy.Delete_management(radials)
+
         numRings = 4
         distanceBetween = 200.0
         rr = RangeRingUtils.rangeRingsFromInterval(self.pointGeographic,
