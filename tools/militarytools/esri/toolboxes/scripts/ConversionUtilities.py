@@ -803,8 +803,37 @@ def tableToPoint(inputTable,
             scratch = env.scratchWorkspace
             
         inputSpatialReference = _checkSpatialRef(inputSpatialReference)
-        
-        arcpy.ConvertCoordinateNotation_management(inputTable,
+        if inputSpatialReference != arcpy.SpatialReference(4326): #default is GCS_WGS_1984 - if the CS is different 
+		                                                          #we need to create feature class first using arcpy.management.XYTableToPoint
+            # make scratch name for temp FC
+            scratch_name = arcpy.CreateScratchName("temp",
+                                                   data_type="Featureclass",
+                                                   workspace=scratch)
+
+            # Make scratch feature class of projected points
+            scratch_out = arcpy.management.XYTableToPoint(inputTable,
+                                                        scratch_name,
+                                                        inputXField,
+                                                        inputYField,
+                                                        "#",
+                                                        inputSpatialReference)
+
+            # Use the geometry of the scratch feature class, with SHAPE keyword, ingnores X and Y values
+            arcpy.ConvertCoordinateNotation_management(scratch_out,
+                                                   outputPointFeatures,
+                                                   inputXField,
+                                                   inputYField,
+                                                   "SHAPE",
+                                                   "#",
+                                                   "#",
+                                                   inputSpatialReference)
+            # Delete scratch dataset
+            arcpy.Delete_management(scratch_out)
+												   
+
+        else:
+            #Using Geographic coordinates
+            arcpy.ConvertCoordinateNotation_management(inputTable,
                                                    outputPointFeatures,
                                                    inputXField,
                                                    inputYField,
@@ -812,6 +841,7 @@ def tableToPoint(inputTable,
                                                    "DD_NUMERIC",
                                                    "#",
                                                    inputSpatialReference)
+   
         return outputPointFeatures
     
     except arcpy.ExecuteError:
