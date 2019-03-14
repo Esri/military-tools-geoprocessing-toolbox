@@ -566,7 +566,13 @@ class RadialLineOfSightAndRange(object):
         return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8, param_9, param_10]
 
     def isLicensed(self):
-        return arcpy.CheckExtension("3D") == "Available"
+        """Allow the tool to execute, only if the ArcGIS 3D Analyst extension is available."""
+        try:
+            if arcpy.CheckExtension("3D") != "Available":
+                raise Exception
+        except Exception:
+            return False  # tool cannot be executed
+        return True  # tool can be executed
 
     def updateParameters(self, parameters):
         validator = getattr(self, 'ToolValidator', None)
@@ -615,6 +621,24 @@ class LinearLineOfSight(object):
         self.description = u'Creates line(s) of sight between observers and targets.'
         self.canRunInBackground = False
         self.category = "Visibility"
+
+    def isLicensed(self):
+        """Allow the tool to execute, only if the ArcGIS 3D Analyst extension is available."""
+        try:
+            if arcpy.CheckExtension("3D") != "Available":
+                raise Exception
+        except Exception:
+            return False  # tool cannot be executed
+
+        """Allow the tool to execute, only if the ArcGIS Advanced is available."""
+        try:
+            license_available = ["Available", "AlreadyInitialized"]
+            if not (arcpy.CheckProduct("ArcInfo") in license_available):
+                raise Exception
+        except Exception:
+            return False
+
+        return True  # tool can be executed
 
     def getParameterInfo(self):
         # Observers
@@ -740,9 +764,6 @@ class LinearLineOfSight(object):
 
         return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8, param_9, param_10]
 
-    def isLicensed(self):
-        return True
-
     def updateParameters(self, parameters):
         validator = getattr(self, 'ToolValidator', None)
         if validator:
@@ -791,6 +812,15 @@ class RadialLineOfSight(object):
         self.description = u'Shows the areas visible (green) and not visible (red) to an observer at a specified distance and viewing angle.'
         self.canRunInBackground = False
         self.category = "Visibility"
+
+    def isLicensed(self):
+        """Allow the tool to execute, only if the ArcGIS 3D Analyst extension is available."""
+        try:
+            if arcpy.CheckExtension("3D") != "Available":
+                raise Exception
+        except Exception:
+            return False  # tool cannot be executed
+        return True  # tool can be executed
 
     def getParameterInfo(self):
 
@@ -862,9 +892,6 @@ class RadialLineOfSight(object):
 
         return [param_1, param_2, param_3, param_4, param_5, param_6, param_7]
 
-    def isLicensed(self):
-        return True
-
     def updateParameters(self, parameters):
         validator = getattr(self, 'ToolValidator', None)
         if validator:
@@ -908,6 +935,24 @@ class FindLocalPeaks(object):
         self.description = 'Finds the highest local maximums within the defined area. Peaks are found by inverting the surface and then finding the sinks in the surface. These points are then used to extract elevation values from the original surface, sorted based on elevation.'
         self.category = "Visibility"
         self.canRunInBackground = False
+
+    def isLicensed(self):
+        """Allow the tool to execute, only if the ArcGIS Spatial Analyst extension is available."""
+        try:
+            if arcpy.CheckExtension("Spatial") != "Available":
+                raise Exception
+        except Exception:
+            return False  # tool cannot be executed
+
+        """Allow the tool to execute, only if the ArcGIS Advanced is available."""
+        try:
+            license_available = ["Available", "AlreadyInitialized"]
+            if not (arcpy.CheckProduct("ArcInfo") in license_available):
+                raise Exception
+        except Exception:
+            return False  # tool cannot be executed
+
+        return True  # tool can be executed
 
     def getParameterInfo(self):
         # Input_Area
@@ -954,9 +999,6 @@ class FindLocalPeaks(object):
 
         return [param_1, param_2, param_3, param_4]
 
-    def isLicensed(self):
-        return True
-
     def updateParameters(self, parameters):
         """Modify the values and properties of parameters before internal
         validation is performed.  This method is called whenever a parameter
@@ -1000,6 +1042,15 @@ class HighestPoints(object):
         self.category = "Visibility"
         self.canRunInBackground = False
 
+    def isLicensed(self):
+        """Allow the tool to execute, only if the ArcGIS Spatial Analyst extension is available."""
+        try:
+            if arcpy.CheckExtension("Spatial") != "Available":
+                raise Exception
+        except Exception:
+            return False  # tool cannot be executed
+        return True  # tool can be executed
+
     def getParameterInfo(self):
         # Input_Area
         param_1 = arcpy.Parameter()
@@ -1036,8 +1087,6 @@ class HighestPoints(object):
 
         return [param_1, param_2, param_3]
 
-    def isLicensed(self):
-        return True
     def updateParameters(self, parameters):
         validator = getattr(self, 'ToolValidator', None)
         if validator:
@@ -1069,6 +1118,15 @@ class LowestPoints(object):
         self.description = 'Finds the lowest point (or points if several have the same elevation) of the input surface within a defined area.'
         self.category = "Visibility"
         self.canRunInBackground = False
+
+    def isLicensed(self):
+        """Allow the tool to execute, only if the ArcGIS Spatial Analyst extension is available."""
+        try:
+            if arcpy.CheckExtension("Spatial") != "Available":
+                raise Exception
+        except Exception:
+            return False  # tool cannot be executed
+        return True  # tool can be executed
 
     def getParameterInfo(self):
         # Input_Area
@@ -1105,8 +1163,7 @@ class LowestPoints(object):
         param_3.symbology = output_layer_file_path
 
         return [param_1, param_2, param_3]
-    def isLicensed(self):
-        return True
+
     def updateParameters(self, parameters):
         validator = getattr(self, 'ToolValidator', None)
         if validator:
