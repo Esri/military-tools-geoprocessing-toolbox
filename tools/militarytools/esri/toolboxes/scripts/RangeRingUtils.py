@@ -43,7 +43,11 @@ def rangeRingsFromList(centerFC, rangeList, distanceUnits, numRadials, outputRin
     ''' Make range ring features from a center, and list of distances '''
     try:
 
-        #if sr == "#" or sr == "" or sr == None:
+        if (centerFC is None) or (rangeList is None) or (len(rangeList) == 0) \
+            or (outputRingFeatures == None) :
+            arcpy.AddError("Bad parameters supplied to rangeRingsFromList")
+            return [None, None]
+
         if not sr:
             msg = r"Using default spatial reference: " + str(srDefault.name)
             arcpy.AddWarning(msg)
@@ -54,6 +58,11 @@ def rangeRingsFromList(centerFC, rangeList, distanceUnits, numRadials, outputRin
 
         # Create Rings...
         numCenterPoints = arcpy.GetCount_management(centerFC).getOutput(0)
+
+        if int(numCenterPoints) < 1:
+            arcpy.AddError("At least one input center point is required")
+            return [None, None]
+
         numRingsPerCenter = len(rangeList)
         totalNumRings = int(numCenterPoints) * int(numRingsPerCenter)
         totalNumRadials = int(numCenterPoints) * int(numRadials)
@@ -63,10 +72,16 @@ def rangeRingsFromList(centerFC, rangeList, distanceUnits, numRadials, outputRin
 
         # Create Radials...
         arcpy.AddMessage("Making radials " + str(totalNumRadials) + " (" + str(numRadials) + " for " + str(numCenterPoints) + " centers)...")
-        rm.makeRadials(numRadials)
-        outRadials = rm.saveRadialsAsFeatures(outputRadialFeatures)
+        if (outputRadialFeatures is not None) and (numRadials > 0):
+            rm.makeRadials(numRadials)
+            outRadials = rm.saveRadialsAsFeatures(outputRadialFeatures)
+        else:
+            outRadials = None
+            if (numRadials < 0):
+                arcpy.AddWarning("Number of radials must be positive")
 
         return [outRings, outRadials]
+
     except arcpy.ExecuteError:
         # Get the tool error messages
         msgs = arcpy.GetMessages()
@@ -92,14 +107,22 @@ def rangeRingsFromList(centerFC, rangeList, distanceUnits, numRadials, outputRin
 
 def rangeRingsFromMinMax(centerFC, rangeMin, rangeMax, distanceUnits, numRadials, outputRingFeatures, outputRadialFeatures, sr):
     ''' Make range ring features from only two distances, a minimum and a maximum '''
+    if (rangeMin < 0.0) or (rangeMax <= 0.0) or (rangeMin > rangeMax):
+        arcpy.AddError("Range parameters are not valid")
+        return [None, None]
+
     rangeList = [min(rangeMin, rangeMax), max(rangeMin, rangeMax)]
     return rangeRingsFromList(centerFC, rangeList, distanceUnits, numRadials, outputRingFeatures, outputRadialFeatures, sr)
 
 def rangeRingsFromInterval(centerFC, numRings, distBetween, distanceUnits, numRadials, outputRingFeatures, outputRadialFeatures, sr):
+
     ''' Classic range rings from number of rings, and distance between rings  '''
+    if distBetween <= 0.0:
+        arcpy.AddError("Distance between rings must be > 0")
+        return [None, None]
+
     rangeList = [x * distBetween for x in range(1, numRings + 1)]
     return rangeRingsFromList(centerFC, rangeList, distanceUnits, numRadials, outputRingFeatures, outputRadialFeatures, sr)
-
 
 
 class RingMaker:

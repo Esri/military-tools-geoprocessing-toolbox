@@ -81,6 +81,12 @@ def addNotation(notationType, fieldsToAdd, joinFieldName, outputTable, scratchTa
         arcpy.JoinField_management(outputTable, joinFieldName,
                                    scratchTable, joinFieldName,
                                    fieldsToAdd)
+
+        # TRICKY DDLat, DDLon names are hard-coded in ConvertCoordinateNotation so
+        # We need to rename one of these to have both DD and DD_NUMERIC in same output table
+        if notationType == 'DD_NUMERIC' :
+            arcpy.AlterField_management(outputTable, 'DDLat', 'DDLatNumeric', 'DDLatNumeric')
+            arcpy.AlterField_management(outputTable, 'DDLon', 'DDLonNumeric', 'DDLonNumeric')
             
         return True
     except arcpy.ExecuteError:
@@ -141,7 +147,8 @@ def convertCoordinates(inputTable,
         outputTable = addUniqueID(outputTable, joinFieldName)
     
         # {"format":"field_name(s)", ...}
-        notationsToAdd = {"DD":"DDLat; DDLon",
+        notationsToAdd = {"DD_NUMERIC":"DDLat; DDLon",
+                          "DD":"DDLat; DDLon",
                           "DDM":"DDMLat; DDMLon",
                           "DMS":"DMSLat; DMSLon",
                           "UTM_BANDS":"UTM_BANDS",
