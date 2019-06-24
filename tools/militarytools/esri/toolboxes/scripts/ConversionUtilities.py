@@ -124,6 +124,11 @@ def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
 
             # Polyline will only have one part
             featShape = row[0]
+
+            if (featShape is None) :
+                arcpy.AddWarning('Output Row: ' + str(rowCount) + ' missing feature geometry (check input data). Skipping.')
+                continue
+
             polyline = featShape.getPart(0)
 
             polyArray.removeAll()
@@ -907,6 +912,7 @@ def tableToPolygon(inputTable,
                                                    inputSpatialReference)
         
         copyPointsToLine = os.path.join(scratch, "copyPointsToLine")
+
         arcpy.PointsToLine_management(copyCCN,
                                       copyPointsToLine,
                                       inputLineField,
