@@ -803,20 +803,23 @@ def tableToPoint(inputTable,
             scratch = env.scratchWorkspace
             
         inputSpatialReference = _checkSpatialRef(inputSpatialReference)
-        if inputSpatialReference != arcpy.SpatialReference(4326): #default is GCS_WGS_1984 - if the CS is different 
-		                                                          #we need to create feature class first using arcpy.management.XYTableToPoint
+        if (inputCoordinateFormat == 'DD_2') and (inputSpatialReference is not None) and \
+            (inputSpatialReference != arcpy.SpatialReference(4326)): 
+            # default is GCS_WGS_1984 - if the SR is different, create feature class first using XYTableToPoint/MakeXYEventLayer
+
             # make scratch name for temp FC
             scratch_name = arcpy.CreateScratchName("temp",
                                                    data_type="Featureclass",
                                                    workspace=scratch)
 
-            # Make scratch feature class of projected points
-            scratch_out = arcpy.management.XYTableToPoint(inputTable,
-                                                        scratch_name,
+            layername = os.path.basename(scratch_name) + "-layer"
+            tempLayerOut = arcpy.management.MakeXYEventLayer(inputTable,
                                                         inputXField,
                                                         inputYField,
-                                                        "#",
+                                                        layername,
                                                         inputSpatialReference)
+
+            scratch_out = arcpy.management.CopyFeatures(tempLayerOut, scratch_name)
 
             # Use the geometry of the scratch feature class, with SHAPE keyword, ingnores X and Y values
             arcpy.ConvertCoordinateNotation_management(scratch_out,
@@ -829,7 +832,6 @@ def tableToPoint(inputTable,
                                                    inputSpatialReference)
             # Delete scratch dataset
             arcpy.Delete_management(scratch_out)
-												   
 
         else:
             #Using Geographic coordinates
