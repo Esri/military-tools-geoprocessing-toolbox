@@ -52,6 +52,10 @@ class CreateGRGFromArea(object):
         self.description = "Create a Gridded Reference Graphic (GRG) from an selected area on the map."
         self.category = "Gridded Reference Graphic"
 
+    def isLicensed(self):
+        """Set whether tool is licensed to execute."""
+        return True
+
     def getParameterInfo(self):
         '''
         Define parameter definitions
@@ -199,6 +203,17 @@ class CreateGRGFromPoint(object):
         self.label = "Create GRG From Point"
         self.description = "Create a Gridded Reference Graphic (GRG) from an selected location on the map."
         self.category = "Gridded Reference Graphic"
+
+    def isLicensed(self):
+        """Check for Advanced license needed by Sort_management(Shape)"""
+        """Allow the tool to execute, only if the ArcGIS Advanced is available."""
+        try:
+            license_available = ["Available", "AlreadyInitialized"]
+            if not (arcpy.CheckProduct("ArcInfo") in license_available):
+                raise Exception
+        except Exception:
+            return False
+        return True
 
     def getParameterInfo(self):
         '''
@@ -401,6 +416,10 @@ class CreateReferenceSystemGRGFromArea(object):
         self.LARGE_GRID_OPTIONS = ["NO_LARGE_GRIDS",
                                    "ALLOW_LARGE_GRIDS"]
 
+    def isLicensed(self):
+        """Set whether tool is licensed to execute."""
+        return True
+
     def getParameterInfo(self):
         '''
         Define parameter definitions
@@ -484,10 +503,6 @@ class CreateReferenceSystemGRGFromArea(object):
         '''
         return
 
-    def isLicensed(self):
-        """Set whether tool is licensed to execute."""
-        return True
-
     def execute(self, parameters, messages):
         ''' execute for toolbox'''
 
@@ -509,6 +524,17 @@ class NumberFeatures(object):
         self.label = "Number Features"
         self.description = "Number input point features within a selected area."
         self.category = "Gridded Reference Graphic"
+
+    def isLicensed(self):
+        """Check for Advanced license needed by Sort_management(Shape)"""
+        """Allow the tool to execute, only if the ArcGIS Advanced is available."""
+        try:
+            license_available = ["Available", "AlreadyInitialized"]
+            if not (arcpy.CheckProduct("ArcInfo") in license_available):
+                raise Exception
+        except Exception:
+            return False
+        return True
 
     def getParameterInfo(self):
         '''

@@ -27,11 +27,11 @@ The Military Tools for ArcGIS toolbox is an ArcGIS Geoprocessing python toolbox 
 
 The **Military Tools for ArcGIS** python toolbox (`.pyt`) has the following requirements:
 
-* **ArcGIS 10.3.1+ for Desktop**
+* **ArcGIS 10.4.1+ for Desktop**
 
 -or-
 
-* **ArcGIS Pro 2.1+**
+* **ArcGIS Pro 2.2+**
 
 Additionally there are extensions required to run certain tools:
 

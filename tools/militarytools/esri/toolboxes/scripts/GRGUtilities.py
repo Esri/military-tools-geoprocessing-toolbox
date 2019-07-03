@@ -756,7 +756,6 @@ def GRGFromPoint(starting_point,
         arcpy.AddMessage("Sorting the grid for labeling")
         tempSort = os.path.join("in_memory", "tempSort")
         arcpy.Sort_management(tempOutput, tempSort, [["Shape", "ASCENDING"]], startPos)
-        # arcpy.Delete_management("in_memory") #Not sure why we are trying to delete in_memory
 
         # Add a field which will be used to add the grid labels
         arcpy.AddMessage("Adding field for labeling the grid")
