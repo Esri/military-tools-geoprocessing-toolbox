@@ -57,6 +57,8 @@
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\TableToPoint.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\TableToPolygon.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\TableToPolyline.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\TestTools.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\TrajectoryPath.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\Utilities.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\VisibilityUtilities.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\VisTools.py" />

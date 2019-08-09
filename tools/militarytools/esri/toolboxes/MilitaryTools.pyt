@@ -29,6 +29,8 @@ from scripts.ConversionTools import *
 from scripts.DistanceAndDirectionTools import *
 from scripts.GRGTools import *
 from scripts.VisTools import *
+from scripts.TestTools import *
+
 
 class Toolbox(object):
     '''
@@ -72,5 +74,8 @@ class Toolbox(object):
 					LowestPoints,
 					LinearLineOfSight,
 					RadialLineOfSight,
-					RadialLineOfSightAndRange
+					RadialLineOfSightAndRange,
+
+					# Evaluation Tools
+					ComputeTrajectory
 					]
