@@ -37,7 +37,7 @@ class Toolbox(object):
 
     def __init__(self):
         ''' constructor '''
-        self.label = u'Military Tools for ArcGIS'
+        self.label = u'Military Tools'
         self.alias = "mt"
 		# NOTE: this description doesn't do anything, description shown in ArcGIS 
 		# comes from the pyt.xml file
@@ -45,13 +45,13 @@ class Toolbox(object):
 
         self.tools = [
 					# Conversion 
-					ConvertCoordinates,
-					TableTo2PointLine, 
-					TableToLineOfBearing, 
-					TableToPoint, 
-					TableToPolygon, 
-					TableToPolyline, 
-					TableToEllipse,
+					# ConvertCoordinates,
+					# TableTo2PointLine, 
+					# TableToLineOfBearing, 
+					# TableToPoint, 
+					# TableToPolygon, 
+					# TableToPolyline, 
+					# TableToEllipse,
 
 					# DistanceAndDirection
 					RangeRingsFromInterval, 
@@ -59,18 +59,18 @@ class Toolbox(object):
 					RangeRingsFromMinAndMaxTable,
 
 					# GRG
-					CreateGRGFromArea,
-					CreateGRGFromPoint,
-					CreateReferenceSystemGRGFromArea,
-					NumberFeatures,
+					# CreateGRGFromArea,
+					# CreateGRGFromPoint,
+					# CreateReferenceSystemGRGFromArea,
+					# NumberFeatures,
 
 					# Visibility
-					AddLinearLineOfSightFields,
-					AddRadialLineOfSightObserverFields,
-					FindLocalPeaks,
-					HighestPoints,
-					LowestPoints,
-					LinearLineOfSight,
-					RadialLineOfSight,
-					RadialLineOfSightAndRange
+					# AddLinearLineOfSightFields,
+					# AddRadialLineOfSightObserverFields,
+					# FindLocalPeaks,
+					# HighestPoints,
+					# LowestPoints,
+					# LinearLineOfSight,
+					# RadialLineOfSight,
+					# RadialLineOfSightAndRange
 					]

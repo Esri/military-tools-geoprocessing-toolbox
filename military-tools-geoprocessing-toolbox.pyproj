@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{a10201f6-5a06-4328-bb56-1698d8da4e7e}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>utils\test\TestRunner.py</StartupFile>
+    <StartupFile>utils\test\distance_tests\DistanceAndDirectionTestCase.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -46,9 +46,6 @@
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\LowestPoints.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\RadialLineOfSight.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\RadialLineOfSightAndRange.py" />
-    <Compile Include="tools\militarytools\esri\toolboxes\scripts\RangeRingFromMinMaxTable.py" />
-    <Compile Include="tools\militarytools\esri\toolboxes\scripts\RangeRingMinMax.py" />
-    <Compile Include="tools\militarytools\esri\toolboxes\scripts\RangeRingsFromInterval.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\RangeRingUtils.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\RefGrid.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\TableTo2PointLine.py" />
