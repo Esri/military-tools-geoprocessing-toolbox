@@ -39,7 +39,7 @@ except ImportError:
 
 supportedDistanceUnits = ['METERS', 'KILOMETERS', 'MILES', 'NAUTICAL_MILES', 'FEET', 'US_SURVEY_FEET']
 
-msgPositiveValueRequired = r"Positive integer values are required."
+msgPositiveValueRequired = "Positive integer values are required."
 
 # ----------------------------------------------------------------------------------
 # RangeRingsFromInterval Tool
@@ -79,9 +79,14 @@ class RangeRingsFromInterval(object):
                 if self.params[2].value <= 0:
                     self.params[2].setWarningMessage(msgPositiveValueRequired)
 
-            if self.params[4].altered:
-                if self.params[4].value < 0:
-                    self.params[4].setWarningMessage(msgPositiveValueRequired)
+            if self.params[6].altered:
+                if self.params[6].value <= 0:
+                    self.params[6].setWarningMessage(msgPositiveValueRequired)
+                    self.params[7].enabled = False
+                    self.params[7].parameterType = 'Optional'
+                else:
+                    self.params[7].enabled = True
+                    self.params[7].parameterType = 'Required'
 
             return
         # end Class ToolValidator
@@ -93,7 +98,8 @@ class RangeRingsFromInterval(object):
         self.canRunInBackground = False
         
     def getParameterInfo(self):
-        # Input_Center_Features
+
+        # in_features
         param_1 = arcpy.Parameter()
         param_1.name = 'in_features'
         param_1.displayName = 'Input Features (Center Points)'
@@ -106,73 +112,82 @@ class RangeRingsFromInterval(object):
                                           "layers",
                                           "MTInputPoints.lyrx")
         param_1.value = input_layer_file_path
+        param_1.displayOrder = 0
 
-        # Number_of_Rings
+        # in_number_of_rings
         param_2 = arcpy.Parameter()
-        param_2.name = 'number_of_rings'
+        param_2.name = 'in_number_of_rings'
         param_2.displayName = 'Number of Rings'
         param_2.parameterType = 'Required'
         param_2.direction = 'Input'
         param_2.datatype = 'Long'
         param_2.value = '4'
+        param_2.displayOrder = 1
 
-        # Interval_Between_Rings
+        # in_interval_between_rings
         param_3 = arcpy.Parameter()
-        param_3.name = 'interval_between_rings'
+        param_3.name = 'in_interval_between_rings'
         param_3.displayName = 'Interval Between Rings'
         param_3.parameterType = 'Required'
         param_3.direction = 'Input'
         param_3.datatype = 'Double'
         param_3.value = '100'
+        param_3.displayOrder = 2
 
-        # Distance_Units
+        # in_distance_units
         param_4 = arcpy.Parameter()
-        param_4.name = 'distance_units'
+        param_4.name = 'in_distance_units'
         param_4.displayName = 'Distance Units'
         param_4.parameterType = 'Required'
         param_4.direction = 'Input'
         param_4.datatype = 'String'
         param_4.value = supportedDistanceUnits[0]
         param_4.filter.list = supportedDistanceUnits
+        param_4.displayOrder = 3
 
-        # Number_of_Radials
+        # output_feature_class_rings
         param_5 = arcpy.Parameter()
-        param_5.name = 'number_of_radials'
-        param_5.displayName = 'Number of Radials'
+        param_5.name = 'output_feature_class_rings'
+        param_5.displayName = 'Output Feature Class (Rings)'
         param_5.parameterType = 'Required'
-        param_5.direction = 'Input'
-        param_5.datatype = 'Long'
-        param_5.value = '8'
-
-        # Output_Ring_Features
-        param_6 = arcpy.Parameter()
-        param_6.name = 'output_feature_class_rings'
-        param_6.displayName = 'Output Feature Class (Rings)'
-        param_6.parameterType = 'Required'
-        param_6.direction = 'Output'
-        param_6.datatype = 'Feature Class'
-        param_6.value = '%scratchGDB%\\Rings'
-        param_6.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+        param_5.direction = 'Output'
+        param_5.datatype = 'Feature Class'
+        param_5.value = '%scratchGDB%\\Rings'
+        param_5.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                             "layers", "RangeRings.lyrx")
+        param_5.displayOrder = 5
+
+        # in_spatial_reference
+        param_6 = arcpy.Parameter()
+        param_6.name = 'in_spatial_reference'
+        param_6.displayName = 'Spatial Reference'
+        param_6.parameterType = 'Optional'
+        param_6.direction = 'Input'
+        param_6.datatype = 'Spatial Reference'
+        param_6.displayOrder = 7
+
+        # in_number_of_radials 
+        param_7 = arcpy.Parameter()
+        param_7.name = 'in_number_of_radials'
+        param_7.displayName = 'Number of Radials'
+        param_7.parameterType = 'Optional'
+        param_7.direction = 'Input'
+        param_7.datatype = 'Long'
+        param_7.value = ''
+        param_7.displayOrder = 4
 
         # Output_Radial_Features
-        param_7 = arcpy.Parameter()
-        param_7.name = 'output_feature_class_radials'
-        param_7.displayName = 'Output Feature Class (Radials)'
-        param_7.parameterType = 'Required'
-        param_7.direction = 'Output'
-        param_7.datatype = 'Feature Class'
-        param_7.value = '%scratchGDB%\\Radials'
-        param_7.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "RangeRadials.lyrx")
-
-        # Spatial_Reference
         param_8 = arcpy.Parameter()
-        param_8.name = 'spatial_reference'
-        param_8.displayName = 'Spatial Reference'
+        param_8.name = 'output_feature_class_radials'
+        param_8.displayName = 'Output Feature Class (Radials)'
         param_8.parameterType = 'Optional'
-        param_8.direction = 'Input'
-        param_8.datatype = 'Spatial Reference'
+        param_8.direction = 'Output'
+        param_8.datatype = 'Feature Class'
+        param_8.value = '%scratchGDB%\\Radials'
+        param_8.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                            "layers", "RangeRadials.lyrx")
+        param_8.enabled = False  # disable until number_of_radials set
+        param_8.displayOrder = 6
 
         return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8]
         
@@ -195,14 +210,22 @@ class RangeRingsFromInterval(object):
         inputNumberOfRings = parameters[1].value
         inputDistanceBetween = parameters[2].value
         inputDistanceUnits = parameters[3].value
-        inputNumberOfRadials = parameters[4].value
-        outputRingFeatures = parameters[5].valueAsText
-        outputRadialFeatures = parameters[6].valueAsText
-        optionalSpatialReference = parameters[7].value
-        optionalSpatialReferenceAsText = parameters[7].valueAsText
+        outputRingFeatures = parameters[4].valueAsText
+        optionalSpatialReference = parameters[5].value
+        optionalSpatialReferenceAsText = parameters[5].valueAsText
+        inputNumberOfRadials = parameters[6].value
+        outputRadialFeatures = parameters[7].valueAsText
 
         if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
             optionalSpatialReference = None
+
+        if inputNumberOfRadials == "#" or inputNumberOfRadials == "" or inputNumberOfRadials is None :
+            inputNumberOfRadials = 0
+            outputRadialFeatures = None
+
+        if outputRadialFeatures == "#" or outputRadialFeatures == "" or outputRadialFeatures is None:
+            inputNumberOfRadials = 0
+            outputRadialFeatures = None
 
         # get/set environment
         arcpy.env.overwriteOutput = True
@@ -216,6 +239,7 @@ class RangeRingsFromInterval(object):
                                                    outputRingFeatures,
                                                    outputRadialFeatures,
                                                    optionalSpatialReference)
+
         # Set output
         return rr[0], rr[1]
 
@@ -224,6 +248,51 @@ class RangeRingsFromInterval(object):
 # ----------------------------------------------------------------------------------
 class RangeRingFromMinimumAndMaximum(object):
 
+    class ToolValidator(object):
+        """Class for validating a tool's parameter values and controlling
+        the behavior of the tool's dialog."""
+    
+        def __init__(self, parameters):
+            """Setup arcpy and the list of tool parameters."""
+            self.params = parameters
+    
+        def initializeParameters(self):
+            """Refine the properties of a tool's parameters.  This method is
+            called when the tool is opened."""
+    
+            return
+    
+        def updateParameters(self):
+            """Modify the values and properties of parameters before internal
+            validation is performed.  This method is called whenever a parameter
+            has been changed."""
+    
+            return
+    
+        def updateMessages(self):
+            """Modify the messages created by internal validation for each tool
+             parameter.  This method is called after internal validation."""
+
+            if self.params[1].altered:
+                if self.params[1].value <= 0:
+                    self.params[1].setWarningMessage(msgPositiveValueRequired)
+
+            if self.params[2].altered:
+                if self.params[2].value <= 0:
+                    self.params[2].setWarningMessage(msgPositiveValueRequired)
+
+            if self.params[6].altered:
+                if self.params[6].value <= 0:
+                    self.params[6].setWarningMessage(msgPositiveValueRequired)
+                    self.params[7].enabled = False
+                    self.params[7].parameterType = 'Optional'
+                else:
+                    self.params[7].enabled = True
+                    self.params[7].parameterType = 'Required'
+
+            return
+        # end Class ToolValidator
+
     def __init__(self):
         self.label = 'Generate Range Rings From Minimum And Maximum'
         self.description = 'Create a concentric circle from a center with two rings depicting a minimum range and a maximum range.'
@@ -231,86 +300,95 @@ class RangeRingFromMinimumAndMaximum(object):
         self.canRunInBackground = False
 
     def getParameterInfo(self):
-        # Input_Center_Features
+
+        # in_features
         param_1 = arcpy.Parameter()
-        param_1.name = 'Input_Center_Features'
-        param_1.displayName = 'Input Center Features'
+        param_1.name = 'in_features'
+        param_1.displayName = 'Input Features (Center Points)'
         param_1.parameterType = 'Required'
         param_1.direction = 'Input'
         param_1.datatype = 'Feature Set'
-
-        # Set the Feature Set schema
+        # Set the Feature Set schema and symbology
         input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                           "layers",
                                           "MTInputPoints.lyrx")
         param_1.value = input_layer_file_path
+        param_1.displayOrder = 0
 
-        # Minimum_Range
+        # in_minimum_range
         param_2 = arcpy.Parameter()
-        param_2.name = 'Minimum_Range'
+        param_2.name = 'in_minimum_range'
         param_2.displayName = 'Minimum Range'
         param_2.parameterType = 'Required'
         param_2.direction = 'Input'
         param_2.datatype = 'Double'
-        param_2.value = '10'
+        param_2.value = '100'
+        param_2.displayOrder = 1
 
-        # Maximum_Range
+        # in_maximum_range
         param_3 = arcpy.Parameter()
-        param_3.name = 'Maximum_Range'
+        param_3.name = 'in_maximum_range'
         param_3.displayName = 'Maximum Range'
         param_3.parameterType = 'Required'
         param_3.direction = 'Input'
         param_3.datatype = 'Double'
-        param_3.value = '100'
+        param_3.value = '1000'
+        param_3.displayOrder = 2
 
-        # Distance_Units
+        # in_distance_units
         param_4 = arcpy.Parameter()
-        param_4.name = 'Distance_Units'
+        param_4.name = 'in_distance_units'
         param_4.displayName = 'Distance Units'
         param_4.parameterType = 'Required'
         param_4.direction = 'Input'
         param_4.datatype = 'String'
         param_4.value = supportedDistanceUnits[0]
         param_4.filter.list = supportedDistanceUnits
+        param_4.displayOrder = 3
 
-        # Number_of_Radials
+        # output_feature_class_rings
         param_5 = arcpy.Parameter()
-        param_5.name = 'Number_of_Radials'
-        param_5.displayName = 'Number of Radials'
+        param_5.name = 'output_feature_class_rings'
+        param_5.displayName = 'Output Feature Class (Rings)'
         param_5.parameterType = 'Required'
-        param_5.direction = 'Input'
-        param_5.datatype = 'Long'
-        param_5.value = '8'
-
-        # Output_Ring_Features
-        param_6 = arcpy.Parameter()
-        param_6.name = 'Output_Ring_Features'
-        param_6.displayName = 'Output Ring Features'
-        param_6.parameterType = 'Required'
-        param_6.direction = 'Output'
-        param_6.datatype = 'Feature Class'
-        param_6.value = '%scratchGDB%\\rings'
-        param_6.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+        param_5.direction = 'Output'
+        param_5.datatype = 'Feature Class'
+        param_5.value = '%scratchGDB%\\rings'
+        param_5.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                             "layers", "RangeRings.lyrx")
+        param_5.displayOrder = 5
 
-        # Output_Radial_Features
+        # in_spatial_reference
+        param_6 = arcpy.Parameter()
+        param_6.name = 'in_spatial_reference'
+        param_6.displayName = 'Spatial Reference'
+        param_6.parameterType = 'Optional'
+        param_6.direction = 'Input'
+        param_6.datatype = 'Spatial Reference'
+        param_6.displayOrder = 7
+
+        # in_number_of_radials
         param_7 = arcpy.Parameter()
-        param_7.name = 'Output_Radial_Features'
-        param_7.displayName = 'Output Radial Features'
-        param_7.parameterType = 'Required'
-        param_7.direction = 'Output'
-        param_7.datatype = 'Feature Class'
-        param_7.value = '%scratchGDB%\\radials'
-        param_7.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "RangeRadials.lyrx")
+        param_7.name = 'in_number_of_radials'
+        param_7.displayName = 'Number of Radials'
+        param_7.parameterType = 'Optional'
+        param_7.direction = 'Input'
+        param_7.datatype = 'Long'
+        param_7.value = ''
+        param_7.displayOrder = 4
 
-        # Spatial_Reference
+        # output_feature_class_radials
         param_8 = arcpy.Parameter()
-        param_8.name = 'Spatial_Reference'
-        param_8.displayName = 'Spatial Reference'
+        param_8.name = 'output_feature_class_radials'
+        param_8.displayName = 'Output Feature Class (Radials)'
         param_8.parameterType = 'Optional'
-        param_8.direction = 'Input'
-        param_8.datatype = 'Spatial Reference'
+        param_8.direction = 'Output'
+        param_8.datatype = 'Feature Class'
+        param_8.value = '%scratchGDB%\\radials'
+        param_8.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                            "layers", "RangeRadials.lyrx")
+        param_8.enabled = False  # disable until number_of_radials set
+        param_8.displayOrder = 6
 
         return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8]
 
@@ -333,20 +411,22 @@ class RangeRingFromMinimumAndMaximum(object):
         inputMinimumRange = parameters[1].value
         inputMaximumRange = parameters[2].value
         inputDistanceUnits = parameters[3].value
-        inputNumberOfRadials = parameters[4].value
-        outputRingFeatures = parameters[5].valueAsText
-        outputRadialFeatures = parameters[6].valueAsText
-        optionalSpatialReference = parameters[7].value
-        optionalSpatialReferenceAsText = parameters[7].valueAsText
+        outputRingFeatures = parameters[4].valueAsText
+        optionalSpatialReference = parameters[5].value
+        optionalSpatialReferenceAsText = parameters[5].valueAsText
+        inputNumberOfRadials = parameters[6].value
+        outputRadialFeatures = parameters[7].valueAsText
 
         if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
             optionalSpatialReference = None
 
-        # WORKAROUND (for Pro): clear layer selection (since last point is selected)
-        # So tool will work on all points entered
-        featureSetDescribe = arcpy.Describe(inputCenterFeatures)
-        if sys.version_info >= (3, 0) and (featureSetDescribe.dataType == "FeatureLayer"):
-            arcpy.SelectLayerByAttribute_management(inputCenterFeatures, "CLEAR_SELECTION")
+        if inputNumberOfRadials == "#" or inputNumberOfRadials == "" or inputNumberOfRadials is None :
+            inputNumberOfRadials = 0
+            outputRadialFeatures = None
+
+        if outputRadialFeatures == "#" or outputRadialFeatures == "" or outputRadialFeatures is None:
+            inputNumberOfRadials = 0
+            outputRadialFeatures = None
 
         rr = RangeRingUtils.rangeRingsFromMinMax(inputCenterFeatures,
                                                  inputMinimumRange,
@@ -376,17 +456,6 @@ class RangeRingsFromMinAndMaxTable(object):
         def initializeParameters(self):
             """Refine the properties of a tool's parameters.  This method is
             called when the tool is opened."""
-    
-            # Input Center Features (Feature Set) [0]
-            # Input Table (Table) [1]
-            # Selected Type (String) [2]
-            # Number of Radials (Long) [3]
-            # Output Ring Features (Feature Class) [4]
-            # Output Radial Features (Feature Class) [5]
-            # Spatial Reference (Spatial Reference) [6]
-            # Input Table Type Name Field (Field) [7]
-            # Input Table Minimum Range Field (Field) [8]
-            # Input Table Maximum Range Field (Field) [9]
 
             inputParamsTable = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                           "tooldata", "RangeRings.gdb", "rrInputTable")
@@ -412,6 +481,16 @@ class RangeRingsFromMinAndMaxTable(object):
         def updateMessages(self):
             """Modify the messages created by internal validation for each tool
              parameter.  This method is called after internal validation."""
+
+            if self.params[5].altered:
+                if self.params[5].value <= 0:
+                    self.params[5].setWarningMessage(msgPositiveValueRequired)
+                    self.params[6].enabled = False
+                    self.params[6].parameterType = 'Optional'
+                else:
+                    self.params[6].enabled = True
+                    self.params[6].parameterType = 'Required'
+
             return
     
         def updateTypes(self,inputTable):
@@ -424,7 +503,7 @@ class RangeRingsFromMinAndMaxTable(object):
                     Names.append(name)
                 del tableRows
             except:
-                msg = r"ERROR LOADING INPUT TABLE!!"
+                msg = "ERROR LOADING INPUT TABLE!!"
                 Names.append(msg)
                 messages.AddErrorMessage(msg)
             return Names
@@ -437,10 +516,10 @@ class RangeRingsFromMinAndMaxTable(object):
 
     def getParameterInfo(self):
 
-        # Input_Center_Features
+        # in_features
         param_1 = arcpy.Parameter()
-        param_1.name = 'Input_Center_Features'
-        param_1.displayName = 'Input Center Features'
+        param_1.name = 'in_features'
+        param_1.displayName = 'Input Features (Center Points)'
         param_1.parameterType = 'Required'
         param_1.direction = 'Input'
         param_1.datatype = 'Feature Set'
@@ -449,100 +528,113 @@ class RangeRingsFromMinAndMaxTable(object):
                                           "layers",
                                           "MTInputPoints.lyrx")
         param_1.value = input_layer_file_path
+        param_1.displayOrder = 0
 
-        # Input_Table
+        # in_table
         param_2 = arcpy.Parameter()
-        param_2.name = 'Input_Table'
-        param_2.displayName = 'Input Table'
+        param_2.name = 'in_table'
+        param_2.displayName = 'Input Table (Name and Min/Max Ranges)'
         param_2.parameterType = 'Required'
         param_2.direction = 'Input'
         param_2.datatype = 'Table'
         # military-tools-geoprocessing-toolbox\\toolboxes\\tooldata\\Range
         # Rings.gdb\\rrInputTable'
+#
+# --> TODO: we will not be able to deploy this table in Pro so this needs to be removed
+#
         param_2.value = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                           "tooldata", "RangeRings.gdb", "rrInputTable")
+        param_2.displayOrder = 1
 
-        # Selected_Type
+        # selected_type
         param_3 = arcpy.Parameter()
-        param_3.name = 'Selected_Type'
+        param_3.name = 'in_selected_type'
         param_3.displayName = 'Selected Type'
         param_3.parameterType = 'Required'
         param_3.direction = 'Input'
         param_3.datatype = 'String'
         param_3.value = 'M4'
         param_3.filter.list = ['M4', 'M249']
+        param_3.displayOrder = 2
 
-        # Number_Of_Radials
+        # output_feature_class_rings
         param_4 = arcpy.Parameter()
-        param_4.name = 'Number_Of_Radials'
-        param_4.displayName = 'Number Of Radials'
+        param_4.name = 'output_feature_class_rings'
+        param_4.displayName = 'Output Feature Class (Rings)'
         param_4.parameterType = 'Required'
-        param_4.direction = 'Input'
-        param_4.datatype = 'Long'
-        param_4.value = '8'
-
-        # Output_Ring_Features
-        param_5 = arcpy.Parameter()
-        param_5.name = 'Output_Ring_Features'
-        param_5.displayName = 'Output Ring Features'
-        param_5.parameterType = 'Required'
-        param_5.direction = 'Output'
-        param_5.datatype = 'Feature Class'
-        param_5.value = '%scratchGDB%\\Rings'
-        param_5.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+        param_4.direction = 'Output'
+        param_4.datatype = 'Feature Class'
+        param_4.value = '%scratchGDB%\\Rings'
+        param_4.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                             "layers", "RangeRings.lyrx")
+        param_4.displayOrder = 4
 
-        # Output_Radial_Features
+        # in_spatial_reference
+        param_5 = arcpy.Parameter()
+        param_5.name = 'in_spatial_reference'
+        param_5.displayName = 'Spatial Reference'
+        param_5.parameterType = 'Optional'
+        param_5.direction = 'Input'
+        param_5.datatype = 'Spatial Reference'
+        param_5.displayOrder = 6
+
+        # in_number_of_radials
         param_6 = arcpy.Parameter()
-        param_6.name = 'Output_Radial_Features'
-        param_6.displayName = 'Output Radial Features'
-        param_6.parameterType = 'Required'
-        param_6.direction = 'Output'
-        param_6.datatype = 'Feature Class'
-        param_6.value = '%scratchGDB%\\Radials'
-        param_6.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                            "layers", "RangeRadials.lyrx")
+        param_6.name = 'in_number_of_radials'
+        param_6.displayName = 'Number Of Radials'
+        param_6.parameterType = 'Optional'
+        param_6.direction = 'Input'
+        param_6.datatype = 'Long'
+        param_6.value = '8'
+        param_6.displayOrder = 3
 
-        # Spatial_Reference
+        # output_feature_class_radials
         param_7 = arcpy.Parameter()
-        param_7.name = 'Spatial_Reference'
-        param_7.displayName = 'Spatial Reference'
-        param_7.parameterType = 'Optional'
-        param_7.direction = 'Input'
-        param_7.datatype = 'Spatial Reference'
+        param_7.name = 'output_feature_class_radials'
+        param_7.displayName = 'Output Feature Class (Radials)'
+        param_7.parameterType = 'Required'
+        param_7.direction = 'Output'
+        param_7.datatype = 'Feature Class'
+        param_7.value = '%scratchGDB%\\Radials'
+        param_7.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                            "layers", "RangeRadials.lyrx")
+        param_7.displayOrder = 5
 
-        # Input_Table_Type_Name_Field
+        # in_field_table_type_name
         param_8 = arcpy.Parameter()
-        param_8.name = 'Input_Table_Type_Name_Field'
+        param_8.name = 'in_field_table_type_name'
         param_8.displayName = 'Input Table Type Name Field'
         param_8.parameterType = 'Optional'
         param_8.direction = 'Input'
         param_8.datatype = 'Field'
         param_8.value = 'Name'
-        param_8.parameterDependencies = ["Input_Table"]
+        param_8.parameterDependencies = ["in_table"]
         param_8.category = "Input Table Options"
+        param_8.displayOrder = 7
 
-        # Input_Table_Minimum_Range_Field
+        # in_field_table_minimum_range
         param_9 = arcpy.Parameter()
-        param_9.name = 'Input_Table_Minimum_Range_Field'
+        param_9.name = 'in_field_table_minimum_range'
         param_9.displayName = 'Input Table Minimum Range Field'
         param_9.parameterType = 'Optional'
         param_9.direction = 'Input'
         param_9.datatype = 'Field'
         param_9.value = 'Min'
-        param_9.parameterDependencies = ["Input_Table"]
+        param_9.parameterDependencies = ["in_table"]
         param_9.category = "Input Table Options"
+        param_9.displayOrder = 8
 
-        # Input_Table_Maximum_Range_Field
+        # in_field_table_maximum_range
         param_10 = arcpy.Parameter()
-        param_10.name = 'Input_Table_Maximum_Range_Field'
+        param_10.name = 'in_field_table_maximum_range'
         param_10.displayName = 'Input Table Maximum Range Field'
         param_10.parameterType = 'Optional'
         param_10.direction = 'Input'
         param_10.datatype = 'Field'
         param_10.value = 'Max'
-        param_10.parameterDependencies = ["Input_Table"]
+        param_10.parameterDependencies = ["in_table"]
         param_10.category = "Input Table Options"
+        param_10.displayOrder = 9
 
         return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8, param_9, param_10]
 
@@ -564,22 +656,24 @@ class RangeRingsFromMinAndMaxTable(object):
         inputCenterFeatures = parameters[0].valueAsText
         inputTable = parameters[1].valueAsText
         inputSelectedType = parameters[2].value
-        inputNumberOfRadials = parameters[3].value
-        outputRingFeatures = parameters[4].valueAsText
-        outputRadialFeatures = parameters[5].valueAsText
-        optionalSpatialReference = parameters[6].value
-        optionalSpatialReferenceAsText = parameters[6].valueAsText
+        outputRingFeatures = parameters[3].valueAsText
+        optionalSpatialReference = parameters[4].value
+        optionalSpatialReferenceAsText = parameters[4].valueAsText
+        inputNumberOfRadials = parameters[5].value
+        outputRadialFeatures = parameters[6].valueAsText
 
         if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == '':
             optionalSpatialReference = None
 
-        # WORKAROUND (for Pro): clear layer selection (since last point is selected)
-        # So tool will work on all points entered
-        featureSetDescribe = arcpy.Describe(inputCenterFeatures)
-        if sys.version_info >= (3, 0) and (featureSetDescribe.dataType == "FeatureLayer"):
-            arcpy.SelectLayerByAttribute_management(inputCenterFeatures, "CLEAR_SELECTION")
+        if inputNumberOfRadials == "#" or inputNumberOfRadials == "" or inputNumberOfRadials is None :
+            inputNumberOfRadials = 0
+            outputRadialFeatures = None
 
-        #Weapon Table Options
+        if outputRadialFeatures == "#" or outputRadialFeatures == "" or outputRadialFeatures is None:
+            inputNumberOfRadials = 0
+            outputRadialFeatures = None
+
+        # Weapon Table Options
         if (len(parameters) > 7) :
             inputTypeNameField = parameters[7].valueAsText
         if (len(parameters) > 8) :

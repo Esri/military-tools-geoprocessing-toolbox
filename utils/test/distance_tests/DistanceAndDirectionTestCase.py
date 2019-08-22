@@ -102,10 +102,10 @@ class DistanceAndDirectionTestCase(unittest.TestCase):
                                                  inputMinimumRange,
                                                  inputMaximumRange,
                                                  inputDistanceUnits,
-                                                 numRadials,
                                                  rings,
-                                                 radials,
-                                                 self.srWAZED)
+                                                 self.srWAZED,
+                                                 numRadials,
+                                                 radials)
         except arcpy.ExecuteError:
             UnitTestUtilities.handleArcPyError()
         except:
@@ -150,10 +150,10 @@ class DistanceAndDirectionTestCase(unittest.TestCase):
             toolOutput = arcpy.RangeRingsFromMinAndMaxTable_mt(self.pointGeographic,
                                                inputTable,
                                                inputSelectedType,
-                                               numRadials,
                                                rings,
-                                               radials,
-                                               self.srWAZED)
+                                               self.srWAZED,
+                                               numRadials,
+                                               radials)
         except arcpy.ExecuteError:
             UnitTestUtilities.handleArcPyError()
         except:
@@ -197,10 +197,10 @@ class DistanceAndDirectionTestCase(unittest.TestCase):
                                         numRings,
                                         distanceBetween,
                                         distanceUnits,
-                                        numRadials,
                                         rings,
-                                        radials,
-                                        self.srWAZED)
+                                        self.srWAZED,
+                                        numRadials,
+                                        radials)
         except arcpy.ExecuteError:
             UnitTestUtilities.handleArcPyError()
         except:
@@ -244,10 +244,10 @@ class DistanceAndDirectionTestCase(unittest.TestCase):
                                         numRings,
                                         distanceBetween,
                                         distanceUnits,
-                                        numRadials,
                                         rings,
-                                        radials) 
-                                        # SR is not set
+                                        '#', # SR is not set
+                                        numRadials,
+                                        radials)                                  
         except arcpy.ExecuteError:
             UnitTestUtilities.handleArcPyError()
         except:
