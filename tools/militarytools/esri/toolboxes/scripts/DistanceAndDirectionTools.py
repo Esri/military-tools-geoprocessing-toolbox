@@ -585,7 +585,7 @@ class RangeRingsFromMinAndMaxTable(object):
         param_6.parameterType = 'Optional'
         param_6.direction = 'Input'
         param_6.datatype = 'Long'
-        param_6.value = '8'
+        param_6.value = ''
         param_6.displayOrder = 3
 
         # output_feature_class_radials
@@ -598,6 +598,7 @@ class RangeRingsFromMinAndMaxTable(object):
         param_7.value = '%scratchGDB%\\Radials'
         param_7.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                             "layers", "RangeRadials.lyrx")
+        param_7.enabled = False  # disable until number_of_radials set
         param_7.displayOrder = 5
 
         # in_field_table_type_name
