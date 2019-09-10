@@ -30,6 +30,14 @@ from scripts.DistanceAndDirectionTools import *
 # from scripts.GRGTools import *
 # from scripts.VisTools import *
 
+###########################################################
+# Temporary reload code for use during development (so Pro restart not required)
+import importlib
+import scripts
+importlib.reload(scripts.DistanceAndDirectionTools)  
+from scripts.DistanceAndDirectionTools import *
+###########################################################
+
 class Toolbox(object):
     '''
     Military Tools Toolbox class container.
@@ -54,6 +62,7 @@ class Toolbox(object):
 					# TableToEllipse,
 
 					# DistanceAndDirection
+					GenerateRangeRings,
 					RangeRingsFromInterval, 
 					RangeRingFromMinimumAndMaximum, 
 					RangeRingsFromMinAndMaxTable,
