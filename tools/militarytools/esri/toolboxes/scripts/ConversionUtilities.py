@@ -124,6 +124,11 @@ def polylineToPolygon(inputPolylines, inputIDFieldName, outputPolygons):
 
             # Polyline will only have one part
             featShape = row[0]
+
+            if (featShape is None) :
+                arcpy.AddWarning('Output Row: ' + str(rowCount) + ' missing feature geometry (check input data). Skipping.')
+                continue
+
             polyline = featShape.getPart(0)
 
             polyArray.removeAll()
@@ -803,8 +808,39 @@ def tableToPoint(inputTable,
             scratch = env.scratchWorkspace
             
         inputSpatialReference = _checkSpatialRef(inputSpatialReference)
-        
-        arcpy.ConvertCoordinateNotation_management(inputTable,
+        if (inputCoordinateFormat == 'DD_2') and (inputSpatialReference is not None) and \
+            (inputSpatialReference != arcpy.SpatialReference(4326)): 
+            # default is GCS_WGS_1984 - if the SR is different, create feature class first using XYTableToPoint/MakeXYEventLayer
+
+            # make scratch name for temp FC
+            scratch_name = arcpy.CreateScratchName("temp",
+                                                   data_type="Featureclass",
+                                                   workspace=scratch)
+
+            layername = os.path.basename(scratch_name) + "-layer"
+            tempLayerOut = arcpy.management.MakeXYEventLayer(inputTable,
+                                                        inputXField,
+                                                        inputYField,
+                                                        layername,
+                                                        inputSpatialReference)
+
+            scratch_out = arcpy.management.CopyFeatures(tempLayerOut, scratch_name)
+
+            # Use the geometry of the scratch feature class, with SHAPE keyword, ingnores X and Y values
+            arcpy.ConvertCoordinateNotation_management(scratch_out,
+                                                   outputPointFeatures,
+                                                   inputXField,
+                                                   inputYField,
+                                                   "SHAPE",
+                                                   "#",
+                                                   "#",
+                                                   inputSpatialReference)
+            # Delete scratch dataset
+            arcpy.Delete_management(scratch_out)
+
+        else:
+            #Using Geographic coordinates
+            arcpy.ConvertCoordinateNotation_management(inputTable,
                                                    outputPointFeatures,
                                                    inputXField,
                                                    inputYField,
@@ -812,6 +848,7 @@ def tableToPoint(inputTable,
                                                    "DD_NUMERIC",
                                                    "#",
                                                    inputSpatialReference)
+   
         return outputPointFeatures
     
     except arcpy.ExecuteError:
@@ -907,6 +944,7 @@ def tableToPolygon(inputTable,
                                                    inputSpatialReference)
         
         copyPointsToLine = os.path.join(scratch, "copyPointsToLine")
+
         arcpy.PointsToLine_management(copyCCN,
                                       copyPointsToLine,
                                       inputLineField,
