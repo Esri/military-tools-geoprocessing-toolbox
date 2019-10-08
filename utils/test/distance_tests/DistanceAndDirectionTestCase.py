@@ -98,14 +98,24 @@ class DistanceAndDirectionTestCase(unittest.TestCase):
         toolOutput = None
 
         try :      
-            toolOutput = arcpy.RangeRingFromMinimumAndMaximum_mt(self.pointGeographic,
-                                                 inputMinimumRange,
-                                                 inputMaximumRange,
-                                                 inputDistanceUnits,
+
+            #GenerateRangeRings(in_features, output_feature_class_rings, 
+            #	range_rings_type, distance_units, 
+            #	{output_feature_class_radials}, {number_of_radials}, 
+            #	{number_of_rings}, {interval_between_rings}, 
+            #	{minimum_range}, {maximum_range})
+
+            toolOutput = arcpy.GenerateRangeRings_mt(self.pointGeographic,
                                                  rings,
-                                                 self.srWAZED,
+                                                 "MIN_MAX",
+                                                 inputDistanceUnits,
+                                                 radials,
                                                  numRadials,
-                                                 radials)
+                                                 '#',
+                                                 '#',
+                                                 inputMinimumRange,
+                                                 inputMaximumRange
+                                                 )
         except arcpy.ExecuteError:
             UnitTestUtilities.handleArcPyError()
         except:
@@ -138,6 +148,7 @@ class DistanceAndDirectionTestCase(unittest.TestCase):
         inputTable = os.path.join(Configuration.militaryToolboxesPath, \
                                    "tooldata", "RangeRings.gdb", "rrInputTable")
         inputSelectedType = 'M249'
+        inputDistanceUnits = "METERS"
         numRadials = 8
         rings = os.path.join(Configuration.militaryScratchGDB, "newRings")
         radials = os.path.join(Configuration.militaryScratchGDB, "newRadials")
@@ -146,14 +157,23 @@ class DistanceAndDirectionTestCase(unittest.TestCase):
 
         toolOutput = None
 
+        # GenerateRangeRingsFromTable(in_features, in_table,  
+	    #  output_feature_class_rings, lookup_name, 
+	    #  range_rings_type, distance_units, 
+	    #  {output_feature_class_radials}, {number_of_radials}, 
+	    #  {lookup_name_field}, {min_range_or_num_rings_field}, 
+	    #  {max_range_or_ring_interval_field}) 
+
         try :      
-            toolOutput = arcpy.RangeRingsFromMinAndMaxTable_mt(self.pointGeographic,
+            toolOutput = arcpy.GenerateRangeRingsFromTable_mt(self.pointGeographic,
                                                inputTable,
-                                               inputSelectedType,
                                                rings,
-                                               self.srWAZED,
-                                               numRadials,
-                                               radials)
+                                               inputSelectedType,
+                                               "MIN_MAX",
+                                               inputDistanceUnits,
+                                               radials,
+                                               numRadials
+                                               )
         except arcpy.ExecuteError:
             UnitTestUtilities.handleArcPyError()
         except:
@@ -193,14 +213,21 @@ class DistanceAndDirectionTestCase(unittest.TestCase):
         toolOutput = None
 
         try :
-            toolOutput = arcpy.RangeRingsFromInterval_mt(self.pointGeographic,
-                                        numRings,
-                                        distanceBetween,
-                                        distanceUnits,
-                                        rings,
-                                        self.srWAZED,
-                                        numRadials,
-                                        radials)
+            #GenerateRangeRings(in_features, output_feature_class_rings, 
+            #	range_rings_type, distance_units, 
+            #	{output_feature_class_radials}, {number_of_radials}, 
+            #	{number_of_rings}, {interval_between_rings}, 
+            #	{minimum_range}, {maximum_range})
+
+            toolOutput = arcpy.GenerateRangeRings_mt(self.pointGeographic,
+                                                 rings,
+                                                 "INTERVAL",
+                                                 distanceUnits,
+                                                 radials,
+                                                 numRadials,
+                                                 numRings,
+                                                 distanceBetween
+                                                 )
         except arcpy.ExecuteError:
             UnitTestUtilities.handleArcPyError()
         except:
@@ -223,7 +250,8 @@ class DistanceAndDirectionTestCase(unittest.TestCase):
 
         return
 
-    def test_rangeRingsFromIntervalNoSR(self):
+    # REMOVED: no longer applicable
+    def _test_rangeRingsFromIntervalNoSR(self):
         ''' testing rangeRingsFromInterval method'''
 
         runToolMessage = ".....DistanceAndDirectionTestCase.test_rangeRingsFromIntervalNoSR"

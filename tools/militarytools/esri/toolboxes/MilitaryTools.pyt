@@ -63,9 +63,11 @@ class Toolbox(object):
 
 					# DistanceAndDirection
 					GenerateRangeRings,
-					RangeRingsFromInterval, 
-					RangeRingFromMinimumAndMaximum, 
-					RangeRingsFromMinAndMaxTable,
+					GenerateRangeRingsFromTable,
+					# OLD/ORIGINAL TOOLS:
+					# RangeRingsFromInterval, 
+					# RangeRingFromMinimumAndMaximum, 
+					# RangeRingsFromMinAndMaxTable,
 
 					# GRG
 					# CreateGRGFromArea,
