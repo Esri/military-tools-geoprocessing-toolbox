@@ -1,4 +1,3 @@
-# coding: utf-8
 '''
 ------------------------------------------------------------------------------
  Copyright 2017-2018 Esri
@@ -25,7 +24,7 @@
  ==================================================
 '''
 
-# from scripts.ConversionTools import *
+from scripts.ConversionTools import *
 from scripts.DistanceAndDirectionTools import *
 # from scripts.GRGTools import *
 # from scripts.VisTools import *
@@ -35,7 +34,9 @@ from scripts.DistanceAndDirectionTools import *
 import importlib
 import scripts
 importlib.reload(scripts.DistanceAndDirectionTools)  
+importlib.reload(scripts.ConversionTools)  
 from scripts.DistanceAndDirectionTools import *
+from scripts.ConversionTools import *
 ###########################################################
 
 class Toolbox(object):
@@ -45,14 +46,17 @@ class Toolbox(object):
 
     def __init__(self):
         ''' constructor '''
-        self.label = u'Military Tools'
-        self.alias = "mt"
+        self.label = 'Military Tools'
+        self.alias = "military"
 		# NOTE: this description doesn't do anything, description shown in ArcGIS 
 		# comes from the pyt.xml file
-        self.description = u'A Geoprocessing Toolbox for ArcGIS for Desktop that contains collections of tools to import geometry from tables, determine ranges, and provide basic visibility analysis capabilities.'
+        self.description = 'A Geoprocessing Toolbox for ArcGIS for Desktop that contains collections of tools to import geometry from tables, determine ranges, and provide basic visibility analysis capabilities.'
 
         self.tools = [
 					# Conversion 
+					GenerateCoordinateNotations,
+
+					# OLD/ORIGINAL TOOLS:
 					# ConvertCoordinates,
 					# TableTo2PointLine, 
 					# TableToLineOfBearing, 
@@ -63,7 +67,7 @@ class Toolbox(object):
 
 					# DistanceAndDirection
 					GenerateRangeRings,
-					GenerateRangeRingsFromTable,
+					GenerateRangeRingsFromTable
 					# OLD/ORIGINAL TOOLS:
 					# RangeRingsFromInterval, 
 					# RangeRingFromMinimumAndMaximum, 

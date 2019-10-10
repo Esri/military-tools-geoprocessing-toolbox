@@ -83,7 +83,9 @@ class ConvertCoordinatesTestCase(unittest.TestCase):
 
         arcpy.ImportToolbox(Configuration.toolboxUnderTest)
         
-        arcpy.ConvertCoordinates_mt(self.inputTable, "DD_2", "Location_X", "Location_Y", self.outputConvert)
+        arcpy.GenerateCoordinateNotations_military(self.inputTable, self.outputConvert,
+                                    "DD_2", 
+                                    "Location_X", "Location_Y")
         
         self.assertTrue(arcpy.Exists(self.outputConvert), "Output features do not exist or were not created")
         
