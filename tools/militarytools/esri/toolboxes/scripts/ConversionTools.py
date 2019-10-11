@@ -35,7 +35,7 @@ srWGS84 = arcpy.SpatialReference(4326)  # GCS_WGS_1984
 coordinate2ErrorMsg = "Coordinate formats 'DD_2', 'DDM_2', and 'DMS_2' require both X Field and Y Field from the input table."
 
 # -----------------------------------------------------------------------------
-# GenerateCoordinateTable Tool
+# GenerateCoordinateNotations Tool
 # -----------------------------------------------------------------------------
 class GenerateCoordinateNotations(object):
 
@@ -90,7 +90,7 @@ class GenerateCoordinateNotations(object):
         # END ToolValidator
 
     def __init__(self):
-        self.label = 'Generate Coordinate Formats'
+        self.label = 'Generate Coordinate Notations'
         self.description = 'Converts source coordinates in a table to multiple coordinate formats.  This tool uses an input table with coordinates and outputs a new table with fields for the following coordinate formats: Decimal Degrees, Decimal Degrees Minutes, Degrees Minutes Seconds, Universal Transverse Mercator, Military Grid Reference System, U.S. National Grid, Global Area Reference System, and World Geographic Reference System'
         self.category = 'Conversion'
         self.canRunInBackground = False
@@ -147,7 +147,7 @@ class GenerateCoordinateNotations(object):
         param_5.parameterDependencies = ["in_table"]
         param_5.displayOrder = 3
 
-        # spatial_reference
+        # in_coordinate_system
         param_6 = arcpy.Parameter()
         param_6.name = 'in_coordinate_system'
         param_6.displayName = 'Input Coordinate System'
@@ -203,9 +203,648 @@ class GenerateCoordinateNotations(object):
 
     # END GenerateCoordinateTable
 
+# -----------------------------------------------------------------------------
+# CoordinateNotationToPoint Tool
+# -----------------------------------------------------------------------------
+class CoordinateTableToPoint(object):
+
+    class ToolValidator(object):
+        """Class for validating a tool's parameter values and controlling
+        the behavior of the tool's dialog."""
+        
+        def __init__(self, parameters):
+            """Setup arcpy and the list of tool parameters."""
+            self.params = parameters
+    
+        def initializeParameters(self):
+            """Refine the properties of a tool's parameters.  This method is
+            called when the tool is opened."""
+            #0 - Input Table
+            #1 - Output Features			
+            #2 - Input Coordinate Format
+            #3 - X Field
+            #4 - Y Field
+            #5 - Input Coordinate System
+            return
+    
+        def updateParameters(self):
+            """Modify the values and properties of parameters before internal
+            validation is performed.  This method is called whenever a parameter
+            has been changed."""
+            #0 - Input Table
+            #1 - Output Features			
+            #2 - Input Coordinate Format
+            #3 - X Field
+            #4 - Y Field
+            #5 - Input Coordinate System
+            if self.params[2].altered:
+                if self.params[2].value in singleFieldTypes:
+                    self.params[4].value = self.params[3].value
+                    self.params[4].enabled = False
+                else:
+                    self.params[4].enabled = True
+            return
+    
+        def updateMessages(self):
+            """Modify the messages created by internal validation for each tool
+            parameter.  This method is called after internal validation."""
+            #0 - Input Table
+            #1 - Output Features			
+            #2 - Input Coordinate Format
+            #3 - X Field
+            #4 - Y Field
+            #5 - Input Coordinate System
+            if not self.params[2].value in singleFieldTypes:
+                if self.params[4].value == None or self.params[4].value == "":
+                    self.params[4].setErrorMessage(coordinate2ErrorMsg)
+            return
+
+        # END ToolValidator
+
+    def __init__(self):
+        self.label = 'Coordinate Table To Point'
+        self.description = 'Creates point features from tabular coordinates.'
+        self.category = 'Conversion'
+        self.canRunInBackground = False
+
+    def getParameterInfo(self):
+
+        # in_table
+        param_1 = arcpy.Parameter()
+        param_1.name = 'in_table'
+        param_1.displayName = 'Input Table'
+        param_1.parameterType = 'Required'
+        param_1.direction = 'Input'
+        param_1.datatype = 'Table View'
+        param_1.displayOrder = 0
+
+        # output_features
+        param_2 = arcpy.Parameter()
+        param_2.name = 'output_features'
+        param_2.displayName = 'Output Point Features'
+        param_2.parameterType = 'Required'
+        param_2.direction = 'Output'
+        param_2.datatype = 'Feature Class'
+        param_2.value = 'outputPoints'
+        param_2.displayOrder = 4
+
+        # input_coordinate_format
+        param_3 = arcpy.Parameter()
+        param_3.name = 'input_coordinate_format'
+        param_3.displayName = 'Input Coordinate Format'
+        param_3.parameterType = 'Required'
+        param_3.direction = 'Input'
+        param_3.datatype = 'String'
+        param_3.value = defaultcoordinateFormat
+        param_3.filter.list = coordinateFormats
+        param_3.displayOrder = 1
+
+        # x_or_longitude_field
+        param_4 = arcpy.Parameter()
+        param_4.name = 'x_or_longitude_field'
+        param_4.displayName = 'X Field (longitude, UTM, MGRS, USNG, GARS, GEOREF)'
+        param_4.parameterType = 'Required'
+        param_4.direction = 'Input'
+        param_4.datatype = 'Field'
+        param_4.parameterDependencies = ["in_table"]
+        param_4.displayOrder = 2
+
+        # y_or_latitude_field
+        param_5 = arcpy.Parameter()
+        param_5.name = 'y_or_latitude_field'
+        param_5.displayName = 'Y Field (latitude)'
+        param_5.parameterType = 'Optional'
+        param_5.direction = 'Input'
+        param_5.datatype = 'Field'
+        param_5.parameterDependencies = ["in_table"]
+        param_5.displayOrder = 3
+
+        # in_coordinate_system
+        param_6 = arcpy.Parameter()
+        param_6.name = 'in_coordinate_system'
+        param_6.displayName = 'Input Coordinate System'
+        param_6.parameterType = 'Optional'
+        param_6.direction = 'Input'
+        param_6.datatype = 'Spatial Reference'
+        param_6.value = srWGS84.exportToString()
+        param_6.displayOrder = 5
+
+        return [param_1, param_2, param_3, param_4, param_5, param_6]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateParameters()
+
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+
+    def execute(self, parameters, messages):
+
+        inputTable = parameters[0].valueAsText
+        outputPointFeatures   = parameters[1].valueAsText
+        inputCoordinateFormat = parameters[2].valueAsText
+        inputXField = parameters[3].valueAsText
+        inputYField = parameters[4].valueAsText
+        optionalSpatialReference = parameters[5].value
+        optionalSpatialReferenceAsText = parameters[5].valueAsText
+
+        if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
+            optionalSpatialReference = srWGS84 #GCS_WGS_1984
+
+        arcpy.env.overwriteOutput = True
+
+        outputPointFeaturesOut = ConversionUtilities.tableToPoint(inputTable,
+                                    inputCoordinateFormat,
+                                    inputXField,
+                                    inputYField,
+                                    outputPointFeatures,
+                                    optionalSpatialReference)
+
+        return outputPointFeaturesOut
+
+    # END CoordinateNotationToPoint
+
+# -----------------------------------------------------------------------------
+# CoordinateTableToEllipse Tool
+# -----------------------------------------------------------------------------
+class CoordinateTableToEllipse(object):
+
+    class ToolValidator(object):
+    
+        def __init__(self, parameters):
+            """Setup arcpy and the list of tool parameters."""
+            self.params = parameters
+    
+        def initializeParameters(self):
+            """Refine the properties of a tool's parameters.  This method is
+            called when the tool is opened."""
+            #0 - Input Table
+            #1 - Output Ellipse
+            #2 - Distance Units
+            #3 - Major Field
+            #4 - Minor Field
+            #5 - Input Coordinate Format		
+            #6 - X Field
+            #7 - Y Field
+            #8 - Azimuth Units
+            #9 - Azimuth Field
+            #10 - Input Coordinate System        
+            return
+    
+        def updateParameters(self):
+            """Modify the values and properties of parameters before internal
+            validation is performed.  This method is called whenever a parameter
+            has been changed."""
+            #0 - Input Table
+            #1 - Output Ellipse
+            #2 - Distance Units
+            #3 - Major Field
+            #4 - Minor Field
+            #5 - Input Coordinate Format		
+            #6 - X Field
+            #7 - Y Field
+            #8 - Azimuth Units
+            #9 - Azimuth Field
+            #10 - Input Coordinate System 
+            if self.params[5].altered:
+                if self.params[5].value in singleFieldTypes:
+                    self.params[7].value = self.params[6].value
+                    self.params[7].enabled = False
+                else:
+                    self.params[7].enabled = True
+                    
+            return
+    
+        def updateMessages(self):
+            """Modify the messages created by internal validation for each tool
+            parameter.  This method is called after internal validation."""
+            #0 - Input Table
+            #1 - Output Ellipse
+            #2 - Distance Units
+            #3 - Major Field
+            #4 - Minor Field
+            #5 - Input Coordinate Format		
+            #6 - X Field
+            #7 - Y Field
+            #8 - Azimuth Units
+            #9 - Azimuth Field
+            #10 - Input Coordinate System 
+            if not self.params[5].value in singleFieldTypes:
+                if self.params[7].value == None or self.params[7].value == "":
+                    self.params[7].setErrorMessage(coordinate2ErrorMsg)
+   
+            return
+            
+        # END ToolValidator
+
+    def __init__(self):
+        self.label = 'Coordinate Table To Ellipse'
+        self.description = 'Creates ellipse features from tabular coordinates and input data values.  This tool uses an input table with coordinate values for ellipse centers and values for major and minor axis lengths.'
+        self.category = 'Conversion'
+        self.canRunInBackground = False
+
+    def getParameterInfo(self):
+
+        # in_table
+        param_1 = arcpy.Parameter()
+        param_1.name = 'in_table'
+        param_1.displayName = 'Input Table'
+        param_1.parameterType = 'Required'
+        param_1.direction = 'Input'
+        param_1.datatype = 'Table View'
+        param_1.displayOrder = 0
+
+        # output_features
+        param_2 = arcpy.Parameter()
+        param_2.name = 'output_features'
+        param_2.displayName = 'Output Ellipse Features'
+        param_2.parameterType = 'Required'
+        param_2.direction = 'Output'
+        param_2.datatype = 'Feature Class'
+        param_2.value = 'outputEllipse'
+        param_2.displayOrder = 7
+
+        # distance_units
+        param_3 = arcpy.Parameter()
+        param_3.name = 'distance_units'
+        param_3.displayName = 'Distance Units'
+        param_3.parameterType = 'Required'
+        param_3.direction = 'Input'
+        param_3.datatype = 'String'
+        param_3.value = defaultDistanceType
+        param_3.filter.list = distanceTypes
+        param_3.displayOrder = 6
+
+        # major_field
+        param_4 = arcpy.Parameter()
+        param_4.name = 'major_field'
+        param_4.displayName = 'Major Field'
+        param_4.parameterType = 'Required'
+        param_4.direction = 'Input'
+        param_4.datatype = 'Field'
+        param_4.parameterDependencies = ["in_table"]
+        param_4.displayOrder = 4
+
+        # minor_field
+        param_5 = arcpy.Parameter()
+        param_5.name = 'minor_field'
+        param_5.displayName = 'Minor Field'
+        param_5.parameterType = 'Required'
+        param_5.direction = 'Input'
+        param_5.datatype = 'Field'
+        param_5.parameterDependencies = ["in_table"]
+        param_5.displayOrder = 5
+
+        # input_coordinate_format
+        param_6 = arcpy.Parameter()
+        param_6.name = 'input_coordinate_format'
+        param_6.displayName = 'Input Coordinate Format'
+        param_6.parameterType = 'Required'
+        param_6.direction = 'Input'
+        param_6.datatype = 'String'
+        param_6.value = defaultcoordinateFormat
+        param_6.filter.list = coordinateFormats
+        param_6.displayOrder = 1
+
+        # x_or_longitude_field
+        param_7 = arcpy.Parameter()
+        param_7.name = 'x_or_longitude_field'
+        param_7.displayName = 'X Field (longitude, UTM, MGRS, USNG, GARS, GeoRef)'
+        param_7.parameterType = 'Required'
+        param_7.direction = 'Input'
+        param_7.datatype = 'Field'
+        param_7.parameterDependencies = ["in_table"]
+        param_7.displayOrder = 2
+
+        # y_or_latitude_field
+        param_8 = arcpy.Parameter()
+        param_8.name = 'y_or_latitude_field'
+        param_8.displayName = 'Y Field (latitude)'
+        param_8.parameterType = 'Optional'
+        param_8.direction = 'Input'
+        param_8.datatype = 'Field'
+        param_8.parameterDependencies = ["in_table"]
+        param_8.displayOrder = 3
+
+        # azimuth_units
+        param_9 = arcpy.Parameter()
+        param_9.name = 'azimuth_units'
+        param_9.displayName = 'Azimuth Units'
+        param_9.parameterType = 'Optional'
+        param_9.direction = 'Input'
+        param_9.datatype = 'String'
+        param_9.value = defaultAngleType
+        param_9.filter.list = angleTypes
+        param_9.displayOrder = 9
+
+        # azimuth_field
+        param_10 = arcpy.Parameter()
+        param_10.name = 'azimuth_field'
+        param_10.displayName = 'Azimuth Field'
+        param_10.parameterType = 'Optional'
+        param_10.direction = 'Input'
+        param_10.datatype = 'Field'
+        param_10.parameterDependencies = ["in_table"]
+        param_10.displayOrder = 8
+
+        # in_coordinate_system
+        param_11 = arcpy.Parameter()
+        param_11.name = 'in_coordinate_system'
+        param_11.displayName = 'Input Coordinate System'
+        param_11.parameterType = 'Optional'
+        param_11.direction = 'Input'
+        param_11.datatype = 'Spatial Reference'
+        param_11.value = srWGS84.exportToString()
+        param_11.displayOrder = 10
+
+        return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8, param_9, param_10, param_11]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateParameters()
+
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+
+    def execute(self, parameters, messages):
+
+        inputTable = parameters[0].valueAsText # Input Table
+        outputEllipseFeatures = parameters[1].valueAsText # Output Ellipse
+        inputDistanceUnits = parameters[2].valueAsText # Distance Units - from valuelist
+        inputMajorAxisField = parameters[3].valueAsText # Major Field - from inputTable
+        inputMinorAxisField = parameters[4].valueAsText # Minor Field - from inputTable
+        inputCoordinateFormat = parameters[5].valueAsText # Input Coordinate Format
+        inputXField = parameters[6].valueAsText # X Field (Longitude, UTM, MGRS, USNG, GARS, GeoRef) - from inputTable
+        inputYField = parameters[7].valueAsText # Y Field (Latitude)
+        inputAzimuthUnits = parameters[8].valueAsText # Azimuth Units - from valuelist
+        inputAzimuthField = parameters[9].valueAsText # Azimuth Field - from inputTable
+        optionalSpatialReference = parameters[10].value # Spatial Reference
+        optionalSpatialReferenceAsText = parameters[10].valueAsText
+
+        if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
+            optionalSpatialReference = srWGS84 #GCS_WGS_1984
+
+        arcpy.env.overwriteOutput = True
+
+        outputEllipseFeaturesOut = ConversionUtilities.tableToEllipse(inputTable,
+                                           inputCoordinateFormat,
+                                           inputXField,
+                                           inputYField,
+                                           inputMajorAxisField,
+                                           inputMinorAxisField,
+                                           inputDistanceUnits,
+                                           outputEllipseFeatures,
+                                           inputAzimuthField,
+                                           inputAzimuthUnits,
+                                           optionalSpatialReference)
+
+        return outputEllipseFeaturesOut
+
+    # END TableToEllipse
+
+# -----------------------------------------------------------------------------
+# CoordinateTableTo2PointLine Tool
+# -----------------------------------------------------------------------------
+class CoordinateTableTo2PointLine(object):
+
+    class ToolValidator(object):
+    
+        def __init__(self, parameters):
+            """Setup arcpy and the list of tool parameters."""
+            self.params = parameters
+    
+        def initializeParameters(self):
+            """Refine the properties of a tool's parameters.  This method is
+            called when the tool is opened."""
+            #0 - Input Table
+            #1 - Start Point Format
+            #2 - Start X Field
+            #3 - Start Y Field
+            #4 - End Point Format
+            #5 - End X Field
+            #6 - End Y Field
+            #7 - Output Lines
+            #8 - Line Type
+            #9 - Spatial Reference            
+            return
+    
+        def updateParameters(self):
+            """Modify the values and properties of parameters before internal
+            validation is performed.  This method is called whenever a parameter
+            has been changed."""
+            #0 - Input Table
+            #1 - Start Point Format
+            if self.params[1].altered:
+                if self.params[1].value in singleFieldTypes:
+                    self.params[3].value = self.params[2].value
+                    self.params[3].enabled = False
+                else:
+                    self.params[3].enabled = True
+            #2 - Start X Field
+            #3 - Start Y Field
+            #4 - End Point Format
+            if self.params[4].altered:
+                if self.params[4].value in singleFieldTypes:
+                    self.params[6].value = self.params[5].value
+                    self.params[6].enabled = False
+                else:
+                    self.params[6].enabled = True
+            #5 - End X Field
+            #6 - End Y Field
+            #7 - Output Lines
+            #8 - Line Type
+            #9 - Spatial Reference                   return
+    
+        def updateMessages(self):
+            """Modify the messages created by internal validation for each tool
+            parameter.  This method is called after internal validation."""
+            #0 - Input Table
+            #1 - Start Point Format
+            #2 - Start X Field
+            #3 - Start Y Field
+            if not self.params[1].value in singleFieldTypes:
+                if self.params[3].value == None or self.params[3].value == "":
+                    self.params[3].setErrorMessage(coordinate2ErrorMsg)
+            #4 - End Point Format
+            #5 - End X Field
+            #6 - End Y Field
+            if not self.params[4].value in singleFieldTypes:
+                if self.params[6].value == None or self.params[6].value == "":
+                    self.params[6].setErrorMessage(coordinate2ErrorMsg)
+            #7 - Output Lines
+            #8 - Line Type
+            #9 - Spatial Reference            
+            return
+            
+        # END ToolValidator
+
+    def __init__(self):
+        self.label = 'Coordinate Table To 2-Point Line'
+        self.description = 'Creates a line feature from start and end point coordinates.  This tool uses an input table with coordinate pairs and outputs line features.   '
+        self.category = 'Conversion'
+        self.canRunInBackground = False
+
+    def getParameterInfo(self):
+        # Input_Table
+        param_1 = arcpy.Parameter()
+        param_1.name = 'Input_Table'
+        param_1.displayName = 'Input Table'
+        param_1.parameterType = 'Required'
+        param_1.direction = 'Input'
+        param_1.datatype = 'Table View'
+
+        # Start_Point_Format
+        param_2 = arcpy.Parameter()
+        param_2.name = 'Start_Point_Format'
+        param_2.displayName = 'Start Point Format'
+        param_2.parameterType = 'Required'
+        param_2.direction = 'Input'
+        param_2.datatype = 'String'
+        param_2.value = defaultcoordinateFormat
+        param_2.filter.list = coordinateFormats
+
+        # Start_X_Field__longitude__UTM__MGRS__USNG__GARS__GEOREF_
+        param_3 = arcpy.Parameter()
+        param_3.name = 'Start_X_Field__longitude__UTM__MGRS__USNG__GARS__GEOREF_'
+        param_3.displayName = 'Start X Field (longitude, UTM, MGRS, USNG, GARS, GEOREF)'
+        param_3.parameterType = 'Required'
+        param_3.direction = 'Input'
+        param_3.datatype = 'Field'
+        param_3.parameterDependencies = ["Input_Table"]
+
+        # Start_Y_Field__latitude_
+        param_4 = arcpy.Parameter()
+        param_4.name = 'Start_Y_Field__latitude_'
+        param_4.displayName = 'Start Y Field (latitude)'
+        param_4.parameterType = 'Optional'
+        param_4.direction = 'Input'
+        param_4.datatype = 'Field'
+        param_4.parameterDependencies = ["Input_Table"]
+
+        # End_Point_Format
+        param_5 = arcpy.Parameter()
+        param_5.name = 'End_Point_Format'
+        param_5.displayName = 'End Point Format'
+        param_5.parameterType = 'Required'
+        param_5.direction = 'Input'
+        param_5.datatype = 'String'
+        param_5.value = defaultcoordinateFormat
+        param_5.filter.list = coordinateFormats
+
+        # End_X_Field__longitude__UTM__MGRS__USNG__GARS__GEOREF_
+        param_6 = arcpy.Parameter()
+        param_6.name = 'End_X_Field__longitude__UTM__MGRS__USNG__GARS__GEOREF_'
+        param_6.displayName = 'End X Field (longitude, UTM, MGRS, USNG, GARS, GEOREF)'
+        param_6.parameterType = 'Required'
+        param_6.direction = 'Input'
+        param_6.datatype = 'Field'
+        param_6.parameterDependencies = ["Input_Table"]
+
+        # End_Y_Field__latitude_
+        param_7 = arcpy.Parameter()
+        param_7.name = 'End_Y_Field__latitude_'
+        param_7.displayName = 'End Y Field (latitude)'
+        param_7.parameterType = 'Optional'
+        param_7.direction = 'Input'
+        param_7.datatype = 'Field'
+        param_7.parameterDependencies = ["Input_Table"]
+
+        # Output_Lines
+        param_8 = arcpy.Parameter()
+        param_8.name = 'Output_Lines'
+        param_8.displayName = 'Output Lines'
+        param_8.parameterType = 'Required'
+        param_8.direction = 'Output'
+        param_8.datatype = 'Feature Class'
+        param_8.value = '%scratchGDB%/outputLines'
+        # Possible TODO: add symbology if desired:
+        # param_8.symbology = 
+
+        # Line_Type
+        param_9 = arcpy.Parameter()
+        param_9.name = 'Line_Type'
+        param_9.displayName = 'Line Type'
+        param_9.parameterType = 'Optional'
+        param_9.direction = 'Input'
+        param_9.datatype = 'String'
+        param_9.value = defaultLineType
+        param_9.filter.list = lineTypes
+
+        # Spatial_Reference
+        param_10 = arcpy.Parameter()
+        param_10.name = 'Spatial_Reference'
+        param_10.displayName = 'Spatial Reference'
+        param_10.parameterType = 'Optional'
+        param_10.direction = 'Input'
+        param_10.datatype = 'Spatial Reference'
+        param_10.value = srWGS84.exportToString()
+
+        return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8, param_9, param_10]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateParameters()
+
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+
+    def execute(self, parameters, messages):
+
+        inputTable = parameters[0].valueAsText # Input Table
+        inputStartCoordinateFormat = parameters[1].valueAsText # Start Point Format (from Value List)
+        inputStartXField = parameters[2].valueAsText # Start X Field (longitude, UTM, MGRS, USNG, GARS, GEOREF)(from Input Table)
+        inputStartYField = parameters[3].valueAsText # Start Y Field (latitude)(from Input Table)
+        inputEndCoordinateFormat = parameters[4].valueAsText # End Point Format (from Value List)
+        inputEndXField = parameters[5].valueAsText # End X Field (longitude, UTM, MGRS, USNG, GARS, GEOREF)(from Input Table)
+        inputEndYField = parameters[6].valueAsText # End Y Field (latitude) (from Input Table)
+        outputLineFeatures = parameters[7].valueAsText # Output Line
+        inputLineType = parameters[8].valueAsText # Line Type (from Value List)
+        optionalSpatialReference = parameters[9].value # Spatial Reference
+        optionalSpatialReferenceAsText = parameters[9].valueAsText
+
+        if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
+            optionalSpatialReference = srWGS84 #GCS_WGS_1984
+
+        arcpy.env.overwriteOutput = True
+
+        outputLineFeaturesOut = ConversionUtilities.tableTo2PointLine(inputTable,
+                                              inputStartCoordinateFormat,
+                                              inputStartXField,
+                                              inputStartYField,
+                                              inputEndCoordinateFormat,
+                                              inputEndXField,
+                                              inputEndYField,
+                                              outputLineFeatures,
+                                              inputLineType,
+                                              optionalSpatialReference)
+
+        # Set output
+        return outputLineFeaturesOut
+
+    # END TableTo2PointLine
 
 
-
+# *******************************************************************************************************
+# OLD TOOLS:
+# *******************************************************************************************************
 
 
 # -----------------------------------------------------------------------------

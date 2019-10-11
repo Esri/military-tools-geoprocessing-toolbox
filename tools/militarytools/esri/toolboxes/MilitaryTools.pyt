@@ -55,6 +55,9 @@ class Toolbox(object):
         self.tools = [
 					# Conversion 
 					GenerateCoordinateNotations,
+					CoordinateTableToPoint,
+					CoordinateTableTo2PointLine, 
+					CoordinateTableToEllipse,
 
 					# OLD/ORIGINAL TOOLS:
 					# ConvertCoordinates,
@@ -63,7 +66,6 @@ class Toolbox(object):
 					# TableToPoint, 
 					# TableToPolygon, 
 					# TableToPolyline, 
-					# TableToEllipse,
 
 					# DistanceAndDirection
 					GenerateRangeRings,
