@@ -102,8 +102,18 @@ class TableToTwoPointLineTestCase(unittest.TestCase):
         runToolMessage = ".....TableToTwoPointLineTestCase.test_table_to_twopointline"
         Configuration.Logger.info(runToolMessage)
 
-        arcpy.TableTo2PointLine_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", "DD_2", \
-            "POINT_X2", "POINT_Y2", self.outputLines, "GEODESIC")
+        #0 - Input Table
+        #1 - Output Lines
+        #2 - Start X Field
+        #3 - End X Field
+        #4 - Input Coordinate Format
+        #5 - Start Y Field (Optional)
+        #6 - End Y Field (Optional)
+        #7 - Line Type (Optional)
+        #8 - Input Coordinate System  (Optional)         
+        arcpy.CoordinateTableTo2PointLine_military(self.inputTable, self.outputLines, \
+                                                    "POINT_X", "POINT_X2", "DD_2", \
+                                                    "POINT_Y", "POINT_Y2",  "GEODESIC")
 
         # Check 1
         # Does the output feature class exist.
@@ -144,7 +154,6 @@ class TableToTwoPointLineTestCase(unittest.TestCase):
        
         return
 
-
     #Test GARS
     def test_table_to_twopointline_GARS(self):
         '''Test Table To Two Point Line with GARS for ArcGIS Desktop'''
@@ -156,8 +165,8 @@ class TableToTwoPointLineTestCase(unittest.TestCase):
         runToolMessage = ".....TableToTwoPointLineTestCase.test_table_to_twopointline_GARS"
         Configuration.Logger.info(runToolMessage)
 
-        arcpy.TableTo2PointLine_mt(self.inputSingleTable, "GARS", "GARS_1", None, \
-            "GARS", "GARS_2", None, self.outputLines, "GEODESIC")
+        arcpy.CoordinateTableTo2PointLine_military(self.inputSingleTable, self.outputLines, \
+                                                    "GARS_1", "GARS_2", "GARS")
 
         self.assertTrue(arcpy.Exists(self.outputLines), "Output features do not exist or were not created")
         lineCount = int(arcpy.GetCount_management(self.outputLines).getOutput(0))
@@ -175,8 +184,8 @@ class TableToTwoPointLineTestCase(unittest.TestCase):
 
         runToolMessage = ".....TableToTwoPointLineTestCase.test_table_to_twopointline_USNG"
         Configuration.Logger.info(runToolMessage)
-        arcpy.TableTo2PointLine_mt(self.inputSingleTable, "USNG", "USNG_1", None, "USNG", "USNG_2", \
-            None, self.outputLines, "GEODESIC")
+        arcpy.CoordinateTableTo2PointLine_military(self.inputSingleTable, self.outputLines, \
+                                                    "USNG_1", "USNG_2", "USNG")
 
         self.assertTrue(arcpy.Exists(self.outputLines), "Output features do not exist or were not created")
         lineCount = int(arcpy.GetCount_management(self.outputLines).getOutput(0))
@@ -195,8 +204,8 @@ class TableToTwoPointLineTestCase(unittest.TestCase):
         runToolMessage = ".....TableToTwoPointLineTestCase.test_table_to_twopointline_MGRS"
         Configuration.Logger.info(runToolMessage)
 
-        arcpy.TableTo2PointLine_mt(self.inputSingleTable, "MGRS", "MGRS_1", None, \
-            "MGRS", "MGRS_2", None, self.outputLines, "GEODESIC")
+        arcpy.CoordinateTableTo2PointLine_military(self.inputSingleTable, self.outputLines, \
+                                                    "MGRS_1", "MGRS_2", "MGRS")
 
         self.assertTrue(arcpy.Exists(self.outputLines), "Output features do not exist or were not created")
         lineCount = int(arcpy.GetCount_management(self.outputLines).getOutput(0))
@@ -215,8 +224,8 @@ class TableToTwoPointLineTestCase(unittest.TestCase):
         runToolMessage = ".....TableToTwoPointLineTestCase.test_table_to_twopointline_GEOREF"
         Configuration.Logger.info(runToolMessage)
 
-        arcpy.TableTo2PointLine_mt(self.inputSingleTable, "GEOREF", "GEOREF_1", None, \
-            "GEOREF", "GEOREF_2", None, self.outputLines, "GEODESIC")
+        arcpy.CoordinateTableTo2PointLine_military(self.inputSingleTable, self.outputLines, \
+                                                    "GEOREF_1", "GEOREF_2", "GEOREF")
 
         self.assertTrue(arcpy.Exists(self.outputLines), "Output features do not exist or were not created")
         lineCount = int(arcpy.GetCount_management(self.outputLines).getOutput(0))
@@ -235,8 +244,8 @@ class TableToTwoPointLineTestCase(unittest.TestCase):
         runToolMessage = ".....TableToTwoPointLineTestCase.test_table_to_twopointline_UTM_BANDS"
         Configuration.Logger.info(runToolMessage)
 
-        arcpy.TableTo2PointLine_mt(self.inputSingleTable, "UTM_BANDS", "UTM_BANDS_1", None, \
-            "UTM_BANDS", "UTM_2", None, self.outputLines, "GEODESIC")
+        arcpy.CoordinateTableTo2PointLine_military(self.inputSingleTable, self.outputLines, \
+                                                    "UTM_BANDS_1", "UTM_2", "UTM_BANDS")
 
         self.assertTrue(arcpy.Exists(self.outputLines), "Output features do not exist or were not created")
         lineCount = int(arcpy.GetCount_management(self.outputLines).getOutput(0))

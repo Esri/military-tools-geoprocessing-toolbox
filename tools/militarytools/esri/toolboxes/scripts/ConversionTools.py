@@ -245,7 +245,7 @@ class CoordinateTableToPoint(object):
             #5 - Input Coordinate System (Optional)
             if self.params[3].altered:
                 if self.params[3].value in singleFieldTypes:
-                    self.params[4].value = self.params[3].value
+                    self.params[4].value = self.params[2].value
                     self.params[4].enabled = False
                 else:
                     self.params[4].enabled = True
@@ -420,7 +420,7 @@ class CoordinateTableToEllipse(object):
             #10 - Input Coordinate System  
             if self.params[5].altered:
                 if self.params[5].value in singleFieldTypes:
-                    self.params[7].value = self.params[6].value
+                    self.params[7].value = self.params[2].value
                     self.params[7].enabled = False
                 else:
                     self.params[7].enabled = True

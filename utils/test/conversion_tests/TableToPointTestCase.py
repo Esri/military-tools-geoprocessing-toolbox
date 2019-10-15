@@ -105,7 +105,7 @@ class TableToPointTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMixi
         if arcpy.Exists(self.outputPoints) :
             arcpy.Delete_management(self.outputPoints)
 
-        arcpy.TableToPoint_mt(self.inputTable, "DD_2", "x", "y", self.outputPoints)
+        arcpy.CoordinateTableToPoint_military(self.inputTable, self.outputPoints, "x",  "DD_2", "y")
 
         self.assertTrue(arcpy.Exists(self.outputPoints), "Output features do not exist or were not created")
         pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
@@ -131,7 +131,7 @@ class TableToPointTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMixi
 
         napervilleSR = arcpy.SpatialReference(3443) # 3443 = NAD_1983_HARN_StatePlane_Illinois_East_FIPS_1201_Feet
 
-        arcpy.TableToPoint_mt(self.inputTableDifferentSR, "DD_2", "POINT_X", "POINT_Y", self.outputPoints, napervilleSR)
+        arcpy.CoordinateTableToPoint_military(self.inputTableDifferentSR, self.outputPoints, "POINT_X", "DD_2", "POINT_Y", napervilleSR)
 
         self.assertTrue(arcpy.Exists(self.outputPoints), "Output features do not exist or were not created")
         pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
@@ -161,7 +161,7 @@ class TableToPointTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMixi
         if arcpy.Exists(self.outputPoints) :
             arcpy.Delete_management(self.outputPoints)
 
-        arcpy.TableToPoint_mt(self.inputSingleTable, "MGRS", "MGRS", None, self.outputPoints)
+        arcpy.CoordinateTableToPoint_military(self.inputSingleTable, self.outputPoints, "MGRS", "MGRS")
 
         self.assertTrue(arcpy.Exists(self.outputPoints), "Output features do not exist or were not created")
         pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
@@ -183,7 +183,7 @@ class TableToPointTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMixi
         if arcpy.Exists(self.outputPoints) :
             arcpy.Delete_management(self.outputPoints)
 
-        arcpy.TableToPoint_mt(self.inputSingleTable, "GARS", "GARS", None, self.outputPoints)
+        arcpy.CoordinateTableToPoint_military(self.inputSingleTable, self.outputPoints, "GARS", "GARS")
 
         self.assertTrue(arcpy.Exists(self.outputPoints), "Output features do not exist or were not created")
         pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
@@ -205,7 +205,7 @@ class TableToPointTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMixi
         if arcpy.Exists(self.outputPoints) :
             arcpy.Delete_management(self.outputPoints)
 
-        arcpy.TableToPoint_mt(self.inputSingleTable, "GEOREF", "GEOREF", None, self.outputPoints)
+        arcpy.CoordinateTableToPoint_military(self.inputSingleTable, self.outputPoints, "GEOREF", "GEOREF")
 
         self.assertTrue(arcpy.Exists(self.outputPoints), "Output features do not exist or were not created")
         pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
@@ -227,7 +227,7 @@ class TableToPointTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMixi
         if arcpy.Exists(self.outputPoints) :
             arcpy.Delete_management(self.outputPoints)
 
-        arcpy.TableToPoint_mt(self.inputSingleTable, "USNG", "USNG", None, self.outputPoints)
+        arcpy.CoordinateTableToPoint_military(self.inputSingleTable, self.outputPoints, "USNG", "USNG")
 
         self.assertTrue(arcpy.Exists(self.outputPoints), "Output features do not exist or were not created")
         pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))
@@ -249,7 +249,7 @@ class TableToPointTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertMixi
         if arcpy.Exists(self.outputPoints) :
             arcpy.Delete_management(self.outputPoints)
 
-        arcpy.TableToPoint_mt(self.inputSingleTable, "UTM_BANDS", "UTM", None, self.outputPoints)
+        arcpy.CoordinateTableToPoint_military(self.inputSingleTable, self.outputPoints, "UTM", "UTM_BANDS")
 
         self.assertTrue(arcpy.Exists(self.outputPoints), "Output features do not exist or were not created")
         pointCount = int(arcpy.GetCount_management(self.outputPoints).getOutput(0))

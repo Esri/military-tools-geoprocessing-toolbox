@@ -84,8 +84,9 @@ class ConvertCoordinatesTestCase(unittest.TestCase):
         arcpy.ImportToolbox(Configuration.toolboxUnderTest)
         
         arcpy.GenerateCoordinateNotations_military(self.inputTable, self.outputConvert,
-                                    "DD_2", 
-                                    "Location_X", "Location_Y")
+                                                    "Location_X", 
+                                                    "DD_2",                                    
+                                                    "Location_Y")
         
         self.assertTrue(arcpy.Exists(self.outputConvert), "Output features do not exist or were not created")
         
@@ -94,7 +95,7 @@ class ConvertCoordinatesTestCase(unittest.TestCase):
         self.assertGreaterEqual(featureCount, expectedFeatures, "Expected %s features, but got %s" % (str(expectedFeatures), str(featureCount)))
 
         # Were all of the expected added?
-        expected_field_names = ["DDLat","DDLon","DMSLat","DMSLon","DDMLat","DDMLon","MGRS","USNG","UTM_BANDS","GEOREF","GARS"]
+        expected_field_names = ["DDLat", "DDLon", "DMSLat", "DMSLon", "DDMLat", "DDMLon", "MGRS", "USNG", "UTM_BANDS", "GEOREF", "GARS"]
         field_list = arcpy.ListFields(self.outputConvert)
         out_field_names_list = []
         for out_field in field_list:
