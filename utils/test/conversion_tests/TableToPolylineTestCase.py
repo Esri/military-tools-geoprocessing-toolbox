@@ -103,10 +103,8 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
         if arcpy.Exists(self.outputPolylines) :
             arcpy.Delete_management(self.outputPolylines)
 
-
-        toolOutput = arcpy.TableToPolyline_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", \
-            self.outputPolylines, "Group_")
-
+        toolOutput = arcpy.CoordinateTableToPolyline_military(self.inputTable, self.outputPolylines, \
+                                                "POINT_X", "DD_2", "POINT_Y", "Group_")
 
         # 1: Check the expected return value
         self.assertIsNotNone(toolOutput, "No output returned from tool")
@@ -135,8 +133,6 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
 
         return  
 
-
-
     def test_table_to_polyline_MGRS(self):
         '''Test Table To Polyline for ArcGIS Desktop_MGRS'''
 
@@ -146,7 +142,7 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
         if arcpy.Exists(self.outputPolylines) :
             arcpy.Delete_management(self.outputPolylines)
 
-        arcpy.TableToPolyline_mt(self.inputSingleTable, "MGRS", "MGRS", None, self.outputPolylines)
+        arcpy.CoordinateTableToPolyline_military(self.inputSingleTable, self.outputPolylines, "MGRS", "MGRS")
 
         self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
         polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
@@ -168,7 +164,7 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
         if arcpy.Exists(self.outputPolylines) :
             arcpy.Delete_management(self.outputPolylines)
 
-        arcpy.TableToPolyline_mt(self.inputSingleTable, "GARS", "GARS", None, self.outputPolylines)
+        arcpy.CoordinateTableToPolyline_military(self.inputSingleTable, self.outputPolylines, "GARS", "GARS")
 
         self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
         polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
@@ -190,7 +186,7 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
         if arcpy.Exists(self.outputPolylines) :
             arcpy.Delete_management(self.outputPolylines)
 
-        arcpy.TableToPolyline_mt(self.inputSingleTable, "GEOREF", "GEOREF", None, self.outputPolylines)
+        arcpy.CoordinateTableToPolyline_military(self.inputSingleTable, self.outputPolylines, "GEOREF", "GEOREF")
 
         self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
         polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
@@ -212,7 +208,7 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
         if arcpy.Exists(self.outputPolylines) :
             arcpy.Delete_management(self.outputPolylines)
 
-        arcpy.TableToPolyline_mt(self.inputSingleTable, "USNG", "USNG", None, self.outputPolylines)
+        arcpy.CoordinateTableToPolyline_military(self.inputSingleTable, self.outputPolylines, "USNG", "USNG")
 
         self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
         polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
@@ -234,7 +230,7 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
         if arcpy.Exists(self.outputPolylines) :
             arcpy.Delete_management(self.outputPolylines)
 
-        arcpy.TableToPolyline_mt(self.inputSingleTable, "UTM_BANDS", "UTM", None, self.outputPolylines)
+        arcpy.CoordinateTableToPolyline_military(self.inputSingleTable, self.outputPolylines, "UTM", "UTM_BANDS")
 
         self.assertTrue(arcpy.Exists(self.outputPolylines), "Output features do not exist or were not created")
         polylineCount = int(arcpy.GetCount_management(self.outputPolylines).getOutput(0))
@@ -258,9 +254,8 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
             arcpy.Delete_management(self.outputPolylines)
 
 
-        toolOutput = arcpy.TableToPolyline_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", \
-            self.outputPolylines, "Group_")
-
+        toolOutput = arcpy.CoordinateTableToPolyline_military(self.inputTable, self.outputPolylines, \
+                                                "POINT_X", "DD_2", "POINT_Y", "Group_")
 
         # 1: Check the expected return value
         self.assertIsNotNone(toolOutput, "No output returned from tool")
@@ -289,7 +284,6 @@ class TableToPolylineTestCase(unittest.TestCase, arcpyAssert.FeatureClassAssertM
         input_table_row_count = int(arcpy.GetCount_management(self.inputTable).getOutput(0))
         self.assertEqual(vertex_count, input_table_row_count, "Expected %s vertices, but got %s" % (str(input_table_row_count), str(vertex_count)))
         return
-
 
 if __name__ == "__main__":
     unittest.main()

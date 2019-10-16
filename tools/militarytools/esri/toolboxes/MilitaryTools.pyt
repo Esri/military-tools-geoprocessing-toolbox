@@ -58,6 +58,9 @@ class Toolbox(object):
 					CoordinateTableToPoint,
 					CoordinateTableTo2PointLine, 
 					CoordinateTableToEllipse,
+					CoordinateTableToPolygon,
+					CoordinateTableToPolyline,
+					CoordinateTableToLineOfBearing, 
 
 					# OLD/ORIGINAL TOOLS:
 					# ConvertCoordinates,

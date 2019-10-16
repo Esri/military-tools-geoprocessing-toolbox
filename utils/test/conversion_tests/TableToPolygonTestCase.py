@@ -96,7 +96,17 @@ class TableToPolygonTestCase(unittest.TestCase):
         if arcpy.Exists(self.outputPolygons) :
             arcpy.Delete_management(self.outputPolygons)
 
-        arcpy.TableToPolygon_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolygons)
+        #0 - Input Table
+        #1 - Output Features
+		#2 - X Field
+        #3 - Input Coordinate Format
+        #4 - Y Field (Optional)
+        #5 - Line Grouping Field (Optional)
+        #6 - Sort Field (Optional)
+        #7 - Input Coordinate System (Optional)
+
+        arcpy.CoordinateTableToPolygon_military(self.inputTable, self.outputPolygons, \
+                                                "POINT_X", "DD_2", "POINT_Y")
 
         self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
         polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
@@ -116,7 +126,8 @@ class TableToPolygonTestCase(unittest.TestCase):
 
         # Note: tool fails when run with input "Name" and "Vsort" fields as params
         groupingFieldName = 'Name'
-        toolOutput = arcpy.TableToPolygon_mt(self.inputTable, "DD_2", "POINT_X", "POINT_Y", self.outputPolygons, groupingFieldName, "Vsort")
+        toolOutput = arcpy.CoordinateTableToPolygon_military(self.inputTable, self.outputPolygons, \
+                                                "POINT_X", "DD_2", "POINT_Y", groupingFieldName, "Vsort")
 
         # 1: Check the expected return value
         self.assertIsNotNone(toolOutput, "No output returned from tool")
@@ -150,7 +161,7 @@ class TableToPolygonTestCase(unittest.TestCase):
         if arcpy.Exists(self.outputPolygons) :
             arcpy.Delete_management(self.outputPolygons)
 
-        arcpy.TableToPolygon_mt(self.inputSingleTable, "MGRS", "MGRS", None, self.outputPolygons)
+        arcpy.CoordinateTableToPolygon_military(self.inputSingleTable, self.outputPolygons, "MGRS", "MGRS")
 
         self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
         polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
@@ -168,7 +179,7 @@ class TableToPolygonTestCase(unittest.TestCase):
         if arcpy.Exists(self.outputPolygons) :
             arcpy.Delete_management(self.outputPolygons)
 
-        arcpy.TableToPolygon_mt(self.inputSingleTable, "GARS", "GARS", None, self.outputPolygons)
+        arcpy.CoordinateTableToPolygon_military(self.inputSingleTable, self.outputPolygons, "GARS", "GARS")
 
         self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
         polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
@@ -186,7 +197,7 @@ class TableToPolygonTestCase(unittest.TestCase):
         if arcpy.Exists(self.outputPolygons) :
             arcpy.Delete_management(self.outputPolygons)
 
-        arcpy.TableToPolygon_mt(self.inputSingleTable, "GEOREF", "GEOREF", None, self.outputPolygons)
+        arcpy.CoordinateTableToPolygon_military(self.inputSingleTable, self.outputPolygons, "GEOREF", "GEOREF")
 
         self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
         polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
@@ -204,7 +215,7 @@ class TableToPolygonTestCase(unittest.TestCase):
         if arcpy.Exists(self.outputPolygons) :
             arcpy.Delete_management(self.outputPolygons)
 
-        arcpy.TableToPolygon_mt(self.inputSingleTable, "USNG", "USNG", None, self.outputPolygons)
+        arcpy.CoordinateTableToPolygon_military(self.inputSingleTable, self.outputPolygons, "USNG", "USNG")
 
         self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
         polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))
@@ -222,7 +233,7 @@ class TableToPolygonTestCase(unittest.TestCase):
         if arcpy.Exists(self.outputPolygons) :
             arcpy.Delete_management(self.outputPolygons)
 
-        arcpy.TableToPolygon_mt(self.inputSingleTable, "UTM_BANDS", "UTM", None, self.outputPolygons)
+        arcpy.CoordinateTableToPolygon_military(self.inputSingleTable, self.outputPolygons, "UTM", "UTM_BANDS")
 
         self.assertTrue(arcpy.Exists(self.outputPolygons), "Output polygons do not exist or were not created")
         polygonCount = int(arcpy.GetCount_management(self.outputPolygons).getOutput(0))

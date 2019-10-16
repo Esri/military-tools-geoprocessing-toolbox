@@ -845,6 +845,671 @@ class CoordinateTableTo2PointLine(object):
 
     # END TableTo2PointLine
 
+# -----------------------------------------------------------------------------
+# CoordinateTableToPolygon Tool
+# -----------------------------------------------------------------------------
+class CoordinateTableToPolygon(object):
+    '''
+    Use an input table to create polygons
+    '''
+
+    class ToolValidator(object):
+        """Class for validating a tool's parameter values and controlling
+        the behavior of the tool's dialog."""
+          
+        def __init__(self, parameters):
+            """Setup arcpy and the list of tool parameters."""
+            self.params = parameters
+    
+        def initializeParameters(self):
+            """Refine the properties of a tool's parameters.  This method is
+            called when the tool is opened."""
+            #0 - Input Table
+            #1 - Output Features
+			#2 - X Field
+            #3 - Input Coordinate Format
+            #4 - Y Field (Optional)
+            #5 - Line Grouping Field (Optional)
+            #6 - Sort Field (Optional)
+            #7 - Input Coordinate System (Optional)
+        
+            return
+    
+        def updateParameters(self):
+            """Modify the values and properties of parameters before internal
+            validation is performed.  This method is called whenever a parameter
+            has been changed."""
+            #0 - Input Table
+            #1 - Output Features
+			#2 - X Field
+            #3 - Input Coordinate Format
+            #4 - Y Field (Optional)
+            #5 - Line Grouping Field (Optional)
+            #6 - Sort Field (Optional)
+            #7 - Input Coordinate System (Optional)
+            if self.params[3].altered:
+                if self.params[3].value in singleFieldTypes:
+                    self.params[4].value = self.params[2].value
+                    self.params[4].enabled = False
+                else:
+                    self.params[4].enabled = True
+
+            return
+    
+        def updateMessages(self):
+            """Modify the messages created by internal validation for each tool
+            parameter.  This method is called after internal validation."""
+            #0 - Input Table
+            #1 - Output Features
+			#2 - X Field
+            #3 - Input Coordinate Format
+            #4 - Y Field (Optional)
+            #5 - Line Grouping Field (Optional)
+            #6 - Sort Field (Optional)
+            #7 - Input Coordinate System (Optional)
+            if not self.params[3].value in singleFieldTypes:
+                if self.params[4].value == None or self.params[4].value == "":
+                    self.params[4].setErrorMessage(coordinate2ErrorMsg)
+
+            return
+
+        # END ToolValidator
+
+    def __init__(self):
+        self.label = 'Coordinate Table To Polygon'
+        self.description = 'Converts an input table of vertex points to one or more polygon features.'
+        self.category = 'Conversion'
+        self.canRunInBackground = False
+        
+    def getParameterInfo(self):
+
+        # in_table
+        param_1 = arcpy.Parameter()
+        param_1.name = 'in_table'
+        param_1.displayName = 'Input Table'
+        param_1.parameterType = 'Required'
+        param_1.direction = 'Input'
+        param_1.datatype = 'Table View'
+        param_1.displayOrder = 0
+     
+        # output_features
+        param_2 = arcpy.Parameter()
+        param_2.name = 'output_features'
+        param_2.displayName = 'Output Polygon Features'
+        param_2.parameterType = 'Required'
+        param_2.direction = 'Output'
+        param_2.datatype = 'Feature Class'
+        param_2.value = 'outputPolygons'
+        param_2.displayOrder = 4
+
+        # x_or_longitude_field
+        param_3 = arcpy.Parameter()
+        param_3.name = 'x_or_longitude_field'
+        param_3.displayName = 'X Field (Longitude, UTM, MGRS, USNG, GARS, GeoRef)'
+        param_3.parameterType = 'Required'
+        param_3.direction = 'Input'
+        param_3.datatype = 'Field'
+        param_3.parameterDependencies = ["in_table"]
+        param_3.displayOrder = 2
+
+        # input_coordinate_format
+        param_4 = arcpy.Parameter()
+        param_4.name = 'input_coordinate_format'
+        param_4.displayName = 'Input Coordinate Format'
+        param_4.parameterType = 'Required'
+        param_4.direction = 'Input'
+        param_4.datatype = 'String'
+        param_4.value = defaultcoordinateFormat
+        param_4.filter.list = coordinateFormats
+        param_4.displayOrder = 1
+        
+        # y_or_latitude_field
+        param_5 = arcpy.Parameter()
+        param_5.name = 'y_or_latitude_field'
+        param_5.displayName = 'Y Field (Latitude)'
+        param_5.parameterType = 'Optional'
+        param_5.direction = 'Input'
+        param_5.datatype = 'Field'
+        param_5.parameterDependencies = ["in_table"]
+        param_5.displayOrder = 3
+             
+        # line_group_field
+        param_6 = arcpy.Parameter()
+        param_6.name = 'line_group_field'
+        param_6.displayName = 'Line Grouping Field'
+        param_6.parameterType = 'Optional'
+        param_6.direction = 'Input'
+        param_6.datatype = 'Field'
+        param_6.parameterDependencies = ["in_table"]
+        param_6.displayOrder = 5
+                
+        # sort_field
+        param_7 = arcpy.Parameter()
+        param_7.name = 'sort_field'
+        param_7.displayName = 'Sort Field'
+        param_7.parameterType = 'Optional'
+        param_7.direction = 'Input' 
+        param_7.datatype = 'Field'
+        param_7.parameterDependencies = ["in_table"]
+        param_7.displayOrder = 6
+                
+        # in_coordinate_system
+        param_8 = arcpy.Parameter()
+        param_8.name = 'in_coordinate_system'
+        param_8.displayName = 'Input Coordinate System'
+        param_8.parameterType = 'Optional'
+        param_8.direction = 'Input'
+        param_8.datatype = 'Spatial Reference'
+        param_8.value = srWGS84.exportToString()
+        param_8.displayOrder = 7
+               
+        return [param_1,
+                param_2,
+                param_3,
+                param_4,
+                param_5,
+                param_6,
+                param_7,
+                param_8]
+    
+    def isLicensed(self):
+        return True
+        
+    def updateParameters(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+            return validator(parameters).updateParameters()
+            
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+            return validator(parameters).updateMessages()
+            
+    def execute(self, parameters, messages):
+                
+        inputTable = parameters[0].valueAsText
+        outputPolygonFeatures = parameters[1].valueAsText
+        inputXField = parameters[2].valueAsText
+        inputCoordinateFormat = parameters[3].valueAsText
+        inputYField = parameters[4].valueAsText 
+        inputLineField = parameters[5].valueAsText
+        inputSortField = parameters[6].valueAsText
+        optionalSpatialReference = parameters[7].value
+        optionalSpatialReferenceAsText = parameters[7].valueAsText
+            
+        if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
+            optionalSpatialReference = srWGS84 #GCS_WGS_1984
+                        
+        #get/set environment
+        arcpy.env.overwriteOutput = True
+        
+        #call tool method
+        outputPolygonFeaturesOut = ConversionUtilities.tableToPolygon(inputTable,
+                                                         inputCoordinateFormat,
+                                                         inputXField,
+                                                         inputYField,
+                                                         outputPolygonFeatures,
+                                                         inputLineField,
+                                                         inputSortField,
+                                                         optionalSpatialReference)
+        #set output
+        return outputPolygonFeaturesOut
+
+    # END TableToPolygon
+
+# -----------------------------------------------------------------------------
+# CoordinateTableToPolyline Tool
+# -----------------------------------------------------------------------------
+class CoordinateTableToPolyline(object):
+
+    class ToolValidator(object):
+    
+        def __init__(self, parameters):
+            """Setup arcpy and the list of tool parameters."""
+            self.params = parameters
+    
+        def initializeParameters(self):
+            """Refine the properties of a tool's parameters.  This method is
+            called when the tool is opened."""
+            #0 - Input Table
+            #1 - Output Features
+			#2 - X Field
+            #3 - Input Coordinate Format
+            #4 - Y Field (Optional)
+            #5 - Line Grouping Field (Optional)
+            #6 - Sort Field (Optional)
+            #7 - Input Coordinate System (Optional)
+
+            return
+    
+        def updateParameters(self):
+            """Modify the values and properties of parameters before internal
+            validation is performed.  This method is called whenever a parameter
+            has been changed."""
+            #0 - Input Table
+            #1 - Output Features
+			#2 - X Field
+            #3 - Input Coordinate Format
+            #4 - Y Field (Optional)
+            #5 - Line Grouping Field (Optional)
+            #6 - Sort Field (Optional)
+            #7 - Input Coordinate System (Optional)
+
+            if self.params[3].altered:
+                if self.params[3].value in singleFieldTypes:
+                    self.params[4].value = self.params[2].value
+                    self.params[4].enabled = False
+                else:
+                    self.params[4].enabled = True
+ 
+            return
+    
+        def updateMessages(self):
+            """Modify the messages created by internal validation for each tool
+            parameter.  This method is called after internal validation."""
+            #0 - Input Table
+            #1 - Output Features
+			#2 - X Field
+            #3 - Input Coordinate Format
+            #4 - Y Field (Optional)
+            #5 - Line Grouping Field (Optional)
+            #6 - Sort Field (Optional)
+            #7 - Input Coordinate System (Optional)
+
+            if not self.params[3].value in singleFieldTypes:
+                if self.params[4].value == None or self.params[4].value == "":
+                    self.params[4].setErrorMessage(coordinate2ErrorMsg)
+           
+            return
+            
+        # END ToolValidator
+
+    def __init__(self):
+        self.label = 'Coordinate Table To Polyline'
+        self.description = 'Creates polyline features from tabular coordinates.'
+        self.category = 'Conversion'
+        self.canRunInBackground = False
+
+    def getParameterInfo(self):
+
+        # in_table
+        param_1 = arcpy.Parameter()
+        param_1.name = 'in_table'
+        param_1.displayName = 'Input Table'
+        param_1.parameterType = 'Required'
+        param_1.direction = 'Input'
+        param_1.datatype = 'Table View'
+        param_1.displayOrder = 0
+     
+        # output_features
+        param_2 = arcpy.Parameter()
+        param_2.name = 'output_features'
+        param_2.displayName = 'Output Polyline Features'
+        param_2.parameterType = 'Required'
+        param_2.direction = 'Output'
+        param_2.datatype = 'Feature Class'
+        param_2.value = 'outputPolylines'
+        param_2.displayOrder = 4
+
+        # x_or_longitude_field
+        param_3 = arcpy.Parameter()
+        param_3.name = 'x_or_longitude_field'
+        param_3.displayName = 'X Field (Longitude, UTM, MGRS, USNG, GARS, GeoRef)'
+        param_3.parameterType = 'Required'
+        param_3.direction = 'Input'
+        param_3.datatype = 'Field'
+        param_3.parameterDependencies = ["in_table"]
+        param_3.displayOrder = 2
+
+        # input_coordinate_format
+        param_4 = arcpy.Parameter()
+        param_4.name = 'input_coordinate_format'
+        param_4.displayName = 'Input Coordinate Format'
+        param_4.parameterType = 'Required'
+        param_4.direction = 'Input'
+        param_4.datatype = 'String'
+        param_4.value = defaultcoordinateFormat
+        param_4.filter.list = coordinateFormats
+        param_4.displayOrder = 1
+        
+        # y_or_latitude_field
+        param_5 = arcpy.Parameter()
+        param_5.name = 'y_or_latitude_field'
+        param_5.displayName = 'Y Field (Latitude)'
+        param_5.parameterType = 'Optional'
+        param_5.direction = 'Input'
+        param_5.datatype = 'Field'
+        param_5.parameterDependencies = ["in_table"]
+        param_5.displayOrder = 3
+             
+        # line_group_field
+        param_6 = arcpy.Parameter()
+        param_6.name = 'line_group_field'
+        param_6.displayName = 'Line Grouping Field'
+        param_6.parameterType = 'Optional'
+        param_6.direction = 'Input'
+        param_6.datatype = 'Field'
+        param_6.parameterDependencies = ["in_table"]
+        param_6.displayOrder = 5
+                
+        # sort_field
+        param_7 = arcpy.Parameter()
+        param_7.name = 'sort_field'
+        param_7.displayName = 'Sort Field'
+        param_7.parameterType = 'Optional'
+        param_7.direction = 'Input' 
+        param_7.datatype = 'Field'
+        param_7.parameterDependencies = ["in_table"]
+        param_7.displayOrder = 6
+                
+        # in_coordinate_system
+        param_8 = arcpy.Parameter()
+        param_8.name = 'in_coordinate_system'
+        param_8.displayName = 'Input Coordinate System'
+        param_8.parameterType = 'Optional'
+        param_8.direction = 'Input'
+        param_8.datatype = 'Spatial Reference'
+        param_8.value = srWGS84.exportToString()
+        param_8.displayOrder = 7
+
+        return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateParameters()
+
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+
+    def execute(self, parameters, messages):
+
+        inputTable = parameters[0].valueAsText # Input Table
+        outputPolylineFeatures = parameters[1].valueAsText # Output Polygon Features
+        inputXField = parameters[2].valueAsText # X Field (Longitude, UTM, MGRS, USNG, GARS, GeoRef) - from inputTable
+        inputCoordinateFormat = parameters[3].valueAsText # Input Coordinate Format - from ValueList
+        inputYField = parameters[4].valueAsText # Y Field (Latitude)
+        inputLineField = parameters[5].valueAsText # Line Field (optional) - from inputTable
+        inputSortField = parameters[6].valueAsText # Sort Field (optional) - from inputTable
+        optionalSpatialReference = parameters[7].value # Spatial Reference
+        optionalSpatialReferenceAsText = parameters[7].valueAsText
+
+        if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
+            optionalSpatialReference = srWGS84 #GCS_WGS_1984
+
+        arcpy.env.overwriteOutput = True
+
+        outputPolylineFeaturesOut = ConversionUtilities.tableToPolyline(inputTable,
+                                            inputCoordinateFormat,
+                                            inputXField,
+                                            inputYField,
+                                            outputPolylineFeatures,
+                                            inputLineField,
+                                            inputSortField,
+                                            optionalSpatialReference)
+
+        return outputPolylineFeaturesOut
+
+    # END TableToPolyline
+
+# -----------------------------------------------------------------------------
+# CoordinateTableToLineOfBearing Tool
+# -----------------------------------------------------------------------------
+class CoordinateTableToLineOfBearing(object):
+
+    class ToolValidator(object):
+    
+        def __init__(self, parameters):
+            """Setup arcpy and the list of tool parameters."""
+            self.params = parameters
+    
+        def initializeParameters(self):
+            """Refine the properties of a tool's parameters.  This method is
+            called when the tool is opened."""
+            #0 - Input Table
+            #1 - Output Bearing Lines			
+            #2 - X Field
+            #3 - Bearing Field
+            #4 - Distance Field
+            #5 - Input Coordinate Format			
+            #6 - Bearing Units
+            #7 - Distance Units			
+            #8 - Y Field (Optional)
+            #9 - Line Type (Optional)
+            #10 - Input Coordinate System (Optional)
+
+            return
+    
+        def updateParameters(self):
+            """Modify the values and properties of parameters before internal
+            validation is performed.  This method is called whenever a parameter
+            has been changed."""
+
+            #0 - Input Table
+            #1 - Output Bearing Lines			
+            #2 - X Field
+            #3 - Bearing Field
+            #4 - Distance Field
+            #5 - Input Coordinate Format			
+            #6 - Bearing Units
+            #7 - Distance Units			
+            #8 - Y Field (Optional)
+            #9 - Line Type (Optional)
+            #10 - Input Coordinate System (Optional)
+
+            if self.params[5].altered:
+                if self.params[5].value in singleFieldTypes:
+                    self.params[8].value = self.params[2].value
+                    self.params[8].enabled = False
+                else:
+                    self.params[8].enabled = True
+
+            return
+    
+        def updateMessages(self):
+            """Modify the messages created by internal validation for each tool
+            parameter.  This method is called after internal validation."""
+
+            #0 - Input Table
+            #1 - Output Bearing Lines			
+            #2 - X Field
+            #3 - Bearing Field
+            #4 - Distance Field
+            #5 - Input Coordinate Format			
+            #6 - Bearing Units
+            #7 - Distance Units			
+            #8 - Y Field (Optional)
+            #9 - Line Type (Optional)
+            #10 - Input Coordinate System (Optional)
+
+            if not self.params[5].value in singleFieldTypes:
+                if self.params[8].value == None or self.params[8].value == "":
+                    self.params[8].setErrorMessage(coordinate2ErrorMsg)
+
+            return
+
+         # END ToolValidator
+   
+    def __init__(self):
+        self.label = 'Coordinate Table To Line Of Bearing'
+        self.description = 'Creates lines of bearing from tabular coordinates.   '
+        self.category = 'Conversion'
+        self.canRunInBackground = False
+
+    def getParameterInfo(self):
+
+        # in_table
+        param_1 = arcpy.Parameter()
+        param_1.name = 'in_table'
+        param_1.displayName = 'Input Table'
+        param_1.parameterType = 'Required'
+        param_1.direction = 'Input'
+        param_1.datatype = 'Table View'
+        param_1.displayOrder = 0
+
+        # output_features
+        param_2 = arcpy.Parameter()
+        param_2.name = 'output_features'
+        param_2.displayName = 'Output Bearing Lines'
+        param_2.parameterType = 'Required'
+        param_2.direction = 'Output'
+        param_2.datatype = 'Feature Class'
+        param_2.value = 'outputBearingLines'
+        param_2.displayOrder = 8
+        # Possible TODO: add symbology if desired:
+        # param_2.symbology = 
+ 
+        # x_or_longitude_field
+        param_3 = arcpy.Parameter()
+        param_3.name = 'x_or_longitude_field'
+        param_3.displayName = 'X Field (longitude, UTM, MGRS, USNG, GARS, GEOREF)'
+        param_3.parameterType = 'Required'
+        param_3.direction = 'Input'
+        param_3.datatype = 'Field'
+        param_3.parameterDependencies = ["in_table"]
+        param_3.displayOrder = 2
+
+        # bearing_field
+        param_4 = arcpy.Parameter()
+        param_4.name = 'bearing_field'
+        param_4.displayName = 'Bearing Field'
+        param_4.parameterType = 'Required'
+        param_4.direction = 'Input'
+        param_4.datatype = 'Field'
+        param_4.parameterDependencies = ["in_table"]
+        param_4.displayOrder = 5
+
+        # distance_field
+        param_5 = arcpy.Parameter()
+        param_5.name = 'distance_field'
+        param_5.displayName = 'Distance Field'
+        param_5.parameterType = 'Required'
+        param_5.direction = 'Input'
+        param_5.datatype = 'Field'
+        param_5.parameterDependencies = ["in_table"]
+        param_5.displayOrder = 7
+
+        # input_coordinate_format
+        param_6 = arcpy.Parameter()
+        param_6.name = 'input_coordinate_format'
+        param_6.displayName = 'Input Coordinate Format'
+        param_6.parameterType = 'Required'
+        param_6.direction = 'Input'
+        param_6.datatype = 'String'
+        param_6.value = defaultcoordinateFormat
+        param_6.filter.list = coordinateFormats
+        param_6.displayOrder = 1
+
+        # bearing_units
+        param_7 = arcpy.Parameter()
+        param_7.name = 'bearing_units'
+        param_7.displayName = 'Bearing Units'
+        param_7.parameterType = 'Required'
+        param_7.direction = 'Input'
+        param_7.datatype = 'String'
+        param_7.value = defaultAngleType
+        param_7.filter.list = angleTypes
+        param_7.displayOrder = 4
+
+        # distance_units
+        param_8 = arcpy.Parameter()
+        param_8.name = 'distance_units'
+        param_8.displayName = 'Distance Units'
+        param_8.parameterType = 'Required'
+        param_8.direction = 'Input'
+        param_8.datatype = 'String'
+        param_8.value = defaultDistanceType
+        param_8.filter.list = distanceTypes
+        param_8.displayOrder = 6
+
+        # y_or_latitude_field
+        param_9 = arcpy.Parameter()
+        param_9.name = 'y_or_latitude_field'
+        param_9.displayName = 'Y Field (latitude)'
+        param_9.parameterType = 'Optional'
+        param_9.direction = 'Input'
+        param_9.datatype = 'Field'
+        param_9.parameterDependencies = ["in_table"]
+        param_9.displayOrder = 3
+
+        # line_type
+        param_10 = arcpy.Parameter()
+        param_10.name = 'line_type'
+        param_10.displayName = 'Line Type'
+        param_10.parameterType = 'Optional'
+        param_10.direction = 'Input'
+        param_10.datatype = 'String'
+        param_10.value = defaultLineType
+        param_10.filter.list = lineTypes
+        param_10.displayOrder = 9
+
+        # in_coordinate_system
+        param_11 = arcpy.Parameter()
+        param_11.name = 'in_coordinate_system'
+        param_11.displayName = 'Input Coordinate System'
+        param_11.parameterType = 'Optional'
+        param_11.direction = 'Input'
+        param_11.datatype = 'Spatial Reference'
+        param_11.value = srWGS84.exportToString()
+        param_11.displayOrder = 10
+
+        return [param_1, param_2, param_3, param_4, param_5, param_6, param_7, param_8, param_9, param_10, param_11]
+
+    def isLicensed(self):
+        return True
+
+    def updateParameters(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateParameters()
+
+    def updateMessages(self, parameters):
+        validator = getattr(self, 'ToolValidator', None)
+        if validator:
+             return validator(parameters).updateMessages()
+
+    def execute(self, parameters, messages):
+
+        inputTable = parameters[0].valueAsText # Input Table
+        outputLineFeatures = parameters[1].valueAsText # Output Lines
+        inputXField = parameters[2].valueAsText # X Field (Longitude, UTM, MGRS, USNG, GARS, GeoRef) - from inputTable
+        inputBearingField = parameters[3].valueAsText # Bearing Field - from inputTable
+        inputDistanceField = parameters[4].valueAsText # Distance Field - from inputTable
+        inputCoordinateFormat = parameters[5].valueAsText # Input Coordinate Format
+        inputBearingUnits = parameters[6].valueAsText # Bearing Units - from ValueList
+        inputDistanceUnits = parameters[7].valueAsText # Distance Units - from ValueList
+        inputYField = parameters[8].valueAsText # Y Field (Latitude)
+        inputLineType = parameters[9].valueAsText # Line Type - from ValueList
+        optionalSpatialReference = parameters[10].value # Spatial Reference
+        optionalSpatialReferenceAsText = parameters[10].valueAsText
+
+        if optionalSpatialReferenceAsText == "#" or optionalSpatialReferenceAsText == "":
+            optionalSpatialReference = srWGS84 #GCS_WGS_1984
+
+        arcpy.env.overwriteOutput = True
+
+        outputLineFeaturesOut = ConversionUtilities.tableToLineOfBearing(inputTable,
+                                                 inputCoordinateFormat,
+                                                 inputXField,
+                                                 inputYField,
+                                                 inputBearingUnits,
+                                                 inputBearingField,
+                                                 inputDistanceUnits,
+                                                 inputDistanceField,
+                                                 outputLineFeatures,
+                                                 inputLineType,
+                                                 optionalSpatialReference)
+
+        return outputLineFeaturesOut
+
+    # END CoordinateTableToLineOfBearing
+
+
 
 # *******************************************************************************************************
 # OLD TOOLS:
