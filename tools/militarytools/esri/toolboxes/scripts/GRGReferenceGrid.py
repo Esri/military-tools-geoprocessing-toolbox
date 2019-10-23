@@ -1,15 +1,12 @@
 # coding: utf-8
 '''
-RefGrid.py
+GRGReferenceGrid.py
 '''
 import re
 import os
 import math
 import arcpy
 
-#self.inputArea = arcpy.GetParameterAsText(0)
-
-GRID_FIELD_NAME = "Grid"
 class ReferenceGrid(object):
   '''
   '''
@@ -61,11 +58,11 @@ class ReferenceGrid(object):
       '''
       '''
       features = _createFC(out_features, "POLYGON", sr_wgs_84)
-      arcpy.AddField_management(features, GRID_FIELD_NAME,"text") 
-      with arcpy.da.InsertCursor(features, ['SHAPE@',GRID_FIELD_NAME]) as cursor:
+      arcpy.AddField_management(features, self.GRID_FIELD_NAME, "text") 
+      with arcpy.da.InsertCursor(features, ['SHAPE@',self.GRID_FIELD_NAME]) as cursor:
         for i in range(0,len(sq)):
           cursor.insertRow([sq[i]['clippedPolygon'],
-                            sq[i][GRID_FIELD_NAME]])  
+                            sq[i][self.GRID_FIELD_NAME]])  
       return features
 
     def _largeGridWarning(area, value):
@@ -89,8 +86,7 @@ class ReferenceGrid(object):
       outsideSouthPolar = southPoly.disjoint(inputFeature.projectAs(sr))
       
       if(not outsideNorthPolar or not outsideSouthPolar):
-        arcpy.AddWarning("The GRG extent is within a polar region." + 
-          " Cells that fall within the polar region will not be created.")
+        arcpy.AddWarning("The GRG extent is within a polar region." + " Cells that fall within the polar region will not be created.")
 
     out_features = out_features.value
     arcpy.env.overwriteOutput = True
@@ -129,7 +125,8 @@ class ReferenceGrid(object):
 
     #sr_nad_27 = arcpy.SpatialReference(4267) #GCS_North_American_1927
     #sr_nad_83 = arcpy.SpatialReference(4269) #GCS_North_American_1983
-    #sr_nad_83_harn = arcpy.SpatialReference(4152) #GCS_North_American_1983_HARN
+    #sr_nad_83_harn = arcpy.SpatialReference(4152)
+    ##GCS_North_American_1983_HARN
     sr_wgs_84 = arcpy.SpatialReference(4326)
     
 
@@ -139,10 +136,10 @@ class ReferenceGrid(object):
 
     #create an in memory feature class for the grid zones
     gridZones = _createFC(r"in_memory\GridZones", "POLYGON", sr_wgs_84)
-    arcpy.AddField_management(gridZones, GRID_FIELD_NAME,"TEXT")
+    arcpy.AddField_management(gridZones, self.GRID_FIELD_NAME, "TEXT")
     arcpy.AddField_management(gridZones,'utmZone',"SHORT")
     arcpy.AddField_management(gridZones,'utmBand',"TEXT")
-    with arcpy.da.InsertCursor(gridZones, ['SHAPE@', GRID_FIELD_NAME,'utmZone','utmBand']) as cursor:
+    with arcpy.da.InsertCursor(gridZones, ['SHAPE@', self.GRID_FIELD_NAME, 'utmZone', 'utmBand']) as cursor:
       zonesDictionary = _ZonesDictionary()
       for i in zonesDictionary:
         cursor.insertRow([zonesDictionary[i]['polygon'],
@@ -150,7 +147,8 @@ class ReferenceGrid(object):
                           zonesDictionary[i]['utmZone'],
                           zonesDictionary[i]['latitudeZone']])
 
-    #create a utm zone feature class by dissolving the grid zones by there utm zone number
+    #create a utm zone feature class by dissolving the grid zones by there utm
+    #zone number
     utmZones = arcpy.Dissolve_management(gridZones, r"in_memory\disslove",["utmZone"])
 
     #select the grid zones that intersect with the input extent
@@ -185,8 +183,8 @@ class ReferenceGrid(object):
       currentValue = currentValue / 10
 
     output = _createFC(out_features, "POLYGON", sr_wgs_84)
-    arcpy.AddField_management(output,GRID_FIELD_NAME,"text") 
-    with arcpy.da.InsertCursor(output, ['SHAPE@',GRID_FIELD_NAME]) as cursor:
+    arcpy.AddField_management(output,self.GRID_FIELD_NAME, "text") 
+    with arcpy.da.InsertCursor(output, ['SHAPE@',self.GRID_FIELD_NAME]) as cursor:
       for i in range(0,len(polys)):
         cursor.insertRow([polys[i]['clippedPolygon'],
                           polys[i]['text']])
@@ -196,7 +194,7 @@ class ReferenceGrid(object):
 
 def _NonPolarGridZone(args):
   # parse and set the UTM zone and latitude zone from the id
-  # (i.e. "12S" would parse to ['12', 'S'])  
+  # (i.e.  "12S" would parse to ['12', 'S'])
   r = re.compile("([0-9]+)([a-zA-Z]+)")
   m = r.match(args['id'])  
   id = args['id']
@@ -226,8 +224,10 @@ def _ZonesDictionary():
   # A,B,Y,Z reserved for north and south polar regions as UPS
   zoneLetters = ['C','D','E','F','G','H','J','K','L','M','N','P','Q','R','S','T','U','V','W','X']
 
-  # A dictionary object containing all MGRS zones (excluding any zones that don't exist)
-  # this is the object that will be returned (i.e. set as the _ZonesDictionary)
+  # A dictionary object containing all MGRS zones (excluding any zones that
+  # don't exist)
+  # this is the object that will be returned (i.e.  set as the
+  # _ZonesDictionary)
   zonesDictionary = {}
 
   def ltrZoneToExtent(zoneNum, zoneLtrIndex):
@@ -243,7 +243,8 @@ def _ZonesDictionary():
     zoneLtr = zoneLetters[zoneLtrIndex]
     zoneId = str(zoneNum) + zoneLtr
 
-    #There are several unique MGRS zones which don't follow the standard convention,
+    #There are several unique MGRS zones which don't follow the standard
+    #convention,
     #they are defined here:
     if zoneId == "32X" or zoneId == "34X" or zoneId == "36X":
       #Per the MGRS definition, these zones don't exist
@@ -272,17 +273,18 @@ def _ZonesDictionary():
       xmin = (zoneNum - 1) * 6 - 180
       xmax = zoneNum * 6 - 180
       ymin = zoneLtrIndex * 8 + -80
-      ymax = (zoneLtrIndex + 1) * 8  + -80
+      ymax = (zoneLtrIndex + 1) * 8 + -80
 
       #Fix special cases where the numbers need to be adjusted
       #exactly 180 or -180 causes problems, changes it to something close
       xmin = 179.99999999 if xmin == 180 else xmin
-      xmin = -179.99999999 if xmin == -180 else xmin;
-      xmax = 179.99999999 if xmax == 180 else xmax;
-      xmax = -179.99999999 if xmax == -180 else xmax;
+      xmin = -179.99999999 if xmin == -180 else xmin
+      xmax = 179.99999999 if xmax == 180 else xmax
+      xmax = -179.99999999 if xmax == -180 else xmax
       if (ymax == 80):
-        #the top row of MGRS grid zones is taller than most, in order to extent to N84°
-        ymax  =  84
+        #the top row of MGRS grid zones is taller than most, in order to extent
+        #to N84°
+        ymax = 84
 
       nonPolarGridZoneArgs = {"xmin": xmin,"ymin": ymin,"xmax": xmax,"ymax": ymax,"id": zoneId}
     
@@ -307,7 +309,7 @@ def _processZonePolygons(visibleGridZones, extent):
   Processes an array of visible grid zone and hands them off to the appropriate handler(s)
   '''   
   polys = []
-  fields = ['SHAPE@', GRID_FIELD_NAME,'utmZone','utmBand']
+  fields = ['SHAPE@', self.GRID_FIELD_NAME, 'utmZone', 'utmBand']
   
   with arcpy.da.SearchCursor(visibleGridZones, fields) as cursor:
     for row in cursor:
@@ -318,7 +320,7 @@ def _processZonePolygons(visibleGridZones, extent):
       upperLeftUtm = _LLtoUTM(gridZoneExtent.YMax, gridZoneExtent.XMin, row[2], row[3])
       
       # using the UTM coordinates, find the min/max values
-      # (index 0 of a UTM point is easting, 1 is northing)  
+      # (index 0 of a UTM point is easting, 1 is northing)
       
       minEasting = min(lowerLeftUtm[0],lowerRightUtm[0], upperRightUtm[0], upperLeftUtm[0])
       maxEasting = max(lowerLeftUtm[0],lowerRightUtm[0], upperRightUtm[0], upperLeftUtm[0])
@@ -348,7 +350,7 @@ def _handle100kGrids(args, AOI):
   maxE = args['maxE']
   minN = args['minN']
   maxN = args['maxN']
-  poly100k = [];
+  poly100k = []
 
   # Loop through northings, starting at the increment just south of minN
   # go through each increment of 100K meters, until maxN is reached
@@ -378,7 +380,7 @@ def _handle100kGrids(args, AOI):
       
       
       # continue adding points to the polygon, working from the
-      # top left to top right corner 
+      # top left to top right corner
       
       for i in range(e, e + 100000, 25000):
         pt = _UTMtoLL(n + 100000, i, utmZone)
@@ -388,8 +390,8 @@ def _handle100kGrids(args, AOI):
       # top right to bottom right corner
       
       for i in range(n + 100000, n , -25000):
-        pt = _UTMtoLL(i, e + 100000, utmZone);
-        ring.append([pt['lon'], pt['lat']]);
+        pt = _UTMtoLL(i, e + 100000, utmZone)
+        ring.append([pt['lon'], pt['lat']])
       
       BR = arcpy.PointGeometry(arcpy.Point(pt['lon'], pt['lat']),arcpy.SpatialReference(4326))      
       # continue adding points to the polygon, working from
@@ -402,16 +404,18 @@ def _handle100kGrids(args, AOI):
       # create the polygon, from the ring created above
       polygon = arcpy.Polygon(arcpy.Array([arcpy.Point(*coords) for coords in ring]),arcpy.SpatialReference(4326))
       
-      # we need to rotate the drawn extent to match the angle of the grid (so that we can square the grid off)
+      # we need to rotate the drawn extent to match the angle of the grid (so
+      # that we can square the grid off)
       angle = BL.angleAndDistanceTo(BR)
-      #arcpy.AddMessage(angle)  
+      #arcpy.AddMessage(angle)
 
       # now that the 100k grid polygon exists, clip it by the grid zone polygon
       clippedPolygon = polygon.intersect(zonePolygon,4)      
                 
       # after being clipped above, they may no longer exist
-      # (i.e. they were not within the bounds of the zone)
-      # if this is the case, skip the rest and move on to the next increment of n or e
+      # (i.e.  they were not within the bounds of the zone)
+      # if this is the case, skip the rest and move on to the next increment of
+      # n or e
       if not clippedPolygon:
         continue
         
@@ -425,7 +429,7 @@ def _handle100kGrids(args, AOI):
                           "ymax": (n + 100000),
                           "utmZone": utmZone,
                           "latitudeZone": latitudeZone,
-                          GRID_FIELD_NAME: text}
+                          self.GRID_FIELD_NAME: text}
           
         poly100k.append(gridPolygon)
 
@@ -440,7 +444,7 @@ def _handleGridSquares(poly, interval, AOI):
   clippedPoly = poly['clippedPolygon']
   latitudeZone = poly['latitudeZone']
   utmZone = poly['utmZone']
-  GZD = poly[GRID_FIELD_NAME]
+  GZD = poly[self.GRID_FIELD_NAME]
   minE = poly['xmin']
   maxE = poly['xmax']
   minN = poly['ymin']
@@ -470,9 +474,7 @@ def _handleGridSquares(poly, interval, AOI):
         continue      
             
       if not AOI.disjoint(polygon):
-        text = "{0}{1}".format(GZD,_padZero(e % 100000 / interval,  5 - 
-          math.log10(interval)) + _padZero(((10000000 + n) if minN < 0 else n) % 100000 / interval, 5 - 
-          math.log10(interval)))        
+        text = "{0}{1}".format(GZD,_padZero(e % 100000 / interval,  5 - math.log10(interval)) + _padZero(((10000000 + n) if minN < 0 else n) % 100000 / interval, 5 - math.log10(interval)))        
               
         gridPolygon = {"clippedPolygon": clippedPolygon,
           "unclippedPolygon": polygon,
@@ -485,16 +487,15 @@ def _handleGridSquares(poly, interval, AOI):
           "y": _padZero(((10000000 + n) if minN < 0 else n) % 100000 / interval,5 - math.log10(interval)),
           "utmZone": utmZone,
           "latitudeZone": latitudeZone,
-          GRID_FIELD_NAME: GZD,
+          self.GRID_FIELD_NAME: GZD,
           "text": text}
           
         polyOut.append(gridPolygon)
-
       
   return polyOut
     
   
-def _LLtoUTM (lat, lon, zoneNumber, zoneBand):
+def _LLtoUTM(lat, lon, zoneNumber, zoneBand):
   '''
   Converts lat/lon to UTM coords
   Output is in the input array utmcoords
@@ -507,11 +508,11 @@ def _LLtoUTM (lat, lon, zoneNumber, zoneBand):
   er = 6378137.0
   e2 = 0.006694379990
   #NAD 83
-  #   er = 6378137;
-  #   e2 = 0.00669438002290079
+  #   er = 6378137;
+  #   e2 = 0.00669438002290079
   e2ps = e2 / (1 - e2)
   
-  lonTemp = (lon + 180) - math.floor((lon + 180) / 360) * 360 - 180;
+  lonTemp = (lon + 180) - math.floor((lon + 180) / 360) * 360 - 180
   latRad = lat * math.pi / 180
   lonRad = lonTemp * math.pi / 180
   
@@ -524,23 +525,16 @@ def _LLtoUTM (lat, lon, zoneNumber, zoneBand):
   T = math.tan(latRad) * math.tan(latRad)
   C = e2ps * math.cos(latRad) * math.cos(latRad)
   A = math.cos(latRad) * (lonRad - lonOriginRad)
-  M = er * ((1 - e2 / 4 - 3 * (e2 * e2) / 64 - 5 * (e2 * e2 * e2) / 256) *
-    latRad - (3 * e2 / 8 + 3 * e2 * e2 / 32 + 45 * e2 * e2 * e2 / 1024) *
-    math.sin(2 * latRad) + (15 * e2 * e2 / 256 + 45 * e2 * e2 * e2 / 1024) *
-    math.sin(4 * latRad) - (35 * e2 * e2 * e2 / 3072) * math.sin(6 * latRad))
-  UTMEasting = (k0 * N * (A + (1 - T + C) * (A * A * A) / 6 +
-    (5 - 18 * T + T * T + 72 * C - 58 * e2ps) * (A * A * A * A * A) / 120) + 500000.0)
-  UTMNorthing = (k0 * (M + N * math.tan(latRad) * ((A * A) / 2 +
-    (5 - T + 9 * C + 4 * C * C) * (A * A * A * A) / 24 + (61 - 58 * T +
-      T * T + 600 * C - 330 * e2ps) * (A * A * A * A * A * A) / 720)))
+  M = er * ((1 - e2 / 4 - 3 * (e2 * e2) / 64 - 5 * (e2 * e2 * e2) / 256) * latRad - (3 * e2 / 8 + 3 * e2 * e2 / 32 + 45 * e2 * e2 * e2 / 1024) * math.sin(2 * latRad) + (15 * e2 * e2 / 256 + 45 * e2 * e2 * e2 / 1024) * math.sin(4 * latRad) - (35 * e2 * e2 * e2 / 3072) * math.sin(6 * latRad))
+  UTMEasting = (k0 * N * (A + (1 - T + C) * (A * A * A) / 6 + (5 - 18 * T + T * T + 72 * C - 58 * e2ps) * (A * A * A * A * A) / 120) + 500000.0)
+  UTMNorthing = (k0 * (M + N * math.tan(latRad) * ((A * A) / 2 + (5 - T + 9 * C + 4 * C * C) * (A * A * A * A) / 24 + (61 - 58 * T + T * T + 600 * C - 330 * e2ps) * (A * A * A * A * A * A) / 720)))
   UTMcoordinates = UTMZone + " " + str(round(UTMEasting))
   if UTMNorthing < 0:
     UTMcoordinates = UTMcoordinates + "mE " + str(round(10000000 + UTMNorthing)) + "mN"
   else:
     UTMcoordinates = UTMcoordinates + "mE " + str(round(UTMNorthing)) + "mN"
   
-  return [UTMEasting, UTMNorthing, zoneNumber];
-
+  return [UTMEasting, UTMNorthing, zoneNumber]
 
 def _UTMtoLL(UTMNorthing, UTMEasting, UTMZoneNumber):
   '''
@@ -556,8 +550,8 @@ def _UTMtoLL(UTMNorthing, UTMEasting, UTMZoneNumber):
   er = 6378137.0
   e2 = 0.006694379990
   # NAD 83:
-  #   er = 6378137;
-  #   e2 = 0.00669438002290079
+  #   er = 6378137;
+  #   e2 = 0.00669438002290079
   
   e2ps = e2 / (1 - e2)
   E1 = (1 - math.sqrt(1 - e2)) / (1 + math.sqrt(1 - e2))
@@ -571,10 +565,10 @@ def _UTMtoLL(UTMNorthing, UTMEasting, UTMZoneNumber):
   # (latitude)
   M = yUTM / k0
   mu = M / (er * (1 - e2 / 4 - 3 * e2 * e2 / 64 - 5 * e2 * e2 * e2 / 256))
-  #phi1 is the "footprint latitude" or the latitude at the central meridian which
+  #phi1 is the "footprint latitude" or the latitude at the central meridian
+  #which
   #has the same y coordinate as that of the point (phi (lat), lambda (lon) ).
-  phi1Rad = mu + (3 * E1 / 2 - 27 * E1 * E1 * E1 / 32) * math.sin(2 * mu) + (21 * E1 * E1 / 16 -
-    55 * E1 * E1 * E1 * E1 / 32) * math.sin(4 * mu) + (151 * E1 * E1 * E1 / 96) * math.sin(6 * mu)
+  phi1Rad = mu + (3 * E1 / 2 - 27 * E1 * E1 * E1 / 32) * math.sin(2 * mu) + (21 * E1 * E1 / 16 - 55 * E1 * E1 * E1 * E1 / 32) * math.sin(4 * mu) + (151 * E1 * E1 * E1 / 96) * math.sin(6 * mu)
   phi1 = phi1Rad * 180.0 / math.pi
   #Terms used in the conversion equations
   N1 = er / math.sqrt(1 - e2 * math.sin(phi1Rad) * math.sin(phi1Rad))
@@ -583,22 +577,18 @@ def _UTMtoLL(UTMNorthing, UTMEasting, UTMZoneNumber):
   R1 = er * (1 - e2) / math.pow(1 - e2 * math.sin(phi1Rad) * math.sin(phi1Rad), 1.5)
   D = xUTM / (N1 * k0)
   #Calculate latitude, in decimal degrees
-  lat = phi1Rad - (N1 * math.tan(phi1Rad) / R1) * (D * D / 2 -
-    (5 + 3 * T1 + 10 * C1 - 4 * C1 * C1 - 9 * e2ps) *
-    D * D * D * D / 24 + (61 + 90 *
-    T1 + 298 * C1 + 45 * T1 * T1 - 252 * e2ps - 3 * C1 * C1) * D * D * D * D * D * D / 720)
+  lat = phi1Rad - (N1 * math.tan(phi1Rad) / R1) * (D * D / 2 - (5 + 3 * T1 + 10 * C1 - 4 * C1 * C1 - 9 * e2ps) * D * D * D * D / 24 + (61 + 90 * T1 + 298 * C1 + 45 * T1 * T1 - 252 * e2ps - 3 * C1 * C1) * D * D * D * D * D * D / 720)
   lat = lat * 180.0 / math.pi
   #Calculate longitude, in decimal degrees
-  lon = (D - (1 + 2 * T1 + C1) * D * D * D / 6 + (5 - 2 * C1 + 28 * T1 -
-    3 * C1 * C1 + 8 * e2ps + 24 * T1 * T1) * D * D * D * D * D / 120) / math.cos(phi1Rad)
+  lon = (D - (1 + 2 * T1 + C1) * D * D * D / 6 + (5 - 2 * C1 + 28 * T1 - 3 * C1 * C1 + 8 * e2ps + 24 * T1 * T1) * D * D * D * D * D / 120) / math.cos(phi1Rad)
   lon = lonOrigin + lon * 180.0 / math.pi
   ret = {}
   ret['lat'] = lat
   ret['lon'] = lon
+
   return ret
      
-
-def _findGridLetters (zoneNum, northing, easting):
+def _findGridLetters(zoneNum, northing, easting):
   '''
   Retrieve the square identification for a given coordinate pair & zone
   See "lettersHelper" function documentation for more details.
@@ -625,8 +615,7 @@ def _findGridLetters (zoneNum, northing, easting):
   #cycle repeats (wraps) after 8 columns
   col = col % 8
   
-  return _lettersHelper(_findSet(zoneNum), row, col);
-
+  return _lettersHelper(_findSet(zoneNum), row, col)
 
 def _lettersHelper(set, row, col):
   '''
@@ -666,7 +655,6 @@ def _lettersHelper(set, row, col):
   
   return l1[col] + l2[row]
 
-
 def _findSet(zoneNum):
   '''
   There are six unique sets, corresponding to individual grid numbers in
@@ -690,17 +678,14 @@ def _findSet(zoneNum):
   else:
     return -1
 
-
 def _padZero(number, width):
   number = str(int(number))
   while len(number) < width:
     number = "0" + number
   return number
 
-
 def _testing():
     return
-
 
 # MAIN =============================================
 if __name__ == "__main__":

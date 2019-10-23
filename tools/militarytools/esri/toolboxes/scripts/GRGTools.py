@@ -34,13 +34,199 @@ import arcpy
 try:
     from . import Utilities
     from . import GRGUtilities
-    from . import RefGrid
+    from . import GRGReferenceGrid
 except ImportError:
     import Utilities
     import GRGUtilities
-    import RefGrid
+    import GRGReferenceGrid
+
 
 class CreateGRGFromArea(object):
+    '''
+    Create a Gridded Reference Graphic (GRG) from an selected area on the map.
+    '''
+    def __init__(self):
+        '''
+        Create GRG From Area tool constructor method
+        '''
+        self.label = "Create GRG From Area"
+        self.description = "Create a Gridded Reference Graphic (GRG) from an selected area on the map."
+        self.category = "Gridded Reference Graphic"
+
+    def isLicensed(self):
+        """Set whether tool is licensed to execute."""
+        return True
+
+    def getParameterInfo(self):
+        '''
+        Define parameter definitions
+        '''
+
+        # Parameter 0
+        input_area_features = arcpy.Parameter()
+        input_area_features.name='input_grg_area'
+        input_area_features.displayName='Input GRG Area'
+        input_area_features.direction='Input'
+        input_area_features.datatype='GPFeatureRecordSetLayer'
+        input_area_features.parameterType='Required'
+        input_area_features.enabled=True
+        input_area_features.multiValue=False
+        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                             "layers",
+                                             "RelativeGRGInputArea.lyr")
+        input_area_features.value = input_layer_file_path
+
+        # Parameter 1
+        output_features = arcpy.Parameter()
+        output_features.name ='output_grg_features'
+        output_features.displayName ='Output GRG Features'
+        output_features.direction='Output'
+        output_features.datatype='DEFeatureClass'
+        output_features.parameterType='Required'
+        output_features.enabled=True
+        output_features.multiValue=False
+        output_features.value = 'area_grg'
+        output_features.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                                 "layers", "GRG.lyr")
+
+        # Parameter 2
+        cell_width = arcpy.Parameter()
+        cell_width.name='cell_width'
+        cell_width.displayName='Cell Width'
+        cell_width.direction='Input'
+        cell_width.datatype='GPDouble'
+        cell_width.parameterType='Required'
+        cell_width.enabled=True
+        cell_width.multiValue=False
+        cell_width.value = 100.0
+
+        # Parameter 3
+        cell_height = arcpy.Parameter()
+        cell_height.name='cell_height'
+        cell_height.displayName='Cell Height'
+        cell_height.direction='Input'
+        cell_height.datatype='GPDouble'
+        cell_height.parameterType='Required'
+        cell_height.enabled=True
+        cell_height.multiValue=False
+        cell_height.value = 100.0
+
+        # Parameter 4
+        cell_units = arcpy.Parameter()
+        cell_units.name='cell_units'
+        cell_units.displayName='Cell Units'
+        cell_units.direction='Input'
+        cell_units.datatype='GPString'
+        cell_units.parameterType='Required'
+        cell_units.enabled=True
+        cell_units.multiValue=False
+        cell_units.filter.type = 'ValueList'
+        cell_units.filter.list = ['Meters', 'Feet','Miles','Kilometers','Nautical Miles','Yards']
+        cell_units.value = cell_units.filter.list[0]
+
+        # Parameter 5
+        label_start_position = arcpy.Parameter()
+        label_start_position.name='label_start_position'
+        label_start_position.displayName='Start Position'
+        label_start_position.direction='Input'
+        label_start_position.datatype='GPString'
+        label_start_position.parameterType='Required'
+        label_start_position.category='Label Properties'
+        label_start_position.enabled=True
+        label_start_position.multiValue=False
+        label_start_position.filter.type = 'ValueList'
+        label_start_position.filter.list = ['Upper-Left',
+                                            'Lower-Left',
+                                            'Upper-Right',
+                                            'Lower-Right']
+        label_start_position.value = label_start_position.filter.list[0]
+
+        # Parameter 6
+        label_type = arcpy.Parameter()
+        label_type.name='label_type'
+        label_type.displayName='Type'
+        label_type.direction='Input'
+        label_type.datatype='GPString'
+        label_type.parameterType='Required'
+        label_type.category='Label Properties'
+        label_type.enabled=True
+        label_type.multiValue=False
+        label_type.filter.type = 'ValueList'
+        label_type.filter.list = ['Alpha-Numeric',
+                                   'Alpha-Alpha',
+                                   'Numeric']
+        label_type.value = label_type.filter.list[0]
+
+        # Parameter 7
+        label_seperator = arcpy.Parameter()
+        label_seperator.name='label_seperator',
+        label_seperator.displayName='Separator (Only used for Alpha-Alpha labeling)',
+        label_seperator.direction='Input'
+        label_seperator.datatype='GPString'
+        label_seperator.parameterType='Required'
+        label_seperator.category='Label Properties'
+        label_seperator.enabled=False
+        label_seperator.multiValue=False
+        label_seperator.filter.type = 'ValueList'
+        label_seperator.filter.list = ['-',',','.','/']
+        label_seperator.value = label_seperator.filter.list[0]
+
+        return [input_area_features,   # 0
+                output_features,       # 1
+                cell_width,            # 2
+                cell_height,           # 3
+                cell_units,            # 4
+                label_start_position,  # 5
+                label_type,            # 6
+                label_seperator]       # 7
+
+    def updateParameters(self, parameters):
+        '''
+        Modify the values and properties of parameters before internal
+        validation is performed.  This method is called whenever a parameter
+        has been changed.
+        '''
+        if parameters[6].value == "Alpha-Alpha":
+          parameters[7].enabled = True
+        else:
+          parameters[7].enabled = False
+        return
+
+    def updateMessages(self, parameters):
+        '''
+        '''
+        return
+
+    def execute(self, parameters, messages):
+        ''' execute for toolbox'''
+
+        input_area_features = parameters[0].valueAsText
+        output_features = parameters[1].valueAsText
+        cell_width = parameters[2].value
+        cell_height = parameters[3].value
+        cell_units =  parameters[4].value        
+        label_start_position = parameters[5].value
+        label_type =  parameters[6].value
+        label_seperator = parameters[7].value
+
+        #arcpy.AddError("Not built yet.")
+        out_grg = GRGUtilities.GRGFromArea(
+                        input_area_features,  
+                        output_features,      
+                        cell_width,           
+                        cell_height,          
+                        cell_units,           
+                        label_start_position, 
+                        label_type,           
+                        label_seperator)
+         
+        return out_grg
+
+# *******************************************************************************************************
+# OLD TOOLS:
+# *******************************************************************************************************
+
+class CreateGRGFromArea_OLD(object):
     '''
     Create a Gridded Reference Graphic (GRG) from an selected area on the map.
     '''
@@ -194,7 +380,7 @@ class CreateGRGFromArea(object):
                                            parameters[7].value)
         return out_grg
 
-class CreateGRGFromPoint(object):
+class CreateGRGFromPoint_OLD(object):
     '''
     Create a Gridded Reference Graphic (GRG) from an selected location on the map.
     '''
@@ -396,7 +582,7 @@ class CreateGRGFromPoint(object):
 
         return out_grg
 
-class CreateReferenceSystemGRGFromArea(object):
+class CreateReferenceSystemGRGFromArea_OLD(object):
     '''
     Build polygon features of MGRS or USNG gridded reference graphics.
     '''
@@ -506,7 +692,7 @@ class CreateReferenceSystemGRGFromArea(object):
     def execute(self, parameters, messages):
         ''' execute for toolbox'''
 
-        RG = RefGrid.ReferenceGrid(parameters[0].value,
+        RG = GRGReferenceGrid.ReferenceGrid(parameters[0].value,
                                    parameters[1].value,
                                    parameters[2].value,
                                    parameters[4].value)
@@ -624,12 +810,4 @@ class NumberFeatures(object):
 
         return output_fc
 
-def _outputGRGSchema():
-    ''' '''
-    # TODO: implement output schema for all GRG features
-    # * has Grid field (name: Grid, Alias: Grid, data type: Text, Length: 255)
-    # * Polygon feature class,
-    # * Coordinate system: <Undefined> AAAAAAAAHHHHHHH!!!!!!
-    # *
-    return None
 

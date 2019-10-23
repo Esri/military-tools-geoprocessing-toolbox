@@ -28,62 +28,33 @@
  ==================================================
 '''
 
-
-import os
-import sys
 import math
+import os
+import re
+import sys
 import traceback
+
 import arcpy
-from arcpy import env
-from . import Utilities
 
 DEBUG = True
-appEnvironment = None
 
 def labelFeatures(layer, field):
     ''' set up labeling for layer '''
-    global appEnvironment
-    if appEnvironment == "ARCGIS_PRO":
-        if layer.supports("SHOWLABELS"):
-            for lblclass in layer.listLabelClasses():
-                lblclass.visible = True
-                lblclass.expression = " [" + str(field) + "]"
-            layer.showLabels = True
-    elif appEnvironment == "ARCMAP":
-        if layer.supports("LABELCLASSES"):
-            for lblclass in layer.labelClasses:
-                lblclass.showClassLabels = True
-                lblclass.expression = " [" + str(field) + "]"
-            layer.showLabels = True
-            arcpy.RefreshActiveView()
-    else:
-        pass # if returns "OTHER"
 
+    if layer.supports("SHOWLABELS"):
+        for lblclass in layer.listLabelClasses():
+            lblclass.visible = True
+            lblclass.expression = " [" + str(field) + "]"
+        layer.showLabels = True
 
 def findLayerByName(layerName):
     '''  '''
-    global mapList
-    global mxd
-    global appEnvironment
-    #UPDATE
-    if appEnvironment == "ARCGIS_PRO":
-        for layer in mapList.listLayers():
-            if layer.name == layerName:
-                arcpy.AddMessage("Found matching layer [" + layer.name + "]")
-                return layer
-            else:
-                arcpy.AddMessage("Incorrect layer: [" + layer.name + "]")
-    #else: #Update for automated test
-    elif appEnvironment == "ARCMAP":
-        for layer in arcpy.mapping.ListLayers(mxd):
-            if layer.name == layerName:
-                arcpy.AddMessage("Found matching layer [" + layer.name + "]")
-                return layer
-            else:
-                arcpy.AddMessage("Incorrect layer: [" + layer.name + "]")
-    else:
-        arcpy.AddWarning("Non-map environment")
-
+    for layer in mapList.listLayers():
+        if layer.name == layerName:
+            arcpy.AddMessage("Found matching layer [" + layer.name + "]")
+            return layer
+        else:
+            arcpy.AddMessage("Incorrect layer: [" + layer.name + "]")
 
 def ColIdxToXlName_CanvasAreaGRG(index):
     ''' Converts an index into a letter, labeled like excel columns, A to Z, AA to ZZ, etc.'''
@@ -170,14 +141,14 @@ def RotateFeatureClass(inputFC, outputFC,
                                            os.environ["TEMP"])
         arcpy.gp.SaveSettings(env_file)
 
-        WKS = env.workspace
+        WKS = arcpy.env.workspace
         if not WKS:
             if os.path.dirname(outputFC):
                 WKS = os.path.dirname(outputFC)
             else:
                 WKS = os.path.dirname(
                     arcpy.Describe(inputFC).catalogPath)
-        env.workspace = env.scratchWorkspace = WKS
+        arcpy.env.workspace = arcpy.env.scratchWorkspace = WKS
 
         # Disable any GP environment clips
         arcpy.ClearEnvironment("extent")
@@ -252,7 +223,7 @@ def RotateFeatureClass(inputFC, outputFC,
                 outRows.insertRow([shp, gridValue])  # write row to output
 
         arcpy.AddMessage('Merging temporary, rotated dataset with output')
-        env.qualifiedFieldNames = False
+        arcpy.env.qualifiedFieldNames = False
         arcpy.Merge_management(lyrTmp, outputFC)
 
     except MsgError as xmsg:
@@ -289,13 +260,13 @@ def RotateFeatureClass(inputFC, outputFC,
     # END RotateFeatureClass
 
 def GRGFromArea(AOI,
+                outputFeatureClass,
                 cellWidth,
                 cellHeight,
                 cellUnits,
                 labelStartPos,
                 labelStyle,
-                labelSeperator,
-                outputFeatureClass):
+                labelSeperator):
     '''Create Gridded Reference Graphic (GRG) from area input.'''
 
     fishnet = os.path.join("in_memory", "fishnet")
@@ -309,22 +280,15 @@ def GRGFromArea(AOI,
     fc_WM = None
 
     try:
-        #UPDATE
-        appEnvironment = Utilities.GetApplication()
-        if DEBUG == True: arcpy.AddMessage("App environment: " + appEnvironment)
-
         fc = os.path.join("in_memory", "AOI")
         arcpy.CopyFeatures_management(AOI, fc)
 
-        if appEnvironment == "ARCGIS_PRO":
+        try :
             from arcpy import mp
             aprx = arcpy.mp.ArcGISProject("CURRENT")
             mapList = aprx.listMaps()[0]
-        #else: #Update for automated test
-        if appEnvironment == "ARCMAP":
-            from arcpy import mapping
-            mxd = arcpy.mapping.MapDocument('CURRENT')
-            df = arcpy.mapping.ListDataFrames(mxd)[0]
+        except :
+            mapList = None
 
         arcpy.env.overwriteOutput = True
         if arcpy.env.scratchWorkspace:
@@ -544,15 +508,7 @@ def GRGFromArea(AOI,
 
         # Get and label the output feature
         #TODO: Update once applying symbology in Pro is fixed.
-        targetLayerName = os.path.basename(outputFeatureClass.value)
-
-        if appEnvironment == "ARCGIS_PRO":
-            arcpy.AddMessage("Do not apply symbology it will be done in the next task step")
-
-        elif appEnvironment == "ARCMAP":
-            arcpy.AddMessage("Non-map environment, skipping labeling based on best practices")
-        else:
-            arcpy.AddMessage("Non-map environment, skipping labeling...")
+        targetLayerName = os.path.basename(outputFeatureClass)
 
         return outputFeatureClass
 
@@ -599,7 +555,6 @@ def GRGFromPoint(starting_point,
                  output_feature_class):
     ''' Create Gridded Reference Graphic (GRG) from point input.'''
 
-
     targetPointOrigin = starting_point
     numberCellsHo = horizontal_cells
     numberCellsVert = vertical_cells
@@ -619,20 +574,12 @@ def GRGFromPoint(starting_point,
     scratch = None
 
     try:
-        #UPDATE
-        appEnvironment = Utilities.GetApplication()
-        if DEBUG == True: arcpy.AddMessage("App environment: " + appEnvironment)
-
-        if appEnvironment == "ARCGIS_PRO":
+        try :
             from arcpy import mp
             aprx = arcpy.mp.ArcGISProject("CURRENT")
             mapList = aprx.listMaps()[0]
-        elif appEnvironment == "ARCMAP":
-            from arcpy import mapping
-            mxd = arcpy.mapping.MapDocument('CURRENT')
-            df = arcpy.mapping.ListDataFrames(mxd)[0]
-        else:
-            if DEBUG == True: arcpy.AddMessage("Non-map application...")
+        except :
+            mapList = None
 
         numberOfFeatures = arcpy.GetCount_management(targetPointOrigin)
         if(int(numberOfFeatures[0]) == 0):
@@ -748,7 +695,7 @@ def GRGFromPoint(starting_point,
             startPos = "LR"
 
         arcpy.AddMessage("Creating Fishnet Grid")
-        env.outputCoordinateSystem = arcpy.Describe(targetPointOrigin).spatialReference
+        arcpy.env.outputCoordinateSystem = arcpy.Describe(targetPointOrigin).spatialReference
 
         arcpy.CreateFishnet_management(tempOutput, originCoordinate, yAxisCoordinate, 0, 0, str(numberCellsHo), str(numberCellsVert), oppCornerCoordinate, "NO_LABELS", fullExtent, "POLYGON")
 
@@ -803,14 +750,7 @@ def GRGFromPoint(starting_point,
         arcpy.Delete_management(tempSort)
 
         # Get and label the output feature
-        #UPDATE
         targetLayerName = os.path.basename(outputFeatureClass)
-        if appEnvironment == "ARCGIS_PRO":
-            arcpy.AddMessage("Do not apply symbology it will be done in the next task step")
-        elif appEnvironment == "ARCMAP":
-            arcpy.AddMessage("Non-map environment, skipping labeling based on best practices")
-        else:
-            arcpy.AddMessage("Non-map environment, skipping labeling...")
 
         return outputFeatureClass
 
@@ -871,7 +811,6 @@ def NumberFeatures(areaToNumber,
         areaToNumber = areaToNumberInMemory
 
         DEBUG = True
-        appEnvironment = None
         mxd, df, aprx, mp, mapList = None, None, None, None, None
         pointFeatureName = os.path.basename(str(pointFeatures))
         layerExists = False
@@ -883,26 +822,17 @@ def NumberFeatures(areaToNumber,
             if (descArea.shapeType != "Polygon"):
                 raise Exception("ERROR: The area to number must be a polygon.")
 
-            #Checking the version of the Desktop Application
-            appEnvironment = Utilities.GetApplication()
-            if DEBUG == True: arcpy.AddMessage("App environment: " + appEnvironment)
-
             #Getting the layer name from the Table of Contents
-            if appEnvironment == Utilities.PLATFORM_PRO:
+            try:
                 from arcpy import mp
                 aprx = arcpy.mp.ArcGISProject("CURRENT")
                 mapList = aprx.listMaps()[0]
                 for lyr in mapList.listLayers():
                     if lyr.name == pointFeatureName:
                         layerExists = True
-            #else:
-            if appEnvironment == Utilities.PLATFORM_DESKTOP:
-                from arcpy import mapping
-                mxd = arcpy.mapping.MapDocument('CURRENT')
-                df = arcpy.mapping.ListDataFrames(mxd)[0]
-                for lyr in arcpy.mapping.ListLayers(mxd):
-                    if lyr.name == pointFeatureName:
-                        layerExists = True
+            except:
+                mapList = None
+                layerExists = False
 
             if layerExists == False:
                 arcpy.MakeFeatureLayer_management(pointFeatures, pointFeatureName)
@@ -1012,3 +942,5 @@ def NumberFeatures(areaToNumber,
             print(msgs)
 
         return outputFeatureClass
+
+

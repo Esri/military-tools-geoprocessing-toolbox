@@ -61,7 +61,7 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
         # set up inputs
         self.inputArea = os.path.join(Configuration.militaryInputDataGDB, r"GRGAreaofOperations")
 
-        UnitTestUtilities.checkGeoObjects([self.inputArea])
+        # UnitTestUtilities.checkGeoObjects([self.inputArea])
 
     def tearDown(self):
         Configuration.Logger.debug("         GRGTestCase.tearDown")
@@ -97,9 +97,9 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
 
         try:
             # Calling the Create GRG From Area script tool
-            toolOutput = arcpy.CreateGRGFromArea_mt(self.inputArea, \
+            toolOutput = arcpy.CreateGRGFromArea_military(self.inputArea, output, \
                 cellWidth, cellHeight, cellunits, \
-                labelStart, labelStyle, labelSeparator, output)
+                labelStart, labelStyle, labelSeparator)
 
         except arcpy.ExecuteError:
             UnitTestUtilities.handleArcPyError()
@@ -129,8 +129,6 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
         Configuration.Logger.debug("Output number features: " + str(count))
         self.assertEqual(count, 40)
 
-
-
     def testGRGAreaGRG(self):
 
         Configuration.Logger.debug(".....GRGCreateGRGFromAreaTestCase.testGRGAreaGRG")
@@ -156,9 +154,9 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
 
         try:
             # Calling the Create GRG From Area script tool
-            toolOutput = arcpy.CreateGRGFromArea_mt(self.inputArea, \
+            toolOutput = arcpy.CreateGRGFromArea_military(self.inputArea, output, \
                 cellWidth, cellHeight, cellunits, \
-                labelStart, labelStyle, labelSeparator, output)
+                labelStart, labelStyle, labelSeparator)
 
         except arcpy.ExecuteError:
             UnitTestUtilities.handleArcPyError()
@@ -210,5 +208,6 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
 
         #Compare the oid list and the grid list
         self.assertEquals(oid, grid)
+
 if __name__ == "__main__":
     unittest.main()
