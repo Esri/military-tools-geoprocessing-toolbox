@@ -40,6 +40,259 @@ except ImportError:
     import GRGUtilities
     import GRGReferenceGrid
 
+# String constants shared by tools:
+angleTypes = ["DEGREES", "MILS", "RADS", "GRADS"]
+defaultAngleType = angleTypes[0]   # "DEGREES"
+
+distanceTypes = ["METERS", "KILOMETERS", "MILES", "NAUTICAL_MILES", "FEET", "YARDS", "US_SURVEY_FEET"]
+defaultDistanceType = distanceTypes[0] # "METERS"
+
+labelStartPositions = ['UPPER_LEFT', 'LOWER_LEFT', 'UPPER_RIGHT', 'LOWER_RIGHT']
+defaultLabelStartPosition = labelStartPositions[0]
+
+labelFormats = ['ALPHA_NUMERIC', 'ALPHA_ALPHA', 'NUMERIC']
+defaultLabelFormat = labelFormats[0]
+
+labelSeparators = ['-',',','.','/']
+defaultLabelSeparator = labelSeparators[0]
+
+class CreateGRGFromPoint(object):
+    '''
+    Create a Gridded Reference Graphic (GRG) from an selected location on the map.
+    '''
+    def __init__(self):
+        ''' Point Target GRG constructor '''
+        self.label = "Create GRG From Point"
+        self.description = "Create a Gridded Reference Graphic (GRG) from an selected location on the map."
+        self.category = "Gridded Reference Graphic"
+
+    def isLicensed(self):
+        """Check for Advanced license needed by Sort_management(Shape)"""
+        """Allow the tool to execute, only if the ArcGIS Advanced is available."""
+        try:
+            license_available = ["Available", "AlreadyInitialized"]
+            if not (arcpy.CheckProduct("ArcInfo") in license_available):
+                raise Exception
+        except Exception:
+            return False
+        return True
+
+    def getParameterInfo(self):
+        '''
+        Define parameter definitions
+        '''
+
+        # Parameter 0 - in_feature
+        input_start_location = arcpy.Parameter()
+        input_start_location.name='in_feature'
+        input_start_location.displayName='Input Start Location'
+        input_start_location.direction='Input'
+        input_start_location.datatype='GPFeatureRecordSetLayer'
+        input_start_location.parameterType='Required'
+        input_start_location.enabled=True
+        input_start_location.multiValue=False
+        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                             "layers",
+                                             "RelativeGRGInputPoint.lyr")
+        input_start_location.value = input_layer_file_path
+
+        # Parameter 1 - output_feature_class
+        output_features = arcpy.Parameter()
+        output_features.name='output_feature_class'
+        output_features.displayName='Output GRG Features'
+        output_features.direction='Output'
+        output_features.datatype=u'Feature Class'
+        output_features.parameterType='Required'
+        output_features.enabled=True
+        output_features.multiValue=False
+        output_features.value = r"point_grg"
+        output_features.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                                 "layers", "GRG.lyr")
+
+        # Parameter 2 - horizontal_cells
+        horizontal_cells = arcpy.Parameter()
+        horizontal_cells.name='horizontal_cells'
+        horizontal_cells.displayName='Number of Rows'
+        horizontal_cells.direction='Input'
+        horizontal_cells.datatype='GPDouble'
+        horizontal_cells.parameterType='Required'
+        horizontal_cells.enabled=True
+        horizontal_cells.multiValue=False
+        horizontal_cells.value = 10
+
+        # Parameter 3 - vertical_cells
+        vertical_cells = arcpy.Parameter()
+        vertical_cells.name='vertical_cells'
+        vertical_cells.displayName='Number of Columns'
+        vertical_cells.direction='Input'
+        vertical_cells.datatype='GPDouble'
+        vertical_cells.parameterType='Required'
+        vertical_cells.enabled=True
+        vertical_cells.multiValue=False
+        vertical_cells.value = 10
+
+        # Parameter 4 - cell_width
+        cell_width = arcpy.Parameter()
+        cell_width.name='cell_width'
+        cell_width.displayName='Cell Width'
+        cell_width.direction='Input'
+        cell_width.datatype='GPDouble'
+        cell_width.parameterType='Required'
+        cell_width.enabled=True
+        cell_width.multiValue=False
+        cell_width.value = 250.0
+
+        # Parameter 5 - cell_height
+        cell_height = arcpy.Parameter()
+        cell_height.name='cell_height'
+        cell_height.displayName='Cell Height'
+        cell_height.direction='Input'
+        cell_height.datatype='GPDouble'
+        cell_height.parameterType='Required'
+        cell_height.enabled=True
+        cell_height.multiValue=False
+        cell_height.value = 250.0
+
+        # Parameter 6 - cell_units
+        cell_units = arcpy.Parameter()
+        cell_units.name='cell_units',
+        cell_units.displayName='Cell Units'
+        cell_units.direction='Input'
+        cell_units.datatype='GPString'
+        cell_units.parameterType='Required'
+        cell_units.enabled=True
+        cell_units.multiValue=False
+        cell_units.filter.type = 'ValueList'
+        cell_units.filter.list = distanceTypes
+        cell_units.value = defaultDistanceType
+
+        # Parameter 7 - label_start_position
+        label_start_position = arcpy.Parameter()
+        label_start_position.name='label_start_position'
+        label_start_position.displayName='Start Position'
+        label_start_position.direction='Input'
+        label_start_position.datatype='GPString'
+        label_start_position.parameterType='Optional'
+        label_start_position.category='Label Properties'
+        label_start_position.enabled=True
+        label_start_position.multiValue=False
+        label_start_position.filter.type = 'ValueList'
+        label_start_position.filter.list = labelStartPositions
+        label_start_position.value = defaultLabelStartPosition
+
+        # Parameter 8 - label_format
+        label_format = arcpy.Parameter()
+        label_format.name='label_format'
+        label_format.displayName='Type'
+        label_format.direction='Input'
+        label_format.datatype='GPString'
+        label_format.parameterType='Optional'
+        label_format.category='Label Properties'
+        label_format.enabled=True
+        label_format.multiValue=False
+        label_format.filter.type = 'ValueList'
+        label_format.filter.list = labelFormats
+        label_format.value = defaultLabelFormat
+
+        # Parameter 9 - label_separator
+        label_separator = arcpy.Parameter()
+        label_separator.name='label_separator'
+        label_separator.displayName='Separator (Only used for ALPHA_ALPHA labeling)'
+        label_separator.direction='Input'
+        label_separator.datatype='GPString'
+        label_separator.parameterType='Optional'
+        label_separator.category='Label Properties'
+        label_separator.enabled=False
+        label_separator.multiValue=False
+        label_separator.filter.type = 'ValueList'
+        label_separator.filter.list = labelSeparators
+        label_separator.value = defaultLabelSeparator
+
+        # Parameter 10 - grid_angle
+        grid_angle = arcpy.Parameter()
+        grid_angle.name='grid_angle'
+        grid_angle.displayName='Grid Rotation Angle'
+        grid_angle.direction='Input'
+        grid_angle.datatype='GPDouble'
+        grid_angle.parameterType='Optional'
+        grid_angle.enabled=True
+        grid_angle.multiValue=False
+        grid_angle.value = 0
+
+        # Parameter 11 - grid_angle_units
+        grid_angle_units = arcpy.Parameter()
+        grid_angle_units.name='grid_angle_units'
+        grid_angle_units.displayName='Grid Rotation Angular Units'
+        grid_angle_units.direction='Input'
+        grid_angle_units.datatype='GPString'
+        grid_angle_units.parameterType='Optional'
+        grid_angle_units.enabled=True
+        grid_angle_units.multiValue=False
+        grid_angle_units.filter.type = 'ValueList'
+        grid_angle_units.filter.list = angleTypes
+        grid_angle_units.value = defaultAngleType
+
+        return [input_start_location,   # 0
+                output_features,        # 1
+                horizontal_cells,       # 2
+                vertical_cells,         # 3
+                cell_width,             # 4
+                cell_height,            # 5
+                cell_units,             # 6
+                label_start_position,   # 7
+                label_format,           # 8
+                label_separator,        # 9
+                grid_angle,             # 10
+                grid_angle_units]       # 11
+
+    def updateParameters(self, parameters):
+        '''
+        Modify the values and properties of parameters before internal
+        validation is performed.  This method is called whenever a parameter
+        has been changed.
+        '''
+        if parameters[8].value == "ALPHA_ALPHA":
+          parameters[9].enabled = True
+        else:
+          parameters[9].enabled = False
+
+        return
+
+    def updateMessages(self, parameters):
+        '''
+        '''
+
+        gridAngle = parameters[10].value
+        gridUnits = parameters[11].value
+
+        gridAngle = GRGUtilities.convertFromUnitNameToDegrees(gridAngle, gridUnits)
+
+        if  gridAngle < -89 or gridAngle > 89:
+          parameters[10].setErrorMessage("Grid angle must be between -89 and 89 degrees")
+        return
+
+    def execute(self, parameters, messages):
+        ''' execute for toolbox'''
+
+        pointTargets = parameters[0].value # Input Location(s)
+        output       = parameters[1].valueAsText  # Output
+        rows         = parameters[2].value # Number Horizontal Cells
+        cols         = parameters[3].value # Number Vertical Cells
+        cellWidth    = parameters[4].value # Cell Width
+        cellHeight   = parameters[5].value # Cell Height
+        cellUnits    = parameters[6].value # Cell Units
+        labelStart   = parameters[7].value # Labeling Start Postiton
+        labelStyle   = parameters[8].value # Labeling Type
+        labelSeparator    = parameters[9].value # Labeling Seperator
+        gridRotationAngle = parameters[10].value # Grid Angle
+        gridRotationAngleUnits = parameters[11].value # Grid Angle Units
+
+        out_grg = GRGUtilities.GRGFromPoint(pointTargets, output, \
+                rows, cols, \
+                cellWidth, cellHeight, cellUnits, \
+                labelStart, labelStyle, labelSeparator, gridRotationAngle, gridRotationAngleUnits)
+
+        return out_grg
 
 class CreateGRGFromArea(object):
     '''
@@ -62,9 +315,9 @@ class CreateGRGFromArea(object):
         Define parameter definitions
         '''
 
-        # Parameter 0
+        # Parameter 0 - in_feature
         input_area_features = arcpy.Parameter()
-        input_area_features.name='input_grg_area'
+        input_area_features.name='in_feature'
         input_area_features.displayName='Input GRG Area'
         input_area_features.direction='Input'
         input_area_features.datatype='GPFeatureRecordSetLayer'
@@ -76,9 +329,9 @@ class CreateGRGFromArea(object):
                                              "RelativeGRGInputArea.lyr")
         input_area_features.value = input_layer_file_path
 
-        # Parameter 1
+        # Parameter 1 - output_feature_class
         output_features = arcpy.Parameter()
-        output_features.name ='output_grg_features'
+        output_features.name ='output_feature_class'
         output_features.displayName ='Output GRG Features'
         output_features.direction='Output'
         output_features.datatype='DEFeatureClass'
@@ -89,7 +342,7 @@ class CreateGRGFromArea(object):
         output_features.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
                                                  "layers", "GRG.lyr")
 
-        # Parameter 2
+        # Parameter 2 - cell_width
         cell_width = arcpy.Parameter()
         cell_width.name='cell_width'
         cell_width.displayName='Cell Width'
@@ -100,7 +353,7 @@ class CreateGRGFromArea(object):
         cell_width.multiValue=False
         cell_width.value = 100.0
 
-        # Parameter 3
+        # Parameter 3 - cell_height
         cell_height = arcpy.Parameter()
         cell_height.name='cell_height'
         cell_height.displayName='Cell Height'
@@ -111,7 +364,7 @@ class CreateGRGFromArea(object):
         cell_height.multiValue=False
         cell_height.value = 100.0
 
-        # Parameter 4
+        # Parameter 4 - cell_units
         cell_units = arcpy.Parameter()
         cell_units.name='cell_units'
         cell_units.displayName='Cell Units'
@@ -121,55 +374,50 @@ class CreateGRGFromArea(object):
         cell_units.enabled=True
         cell_units.multiValue=False
         cell_units.filter.type = 'ValueList'
-        cell_units.filter.list = ['Meters', 'Feet','Miles','Kilometers','Nautical Miles','Yards']
-        cell_units.value = cell_units.filter.list[0]
+        cell_units.filter.list = distanceTypes
+        cell_units.value = defaultDistanceType
 
-        # Parameter 5
+        # Parameter 5 - label_start_position
         label_start_position = arcpy.Parameter()
         label_start_position.name='label_start_position'
         label_start_position.displayName='Start Position'
         label_start_position.direction='Input'
         label_start_position.datatype='GPString'
-        label_start_position.parameterType='Required'
+        label_start_position.parameterType='Optional'
         label_start_position.category='Label Properties'
         label_start_position.enabled=True
         label_start_position.multiValue=False
         label_start_position.filter.type = 'ValueList'
-        label_start_position.filter.list = ['Upper-Left',
-                                            'Lower-Left',
-                                            'Upper-Right',
-                                            'Lower-Right']
-        label_start_position.value = label_start_position.filter.list[0]
+        label_start_position.filter.list = labelStartPositions
+        label_start_position.value = defaultLabelStartPosition
 
-        # Parameter 6
+        # Parameter 6 - label_format
         label_type = arcpy.Parameter()
-        label_type.name='label_type'
-        label_type.displayName='Type'
+        label_type.name='label_format'
+        label_type.displayName='Label Format'
         label_type.direction='Input'
         label_type.datatype='GPString'
-        label_type.parameterType='Required'
+        label_type.parameterType='Optional'
         label_type.category='Label Properties'
         label_type.enabled=True
         label_type.multiValue=False
         label_type.filter.type = 'ValueList'
-        label_type.filter.list = ['Alpha-Numeric',
-                                   'Alpha-Alpha',
-                                   'Numeric']
-        label_type.value = label_type.filter.list[0]
+        label_type.filter.list = labelFormats
+        label_type.value = defaultLabelFormat
 
-        # Parameter 7
-        label_seperator = arcpy.Parameter()
-        label_seperator.name='label_seperator',
-        label_seperator.displayName='Separator (Only used for Alpha-Alpha labeling)',
-        label_seperator.direction='Input'
-        label_seperator.datatype='GPString'
-        label_seperator.parameterType='Required'
-        label_seperator.category='Label Properties'
-        label_seperator.enabled=False
-        label_seperator.multiValue=False
-        label_seperator.filter.type = 'ValueList'
-        label_seperator.filter.list = ['-',',','.','/']
-        label_seperator.value = label_seperator.filter.list[0]
+        # Parameter 7 - label_separator
+        label_separator = arcpy.Parameter()
+        label_separator.name='label_separator',
+        label_separator.displayName='Separator (Only used for ALPHA_ALPHA labeling)',
+        label_separator.direction='Input'
+        label_separator.datatype='GPString'
+        label_separator.parameterType='Optional'
+        label_separator.category='Label Properties'
+        label_separator.enabled=False
+        label_separator.multiValue=False
+        label_separator.filter.type = 'ValueList'
+        label_separator.filter.list = labelSeparators
+        label_separator.value = defaultLabelSeparator
 
         return [input_area_features,   # 0
                 output_features,       # 1
@@ -178,7 +426,7 @@ class CreateGRGFromArea(object):
                 cell_units,            # 4
                 label_start_position,  # 5
                 label_type,            # 6
-                label_seperator]       # 7
+                label_separator]       # 7
 
     def updateParameters(self, parameters):
         '''
@@ -186,7 +434,7 @@ class CreateGRGFromArea(object):
         validation is performed.  This method is called whenever a parameter
         has been changed.
         '''
-        if parameters[6].value == "Alpha-Alpha":
+        if parameters[6].value == "ALPHA_ALPHA":
           parameters[7].enabled = True
         else:
           parameters[7].enabled = False
@@ -207,7 +455,7 @@ class CreateGRGFromArea(object):
         cell_units =  parameters[4].value        
         label_start_position = parameters[5].value
         label_type =  parameters[6].value
-        label_seperator = parameters[7].value
+        label_separator = parameters[7].value
 
         #arcpy.AddError("Not built yet.")
         out_grg = GRGUtilities.GRGFromArea(
@@ -218,7 +466,7 @@ class CreateGRGFromArea(object):
                         cell_units,           
                         label_start_position, 
                         label_type,           
-                        label_seperator)
+                        label_separator)
          
         return out_grg
 
@@ -317,17 +565,17 @@ class CreateGRGFromArea_OLD(object):
                                    'Numeric']
         label_type.value = label_type.filter.list[0]
 
-        label_seperator = arcpy.Parameter(name='label_seperator',
-                                      displayName='Separator (Only used for Alpha-Alpha labeling)',
+        label_separator = arcpy.Parameter(name='label_separator',
+                                      displayName='Separator (Only used for ALPHA_ALPHA labeling)',
                                       direction='Input',
                                       datatype='GPString',
                                       parameterType='Required',
                                       category='Label Properties',
                                       enabled=False,
                                       multiValue=False)
-        label_seperator.filter.type = 'ValueList'
-        label_seperator.filter.list = ['-',',','.','/']
-        label_seperator.value = label_seperator.filter.list[0]
+        label_separator.filter.type = 'ValueList'
+        label_separator.filter.list = ['-',',','.','/']
+        label_separator.value = label_separator.filter.list[0]
 
         # TODO: define output schema as method
         output_features= arcpy.Parameter(name='output_grg_features',
@@ -347,7 +595,7 @@ class CreateGRGFromArea_OLD(object):
                 cell_units,
                 label_start_position,
                 label_type,
-                label_seperator,
+                label_separator,
                 output_features]
 
     def updateParameters(self, parameters):
@@ -356,7 +604,7 @@ class CreateGRGFromArea_OLD(object):
         validation is performed.  This method is called whenever a parameter
         has been changed.
         '''
-        if parameters[5].value == "Alpha-Alpha":
+        if parameters[5].value == "ALPHA_ALPHA":
           parameters[6].enabled = True
         else:
           parameters[6].enabled = False
@@ -496,7 +744,7 @@ class CreateGRGFromPoint_OLD(object):
         label_type.value = label_type.filter.list[0]
 
         label_seperator = arcpy.Parameter(name='label_seperator',
-                                      displayName='Separator (Only used for Alpha-Alpha labeling)',
+                                      displayName='Separator (Only used for ALPHA_ALPHA labeling)',
                                       direction='Input',
                                       datatype='GPString',
                                       parameterType='Required',
@@ -545,7 +793,7 @@ class CreateGRGFromPoint_OLD(object):
         validation is performed.  This method is called whenever a parameter
         has been changed.
         '''
-        if parameters[7].value == "Alpha-Alpha":
+        if parameters[7].value == "ALPHA_ALPHA":
           parameters[8].enabled = True
         else:
           parameters[8].enabled = False

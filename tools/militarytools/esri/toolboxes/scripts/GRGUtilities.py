@@ -38,25 +38,76 @@ import arcpy
 
 DEBUG = True
 
-def labelFeatures(layer, field):
-    ''' set up labeling for layer '''
+#def labelFeatures(layer, field):
+#    ''' set up labeling for layer '''
+#    if layer.supports("SHOWLABELS"):
+#        for lblclass in layer.listLabelClasses():
+#            lblclass.visible = True
+#            lblclass.expression = " [" + str(field) + "]"
+#        layer.showLabels = True
 
-    if layer.supports("SHOWLABELS"):
-        for lblclass in layer.listLabelClasses():
-            lblclass.visible = True
-            lblclass.expression = " [" + str(field) + "]"
-        layer.showLabels = True
+#def findLayerByName(layerName):
+#    '''  '''
+#    for layer in mapList.listLayers():
+#        if layer.name == layerName:
+#            arcpy.AddMessage("Found matching layer [" + layer.name + "]")
+#            return layer
+#        else:
+#            arcpy.AddMessage("Incorrect layer: [" + layer.name + "]")
 
-def findLayerByName(layerName):
-    '''  '''
-    for layer in mapList.listLayers():
-        if layer.name == layerName:
-            arcpy.AddMessage("Found matching layer [" + layer.name + "]")
-            return layer
-        else:
-            arcpy.AddMessage("Incorrect layer: [" + layer.name + "]")
+def convertFromUnitNameToMeters(unit, unitName):
+    '''
+    ' Convert unit to linear meters
+    ' Supported Units:
+    ' METERS, KILOMETERS, MILES, NAUTICAL_MILES, FEET, YARDS, US_SURVEY_FEET
+    '''
 
-def ColIdxToXlName_CanvasAreaGRG(index):
+    convertedUnit = None
+
+    if (unitName == "METERS"):
+        convertedUnit = float(unit)
+    if (unitName == "FEET"):
+        convertedUnit = float(unit) / 3.2808
+    if (unitName == "US_SURVEY_FEET"):
+        convertedUnit = float(unit) / 3.2808333
+    elif (unitName == "YARDS"):
+        convertedUnit = float(unit) * 0.9144
+    elif (unitName == "KILOMETERS"):
+        convertedUnit = float(unit) * 1000.0
+    elif (unitName == "MILES"):
+        convertedUnit = float(unit) * 1609.344
+    elif (unitName == "NAUTICAL_MILES"):
+        convertedUnit = float(unit) * 1852.0
+
+    if convertedUnit is None:
+        raise Exception('Unsupported Unit in ConvertFromUnitNameToMeters')
+
+    return convertedUnit
+
+def convertFromUnitNameToDegrees(unit, unitName):
+    '''
+    ' Convert unit to angular degrees
+    ' Supported Units:
+    ' DEGREES, MILS, RADS, GRADS
+    '''
+
+    convertedUnit = None
+
+    if (unitName == "DEGREES"):
+        convertedUnit = float(unit)
+    elif (unitName == "RADS"):
+        convertedUnit = float(unit) * 180.0 / math.radians(180)
+    elif (unitName == "MILS"):
+        convertedUnit = float(unit)  * 180.0 / (1000.0 * math.radians(180))
+    elif (unitName == "GRADS"):
+        convertedUnit = float(unit) * 90.0 / 100.0
+
+    if convertedUnit is None:
+        raise Exception('Unsupported Unit in ConvertFromUnitNameToDegrees')
+
+    return convertedUnit
+
+def ColIdxToXlName_AreaGRG(index):
     ''' Converts an index into a letter, labeled like excel columns, A to Z, AA to ZZ, etc.'''
     ordA = ord('A')
     ordZ = ord('Z')
@@ -67,8 +118,7 @@ def ColIdxToXlName_CanvasAreaGRG(index):
         index = math.floor(int(index) / len) - 1
     return s
 
-
-def ColIdxToXlName_PointTargetGRG(index):
+def ColIdxToXlName_PointGRG(index):
     ''' Converts an index into a letter, labeled like excel columns, A to Z, AA to ZZ, etc. '''
     if index < 1:
         raise ValueError("Index is too small")
@@ -93,12 +143,11 @@ def RotateFeatureClass(inputFC, outputFC,
     outputFC    Output feature class
     angle       Angle to rotate, in degrees
     pivot_point X,Y coordinates (as space-separated string)
-                Default is lower-left of inputFC
+                Default is LOWER_LEFT of inputFC
 
     As the output feature class no longer has a "real" xy locations,
     after rotation, it no coordinate system defined.
     """
-
 
     def RotateXY(x, y, xc=0, yc=0, angle=0, units="DEGREES"):
         """Rotate an xy cooordinate about a specified origin
@@ -129,7 +178,7 @@ def RotateFeatureClass(inputFC, outputFC,
             pivot_point = xcen, ycen
         except:
             # if pivot point was not specified, get it from
-            # the lower-left corner of the feature class
+            # the LOWER_LEFT corner of the feature class
             ext = arcpy.Describe(inputFC).extent
             xcen, ycen  = ext.XMin, ext.YMin
             pivot_point = xcen, ycen
@@ -307,39 +356,10 @@ def GRGFromArea(AOI,
         if DEBUG == True: arcpy.AddMessage("Getting extent info...")
 
         '''
-        ' If cell units are feet convert to meters
+        ' Convert from cell units to meters
         '''
-        if (cellUnits == "Feet"):
-            cellWidth = float(cellWidth) / 3.2808
-            cellHeight = float(cellHeight) / 3.2808
-
-        '''
-        ' If cell units are kilometers convert to meters
-        '''
-        if (cellUnits == "Kilometers"):
-            cellWidth = float(cellWidth) * 1000
-            cellHeight = float(cellHeight) * 1000
-
-        '''
-        ' If cell units are miles convert to meters
-        '''
-        if (cellUnits == "Miles"):
-            cellWidth = float(cellWidth) * 1609.344
-            cellHeight = float(cellHeight) * 1609.344
-
-        '''
-        ' If cell units are yards convert to meters
-        '''
-        if (cellUnits == "Yards"):
-            cellWidth = float(cellWidth) * 0.9144
-            cellHeight = float(cellHeight) * 0.9144
-
-        '''
-        ' If cell units are Nautical Miles convert to meters
-        '''
-        if (cellUnits == "Nautical Miles"):
-            cellWidth = float(cellWidth) * 1852
-            cellHeight = float(cellHeight) * 1852
+        cellWidth = convertFromUnitNameToMeters(cellWidth, cellUnits)
+        cellHeight = convertFromUnitNameToMeters(cellHeight, cellUnits)
 
         '''
         ' create a minimum bounding rectangle around the AOI
@@ -372,25 +392,25 @@ def GRGFromArea(AOI,
         letterIndex = 0
         secondLetterIndex = 0
 
-        if labelStartPos == "Upper-Left":
+        if labelStartPos == "UPPER_LEFT":
             letterIndex = verticalCells - 1
             secondLetterIndex = -1
-            if labelStyle != 'Numeric':
+            if labelStyle != 'NUMERIC':
                 labelNumber = 0
             else:
                 labelNumber = (verticalCells - 1) * horizontalCells
-        elif labelStartPos == "Upper-Right":
+        elif labelStartPos == "UPPER_RIGHT":
             letterIndex = verticalCells - 1
             secondLetterIndex = horizontalCells
-            if labelStyle != 'Numeric':
+            if labelStyle != 'NUMERIC':
                 labelNumber = horizontalCells + 1
             else:
                 labelNumber = (verticalCells * horizontalCells) + 1
-        elif labelStartPos == "Lower-Right":
+        elif labelStartPos == "LOWER_RIGHT":
             letterIndex = 0
             secondLetterIndex = horizontalCells
             labelNumber = horizontalCells + 1
-        elif labelStartPos == "Lower-Left":
+        elif labelStartPos == "LOWER_LEFT":
             letterIndex = 0
             secondLetterIndex = -1
             labelNumber = 0
@@ -454,21 +474,21 @@ def GRGFromArea(AOI,
             verticalCount = 0
             horizontalCount = 0
             for row in cursor:
-                if labelStartPos == "Lower-Left" or labelStartPos == 'Upper-Left':
+                if labelStartPos == "LOWER_LEFT" or labelStartPos == 'UPPER_LEFT':
                     labelNumber = labelNumber + 1
                     secondLetterIndex = secondLetterIndex + 1
                 else:
                     labelNumber = labelNumber - 1
                     secondLetterIndex = secondLetterIndex - 1
 
-                letter = ColIdxToXlName_CanvasAreaGRG(int(letterIndex))
-                secondLetter = ColIdxToXlName_CanvasAreaGRG(int(secondLetterIndex))
+                letter = ColIdxToXlName_AreaGRG(int(letterIndex))
+                secondLetter = ColIdxToXlName_AreaGRG(int(secondLetterIndex))
 
-                if (labelStyle == "Alpha-Numeric"):
+                if (labelStyle == "ALPHA_NUMERIC"):
                     row[1] = letter + str(int(labelNumber))
-                elif (labelStyle == "Alpha-Alpha"):
+                elif (labelStyle == "ALPHA_ALPHA"):
                     row[1] = letter + labelSeperator + secondLetter
-                elif (labelStyle == "Numeric"):
+                elif (labelStyle == "NUMERIC"):
                     row[1] = labelNumber
 
                 cursor.updateRow(row)
@@ -478,29 +498,29 @@ def GRGFromArea(AOI,
                 if horizontalCount >= horizontalCells:
                     horizontalCount = 0
                     verticalCount = verticalCount + 1
-                    if labelStartPos == "Upper-Left":
+                    if labelStartPos == "UPPER_LEFT":
                         letterIndex = letterIndex - 1
                         secondLetterIndex = -1
-                        if labelStyle != 'Numeric':
+                        if labelStyle != 'NUMERIC':
                             labelNumber = 0
                         else:
                             labelNumber = (verticalCells - (verticalCount + 1)) * horizontalCells
-                    elif labelStartPos == "Upper-Right":
+                    elif labelStartPos == "UPPER_RIGHT":
                         letterIndex = letterIndex - 1
                         secondLetterIndex = horizontalCells
-                        if labelStyle != 'Numeric':
+                        if labelStyle != 'NUMERIC':
                             labelNumber = horizontalCells + 1
-                    elif labelStartPos == "Lower-Right":
+                    elif labelStartPos == "LOWER_RIGHT":
                         letterIndex = letterIndex + 1
                         secondLetterIndex = horizontalCells
-                        if labelStyle != 'Numeric':
+                        if labelStyle != 'NUMERIC':
                             labelNumber = horizontalCells + 1
                         else:
                             labelNumber = ((verticalCount + 1) * horizontalCells) + 1
-                    elif labelStartPos == "Lower-Left":
+                    elif labelStartPos == "LOWER_LEFT":
                         letterIndex = letterIndex + 1
                         secondLetterIndex = -1
-                        if labelStyle != 'Numeric':
+                        if labelStyle != 'NUMERIC':
                             labelNumber = 0
 
         arcpy.CopyFeatures_management(fishnet, outputFeatureClass)
@@ -543,6 +563,7 @@ def GRGFromArea(AOI,
             pass
 
 def GRGFromPoint(starting_point,
+                 output_feature_class,
                  horizontal_cells,
                  vertical_cells,
                  cell_width,
@@ -552,7 +573,7 @@ def GRGFromPoint(starting_point,
                  label_style,
                  labelSeperator,
                  gridAngle,
-                 output_feature_class):
+                 gridAngleUnits):
     ''' Create Gridded Reference Graphic (GRG) from point input.'''
 
     targetPointOrigin = starting_point
@@ -563,7 +584,7 @@ def GRGFromPoint(starting_point,
     cellUnits = cell_units
     labelStartPos = label_start_position
     labelStyle = label_style
-    rotation = gridAngle
+    rotation = convertFromUnitNameToDegrees(gridAngle, gridAngleUnits)
     outputFeatureClass = output_feature_class
 
     tempOutput = os.path.join("in_memory", "tempFishnetGrid")
@@ -685,13 +706,13 @@ def GRGFromPoint(starting_point,
 
         # Set the start position for labeling
         startPos = None
-        if (labelStartPos == "Upper-Right"):
+        if (labelStartPos == "UPPER_RIGHT"):
             startPos = "UR"
-        elif (labelStartPos == "Upper-Left"):
+        elif (labelStartPos == "UPPER_LEFT"):
             startPos = "UL"
-        elif (labelStartPos == "Lower-Left"):
+        elif (labelStartPos == "LOWER_LEFT"):
             startPos = "LL"
-        elif (labelStartPos == "Lower-Right"):
+        elif (labelStartPos == "LOWER_RIGHT"):
             startPos = "LR"
 
         arcpy.AddMessage("Creating Fishnet Grid")
@@ -722,24 +743,24 @@ def GRGFromPoint(starting_point,
             yPoint = row.getValue("SHAPE").firstPoint.Y
             if (lastY != yPoint) and (lastY != -9999):
                 letterIndex += 1
-                letter = ColIdxToXlName_PointTargetGRG(letterIndex)
-                if (labelStyle != "Numeric"):
+                letter = ColIdxToXlName_PointGRG(letterIndex)
+                if (labelStyle != "NUMERIC"):
                     number = 1
                 secondLetter = 'A'
                 secondLetterIndex = 1
             lastY = yPoint
 
-            if (labelStyle == "Alpha-Numeric"):
+            if (labelStyle == "ALPHA_NUMERIC"):
                 row.setValue(gridField, str(letter) + str(number))
-            elif (labelStyle == "Alpha-Alpha"):
+            elif (labelStyle == "ALPHA_ALPHA"):
                 row.setValue(gridField, str(letter) + labelSeperator + str(secondLetter))
-            elif (labelStyle == "Numeric"):
+            elif (labelStyle == "NUMERIC"):
                 row.setValue(gridField, str(number))
 
             cursor.updateRow(row)
             number += 1
             secondLetterIndex += 1
-            secondLetter = ColIdxToXlName_PointTargetGRG(secondLetterIndex)
+            secondLetter = ColIdxToXlName_PointGRG(secondLetterIndex)
 
         # Rotate the shape, if needed.
         if (rotation != 0):

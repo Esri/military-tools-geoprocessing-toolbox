@@ -79,9 +79,9 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
         #inputs
         cellWidth = 100
         cellHeight = 100
-        cellunits = "Meters"
-        labelStart = "Lower-Left"
-        labelStyle = "Numeric"
+        cellunits = "METERS"
+        labelStart = "LOWER_LEFT"
+        labelStyle = "NUMERIC"
         labelSeparator = "-" # Only used for Alpha-Alpha but required parameter?
         output = os.path.join(Configuration.militaryScratchGDB, "grg")
 
@@ -136,9 +136,9 @@ class GRGCreateGRGFromAreaTestCase(unittest.TestCase):
         #inputs
         cellWidth = randint(100, 500)
         cellHeight = randint(100, 500)
-        cellunits = "Meters"
-        labelStart = "Lower-Left"
-        labelStyle = "Numeric"
+        cellunits = "METERS"
+        labelStart = "LOWER_LEFT"
+        labelStyle = "NUMERIC"
         labelSeparator = "-" # Only used for Alpha-Alpha but required parameter?
         output = os.path.join(Configuration.militaryScratchGDB, "grg")
 

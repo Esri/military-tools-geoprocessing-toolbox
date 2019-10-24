@@ -79,7 +79,7 @@ class Toolbox(object):
 
 					# GRG
 					CreateGRGFromArea,
-					# CreateGRGFromPoint,
+					CreateGRGFromPoint,
 					# CreateReferenceSystemGRGFromArea,
 					# NumberFeatures,
 

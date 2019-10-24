@@ -78,9 +78,9 @@ class GRGCreateGRGFromPointTestCase(unittest.TestCase):
         cols = 10
         cellWidth = 100
         cellHeight = 100
-        cellUnits = "Meters"
-        labelStart = "Lower-Left"
-        labelStyle = "Alpha-Numeric"
+        cellUnits = "METERS"
+        labelStart = "LOWER_LEFT"
+        labelStyle = "ALPHA_NUMERIC"
         labelSeparator = "-" # TRICKY: Only used for Alpha-Alpha but required parameter?
         gridRotationAngle = 0 # No Rotation
 
@@ -95,11 +95,11 @@ class GRGCreateGRGFromPointTestCase(unittest.TestCase):
 
         try:
             # Calling the PointTargetGRG Script Tool
-            toolOutput = arcpy.CreateGRGFromPoint_mt(self.pointTarget, \
+            toolOutput = arcpy.CreateGRGFromPoint_military(self.pointTarget, output, \
                 rows, cols, \
                 cellWidth, cellHeight, cellUnits, \
-                labelStart, labelStyle, labelSeparator, gridRotationAngle, \
-                output)
+                labelStart, labelStyle, labelSeparator, gridRotationAngle, "DEGREES" \
+                )
         except arcpy.ExecuteError:
             UnitTestUtilities.handleArcPyError()
         except:
@@ -146,9 +146,9 @@ class GRGCreateGRGFromPointTestCase(unittest.TestCase):
         cols = 20
         cellWidth = 100
         cellHeight = 200
-        cellUnits = "Meters"
-        labelStart = "Lower-Left"
-        labelStyle = "Numeric"
+        cellUnits  = "METERS"
+        labelStart = "LOWER_LEFT"
+        labelStyle = "NUMERIC"
         labelSeparator = "-" # TRICKY: Only used for Alpha-Alpha but required parameter?
         gridRotationAngle = 0 # No Rotation
 
@@ -163,11 +163,11 @@ class GRGCreateGRGFromPointTestCase(unittest.TestCase):
 
         try:
             # Calling the PointTargetGRG Script Tool
-            toolOutput = arcpy.CreateGRGFromPoint_mt(self.pointTarget, \
+            toolOutput = arcpy.CreateGRGFromPoint_military(self.pointTarget, output, \
                 rows, cols, \
                 cellWidth, cellHeight, cellUnits, \
-                labelStart, labelStyle, labelSeparator, gridRotationAngle, \
-                output)
+                labelStart, labelStyle, labelSeparator, gridRotationAngle, 'DEGREES' \
+                )
         except arcpy.ExecuteError:
             UnitTestUtilities.handleArcPyError()
         except:
@@ -214,9 +214,9 @@ class GRGCreateGRGFromPointTestCase(unittest.TestCase):
         cols = 10
         cellWidth = 100
         cellHeight = 100
-        cellUnits = "Meters"
-        labelStart = "Lower-Left"
-        labelStyle = "Alpha-Numeric"
+        cellUnits  = "METERS"
+        labelStart = "LOWER_LEFT"
+        labelStyle = "ALPHA_NUMERIC"
         labelSeparator = "-" # TRICKY: Only used for Alpha-Alpha but required parameter?
         gridRotationAngle = 10
 
@@ -231,11 +231,11 @@ class GRGCreateGRGFromPointTestCase(unittest.TestCase):
 
         try:
             # Calling the PointTargetGRG Script Tool
-            toolOutput = arcpy.CreateGRGFromPoint_mt(self.pointTarget, \
+            toolOutput = arcpy.CreateGRGFromPoint_military(self.pointTarget, output, \
                 rows, cols, \
                 cellWidth, cellHeight, cellUnits, \
-                labelStart, labelStyle, labelSeparator, gridRotationAngle, \
-                output)
+                labelStart, labelStyle, labelSeparator, gridRotationAngle, "DEGREES" \
+                )
         except arcpy.ExecuteError:
             UnitTestUtilities.handleArcPyError()
         except:
