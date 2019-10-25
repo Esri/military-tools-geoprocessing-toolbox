@@ -106,10 +106,10 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
         toolOutput = None
 
         try:
-            toolOutput = arcpy.CreateReferenceSystemGRGFromArea_mt(self.inputArea,
+            toolOutput = arcpy.CreateReferenceSystemGRGFromArea_military(self.inputArea,
+                                                       output,
                                                        self.ref_grid,
                                                        grid_size,
-                                                       output,
                                                        self.large_grid_handling)
             arcpy.AddSpatialIndex_management(output)
         except arcpy.ExecuteError:
@@ -152,10 +152,10 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
         toolOutput = None
 
         try:
-            toolOutput = arcpy.CreateReferenceSystemGRGFromArea_mt(self.inputArea,
+            toolOutput = arcpy.CreateReferenceSystemGRGFromArea_military(self.inputArea,
+                                                  output,
                                                   self.ref_grid,
                                                   grid_size,
-                                                  output,
                                                   self.large_grid_handling)
             arcpy.AddSpatialIndex_management(output)
         except arcpy.ExecuteError:
@@ -198,10 +198,10 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
         toolOutput = None
 
         try:
-            toolOutput = arcpy.CreateReferenceSystemGRGFromArea_mt(self.inputArea,
+            toolOutput = arcpy.CreateReferenceSystemGRGFromArea_military(self.inputArea,
+                                                       output,
                                                        self.ref_grid,
                                                        grid_size,
-                                                       output,
                                                        self.large_grid_handling)
             arcpy.AddSpatialIndex_management(output)
         except arcpy.ExecuteError:
@@ -244,10 +244,10 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
         toolOutput = None
 
         try:
-            toolOutput = arcpy.CreateReferenceSystemGRGFromArea_mt(self.inputArea,
+            toolOutput = arcpy.CreateReferenceSystemGRGFromArea_military(self.inputArea,
+                                                       output,
                                                        self.ref_grid,
                                                        grid_size,
-                                                       output,
                                                        self.large_grid_handling)
             arcpy.AddSpatialIndex_management(output)
         except arcpy.ExecuteError:
@@ -290,10 +290,10 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
         toolOutput = None
 
         try:
-            toolOutput = arcpy.CreateReferenceSystemGRGFromArea_mt(self.inputArea,
+            toolOutput = arcpy.CreateReferenceSystemGRGFromArea_military(self.inputArea,
+                                                       output,
                                                        self.ref_grid,
                                                        grid_size,
-                                                       output,
                                                        self.large_grid_handling)
             arcpy.AddSpatialIndex_management(output)
         except arcpy.ExecuteError:
@@ -336,10 +336,10 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
         toolOutput = None
 
         try:
-            toolOutput = arcpy.CreateReferenceSystemGRGFromArea_mt(self.inputArea10m,
+            toolOutput = arcpy.CreateReferenceSystemGRGFromArea_military(self.inputArea10m,
+                                                       output,
                                                        self.ref_grid,
                                                        grid_size,
-                                                       output,
                                                        self.large_grid_handling)
             arcpy.AddSpatialIndex_management(output)
         except arcpy.ExecuteError:
@@ -379,10 +379,10 @@ class GRGCreateReferenceSystemGRGFromAreaTestCase(unittest.TestCase, arcpyAssert
         Configuration.Logger.info(runToolMsg)
 
         with self.assertRaises(arcpy.ExecuteError) as manage_raise:
-            arcpy.CreateReferenceSystemGRGFromArea_mt(self.inputArea10m,
+            arcpy.CreateReferenceSystemGRGFromArea_military(self.inputArea10m,
+                                                       output,
                                                        self.ref_grid,
                                                        grid_size,
-                                                       output,
                                                        "NO_LARGE_GRIDS")
         self.assertTrue('exceeds large grid value for' in str(manage_raise.exception))
 

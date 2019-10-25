@@ -26,7 +26,7 @@
 
 from scripts.ConversionTools import *
 from scripts.DistanceAndDirectionTools import *
-# from scripts.GRGTools import *
+from scripts.GRGTools import *
 # from scripts.VisTools import *
 
 ###########################################################
@@ -35,8 +35,10 @@ import importlib
 import scripts
 importlib.reload(scripts.DistanceAndDirectionTools)  
 importlib.reload(scripts.ConversionTools)  
+importlib.reload(scripts.GRGTools)  
 from scripts.DistanceAndDirectionTools import *
 from scripts.ConversionTools import *
+from scripts.GRGTools import *
 ###########################################################
 
 class Toolbox(object):
@@ -72,15 +74,15 @@ class Toolbox(object):
 
 					# DistanceAndDirection
 					GenerateRangeRings,
-					GenerateRangeRingsFromTable
+					GenerateRangeRingsFromTable,
 					# OLD/ORIGINAL TOOLS:
 					# RangeRingsFromInterval, 
 					# RangeRingFromMinimumAndMaximum, 
 					# RangeRingsFromMinAndMaxTable,
 
 					# GRG
-					# CreateGRGFromArea,
-					# CreateGRGFromPoint,
+					CreateGRGFromArea,
+					CreateGRGFromPoint,
 					# CreateReferenceSystemGRGFromArea,
 					# NumberFeatures,
 
