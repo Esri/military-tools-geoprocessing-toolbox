@@ -55,6 +55,20 @@ defaultLabelFormat = labelFormats[0]
 
 labelSeparators = ['-',',','.','/']
 defaultLabelSeparator = labelSeparators[0]
+ 
+gridSystems = ["MGRS", "USNG"]
+defaultGridSystem = gridSystems[0]
+
+gridSizes = ['GRID_ZONE_DESIGNATOR',
+                '100000M_GRID',
+                '10000M_GRID',
+                '1000M_GRID',
+                '100M_GRID',
+                '10M_GRID']
+defaultGridSize = gridSizes[0]
+
+largeGridOptions = ["NO_LARGE_GRIDS", "ALLOW_LARGE_GRIDS"]
+defaultGridOption = largeGridOptions[0]
 
 class CreateGRGFromPoint(object):
     '''
@@ -469,6 +483,127 @@ class CreateGRGFromArea(object):
                         label_separator)
          
         return out_grg
+
+class CreateReferenceSystemGRGFromArea(object):
+    '''
+    Build polygon features of MGRS or USNG gridded reference graphics.
+    '''
+    def __init__(self):
+        ''' Define Reference Grid From Area constructor '''
+        self.label = "Create Reference System GRG From Area"
+        self.description = "Create an MGRS or USNG gridded reference graphic from an selected area on the map."
+        self.category = "Gridded Reference Graphic"
+
+    def isLicensed(self):
+        """Set whether tool is licensed to execute."""
+        return True
+
+    def getParameterInfo(self):
+        '''
+        Define parameter definitions
+        '''
+
+        in_features = arcpy.Parameter()
+        in_features.name='in_features'
+        in_features.displayName='Input Grid Area'
+        in_features.direction='Input'
+        in_features.datatype='GPFeatureRecordSetLayer'
+        in_features.parameterType='Required'
+        in_features.enabled=True
+        in_features.multiValue=False
+        input_layer_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                             "layers",
+                                             "RelativeGRGInputArea.lyr")
+        in_features.value = input_layer_file_path
+      
+        output_features = arcpy.Parameter()
+        output_features.name='output_features'
+        output_features.displayName='Output GRG Features'
+        output_features.direction='Output'
+        output_features.datatype='DEFeatureClass'
+        output_features.parameterType='Required'
+        output_features.enabled=True
+        output_features.multiValue=False
+        output_features.value = r"output_grid"
+        output_features.symbology = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                                 "layers", "GRG.lyr")
+
+        grid_reference_system = arcpy.Parameter()
+        grid_reference_system.name='grid_reference_system'
+        grid_reference_system.displayName='Grid Reference System'
+        grid_reference_system.direction='Input'
+        grid_reference_system.datatype='GPString'
+        grid_reference_system.parameterType='Required'
+        grid_reference_system.enabled=True
+        grid_reference_system.multiValue=False
+        grid_reference_system.filter.type = 'ValueList'
+        grid_reference_system.filter.list = gridSystems
+        grid_reference_system.value = defaultGridSystem
+
+        grid_square_size = arcpy.Parameter()
+        grid_square_size.name='grid_square_size'
+        grid_square_size.displayName='Grid Square Size'
+        grid_square_size.direction='Input'
+        grid_square_size.datatype='GPString'
+        grid_square_size.parameterType='Required'
+        grid_square_size.enabled=True
+        grid_square_size.multiValue=False
+        grid_square_size.filter.type = 'ValueList'
+        grid_square_size.filter.list = gridSizes
+        grid_square_size.value = defaultGridSize
+
+        large_grid_handling = arcpy.Parameter()
+        large_grid_handling.name='large_grid_handling'
+        large_grid_handling.displayName='Large Grid Handling'
+        large_grid_handling.direction='Input'
+        large_grid_handling.datatype='GPString'
+        large_grid_handling.parameterType='Optional'
+        large_grid_handling.enabled=True
+        large_grid_handling.multiValue=False
+        large_grid_handling.filter.type = 'ValueList'
+        large_grid_handling.filter.list = largeGridOptions
+        large_grid_handling.value = defaultGridOption
+
+        return [in_features,            # 0
+                output_features,        # 1
+                grid_reference_system,  # 2
+                grid_square_size,       # 3
+                large_grid_handling]    # 4
+
+    def updateParameters(self, parameters):
+        '''
+        Modify the values and properties of parameters before internal
+        validation is performed.  This method is called whenever a parameter
+        has been changed.
+        '''
+
+        return
+
+    def updateMessages(self, parameters):
+        '''
+        Modify the messages created by internal validation for each tool
+        parameter.  This method is called after internal validation
+        '''
+        return
+
+    def execute(self, parameters, messages):
+        ''' execute for toolbox'''
+
+        inFeatures          = parameters[0].value   # 0
+        outputFeatures      = parameters[1].value   # 1
+        gridReferenceSystem = parameters[2].value   # 2
+        gridSquareSize      = parameters[3].value   # 3
+        largeGridHandling   = parameters[4].value   # 4
+
+        referenceGridBuilder = GRGReferenceGrid.ReferenceGrid(
+                                    inFeatures,
+                                    gridReferenceSystem,
+                                    gridSquareSize,
+                                    largeGridHandling)
+
+        outGrid = referenceGridBuilder.Build(outputFeatures)
+
+        return outGrid
 
 # *******************************************************************************************************
 # OLD TOOLS:
