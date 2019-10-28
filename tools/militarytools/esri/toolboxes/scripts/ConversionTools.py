@@ -15,9 +15,9 @@ import os
 import arcpy
 
 try:
-    from . import ConversionUtilities
+    from . import ConversionToolUtilities
 except ImportError:
-    import ConversionUtilities
+    import ConversionToolUtilities
 
 # String constants shared by tools:
 defaultcoordinateFormat = 'DD_2'
