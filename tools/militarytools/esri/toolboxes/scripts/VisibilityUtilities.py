@@ -729,6 +729,28 @@ def makeProfileGraph(inputFeatures):
 
 ''' TOOL METHODS '''
 
+def highestPointsByArea(inputAreaFeature,
+                      inputSurfaceRaster,
+                      outputPointFeature):
+
+    hi_low_Switch = 'MAXIMUM'
+
+    return hi_lowPointByArea(inputAreaFeature,
+                      inputSurfaceRaster,
+                      hi_low_Switch,
+                      outputPointFeature)
+
+def lowestPointsByArea(inputAreaFeature,
+                      inputSurfaceRaster,
+                      outputPointFeature):
+
+    hi_low_Switch = 'MINIMUM'
+
+    return hi_lowPointByArea(inputAreaFeature,
+                      inputSurfaceRaster,
+                      hi_low_Switch,
+                      outputPointFeature)
+
 def hi_lowPointByArea(inputAreaFeature,
                       inputSurfaceRaster,
                       hi_low_Switch,

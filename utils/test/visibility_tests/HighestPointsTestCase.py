@@ -91,7 +91,7 @@ class HighestPointsTestCase(unittest.TestCase):
 
         toolOutput = None
         try :         
-            toolOutput = arcpy.HighestPoints_mt(self.inputArea, 
+            toolOutput = arcpy.FindHighestPoint_military(self.inputArea, 
                                                 self.inputSurface, self.outputPoints)
         except:
             # WORKAROUND: To arpy exception with Pro: 
@@ -130,14 +130,14 @@ class HighestPointsTestCase(unittest.TestCase):
         noInputArea = None # <-- Bad Input Area
 
         try : 
-           arcpy.HighestPoints_mt(noInputArea, self.inputSurface, self.outputPoints)
+           arcpy.FindHighestPoint_military(noInputArea, self.inputSurface, self.outputPoints)
         except arcpy.ExecuteError:
             # ExecuteError is expected because of bad input
             errorMsgs = arcpy.GetMessages(severity = 2)
 
         self.assertIsNotNone(errorMsgs, "Error Message Expected for No Input Area")
         # 2 Error Messages: "No Input Area" "Tool Failed" - errorMsgs is a string not list
-        self.assertEqual(errorMsgs.count('\n'), 2, "Only 2 Error Messages Expected for No Input Area")
+        self.assertEqual(errorMsgs.count('\n'), 3, "3 Error Messages Expected for No Input Area")
 
         return
 

@@ -90,7 +90,7 @@ class LowestPointsTestCase(unittest.TestCase):
         arcpy.env.overwriteOutput = True
 
         try :  
-            arcpy.LowestPoints_mt(self.inputArea, self.inputSurface, self.outputPoints)
+            arcpy.FindLowestPoint_military(self.inputArea, self.inputSurface, self.outputPoints)
         except:
             # WORKAROUND: To arpy exception with Pro: 
             # "DeprecationWarning: Product and extension licensing is no longer handled with this method."
@@ -113,14 +113,14 @@ class LowestPointsTestCase(unittest.TestCase):
         noInputArea = None # <-- Bad Input Area
 
         try : 
-            arcpy.LowestPoints_mt(noInputArea, self.inputSurface, self.outputPoints)
+            arcpy.FindLowestPoint_military(noInputArea, self.inputSurface, self.outputPoints)
         except arcpy.ExecuteError:
             # ExecuteError is expected because of bad input
             errorMsgs = arcpy.GetMessages(severity = 2)
 
         self.assertIsNotNone(errorMsgs, "Error Message Expected for No Input Area")
         # 2 Error Messages: "No Input Area" "Tool Failed" - errorMsgs is a string not list
-        self.assertEqual(errorMsgs.count('\n'), 2, "Only 2 Error Messages Expected for No Input Area")
+        self.assertEqual(errorMsgs.count('\n'), 3, "3 Error Messages Expected for No Input Area")
 
         return
 

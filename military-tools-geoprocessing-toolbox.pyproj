@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{a10201f6-5a06-4328-bb56-1698d8da4e7e}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>utils\test\distance_tests\DistanceAndDirectionTestCase.py</StartupFile>
+    <StartupFile>utils\test\visibility_tests\LowestPointsTestCase.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -35,7 +35,7 @@
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\AddLLOSFields.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\AddRLOSObserverFields.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\ConversionTools.py" />
-    <Compile Include="tools\militarytools\esri\toolboxes\scripts\ConversionUtilities.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\ConversionToolUtilities.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\ConvertCoordinates.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\DistanceAndDirectionTools.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\FindLocalPeaks.py" />
@@ -56,7 +56,7 @@
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\TableToPolyline.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\Utilities.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\VisibilityUtilities.py" />
-    <Compile Include="tools\militarytools\esri\toolboxes\scripts\VisTools.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\VisibilityTools.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\__init__.py" />
     <Compile Include="tools\militarytools\__init__.py" />
     <Compile Include="tools\setup.py" />
