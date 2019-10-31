@@ -103,11 +103,11 @@ class RadialLineOfSightTestCase(unittest.TestCase):
 
         toolOutput = None
         try : 
-            toolOutput = arcpy.RadialLineOfSight_mt(self.observers, 
-                                                    inputObserverHeight, 
-                                                    inputRadiusOfObserver, 
+            toolOutput = arcpy.RadialLineOfSight_military(self.observers, 
                                                     self.inputSurface, 
-                                                    self.outputRLOS)
+                                                    self.outputRLOS,
+                                                    inputRadiusOfObserver, 
+                                                    inputObserverHeight)
         except:
             # WORKAROUND: To arpy exception with Pro: 
             # "DeprecationWarning: Product and extension licensing is no longer handled with this method."

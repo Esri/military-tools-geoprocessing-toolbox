@@ -70,6 +70,8 @@ class LinearLineOfSightTestCase(unittest.TestCase):
         if not arcpy.Exists(Configuration.militaryScratchGDB):
             Configuration.militaryScratchGDB = UnitTestUtilities.createScratch(Configuration.currentPath)
 
+        arcpy.env.scratchWorkspace = Configuration.militaryScratchGDB
+
         self.observers = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Observers")
         self.targets = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Targets")
         self.inputSurface = os.path.join(Configuration.militaryInputDataGDB, "ElevationUTM_Zone10")
@@ -77,8 +79,8 @@ class LinearLineOfSightTestCase(unittest.TestCase):
         self.observers_empty = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Observers_Empty")
         self.targets_empty = os.path.join(Configuration.militaryInputDataGDB, "LLOS_Targets_Empty")
 
-        UnitTestUtilities.checkGeoObjects([Configuration.toolboxUnderTest, \
-            self.observers, self.targets, self.inputSurface])
+        #UnitTestUtilities.checkGeoObjects([Configuration.toolboxUnderTest, \
+        #    self.observers, self.targets, self.inputSurface])
 
         self.outputLOS = os.path.join(Configuration.militaryScratchGDB, "outputLinearLineOfSight")
         self.outputSightLines = os.path.join(Configuration.militaryScratchGDB, "outputSightLines")
@@ -89,6 +91,8 @@ class LinearLineOfSightTestCase(unittest.TestCase):
         #if arcpy.CheckExtension("3D") == "Available":
         #    arcpy.CheckOutExtension("3D")
         #    arcpy.AddMessage("3D checked out")
+
+        arcpy.env.overwriteOutput = True
 
         arcpy.ImportToolbox(Configuration.toolboxUnderTest)
 
@@ -104,19 +108,17 @@ class LinearLineOfSightTestCase(unittest.TestCase):
         ''' Test Linear Line Of Sight in ArcGIS Desktop'''
         Configuration.Logger.info(".....LinearLineOfSightTestCase.test_linear_line_of_sight")
 
-        arcpy.env.overwriteOutput = True
-
         toolOutput = None
         try :         
-            toolOutput = arcpy.LinearLineOfSight_mt(self.observers,
-                                       2.0,
+            toolOutput = arcpy.LinearLineOfSight_military(self.observers,
                                        self.targets,
-                                       0.0,
                                        self.inputSurface,
                                        self.outputLOS,
                                        self.outputSightLines,
                                        self.outputObservers,
-                                       self.outputTargets)
+                                       self.outputTargets,
+                                       2.0,
+                                       0.0)
         except:
             # WORKAROUND: To arpy exception with Pro: 
             # "DeprecationWarning: Product and extension licensing is no longer handled with this method."
@@ -169,31 +171,31 @@ class LinearLineOfSightTestCase(unittest.TestCase):
         toolOutput = None
         # Check for empty observer input parameter
         with self.assertRaises(arcpy.ExecuteError) as manage_raise:
-            toolOutput = arcpy.LinearLineOfSight_mt(self.observers_empty,
-                                       2.0,
+            toolOutput = arcpy.LinearLineOfSight_military(self.observers_empty,
                                        self.targets,
-                                       0.0,
                                        self.inputSurface,
                                        self.outputLOS,
                                        self.outputSightLines,
                                        self.outputObservers,
-                                       self.outputTargets)
+                                       self.outputTargets,
+                                       2.0,
+                                       0.0)
         self.assertTrue("Please provide at least one observer" in str(manage_raise.exception))
         return
 
-    def test_empty_observer(self):
+    def test_empty_target(self):
         toolOutput = None
         # Check for empty target input parameter
         with self.assertRaises(arcpy.ExecuteError) as manage_raise:
-            toolOutput = arcpy.LinearLineOfSight_mt(self.observers,
-                                       2.0,
+            toolOutput = arcpy.LinearLineOfSight_military(self.observers,
                                        self.targets_empty,
-                                       0.0,
-                                       self.inputSurface,
+                                        self.inputSurface,
                                        self.outputLOS,
                                        self.outputSightLines,
                                        self.outputObservers,
-                                       self.outputTargets)
+                                       self.outputTargets,
+                                       2.0,
+                                       0.0)
         self.assertTrue("Please provide at least one target feature" in str(manage_raise.exception))
         return
         

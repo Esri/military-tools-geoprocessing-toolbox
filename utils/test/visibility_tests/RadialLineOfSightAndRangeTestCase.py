@@ -80,9 +80,10 @@ class RadialLineOfSightAndRangeTestCase(unittest.TestCase):
         toolOutput = None
 
         try : 
-            toolOutput = arcpy.RadialLineOfSightAndRange_mt(inputObserverPoints, elevationRaster, \
-                outerRadiusInput, leftAzimuthInput, rightAzimuthInput, observerOffsetInput, \
-                innerRadiusInput, viewshed, sectorWedge, fullWedge)
+            toolOutput = arcpy.RadialLineOfSightAndRange_military(inputObserverPoints, elevationRaster, \
+                viewshed, sectorWedge, fullWedge, 
+                observerOffsetInput, innerRadiusInput, outerRadiusInput,  
+                leftAzimuthInput, rightAzimuthInput)
         except :
             UnitTestUtilities.handleArcPyError()
 
@@ -105,7 +106,7 @@ class RadialLineOfSightAndRangeTestCase(unittest.TestCase):
         self.assertGreater(sectorWedgeFeaturesCount, 0, "No output features created for " + str(sectorWedgeFeaturesCount))
         self.assertGreater(fullWedgeFeaturesCount, 0, "No output features created for " + str(fullWedgeFeaturesCount))
 
-    def test_createViewshed(self):
+    def _test_createViewshed(self):
 
         Configuration.Logger.info(".....RadialLineOfSightAndRange.test_createViewshed")
 
@@ -134,7 +135,7 @@ class RadialLineOfSightAndRangeTestCase(unittest.TestCase):
         self.assertGreater(donutFeaturesCount, 0, "No output features created for " + str(donutWedgeFC))
         self.assertGreater(pieFeaturesCount, 0, "No output features created for " + str(pieWedgeFC))
 
-    def test_surfaceContainsPoint(self):
+    def _test_surfaceContainsPoint(self):
         '''
         Check if elevation dataset contains the specified point
         '''
@@ -148,7 +149,7 @@ class RadialLineOfSightAndRangeTestCase(unittest.TestCase):
 
         self.assertTrue(pointsIn, 'Points not within Surface as Expected')
 
-    def test_surfaceContainsPointWgs84(self): 
+    def _test_surfaceContainsPointWgs84(self): 
         '''
         Check if elevation dataset contains the specified point not in same SR as surface
         '''
