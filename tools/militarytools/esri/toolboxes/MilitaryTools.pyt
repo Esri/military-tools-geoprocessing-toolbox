@@ -28,6 +28,7 @@ from scripts.ConversionTools import *
 from scripts.DistanceAndDirectionTools import *
 from scripts.GRGTools import *
 from scripts.VisibilityTools import *
+from scripts.VisibilityUtilities import *
 
 ###########################################################
 # Temporary reload code for use during development (so Pro restart not required)
@@ -37,10 +38,12 @@ importlib.reload(scripts.DistanceAndDirectionTools)
 importlib.reload(scripts.ConversionTools)  
 importlib.reload(scripts.GRGTools)  
 importlib.reload(scripts.VisibilityTools)  
+importlib.reload(scripts.VisibilityUtilities)  
 from scripts.DistanceAndDirectionTools import *
 from scripts.ConversionTools import *
 from scripts.GRGTools import *
 from scripts.VisibilityTools import *
+from scripts.VisibilityUtilities import *
 ###########################################################
 
 class Toolbox(object):
@@ -77,6 +80,7 @@ class Toolbox(object):
 					# DistanceAndDirection
 					GenerateRangeRings,
 					GenerateRangeRingsFromTable,
+
 					# OLD/ORIGINAL TOOLS:
 					# RangeRingsFromInterval, 
 					# RangeRingFromMinimumAndMaximum, 
@@ -87,21 +91,11 @@ class Toolbox(object):
 					CreateGRGFromPoint,
 					CreateReferenceSystemGRGFromArea,
 
-					# CreateReferenceSystemGRGFromArea,
-					# NumberFeatures,
-
 					# Visibility
 					FindHighestPoint,
 					FindLowestPoint,
 					FindLocalPeaks,
 					LinearLineOfSight,
-					RadialLineOfSight
-
-					# AddLinearLineOfSightFields,
-					# AddRadialLineOfSightObserverFields,
-					# 
-					# 
-					# 
-					# 
-					# RadialLineOfSightAndRange
+					RadialLineOfSight,
+					RadialLineOfSightAndRange
 					]

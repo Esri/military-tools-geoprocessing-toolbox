@@ -39,6 +39,7 @@
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\ConvertCoordinates.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\DistanceAndDirectionTools.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\FindLocalPeaks.py" />
+    <Compile Include="tools\militarytools\esri\toolboxes\scripts\GRGReferenceGrid.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\GRGTools.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\GRGUtilities.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\HighestPoints.py" />
@@ -47,7 +48,6 @@
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\RadialLineOfSight.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\RadialLineOfSightAndRange.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\RangeRingUtils.py" />
-    <Compile Include="tools\militarytools\esri\toolboxes\scripts\RefGrid.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\TableTo2PointLine.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\TableToEllipse.py" />
     <Compile Include="tools\militarytools\esri\toolboxes\scripts\TableToLineOfBearing.py" />
