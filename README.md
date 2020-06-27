@@ -1,6 +1,6 @@
 # military-tools-geoprocessing-toolbox
 
-The Military Tools for ArcGIS toolbox is an ArcGIS python toolbox supporting defense and intelligence workflows. The toolbox a component of the [Military Tools for ArcGIS product](http://solutions.arcgis.com/defense/help/military-tools/). 
+The Military Tools for ArcGIS toolbox is an ArcGIS Python toolbox supporting defense and intelligence workflows. The toolbox is a component of the [Military Tools for ArcGIS product](http://solutions.arcgis.com/defense/help/military-tools/). 
 
 ![screenshot of tools](m-t-g-t_screenshot_600x400.png)
 
@@ -17,7 +17,7 @@ The Military Tools for ArcGIS toolbox is an ArcGIS python toolbox supporting def
 
 ## Features
 
-The Military Tools for ArcGIS toolbox is an ArcGIS Geoprocessing python toolbox supporting defense and intelligence workflows such as importing geometry from tables, determining ranges, creating gridded reference graphics, providing visibility analysis, and other capabilities.
+The Military Tools for ArcGIS toolbox is an ArcGIS Geoprocessing Python toolbox supporting defense and intelligence workflows such as importing geometry from tables, determining ranges, creating gridded reference graphics, providing visibility analysis, and other capabilities.
 
 ### Contents
 
@@ -25,7 +25,7 @@ The Military Tools for ArcGIS toolbox is an ArcGIS Geoprocessing python toolbox 
 
 ## Requirements
 
-The **Military Tools for ArcGIS** python toolbox (`.pyt`) has the following requirements:
+The **Military Tools for ArcGIS** Python toolbox (`.pyt`) has the following requirements:
 
 * **ArcGIS 10.4.1+ for Desktop**
 
@@ -48,7 +48,7 @@ Additionally there are extensions required to run certain tools:
 
 * To use the tools, clone the repository and open the [Python Toolbox]( ./tools/militarytools/esri/toolboxes)
 * [Instructions for building the package on Conda](./tools/recipe/Readme.md)
-* [Instructions for running the python tests in this repository](./utils/test/Readme.md)
+* [Instructions for running the Python tests in this repository](./utils/test/Readme.md)
 
 ## Issues
 
@@ -71,7 +71,7 @@ Repository specific instructions:
 * Synchronize changes with your branch often
 * When you would like to share your changes:
 	* Pull the recent updates from *dev*
-	* create a **New Pull Request** against the *dev* branch
+	* Create a **New Pull Request** against the *dev* branch
 
 Please see Esri general [guidelines for contributing](https://github.com/esri/contributing).
 
@@ -97,7 +97,7 @@ Contact the [Military Tools team](mailto:defensesolutions@esri.com)
 
 ## Licensing
 
-Copyright 2018 Esri
+Copyright 2018–2020 Esri
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
